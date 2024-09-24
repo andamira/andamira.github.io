@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Cell","LazyCell","OnceCell","Ref","RefCell","RefMut","UnsafeCell"],"trait":["ExtCellOption"]};

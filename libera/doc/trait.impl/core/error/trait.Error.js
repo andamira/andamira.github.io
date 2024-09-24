@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["devela",[["impl <a class=\"trait\" href=\"devela/_dep/bytemuck/__core/error/trait.Error.html\" title=\"trait devela::_dep::bytemuck::__core::error::Error\">Error</a> for <a class=\"enum\" href=\"devela/data/enum.DataError.html\" title=\"enum devela::data::DataError\">DataError</a>"],["impl <a class=\"trait\" href=\"devela/_dep/bytemuck/__core/error/trait.Error.html\" title=\"trait devela::_dep::bytemuck::__core::error::Error\">Error</a> for <a class=\"enum\" href=\"devela/error/enum.NumError.html\" title=\"enum devela::error::NumError\">NumError</a>"],["impl <a class=\"trait\" href=\"devela/_dep/bytemuck/__core/error/trait.Error.html\" title=\"trait devela::_dep::bytemuck::__core::error::Error\">Error</a> for <a class=\"enum\" href=\"devela/error/enum.TextError.html\" title=\"enum devela::error::TextError\">TextError</a>"],["impl <a class=\"trait\" href=\"devela/_dep/bytemuck/__core/error/trait.Error.html\" title=\"trait devela::_dep::bytemuck::__core::error::Error\">Error</a> for <a class=\"enum\" href=\"devela/error/enum.TimeError.html\" title=\"enum devela::error::TimeError\">TimeError</a>"],["impl <a class=\"trait\" href=\"devela/_dep/bytemuck/__core/error/trait.Error.html\" title=\"trait devela::_dep::bytemuck::__core::error::Error\">Error</a> for <a class=\"enum\" href=\"devela/sys/enum.BenchError.html\" title=\"enum devela::sys::BenchError\">BenchError</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[1391]}
