@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["_all","_dep","_info","code","data","error","mem","num","sys","text","work"]};
+window.SIDEBAR_ITEMS = {"macro":["does_impl"],"mod":["_dep","_info","all","code","data","error","mem","num","rend","sys","text","work"]};

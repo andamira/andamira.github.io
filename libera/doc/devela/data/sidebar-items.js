@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["DataError"],"macro":["bitfield"],"mod":["collections","dst","hash","id","iter"],"struct":["Bitwise","Sort"],"trait":["BitOps"],"type":["DataResult"]};
+window.SIDEBAR_ITEMS = {"enum":["DataError"],"macro":["bitfield"],"mod":["collections","dst","hash","id","iter","serde"],"struct":["Bitwise","Sort"],"trait":["BitOps"],"type":["DataResult"]};

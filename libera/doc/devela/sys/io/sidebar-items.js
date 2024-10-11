@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["IoErrorKind"],"fn":["io_copy","io_empty","io_read_to_string","io_repeat","io_sink","io_stderr","io_stdin","io_stdout"],"struct":["IoBufReader","IoBufWriter","IoBytes","IoChain","IoCursor","IoError","IoLineWriter","IoTake"],"trait":["IoBufRead","IoRead","IoSeek","IoWrite"],"type":["IoResult"]};

@@ -306,20 +306,7 @@
 <a href="#275" id="275">275</a>
 <a href="#276" id="276">276</a>
 <a href="#277" id="277">277</a>
-<a href="#278" id="278">278</a>
-<a href="#279" id="279">279</a>
-<a href="#280" id="280">280</a>
-<a href="#281" id="281">281</a>
-<a href="#282" id="282">282</a>
-<a href="#283" id="283">283</a>
-<a href="#284" id="284">284</a>
-<a href="#285" id="285">285</a>
-<a href="#286" id="286">286</a>
-<a href="#287" id="287">287</a>
-<a href="#288" id="288">288</a>
-<a href="#289" id="289">289</a>
-<a href="#290" id="290">290</a>
-<a href="#291" id="291">291</a></pre></div><pre class="rust"><code><span class="comment">// devela::mem::size::bit
+<a href="#278" id="278">278</a></pre></div><pre class="rust"><code><span class="comment">// devela::mem::size::bit
 //
 </span><span class="doccomment">//! Functionality related to memory bit size.
 </span><span class="comment">//
@@ -340,7 +327,7 @@
         },
         time::Duration,
     },
-    mem::{BareBox, ByteSized},
+    mem::{bytes_from_bits, BareBox, ByteSized},
 };
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span>std::{
@@ -364,33 +351,20 @@
 <span class="attr">#[cfg(feature = <span class="string">"_string_nonul"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::text::{GraphemeNonul, StringNonul};
 
-<span class="attr">#[cfg(feature = <span class="string">"portable-atomic"</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"dep_portable_atomic"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::_dep::portable_atomic::{AtomicF32, AtomicF64, AtomicI128, AtomicU128};
 <span class="attr">#[cfg(feature = <span class="string">"work"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::work::{AtomicBool, AtomicOrdering};
-<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"portable-atomic"</span>, target_has_atomic = <span class="string">"16"</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"16"</span>)))]
 </span><span class="kw">use </span><span class="kw">crate</span>::work::{AtomicI16, AtomicU16};
-<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"portable-atomic"</span>, target_has_atomic = <span class="string">"32"</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"32"</span>)))]
 </span><span class="kw">use </span><span class="kw">crate</span>::work::{AtomicI32, AtomicU32};
-<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"portable-atomic"</span>, target_has_atomic = <span class="string">"64"</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"64"</span>)))]
 </span><span class="kw">use </span><span class="kw">crate</span>::work::{AtomicI64, AtomicU64};
-<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"portable-atomic"</span>, target_has_atomic = <span class="string">"8"</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"8"</span>)))]
 </span><span class="kw">use </span><span class="kw">crate</span>::work::{AtomicI8, AtomicU8};
-<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"portable-atomic"</span>, target_has_atomic = <span class="string">"ptr"</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"ptr"</span>)))]
 </span><span class="kw">use </span><span class="kw">crate</span>::work::{AtomicIsize, AtomicPtr, AtomicUsize};
-
-<span class="comment">/* fn definitions */
-
-</span><span class="doccomment">/// Returns the rounded up size in bytes from a size in bits.
-</span><span class="attr">#[must_use]
-#[inline]
-</span><span class="kw">pub const fn </span>bytes_from_bits(bit_size: usize) -&gt; usize {
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = bit_size.checked_add(<span class="number">8 </span>- <span class="number">1</span>) {
-        t / <span class="number">8
-    </span>} <span class="kw">else </span>{
-        usize::MAX / <span class="number">8
-    </span>}
-}
 
 <span class="comment">/* trait definition */
 
@@ -483,9 +457,9 @@
 
         <span class="macro">bit_sized!</span>[= <span class="macro-nonterminal">$PTR_BITS</span>; <span class="kw">for </span>NonZeroIsize, NonZeroUsize];
 
-        <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"portable-atomic"</span>, target_has_atomic = <span class="string">"ptr"</span>)))]
+        <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"ptr"</span>)))]
         </span><span class="macro">bit_sized!</span>[= <span class="macro-nonterminal">$PTR_BITS</span>; <span class="kw">for </span>AtomicIsize, AtomicUsize];
-        <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"portable-atomic"</span>, target_has_atomic = <span class="string">"ptr"</span>)))]
+        <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"ptr"</span>)))]
         </span><span class="macro">bit_sized!</span>[&lt;T&gt; = <span class="macro-nonterminal">$PTR_BITS</span>; <span class="kw">for </span>AtomicPtr&lt;T&gt;];
 
         <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
@@ -560,19 +534,19 @@
 </span><span class="macro">bit_sized!</span>[= <span class="number">1</span>; <span class="kw">for </span>AtomicBool];
 <span class="attr">#[cfg(feature = <span class="string">"work"</span>)]
 </span><span class="macro">bit_sized!</span>[= <span class="number">8</span>; <span class="kw">for </span>AtomicOrdering];
-<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"portable-atomic"</span>, target_has_atomic = <span class="string">"8"</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"8"</span>)))]
 </span><span class="macro">bit_sized!</span>[= <span class="number">8</span>; <span class="kw">for </span>AtomicI8, AtomicU8];
-<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"portable-atomic"</span>, target_has_atomic = <span class="string">"16"</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"16"</span>)))]
 </span><span class="macro">bit_sized!</span>[= <span class="number">16</span>; <span class="kw">for </span>AtomicI16, AtomicU16];
-<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"portable-atomic"</span>, target_has_atomic = <span class="string">"32"</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"32"</span>)))]
 </span><span class="macro">bit_sized!</span>[= <span class="number">32</span>; <span class="kw">for </span>AtomicI32, AtomicU32];
-<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"portable-atomic"</span>, target_has_atomic = <span class="string">"64"</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"64"</span>)))]
 </span><span class="macro">bit_sized!</span>[= <span class="number">64</span>; <span class="kw">for </span>AtomicI64, AtomicU64];
-<span class="attr">#[cfg(feature = <span class="string">"portable-atomic"</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"dep_portable_atomic"</span>)]
 </span><span class="macro">bit_sized!</span>[= <span class="number">32</span>; <span class="kw">for </span>AtomicF32];
-<span class="attr">#[cfg(feature = <span class="string">"portable-atomic"</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"dep_portable_atomic"</span>)]
 </span><span class="macro">bit_sized!</span>[= <span class="number">64</span>; <span class="kw">for </span>AtomicF64];
-<span class="attr">#[cfg(feature = <span class="string">"portable-atomic"</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"dep_portable_atomic"</span>)]
 </span><span class="macro">bit_sized!</span>[= <span class="number">128</span>; <span class="kw">for </span>AtomicI128, AtomicU128];
 
 <span class="attr">#[cfg(feature = <span class="string">"_string_nonul"</span>)]

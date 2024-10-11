@@ -149,9 +149,13 @@
 <a href="#118" id="118">118</a>
 <a href="#119" id="119">119</a>
 <a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a></pre></div><pre class="rust"><code><span class="comment">// devela::code::cdbg
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a></pre></div><pre class="rust"><code><span class="comment">// devela::code::cdbg
 //
-</span><span class="doccomment">//!
+</span><span class="doccomment">//! Custom debug macro.
 </span><span class="comment">//
 
 </span><span class="doccomment">/// *`c`ustomizable [`dbg!`]* macro.
@@ -166,6 +170,8 @@
 /// let a = vec![1, 2, 3];
 ///
 /// let _ = cdbg![&amp;a];
+/// let _ = cdbg![@ &amp;a];
+/// let _ = cdbg![0@ &amp;a];
 /// //      ^-- prints: &amp;a = [1, 2, 3]
 /// let _ = cdbg![1@ &amp;a];
 /// //      ^-- prints: [main.rs:6:10] &amp;a = [1, 2, 3]
@@ -189,17 +195,19 @@
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"std"</span>)))]
 #[cfg_attr(cargo_primary_package, doc(hidden))]
 </span><span class="macro">macro_rules!</span> cdbg {
-    (
-     <span class="comment">// doesn't show the location (pretty-print)
+    <span class="comment">// has to be the first arm
+    </span>(
+     <span class="comment">// shows no location (pretty-print)                            cdbg![# x];
      </span># <span class="macro-nonterminal">$v</span>:expr $(,)<span class="question-mark">?</span>) =&gt; { <span class="kw">match </span><span class="macro-nonterminal">$v </span>{ v =&gt; { <span class="macro">eprintln!</span>(<span class="string">"{} = {:#?}"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$v</span>), <span class="kw-2">&amp;</span>v); v } } };
     (# $(<span class="macro-nonterminal">$v</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; { ($(<span class="macro-nonterminal">$</span><span class="macro">crate::code::cdbg!</span>[# <span class="macro-nonterminal">$v</span>]),+,) };
     (
-     <span class="comment">// doesn't show the location
-     </span><span class="macro-nonterminal">$v</span>:expr $(,)<span class="question-mark">?</span>) =&gt; { <span class="kw">match </span><span class="macro-nonterminal">$v </span>{ v =&gt; { <span class="macro">eprintln!</span>(<span class="string">"{} = {:?}"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$v</span>), <span class="kw-2">&amp;</span>v); v } } };
+     <span class="comment">// shows no location                                           cdbg![x];
+     //                                                             cdbg![@ x];
+     </span>$(@)<span class="question-mark">? </span><span class="macro-nonterminal">$v</span>:expr $(,)<span class="question-mark">?</span>) =&gt; { <span class="kw">match </span><span class="macro-nonterminal">$v </span>{ v =&gt; { <span class="macro">eprintln!</span>(<span class="string">"{} = {:?}"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$v</span>), <span class="kw-2">&amp;</span>v); v } } };
     ($(<span class="macro-nonterminal">$v</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; { ($(<span class="macro-nonterminal">$</span><span class="macro">crate::code::cdbg!</span>[<span class="macro-nonterminal">$v</span>]),+,) };
     (
 
-     <span class="comment">// shows the last $n location components
+     <span class="comment">// shows the last $n location components                       cdbg![1@ x];
      // ($n=0 no location, $n=1 just the filename)
      </span><span class="macro-nonterminal">$n</span>:literal @ <span class="macro-nonterminal">$v</span>:expr $(,)<span class="question-mark">?</span>) =&gt; {{
         <span class="kw">if </span><span class="macro-nonterminal">$</span><span class="macro">crate::code::cif!</span>(<span class="macro-nonterminal">diff</span>(<span class="macro-nonterminal">$n</span>, <span class="number">0</span>)) {
@@ -217,7 +225,7 @@
             new_path.push(c.as_os_str()); }
         <span class="macro">eprintln!</span>(<span class="string">"[{}:{}:{}]"</span>, new_path.display(), <span class="macro">line!</span>(), <span class="macro">column!</span>())
     }};
-    ( <span class="comment">// shows the last $n location components (pretty-print)
+    (<span class="comment">// (pretty-print)                                              cdbg![1# x];
      </span><span class="macro-nonterminal">$n</span>:literal # <span class="macro-nonterminal">$v</span>:expr $(,)<span class="question-mark">?</span>) =&gt; {{
         <span class="kw">if </span><span class="macro-nonterminal">$</span><span class="macro">crate::code::cif!</span>(<span class="macro-nonterminal">diff</span>(<span class="macro-nonterminal">$n</span>, <span class="number">0</span>)) {
             <span class="kw">let </span>(path, <span class="kw-2">mut </span>new_path) = (std::path::Path::new(<span class="macro">file!</span>()), std::path::PathBuf::new());
@@ -236,14 +244,14 @@
     }};
     (
 
-     <span class="comment">// shows the full path location
+     <span class="comment">// shows the full path location                                cdbg![f@ x];
      </span>f @ <span class="macro-nonterminal">$v</span>:expr $(,)<span class="question-mark">?</span>) =&gt; {{
         <span class="macro">eprint!</span>(<span class="string">"[{}:{}:{}] "</span>, <span class="macro">file!</span>(), <span class="macro">line!</span>(), <span class="macro">column!</span>());
         <span class="macro-nonterminal">$</span><span class="macro">crate::code::cdbg!</span>[<span class="macro-nonterminal">$v</span>]
     }};
     (f @ $(<span class="macro-nonterminal">$v</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; { ($(<span class="macro-nonterminal">$</span><span class="macro">crate::code::cdbg!</span>[<span class="macro-nonterminal">f </span>@ <span class="macro-nonterminal">$v</span>]),+,) };
     (f @) =&gt; { <span class="macro">eprintln!</span>(<span class="string">"[{}:{}:{}]"</span>, <span class="macro">file!</span>(), <span class="macro">line!</span>(), <span class="macro">column!</span>()) };
-    ( <span class="comment">// shows the full path location (pretty-print) (same as `dbg!`)
+    (<span class="comment">// (pretty-print) (equivalent to `dbg!`)                       cdbg![f# x];
      </span>f # <span class="macro-nonterminal">$v</span>:expr $(,)<span class="question-mark">?</span>) =&gt; {{
         <span class="macro">eprint!</span>(<span class="string">"[{}:{}:{}] "</span>, <span class="macro">file!</span>(), <span class="macro">line!</span>(), <span class="macro">column!</span>());
         <span class="macro-nonterminal">$</span><span class="macro">crate::code::cdbg!</span>[# <span class="macro-nonterminal">$v</span>]
@@ -251,14 +259,14 @@
     (f # $(<span class="macro-nonterminal">$v</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; { ($(<span class="macro-nonterminal">$</span><span class="macro">crate::code::cdbg!</span>[<span class="macro-nonterminal">f </span># <span class="macro-nonterminal">$v</span>]),+,) };
     (f #) =&gt; { <span class="macro">eprintln!</span>(<span class="string">"[{}:{}:{}]"</span>, <span class="macro">file!</span>(), <span class="macro">line!</span>(), <span class="macro">column!</span>()) };
     (
-     <span class="comment">// shows the full path location in a separate line
+     <span class="comment">// shows the full path location in a separate line             cdbg![fln@ x];
      </span>fln @ <span class="macro-nonterminal">$v</span>:expr $(,)<span class="question-mark">?</span>) =&gt; {{
         <span class="macro">eprintln!</span>(<span class="string">"[{}:{}:{}]"</span>, <span class="macro">file!</span>(), <span class="macro">line!</span>(), <span class="macro">column!</span>());
         <span class="macro-nonterminal">$</span><span class="macro">crate::code::cdbg!</span>[<span class="macro-nonterminal">$v</span>]
     }};
     (fln @ $(<span class="macro-nonterminal">$v</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; { ($(<span class="macro-nonterminal">$</span><span class="macro">crate::code::cdbg!</span>[<span class="macro-nonterminal">fln </span>@ <span class="macro-nonterminal">$v</span>]),+,) };
     (fln @) =&gt; { <span class="macro">eprintln!</span>(<span class="string">"[{}:{}:{}]"</span>, <span class="macro">file!</span>(), <span class="macro">line!</span>(), <span class="macro">column!</span>()) };
-    ( <span class="comment">// shows the full path location in a separate line (pretty-print)
+    (<span class="comment">// (pretty-print)                                              cdbg![fln# x];
      </span>fln # <span class="macro-nonterminal">$v</span>:expr $(,)<span class="question-mark">?</span>) =&gt; {{
         <span class="macro">eprintln!</span>(<span class="string">"[{}:{}:{}]"</span>, <span class="macro">file!</span>(), <span class="macro">line!</span>(), <span class="macro">column!</span>());
         <span class="macro-nonterminal">$</span><span class="macro">crate::code::cdbg!</span>[# <span class="macro-nonterminal">$v</span>]

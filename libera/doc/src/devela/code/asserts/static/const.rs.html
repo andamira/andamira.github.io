@@ -117,23 +117,15 @@
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a></pre></div><pre class="rust"><code><span class="comment">// devela::code::asserts::static::const
+<a href="#89" id="89">89</a></pre></div><pre class="rust"><code><span class="comment">// devela::code::asserts::static::const
 //
 </span><span class="doccomment">//! Compile-time assertions.
 </span><span class="comment">//
-// - TEST const_assert_eq_usize
-// - understand what @build does exactly
-//
-// TODO:
 
 </span><span class="doccomment">/// Asserts various comparisons on constants.
 </span><span class="attr">#[macro_export]
 #[cfg_attr(cargo_primary_package, doc(hidden))]
-</span><span class="macro">macro_rules!</span> const_assert {
+</span><span class="macro">macro_rules!</span> assert_const {
     (
         <span class="comment">// Asserts that a single expression evaluates to `true`.
         </span><span class="macro-nonterminal">$x</span>:expr $(,)<span class="question-mark">?</span>) =&gt; {
@@ -142,7 +134,7 @@
     (
         <span class="comment">// Asserts that constants are equal in value.
         </span>eq <span class="macro-nonterminal">$x</span>:expr, $(<span class="macro-nonterminal">$y</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro">crate::code::const_assert!</span>($(<span class="macro-nonterminal">$x </span>== <span class="macro-nonterminal">$y</span>)&amp;&amp;+);
+        <span class="macro-nonterminal">$</span><span class="macro">crate::code::assert_const!</span>($(<span class="macro-nonterminal">$x </span>== <span class="macro-nonterminal">$y</span>)&amp;&amp;+);
     };
     (
         <span class="comment">// Asserts that constants of type `usize` are equal in value.
@@ -153,65 +145,65 @@
     (
         <span class="comment">// Asserts that constants are not equal in value.
         </span>ne <span class="macro-nonterminal">$x</span>:expr, $(<span class="macro-nonterminal">$y</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro">crate::code::const_assert!</span>($(<span class="macro-nonterminal">$x </span>!= <span class="macro-nonterminal">$y</span>)&amp;&amp;+);
+        <span class="macro-nonterminal">$</span><span class="macro">crate::code::assert_const!</span>($(<span class="macro-nonterminal">$x </span>!= <span class="macro-nonterminal">$y</span>)&amp;&amp;+);
     };
    (
         <span class="comment">// Asserts that constants are less than each other.
         </span>lt <span class="macro-nonterminal">$x</span>:expr, $(<span class="macro-nonterminal">$y</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro">crate::code::const_assert!</span>(@<span class="macro-nonterminal">build $x</span>, $(<span class="macro-nonterminal">$y</span>),+; &lt;);
+        <span class="macro-nonterminal">$</span><span class="macro">crate::code::assert_const!</span>(@<span class="macro-nonterminal">build $x</span>, $(<span class="macro-nonterminal">$y</span>),+; &lt;);
     };
     (
         <span class="comment">// Asserts that constants are less than or equal to each other.
         </span>le <span class="macro-nonterminal">$x</span>:expr, $(<span class="macro-nonterminal">$y</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro">crate::code::const_assert!</span>(@<span class="macro-nonterminal">build $x</span>, $(<span class="macro-nonterminal">$y</span>),+; &lt;=);
+        <span class="macro-nonterminal">$</span><span class="macro">crate::code::assert_const!</span>(@<span class="macro-nonterminal">build $x</span>, $(<span class="macro-nonterminal">$y</span>),+; &lt;=);
     };
     (
         <span class="comment">// Asserts that constants are greater than each other.
         </span>gt <span class="macro-nonterminal">$x</span>:expr, $(<span class="macro-nonterminal">$y</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro">crate::code::const_assert!</span>(@<span class="macro-nonterminal">build $x</span>, $(<span class="macro-nonterminal">$y</span>),+; &gt;);
+        <span class="macro-nonterminal">$</span><span class="macro">crate::code::assert_const!</span>(@<span class="macro-nonterminal">build $x</span>, $(<span class="macro-nonterminal">$y</span>),+; &gt;);
     };
     (
         <span class="comment">// Asserts that constants are greater than or equal to each other.
         </span>ge <span class="macro-nonterminal">$x</span>:expr, $(<span class="macro-nonterminal">$y</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro">crate::code::const_assert!</span>(@<span class="macro-nonterminal">build $x</span>, $(<span class="macro-nonterminal">$y</span>),+; &gt;=);
+        <span class="macro-nonterminal">$</span><span class="macro">crate::code::assert_const!</span>(@<span class="macro-nonterminal">build $x</span>, $(<span class="macro-nonterminal">$y</span>),+; &gt;=);
     };
 
-    <span class="comment">/* private arms */
-
-    // receives the expressions and the operator, and performs the appropriate comparison.
+    <span class="comment">// receives the expressions and the operator, and performs the appropriate comparison.
     </span>(
-        @build <span class="macro-nonterminal">$x</span>:expr, $(<span class="macro-nonterminal">$y</span>:expr),+; <span class="macro-nonterminal">$op</span>:tt) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro">crate::code::const_assert!</span>(<span class="macro-nonterminal">$x $op $</span><span class="macro">crate::code::capture_first!</span>(<span class="macro-nonterminal">expr </span>$(<span class="macro-nonterminal">$y</span>),+));
-        <span class="macro-nonterminal">$</span><span class="macro">crate::code::const_assert!</span>(@<span class="macro-nonterminal">build </span>$(<span class="macro-nonterminal">$y</span>),+; <span class="macro-nonterminal">$op</span>);
+    <span class="comment">/* private arms*/
+
+        </span>@build <span class="macro-nonterminal">$x</span>:expr, $(<span class="macro-nonterminal">$y</span>:expr),+; <span class="macro-nonterminal">$op</span>:tt) =&gt; {
+        <span class="macro-nonterminal">$</span><span class="macro">crate::code::assert_const!</span>(<span class="macro-nonterminal">$x $op $</span><span class="macro">crate::code::capture_first!</span>(<span class="macro-nonterminal">expr </span>$(<span class="macro-nonterminal">$y</span>),+));
+        <span class="macro-nonterminal">$</span><span class="macro">crate::code::assert_const!</span>(@<span class="macro-nonterminal">build </span>$(<span class="macro-nonterminal">$y</span>),+; <span class="macro-nonterminal">$op</span>);
     };
     <span class="comment">// terminates recursion when there’s only one expression left.
     </span>(
         @build <span class="macro-nonterminal">$x</span>:expr; <span class="macro-nonterminal">$op</span>:tt) =&gt; {};
 }
 <span class="attr">#[doc(inline)]
-</span><span class="kw">pub use </span>const_assert;
+</span><span class="kw">pub use </span>assert_const;
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">pub use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
-    </span><span class="kw">const fn </span>const_assert() {
-        <span class="macro">const_assert!</span>(<span class="bool-val">true </span>&amp;&amp; (<span class="bool-val">true </span>!= <span class="bool-val">false</span>));
-        <span class="macro">const_assert!</span>((<span class="bool-val">true </span>&amp;&amp; <span class="bool-val">true</span>) != <span class="bool-val">false</span>);
-        <span class="macro">const_assert!</span>(eq <span class="bool-val">false</span>, <span class="bool-val">false</span>);
-        <span class="macro">const_assert!</span>(ne <span class="bool-val">true</span>, <span class="bool-val">false</span>);
+    </span><span class="kw">const fn </span>assert_const() {
+        <span class="macro">assert_const!</span>(<span class="bool-val">true </span>&amp;&amp; (<span class="bool-val">true </span>!= <span class="bool-val">false</span>));
+        <span class="macro">assert_const!</span>((<span class="bool-val">true </span>&amp;&amp; <span class="bool-val">true</span>) != <span class="bool-val">false</span>);
+        <span class="macro">assert_const!</span>(eq <span class="bool-val">false</span>, <span class="bool-val">false</span>);
+        <span class="macro">assert_const!</span>(ne <span class="bool-val">true</span>, <span class="bool-val">false</span>);
 
         <span class="attr">#[allow(dead_code)]
         </span><span class="kw">const </span>FIVE: usize = <span class="number">5</span>;
 
-        <span class="macro">const_assert!</span>(FIVE * <span class="number">2 </span>== <span class="number">10</span>);
-        <span class="macro">const_assert!</span>(FIVE &gt; <span class="number">2</span>);
+        <span class="macro">assert_const!</span>(FIVE * <span class="number">2 </span>== <span class="number">10</span>);
+        <span class="macro">assert_const!</span>(FIVE &gt; <span class="number">2</span>);
 
-        <span class="macro">const_assert!</span>(le <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>);
-        <span class="macro">const_assert!</span>(lt <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);
-        <span class="macro">const_assert!</span>(ge <span class="number">4</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">1</span>);
-        <span class="macro">const_assert!</span>(gt <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>);
+        <span class="macro">assert_const!</span>(le <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>);
+        <span class="macro">assert_const!</span>(lt <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);
+        <span class="macro">assert_const!</span>(ge <span class="number">4</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">1</span>);
+        <span class="macro">assert_const!</span>(gt <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>);
     }
 }
 </code></pre></div></section></main></body></html>

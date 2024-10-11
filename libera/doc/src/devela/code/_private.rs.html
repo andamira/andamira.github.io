@@ -443,16 +443,73 @@
 <a href="#412" id="412">412</a>
 <a href="#413" id="413">413</a>
 <a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a></pre></div><pre class="rust"><code><span class="comment">// devela::code::_private
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a></pre></div><pre class="rust"><code><span class="comment">// devela::code::_private
 //
 </span><span class="doccomment">//! private meta helpers
 </span><span class="comment">//
 // TOC
 // - reexport!
-// - doc_extends!
-// - namespace_fn!
+// - doc_!
+// - doc_availability!
+// - doc_miri_warn!
 
 </span><span class="doccomment">/// Macro helper for documentation of re-exported items.
+</span><span class="comment">//
+// FIX: unresolved link to `alloc`.
+// IMPROVE: rendered paths with trailing `::`. E.g.:
+// - Re-exported from std::backtrace:: .
+// - Re-exported from [alloc]::boxed:: .
+// - Re-exported from core::array:: IntoIter→ArrayIntoIter.
+// MAYBE: new branch for: either a crate or core (for portable-atomic types).
 </span><span class="macro">macro_rules!</span> reexport {
     <span class="comment">/* re-exports from normal modules */
 
@@ -507,7 +564,7 @@
       $(,)<span class="question-mark">?
     </span>) =&gt; { <span class="macro-nonterminal">$</span><span class="macro">crate::code::paste!</span> {
         <span class="attr">#[<span class="macro-nonterminal">doc</span>(inline)]
-        #[allow(rustdoc::broken_intra_doc_links)] </span><span class="comment">// TEMP FIXME unresolved link to alloc
+        #[allow(rustdoc::broken_intra_doc_links)] </span><span class="comment">// TEMP FIX unresolved link to alloc
         </span><span class="attr">#[doc = <span class="string">"&lt;span class='stab portability' title='re-exported from rust&amp;#39;s "
         "`alloc`'&gt;`alloc`&lt;/span&gt;"</span>]
         #[doc = <span class="macro-nonterminal">$description</span>]
@@ -640,31 +697,44 @@
     }};
 
     <span class="comment">// Re-exports an optional crate
-    </span>(optional_crate <span class="macro-nonterminal">$dep_str</span>:literal | <span class="macro-nonterminal">$dep</span>:ident,
+    //
+    // $dep_feat:    the dependency feature
+    // $dep_name:    the dependency name
+    // $dep_mod:     the dependency module
+    // $description: the dependency decription
+    // $f:           additional features needed
+    </span>(optional_crate <span class="macro-nonterminal">$dep_feat</span>:literal, <span class="macro-nonterminal">$dep_name</span>:literal, <span class="macro-nonterminal">$dep_mod</span>:ident,
      doc: <span class="macro-nonterminal">$description</span>:literal
      $(, features: $( <span class="macro-nonterminal">$f</span>:literal ),+ )<span class="question-mark">?
     </span>) =&gt; { <span class="macro-nonterminal">$</span><span class="macro">crate::code::paste!</span> {
-        <span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="string">"&lt;span class='stab portability' title='re-exported `" </span><span class="macro-nonterminal">$dep_str
-            </span><span class="string">"`'&gt;`" </span><span class="macro-nonterminal">$dep_str </span><span class="string">"`&lt;/span&gt;"</span>]
+        <span class="attr">#[<span class="macro-nonterminal">doc </span>= <span class="string">"&lt;span class='stab portability' title='re-exported `" </span><span class="macro-nonterminal">$dep_name
+            </span><span class="string">"`'&gt;`" </span><span class="macro-nonterminal">$dep_name </span><span class="string">"`&lt;/span&gt;"</span>]
         #[doc = <span class="macro-nonterminal">$description </span><span class="string">"\n\n---" </span>]
         #[cfg_attr(
             feature = <span class="string">"nightly_doc"</span>,
             doc(cfg(all(
-                feature = <span class="macro-nonterminal">$dep_str </span>$(, $(feature = <span class="macro-nonterminal">$f</span>)+ )<span class="question-mark">?
+                feature = <span class="macro-nonterminal">$dep_feat </span>$(, $(feature = <span class="macro-nonterminal">$f</span>)+ )<span class="question-mark">?
             </span>)))
         )]
-        #[cfg(any(
-            all(feature = <span class="macro-nonterminal">$dep_str </span>$(, $(feature = <span class="macro-nonterminal">$f</span>),+ )<span class="question-mark">? </span>)
-        ))]
+        #[cfg(all(feature = <span class="macro-nonterminal">$dep_feat </span>$(, $(feature = <span class="macro-nonterminal">$f</span>),+ )<span class="question-mark">? </span>))]
         #[doc(inline)]
-        </span><span class="kw">pub use </span>::<span class="macro-nonterminal">$dep</span>;
+        </span><span class="kw">pub use </span>::<span class="macro-nonterminal">$dep_mod</span>;
     }};
 
     <span class="comment">// re-exports items from an external optional dependency, from any normal module.
     //
     // - Supports multiple re-exported items.
     // - Renamed items must be all at the end, and each one prefixed with @.
-    </span>( <span class="macro-nonterminal">$dep_str</span>:literal | <span class="macro-nonterminal">$dep</span>:ident $( :: <span class="macro-nonterminal">$dep_path</span>:path)<span class="question-mark">?</span>,
+    //
+    // $dep_feat:    the dependency feature
+    // $dep_name:    the dependency name
+    // $dep_mod:     the dependency module
+    // $f:           additional features needed
+    // $description: the dependency decription
+    // $item:
+    // $item_to_rename:
+    // $item_renamed:
+    </span>( <span class="macro-nonterminal">$dep_feat</span>:literal, <span class="macro-nonterminal">$dep_name</span>:literal, <span class="macro-nonterminal">$dep_mod</span>:ident $( :: <span class="macro-nonterminal">$dep_path</span>:path)<span class="question-mark">?</span>,
       $( features: $( <span class="macro-nonterminal">$f</span>:literal ),+ ,)<span class="question-mark">?
       </span>doc: <span class="macro-nonterminal">$description</span>:literal,
       $( <span class="macro-nonterminal">$item</span>:ident ),*
@@ -673,10 +743,10 @@
     </span>) =&gt; { <span class="macro-nonterminal">$</span><span class="macro">crate::code::paste!</span> {
         <span class="attr">#[<span class="macro-nonterminal">doc</span>(inline)]
         #[doc = <span class="string">"&lt;span class='stab portability' title='re-exported from `"
-            </span><span class="macro-nonterminal">$dep_str </span><span class="string">"`'&gt;`" </span><span class="macro-nonterminal">$dep_str </span><span class="string">"`&lt;/span&gt;"</span>]
+            </span><span class="macro-nonterminal">$dep_name </span><span class="string">"`'&gt;`" </span><span class="macro-nonterminal">$dep_name </span><span class="string">"`&lt;/span&gt;"</span>]
         #[doc = <span class="macro-nonterminal">$description</span>]
-        #[doc = <span class="string">"\n\n*Re-exported from the [`" </span><span class="macro-nonterminal">$dep_str
-            </span><span class="string">"`](https://docs.rs/" </span><span class="macro-nonterminal">$dep_str </span><span class="string">" ) crate*"</span>]
+        #[doc = <span class="string">"\n\n*Re-exported from the [`" </span><span class="macro-nonterminal">$dep_name
+            </span><span class="string">"`](https://docs.rs/" </span><span class="macro-nonterminal">$dep_name </span><span class="string">" ) crate*"</span>]
 
         #[doc = $(<span class="string">"`" </span><span class="macro-nonterminal">$item_to_rename </span><span class="string">"`→[`" </span><span class="macro-nonterminal">$item_renamed </span><span class="string">"`]"</span>)* <span class="string">".\n\n---"</span>]
 
@@ -688,14 +758,12 @@
         </span><span class="attr">#[cfg_attr(
             feature = <span class="string">"nightly_doc"</span>,
             doc(cfg(all(
-                feature = <span class="macro-nonterminal">$dep_str </span>$(, $(feature = <span class="macro-nonterminal">$f</span>)+ )<span class="question-mark">?
+                feature = <span class="macro-nonterminal">$dep_feat </span>$(, $(feature = <span class="macro-nonterminal">$f</span>)+ )<span class="question-mark">?
             </span>)))
         )]
 
-        #[cfg(any(
-            all(feature = <span class="macro-nonterminal">$dep_str </span>$(, $(feature = <span class="macro-nonterminal">$f</span>),+ )<span class="question-mark">? </span>)
-        ))]
-        </span><span class="kw">pub use </span><span class="kw">crate</span>::_dep::<span class="macro-nonterminal">$dep </span>$( ::<span class="macro-nonterminal">$dep_path </span>)<span class="question-mark">? </span>:: {
+        #[cfg(all(feature = <span class="macro-nonterminal">$dep_feat </span>$(, $(feature = <span class="macro-nonterminal">$f</span>),+ )<span class="question-mark">? </span>))]
+        </span><span class="kw">pub use </span><span class="kw">crate</span>::_dep::<span class="macro-nonterminal">$dep_mod </span>$( ::<span class="macro-nonterminal">$dep_path </span>)<span class="question-mark">? </span>:: {
             $( <span class="macro-nonterminal">$item </span>),*
             $( <span class="macro-nonterminal">$item_to_rename </span><span class="kw">as </span><span class="macro-nonterminal">$item_renamed </span>),*
         };
@@ -735,34 +803,63 @@
             $( <span class="macro-nonterminal">$item_to_rename </span><span class="kw">as </span><span class="macro-nonterminal">$item_renamed </span>),*
         };
     }};
-
-    <span class="comment">// TODO: new branch for: either a crate or core (for portable-atomic types)
-</span>}
+}
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>reexport;
 
-<span class="comment">// Generates a formatted documentation string for Rust modules,
-// including a list of standard library modules it extends.
-</span><span class="macro">macro_rules!</span> doc_extends {
-    ($(<span class="macro-nonterminal">$</span><span class="kw">mod</span>:<span class="macro-nonterminal">ident</span>),+ $(,)<span class="question-mark">?</span>) =&gt; {
+<span class="comment">// Generates a formatted meta-documentation string.
+</span><span class="macro">macro_rules!</span> doc_ {
+    (@meta_start) =&gt; { <span class="string">"&lt;br/&gt;&lt;i style='margin-left:0.618em;'&gt;&lt;/i&gt;&lt;small style='color:#777'&gt;" </span>};
+    (@meta_end) =&gt; { <span class="string">"&lt;/small&gt;" </span>};
+    (newline) =&gt; { <span class="string">"&lt;br/&gt;&lt;br/&gt;" </span>};
+
+    <span class="comment">/* list of submodules */
+
+    </span>(modules: <span class="macro-nonterminal">$path</span>:path; <span class="macro-nonterminal">$self</span>:ident) =&gt; {
         <span class="macro">concat!</span>(
-            <span class="comment">// "&lt;small&gt;Extends ",
-            </span><span class="string">"&lt;br/&gt;&lt;i style='margin-left:0.618em;'&gt;&lt;/i&gt;&lt;small style='color:#999'&gt;Extends "</span>,
-            <span class="string">"`std::{`"</span>, <span class="macro">crate::code::doc_extends!</span>(@inner $(<span class="macro-nonterminal">$</span><span class="kw">mod</span>),+), <span class="string">"`}`"</span>,
-            <span class="string">"&lt;/small&gt;"
-        </span>)
+            <span class="macro">crate::code::doc_!</span>(@meta_start), <span class="string">"Modules: "</span>,
+            <span class="string">"[`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$self</span>), <span class="string">"`][mod@"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$path</span>), <span class="string">"::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$self</span>), <span class="string">"]"</span>,
+            <span class="macro">crate::code::doc_!</span>(@meta_end),
+        )
+    };
+    (modules: <span class="macro-nonterminal">$path</span>:path; <span class="macro-nonterminal">$self</span>:ident: $(<span class="macro-nonterminal">$</span><span class="kw">mod</span>:<span class="macro-nonterminal">ident</span>),+ $(,)<span class="question-mark">?</span>) =&gt; {
+        <span class="macro">concat!</span>(
+            <span class="macro">crate::code::doc_!</span>(@meta_start), <span class="string">"Modules: "</span>,
+            <span class="string">"[`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$self</span>), <span class="string">"`][mod@"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$path</span>), <span class="string">"::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$self</span>), <span class="string">"]`::{`"</span>,
+            <span class="macro">crate::code::doc_!</span>(@modules: <span class="macro-nonterminal">$path</span>; <span class="macro-nonterminal">$self</span>: $(<span class="macro-nonterminal">$</span><span class="kw">mod</span>),+), <span class="string">"`}`"</span>,
+            <span class="macro">crate::code::doc_!</span>(@<span class="macro-nonterminal">meta_end</span>),
+        )
     };
     <span class="comment">// Handles the list of modules ensuring commas are only added between elements.
-    </span>(@<span class="macro-nonterminal">inner $first</span>:ident $(, <span class="macro-nonterminal">$rest</span>:ident)<span class="kw-2">*</span>) =&gt; {
+    </span>(@modules: <span class="macro-nonterminal">$path</span>:path; <span class="macro-nonterminal">$self</span>:ident: <span class="macro-nonterminal">$first</span>:ident $(, <span class="macro-nonterminal">$rest</span>:ident)<span class="kw-2">*</span>) =&gt; {
         <span class="macro">concat!</span>(
-            <span class="comment">// "[`", stringify!($first), "`]",
-            // $( ", [`", stringify!($rest), "`]" ),*
-            </span><span class="string">"[`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$first</span>), <span class="string">"`](mod@std::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$first</span>), <span class="string">")"</span>,
-            $( <span class="string">", [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$rest</span>), <span class="string">"`](mod@std::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$rest</span>), <span class="string">")" </span>),*
+            <span class="string">"[`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$first</span>), <span class="string">"`]("</span>,
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$path</span>), <span class="string">"::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$self</span>), <span class="string">"::"</span>,
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$first</span>), <span class="string">")"</span>,
+            $(
+                <span class="string">", [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$rest</span>), <span class="string">"`]("</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$path</span>), <span class="string">"::"</span>,
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$self</span>), <span class="string">"::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$rest</span>), <span class="string">")"
+            </span>),*
+        )
+    };
 
+    <span class="comment">/* list of std modules */
+
+    </span>(extends: $(<span class="macro-nonterminal">$</span><span class="kw">mod</span>:<span class="macro-nonterminal">ident</span>),+ $(,)<span class="question-mark">?</span>) =&gt; {
+        <span class="macro">concat!</span>(
+            <span class="macro">crate::code::doc_!</span>(@meta_start), <span class="string">"Extends: "</span>,
+            <span class="string">"`std::{`"</span>, <span class="macro">crate::code::doc_!</span>(@extends: $(<span class="macro-nonterminal">$</span><span class="kw">mod</span>),+), <span class="string">"`}`"</span>,
+            <span class="macro">crate::code::doc_!</span>(@<span class="macro-nonterminal">meta_end</span>),
+        )
+    };
+    <span class="comment">// Handles the list of modules ensuring commas are only added between elements.
+    </span>(@extends: <span class="macro-nonterminal">$first</span>:ident $(, <span class="macro-nonterminal">$rest</span>:ident)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">concat!</span>(
+            <span class="string">"[`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$first</span>), <span class="string">"`](mod@std::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$first</span>), <span class="string">")"</span>,
+            $( <span class="string">", [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$rest</span>), <span class="string">"`](mod@std::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$rest</span>), <span class="string">")" </span>),*
         )
     };
 }
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>doc_extends;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>doc_;
 
 <span class="comment">// Generates a formatted documentation string for conditional availability.
 //
@@ -845,14 +942,15 @@
         <span class="macro">concat!</span>(
             <span class="string">"&lt;span class='stab portability' "</span>,
             <span class="string">"title='Fails to compile under Miri due to potential undefined behavior'&gt;"</span>,
-            <span class="string">"&lt;code&gt;⚠️miri&lt;/code&gt;&lt;/span&gt;"
+            <span class="string">"&lt;code&gt;⚠️&lt;/code&gt;&lt;/span&gt;"
         </span>)
     };
-    (body) =&gt; {
+    (body $(, url: <span class="macro-nonterminal">$url</span>:literal)<span class="question-mark">?</span>) =&gt; {
         <span class="macro">concat!</span>(
             <span class="string">"&lt;div class='warning'&gt;"</span>,
             <span class="string">"Fails to compile under Miri due to potential undefined behavior."</span>,
-            <span class="string">"&lt;/div&gt;"
+            $( <span class="string">"&lt;p&gt;&lt;em&gt;See &lt;a href = '"</span>, <span class="macro-nonterminal">$url</span>, <span class="string">"'&gt;"</span>, <span class="macro-nonterminal">$url</span>, <span class="string">"&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;"</span>, )<span class="question-mark">?
+            </span><span class="string">"&lt;/div&gt;"
         </span>)
     };
 }

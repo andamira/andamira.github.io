@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["linux_getpid","linux_sleep","linux_sys_getpid","linux_sys_nanosleep"],"struct":["LinuxTimespec"]};

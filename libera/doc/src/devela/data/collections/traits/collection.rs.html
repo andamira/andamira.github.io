@@ -259,10 +259,10 @@
 //   - UnorderedMap
 //   - UnorderedSet
 
-</span><span class="attr">#[cfg(all(feature = <span class="string">"alloc"</span>, feature = <span class="string">"hashbrown"</span>))]
-</span><span class="kw">use </span><span class="kw">crate</span>::data::collections::{AllocMap, AllocSet};
-<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::data::collections::{AllocOrdMap, AllocOrdSet, AllocPrioQueue, Vec, VecDeque};
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::data::collections::{BTreeMap, BTreeSet, BinaryHeap, Vec, VecDeque};
+<span class="attr">#[cfg(all(feature = <span class="string">"alloc"</span>, feature = <span class="string">"dep_hashbrown"</span>))]
+</span><span class="kw">use </span><span class="kw">crate</span>::data::collections::{HashMap, HashSet};
 <span class="kw">use crate</span>::{
     data::{Array, DataError <span class="kw">as </span>E, DataResult <span class="kw">as </span><span class="prelude-ty">Result</span>},
     mem::Storage,
@@ -371,7 +371,7 @@
 
 <span class="attr">#[rustfmt::skip]
 #[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">impl</span>&lt;T&gt; DataCollection <span class="kw">for </span>AllocPrioQueue&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T&gt; DataCollection <span class="kw">for </span>BinaryHeap&lt;T&gt; {
     <span class="kw">type </span>Element = T;
     <span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.capacity()) }
     <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len()) }
@@ -385,7 +385,7 @@
 
 <span class="attr">#[rustfmt::skip]
 #[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">impl</span>&lt;K, V&gt; DataCollection <span class="kw">for </span>AllocOrdMap&lt;K, V&gt; {
+</span><span class="kw">impl</span>&lt;K, V&gt; DataCollection <span class="kw">for </span>BTreeMap&lt;K, V&gt; {
     <span class="kw">type </span>Element = V;
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
     </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { E::ns() }
@@ -402,7 +402,7 @@
 }
 <span class="attr">#[rustfmt::skip]
 #[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">impl</span>&lt;V&gt; DataCollection <span class="kw">for </span>AllocOrdSet&lt;V&gt; {
+</span><span class="kw">impl</span>&lt;V&gt; DataCollection <span class="kw">for </span>BTreeSet&lt;V&gt; {
     <span class="kw">type </span>Element = V;
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
     </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { E::ns() }
@@ -410,19 +410,19 @@
     <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.is_empty()) }
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
     </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ns() }
-    <span class="doccomment">/// This is less efficent than [`AllocOrdSet::contains`] for not having [`Ord`].
+    <span class="doccomment">/// This is less efficent than [`BTreeSet::contains`] for not having [`Ord`].
     </span><span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; <span class="kw">where </span>V: PartialEq {
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.iter().any(|value| <span class="kw-2">*</span>value == element))
     }
-    <span class="doccomment">/// This is less efficent than [`AllocOrdSet::contains`] for not having [`Ord`].
+    <span class="doccomment">/// This is less efficent than [`BTreeSet::contains`] for not having [`Ord`].
     </span><span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; <span class="kw">where </span>V: PartialEq {
         <span class="prelude-val">Ok</span>(usize::from(<span class="self">self</span>.iter().any(|e| e == element)))
     }
 }
 
 <span class="attr">#[rustfmt::skip]
-#[cfg(all(feature = <span class="string">"alloc"</span>, feature = <span class="string">"hashbrown"</span>))]
-</span><span class="kw">impl</span>&lt;K, V&gt; DataCollection <span class="kw">for </span>AllocMap&lt;K, V&gt; {
+#[cfg(all(feature = <span class="string">"alloc"</span>, feature = <span class="string">"dep_hashbrown"</span>))]
+</span><span class="kw">impl</span>&lt;K, V&gt; DataCollection <span class="kw">for </span>HashMap&lt;K, V&gt; {
     <span class="kw">type </span>Element = V;
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
     </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { E::ns() }
@@ -438,18 +438,18 @@
     }
 }
 <span class="attr">#[rustfmt::skip]
-#[cfg(all(feature = <span class="string">"alloc"</span>, feature = <span class="string">"hashbrown"</span>))]
-</span><span class="kw">impl</span>&lt;V&gt; DataCollection <span class="kw">for </span>AllocSet&lt;V&gt; {
+#[cfg(all(feature = <span class="string">"alloc"</span>, feature = <span class="string">"dep_hashbrown"</span>))]
+</span><span class="kw">impl</span>&lt;V&gt; DataCollection <span class="kw">for </span>HashSet&lt;V&gt; {
     <span class="kw">type </span>Element = V;
     <span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.capacity()) }
     <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len()) }
     <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.is_empty()) }
     <span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ns() }
-    <span class="doccomment">/// This is less efficent than [`AllocSet::contains`] for not having [`Hash`] and [`Eq`].
+    <span class="doccomment">/// This is less efficent than [`HashSet::contains`] for not having [`Hash`] and [`Eq`].
     </span><span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; <span class="kw">where </span>V: PartialEq {
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.iter().any(|value| <span class="kw-2">*</span>value == element))
     }
-    <span class="doccomment">/// This is less efficent than [`AllocSet::contains`] for not having [`Hash`] and [`Eq`].
+    <span class="doccomment">/// This is less efficent than [`HashSet::contains`] for not having [`Hash`] and [`Eq`].
     </span><span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; <span class="kw">where </span>V: PartialEq {
         <span class="prelude-val">Ok</span>(usize::from(<span class="self">self</span>.iter().any(|e| e == element)))
     }

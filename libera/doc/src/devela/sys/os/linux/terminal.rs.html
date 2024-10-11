@@ -154,14 +154,26 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::os::linux::terminal
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::os::linux::terminal
 //
 </span><span class="doccomment">//! Linux terminal related items.
 </span><span class="comment">//
 
 </span><span class="kw">use super</span>::{LinuxTerminalSize, LinuxTermios};
 
-<span class="attr">#[cfg(all(feature = <span class="string">"atomic"</span>, feature = <span class="string">"bytemuck"</span>))]
+<span class="attr">#[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::_dep::atomic::{Atomic, Ordering <span class="kw">as </span>AtomicOrdering};
 
 <span class="doccomment">/// State of the terminal saved globally, that can be restored from anywhere.
@@ -181,8 +193,11 @@
 ///
 /// [`atomic`]: crate::_dep::atomic
 /// [`bytemuck`]: crate::_dep::bytemuck
-</span><span class="attr">#[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(all(feature = <span class="string">"atomic"</span>, feature = <span class="string">"bytemuck"</span>))))]
-#[cfg(all(feature = <span class="string">"atomic"</span>, feature = <span class="string">"bytemuck"</span>))]
+</span><span class="attr">#[cfg_attr(
+    feature = <span class="string">"nightly_doc"</span>,
+    doc(cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>)))
+)]
+#[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
 </span><span class="kw">pub static </span>LINUX_TERMINAL_STATE: Atomic&lt;LinuxTermios&gt; = Atomic::new(LinuxTermios::new());
 
 <span class="doccomment">/// Linux terminal manager.
@@ -194,8 +209,11 @@
 #[derive(Debug, Default)]
 </span><span class="kw">pub struct </span>LinuxTerminal;
 
-<span class="attr">#[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(all(feature = <span class="string">"atomic"</span>, feature = <span class="string">"bytemuck"</span>))))]
-#[cfg(all(feature = <span class="string">"atomic"</span>, feature = <span class="string">"bytemuck"</span>))]
+<span class="attr">#[cfg_attr(
+    feature = <span class="string">"nightly_doc"</span>,
+    doc(cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>)))
+)]
+#[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
 </span><span class="kw">impl </span>Drop <span class="kw">for </span>LinuxTerminal {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// If we are here, this should work
@@ -212,7 +230,7 @@
     /// it saves the initial terminal state in [`LINUX_TERMINAL_STATE`].
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, isize&gt; {
-        <span class="attr">#[cfg(all(feature = <span class="string">"atomic"</span>, feature = <span class="string">"bytemuck"</span>))]
+        <span class="attr">#[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
         </span><span class="self">Self</span>::save_state()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>)
     }
@@ -227,7 +245,7 @@
     /// it saves the initial terminal state in [`LINUX_TERMINAL_STATE`].
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>new_raw() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, isize&gt; {
-        <span class="attr">#[cfg(all(feature = <span class="string">"atomic"</span>, feature = <span class="string">"bytemuck"</span>))]
+        <span class="attr">#[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
         </span><span class="self">Self</span>::save_state()<span class="question-mark">?</span>;
 
         <span class="kw">let </span>new = <span class="self">Self</span>::new()<span class="question-mark">?</span>;
@@ -236,8 +254,11 @@
     }
 
     <span class="doccomment">/// Saves the current terminal state into [`LINUX_TERMINAL_STATE`].
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(all(feature = <span class="string">"bytemuck"</span>, feature = <span class="string">"atomic"</span>))))]
-    #[cfg(all(feature = <span class="string">"atomic"</span>, feature = <span class="string">"bytemuck"</span>))]
+    </span><span class="attr">#[cfg_attr(
+        feature = <span class="string">"nightly_doc"</span>,
+        doc(cfg(all(feature = <span class="string">"dep_bytemuck"</span>, feature = <span class="string">"dep_atomic"</span>)))
+    )]
+    #[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
     #[inline]
     </span><span class="kw">pub fn </span>save_state() -&gt; <span class="prelude-ty">Result</span>&lt;(), isize&gt; {
         LINUX_TERMINAL_STATE.store(LinuxTermios::get_state()<span class="question-mark">?</span>, AtomicOrdering::Relaxed);
@@ -245,8 +266,11 @@
     }
 
     <span class="doccomment">/// Restores the current terminal state into [`LINUX_TERMINAL_STATE`].
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(all(feature = <span class="string">"bytemuck"</span>, feature = <span class="string">"atomic"</span>))))]
-    #[cfg(all(feature = <span class="string">"atomic"</span>, feature = <span class="string">"bytemuck"</span>))]
+    </span><span class="attr">#[cfg_attr(
+        feature = <span class="string">"nightly_doc"</span>,
+        doc(cfg(all(feature = <span class="string">"dep_bytemuck"</span>, feature = <span class="string">"dep_atomic"</span>)))
+    )]
+    #[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
     #[inline]
     </span><span class="kw">pub fn </span>restore_saved_state() -&gt; <span class="prelude-ty">Result</span>&lt;(), isize&gt; {
         LinuxTermios::set_state(LINUX_TERMINAL_STATE.load(AtomicOrdering::Relaxed))

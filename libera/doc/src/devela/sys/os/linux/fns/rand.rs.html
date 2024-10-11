@@ -128,10 +128,10 @@
 // - https://www.gnu.org/software/libc/manual/html_node/Unpredictable-Bytes.html
 
 </span><span class="kw">use </span><span class="kw">crate</span>::code::{iif, paste};
+<span class="kw">use </span><span class="kw">crate</span>::sys::ffi::c_uint;
 <span class="kw">use </span><span class="kw">crate</span>::sys::os::linux::{
     linux_print, linux_sys_exit, linux_sys_getrandom, LINUX_ERRNO <span class="kw">as </span>ERRNO,
 };
-<span class="kw">use </span>core::ffi::c_uint;
 
 <span class="comment">// from `sys/random.h`
 </span><span class="kw">const </span>GRND_NONBLOCK: c_uint = <span class="number">0x0001</span>;
@@ -199,7 +199,7 @@
 }
 
 <span class="comment">// the cold path for trying again
-</span><span class="attr">#[cold] #[inline] #[must_use] #[rustfmt::skip]
+</span><span class="attr">#[cold] #[must_use] #[rustfmt::skip]
 </span><span class="kw">fn </span>getrandom_try_again(attempts: <span class="kw-2">&amp;mut </span>usize) -&gt; bool {
     <span class="comment">// if *attempts &gt;= MAX_ATTEMPTS { getrandom_failed(); }
     </span><span class="kw-2">*</span>attempts += <span class="number">1</span>;
@@ -207,7 +207,7 @@
 }
 
 <span class="comment">// the cold path for some other error
-</span><span class="attr">#[cold] #[inline] #[rustfmt::skip]
+</span><span class="attr">#[cold] #[rustfmt::skip]
 </span><span class="kw">fn </span>getrandom_failed() {
     linux_print(<span class="string">"getrandom failed"</span>);
     <span class="kw">unsafe </span>{ linux_sys_exit(<span class="number">12</span>); }

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ColorErrors"],"fn":["color_gamma_apply_f32","color_gamma_apply_f64","color_gamma_remove_f32","color_gamma_remove_f64"],"struct":["LinearSrgb32","LinearSrgba32","Srgb32","Srgb8","Srgba32","Srgba8"],"trait":["Color"],"type":["ColorResult"]};
