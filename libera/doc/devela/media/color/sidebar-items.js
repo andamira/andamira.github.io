@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ColorError"],"macro":["LUMINANCE_REC_709"],"struct":["Color","GrayU8","LrgbF32","LrgbaF32","RgbF32","RgbU8","RgbaF32","RgbaU8","SpectralColor","SpectralColorRef"],"trait":["ColorBase"],"type":["ColorResult"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["impl_non_value"],"struct":["NonValueI8","NonValueU16","NonValueU8","NonZero","Saturating","TryFromIntError","Wrapping"],"type":["NonExtremeI8","NonExtremeU16","NonExtremeU8","NonZeroI128","NonZeroI16","NonZeroI32","NonZeroI64","NonZeroI8","NonZeroIsize","NonZeroU128","NonZeroU16","NonZeroU32","NonZeroU64","NonZeroU8","NonZeroUsize"]};

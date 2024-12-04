@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["_alloc","_std","atomic","bytemuck","const_str","crossterm","hashbrown","jiff","js_sys","libm","log","memchr","miniquad","portable_atomic","pyo3","rand_core","rayon","regex_lite","rodio","stringzilla","tinyaudio","unicode_segmentation","unicode_width","wasm_bindgen","web_sys","wide"]};

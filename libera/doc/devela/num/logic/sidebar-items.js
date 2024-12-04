@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Bool"],"macro":["const_bool"],"struct":["False","True"],"trait":["ConstBool"]};

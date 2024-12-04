@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AmbiguousOffset","Disambiguation","Dst","OffsetConflict"],"fn":["db","offset"],"struct":["AmbiguousTimestamp","AmbiguousZoned","Offset","OffsetArithmetic","TimeZone","TimeZoneDatabase","TimeZoneNameIter"]};

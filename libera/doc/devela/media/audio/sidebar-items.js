@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AudioError"],"fn":["write_sinewave"],"type":["AudioResult"]};

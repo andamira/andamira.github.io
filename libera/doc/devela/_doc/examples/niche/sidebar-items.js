@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["NonValueI8"],"type":["NonExtremeI8"]};
