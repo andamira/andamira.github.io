@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/terminal.rs`."><title>terminal.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/terminal.rs`."><title>terminal.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -163,10 +199,10 @@
 </span><span class="doccomment">//! Linux terminal related items.
 </span><span class="comment">//
 
-</span><span class="kw">use super</span>::{LinuxTerminalSize, LinuxTermios};
+</span><span class="kw">use super</span>::{<a href="structs/termios.rs.html#156-168">LinuxTerminalSize</a>, <a href="structs/termios.rs.html#19-37">LinuxTermios</a>};
 
 <span class="attr">#[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
-</span><span class="kw">use </span><span class="kw">crate</span>::_dep::atomic::{Atomic, Ordering <span class="kw">as </span>AtomicOrdering};
+</span><span class="kw">use </span><span class="kw">crate</span>::_dep::atomic::{<a href="../../../../../devela/all/struct.Atomic.html">Atomic</a>, <a href="../../../../../devela/_core/sync/atomic/enum.Ordering.html">Ordering</a> <span class="kw">as </span>AtomicOrdering};
 
 <span class="doccomment">/// State of the terminal saved globally, that can be restored from anywhere.
 ///
@@ -190,7 +226,7 @@
     doc(cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>)))
 )]
 #[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
-</span><span class="kw">pub static </span>LINUX_TERMINAL_STATE: Atomic&lt;LinuxTermios&gt; = Atomic::new(LinuxTermios::new());
+</span><span class="kw">pub static </span><a href="../../../../../devela/sys/os/linux/static.LINUX_TERMINAL_STATE.html">LINUX_TERMINAL_STATE</a>: <a href="../../../../../devela/all/struct.Atomic.html">Atomic</a>&lt;<a href="structs/termios.rs.html#19-37">LinuxTermios</a>&gt; = Atomic::new(<a href="structs/termios.rs.html#49-58">LinuxTermios::new</a>());
 
 <span class="doccomment">/// Linux terminal manager.
 ///
@@ -199,30 +235,30 @@
 /// the terminal state is saved in [`LINUX_TERMINAL_STATE`] and restored on drop.
 </span><span class="attr">#[allow(rustdoc::broken_intra_doc_links, reason = <span class="string">"LINUX_TERMINAL_STATE"</span>)]
 #[derive(Debug, Default)]
-</span><span class="kw">pub struct </span>LinuxTerminal;
+</span><span class="kw">pub struct </span><a href="../../../../../devela/sys/os/linux/struct.LinuxTerminal.html">LinuxTerminal</a>;
 
 <span class="attr">#[cfg_attr(
     feature = <span class="string">"nightly_doc"</span>,
     doc(cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>)))
 )]
 #[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
-</span><span class="kw">impl </span>Drop <span class="kw">for </span>LinuxTerminal {
+</span><span class="kw">impl </span><a href="../../../../../devela/_core/ops/trait.Drop.html">Drop</a> <span class="kw">for </span><a href="#42">LinuxTerminal</a> {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// If we are here, this should work
-        </span><span class="self">Self</span>::restore_saved_state().unwrap();
+        </span><a href="#103-105"><span class="self">Self</span>::restore_saved_state</a>().<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>();
     }
 }
 
 <span class="attr">#[allow(rustdoc::broken_intra_doc_links, reason = <span class="string">"LINUX_TERMINAL_STATE"</span>)]
-</span><span class="kw">impl </span>LinuxTerminal {
+</span><span class="kw">impl </span><a href="#42">LinuxTerminal</a> {
     <span class="doccomment">/// Returns a new linux terminal configured in canonical (cooked) mode.
     ///
     /// # Features
     /// With `atomic` and `bytemuck` enabled,
     /// it saves the initial terminal state in [`LINUX_TERMINAL_STATE`].
-    </span><span class="kw">pub fn </span>new() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, isize&gt; {
+    </span><span class="kw">pub fn </span>new() -&gt; <a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
         <span class="attr">#[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
-        </span><span class="self">Self</span>::save_state()<span class="question-mark">?</span>;
+        </span><a href="#92-95"><span class="self">Self</span>::save_state</a>()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>)
     }
 
@@ -234,13 +270,13 @@
     /// # Features
     /// With `atomic` and `bytemuck` enabled,
     /// it saves the initial terminal state in [`LINUX_TERMINAL_STATE`].
-    </span><span class="kw">pub fn </span>new_raw() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, isize&gt; {
+    </span><span class="kw">pub fn </span>new_raw() -&gt; <a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
         <span class="attr">#[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
-        </span><span class="self">Self</span>::save_state()<span class="question-mark">?</span>;
+        </span><a href="#92-95"><span class="self">Self</span>::save_state</a>()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>new = <span class="self">Self</span>::new()<span class="question-mark">?</span>;
-        new.enable_raw_mode()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(new)
+        <span class="kw">let </span>new = <a href="#63-67"><span class="self">Self</span>::new</a>()<span class="question-mark">?</span>;
+        <a href="#81">new</a>.<a href="#122-124">enable_raw_mode</a>()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<a href="#81">new</a>)
     }
 
     <span class="doccomment">/// Saves the current terminal state into [`LINUX_TERMINAL_STATE`].
@@ -249,8 +285,8 @@
         doc(cfg(all(feature = <span class="string">"dep_bytemuck"</span>, feature = <span class="string">"dep_atomic"</span>)))
     )]
     #[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
-    </span><span class="kw">pub fn </span>save_state() -&gt; <span class="prelude-ty">Result</span>&lt;(), isize&gt; {
-        LINUX_TERMINAL_STATE.store(LinuxTermios::get_state()<span class="question-mark">?</span>, AtomicOrdering::Relaxed);
+    </span><span class="kw">pub fn </span>save_state() -&gt; <a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
+        <a href="#33">LINUX_TERMINAL_STATE</a>.store(<a href="structs/termios.rs.html#92-98">LinuxTermios::get_state</a>()<span class="question-mark">?</span>, <a href="../../../../../devela/_core/sync/atomic/enum.Ordering.html">AtomicOrdering::Relaxed</a>);
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -260,32 +296,32 @@
         doc(cfg(all(feature = <span class="string">"dep_bytemuck"</span>, feature = <span class="string">"dep_atomic"</span>)))
     )]
     #[cfg(all(feature = <span class="string">"dep_atomic"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
-    </span><span class="kw">pub fn </span>restore_saved_state() -&gt; <span class="prelude-ty">Result</span>&lt;(), isize&gt; {
-        LinuxTermios::set_state(LINUX_TERMINAL_STATE.load(AtomicOrdering::Relaxed))
+    </span><span class="kw">pub fn </span>restore_saved_state() -&gt; <a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
+        <a href="structs/termios.rs.html#105-110">LinuxTermios::set_state</a>(<a href="#33">LINUX_TERMINAL_STATE</a>.load(<a href="../../../../../devela/_core/sync/atomic/enum.Ordering.html">AtomicOrdering::Relaxed</a>))
     }
 
     <span class="doccomment">/// Returns `true` if we are in a terminal context.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>is_terminal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        LinuxTermios::is_terminal()
+    </span><span class="kw">pub fn </span>is_terminal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a href="structs/termios.rs.html#114-119">LinuxTermios::is_terminal</a>()
     }
 
     <span class="doccomment">/// Returns the terminal dimensions.
-    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;LinuxTerminalSize, isize&gt; {
-        LinuxTermios::get_winsize()
+    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<a href="structs/termios.rs.html#156-168">LinuxTerminalSize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
+        <a href="structs/termios.rs.html#140-150">LinuxTermios::get_winsize</a>()
     }
 
     <span class="doccomment">/// Enables raw mode.
     ///
     /// Raw mode is a way to configure the terminal so that it does not process or
     /// interpret any of the input but instead passes it directly to the program.
-    </span><span class="kw">pub fn </span>enable_raw_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), isize&gt; {
-        LinuxTermios::enable_raw_mode()
+    </span><span class="kw">pub fn </span>enable_raw_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
+        <a href="structs/termios.rs.html#130-135">LinuxTermios::enable_raw_mode</a>()
     }
 
     <span class="doccomment">/// Disables raw mode.
-    </span><span class="kw">pub fn </span>disable_raw_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), isize&gt; {
-        LinuxTermios::disable_raw_mode()
+    </span><span class="kw">pub fn </span>disable_raw_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
+        <a href="structs/termios.rs.html#122-127">LinuxTermios::disable_raw_mode</a>()
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/dst/queue/private.rs`."><title>private.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/dst/queue/private.rs`."><title>private.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -169,49 +205,49 @@
 </span><span class="comment">//
 // TOC
 
-</span><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::{decompose_pointer, make_fat_ptr, store_metadata};
-<span class="kw">use super</span>::{DstBuf, DstQueue};
-<span class="kw">use crate</span>::{MaybeUninit, Ptr};
+</span><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::{<a href="../helpers.rs.html#10-17">decompose_pointer</a>, <a href="../helpers.rs.html#28-59">make_fat_ptr</a>, <a href="../helpers.rs.html#62-74">store_metadata</a>};
+<span class="kw">use super</span>::{<a href="../buffer.rs.html#15-32">DstBuf</a>, <a href="mod.rs.html#23-28">DstQueue</a>};
+<span class="kw">use crate</span>::{<a href="../../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>, <a href="../../../sys/mem/ptr/namespace.rs.html#22">Ptr</a>};
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>PushInnerInfo&lt;<span class="lifetime">'a</span>, I&gt; {
     <span class="comment">// Buffer for value data.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[MaybeUninit&lt;I&gt;],
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[<a href="../../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;I&gt;],
 
     <span class="comment">// Buffer for metadata (length/vtable).
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) meta: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[MaybeUninit&lt;I&gt;],
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) meta: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[<a href="../../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;I&gt;],
 
     <span class="comment">// Memory location for resetting the push.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) reset_slot: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>usize,
-    <span class="kw">pub</span>(<span class="kw">super</span>) reset_value: usize,
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) reset_slot: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) reset_value: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
 }
 
-<span class="kw">impl</span>&lt;DST: <span class="question-mark">?</span>Sized, BUF: DstBuf&gt; DstQueue&lt;DST, BUF&gt; {
+<span class="kw">impl</span>&lt;DST: <span class="question-mark">?</span><a href="../../../../../devela/_core/marker/trait.Sized.html">Sized</a>, BUF: <a href="../buffer.rs.html#15-32">DstBuf</a>&gt; <a href="mod.rs.html#23-28">DstQueue</a>&lt;DST, BUF&gt; {
     <span class="doccomment">/// Pushes an item to the list (setting metadata based on `fat_ptr`).
     </span><span class="comment">//
     // SAFETY: Caller must fill the buffer before any potential panic.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>push_inner(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         fat_ptr: <span class="kw-2">&amp;</span>DST,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;PushInnerInfo&lt;BUF::Inner&gt;, ()&gt; {
-        <span class="kw">let </span>bytes = size_of_val(fat_ptr);
-        <span class="kw">let </span>(_data_ptr, len, v) = decompose_pointer(fat_ptr);
+    ) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<a href="#11-21">PushInnerInfo</a>&lt;BUF::Inner&gt;, ()&gt; {
+        <span class="kw">let </span>bytes = <a href="../../../../../devela/_core/mem/fn.size_of_val.html">size_of_val</a>(<a href="#29">fat_ptr</a>);
+        <span class="kw">let </span>(_data_ptr, len, v) = <a href="../helpers.rs.html#10-17">decompose_pointer</a>(<a href="#29">fat_ptr</a>);
         <span class="comment">// SAFETY: caller must ensure safety
-        </span><span class="kw">unsafe </span>{ <span class="self">self</span>.push_inner_raw(bytes, <span class="kw-2">&amp;</span>v[..len]) }
+        </span><span class="kw">unsafe </span>{ <a class="self" href="#28">self</a>.<a href="#38-75">push_inner_raw</a>(<a href="#31">bytes</a>, <span class="kw-2">&amp;</span><a href="#32">v</a>[..<a href="#32">len</a>]) }
     }
 
     <span class="comment">// SAFETY: TODO
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>push_inner_raw(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        bytes: usize,
-        metadata: <span class="kw-2">&amp;</span>[usize],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;PushInnerInfo&lt;BUF::Inner&gt;, ()&gt; {
-        <span class="kw">let </span>words = BUF::round_to_words(bytes) + <span class="self">Self</span>::meta_words();
+        bytes: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+        metadata: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>],
+    ) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<a href="#11-21">PushInnerInfo</a>&lt;BUF::Inner&gt;, ()&gt; {
+        <span class="kw">let </span>words = <a href="../buffer.rs.html#29-31">BUF::round_to_words</a>(<a href="#40">bytes</a>) + <a href="#78-80"><span class="self">Self</span>::meta_words</a>();
 
         <span class="comment">// 1. Check if there's space for the item
         </span><span class="kw">if </span><span class="self">self</span>.space_words() &lt; words {
             <span class="comment">// 2. If not, check if compaction would help
             </span><span class="kw">if </span><span class="self">self</span>.space_words() + <span class="self">self</span>.read_pos &gt;= words {
-                <span class="self">self</span>.compact();
+                <a class="self" href="#39">self</a>.<a href="methods.rs.html#46-52">compact</a>();
             }
             <span class="comment">// 3. Then, try expanding
             </span><span class="kw">if </span><span class="self">self</span>.space_words() &lt; words &amp;&amp; <span class="self">self</span>.data.extend(<span class="self">self</span>.write_pos + words).is_err() {
@@ -219,82 +255,82 @@
                 </span><span class="kw">return </span><span class="prelude-val">Err</span>(());
             }
         }
-        <span class="macro">assert!</span>(<span class="self">self</span>.space_words() &gt;= words);
+        <a class="macro" href="../../../../../devela/_core/macro.assert.html">assert!</a>(<span class="self">self</span>.space_words() &gt;= words);
 
         <span class="comment">// Get the base pointer for the new item
-        </span><span class="kw">let </span>slot = <span class="kw-2">&amp;mut </span><span class="self">self</span>.data.as_mut()[<span class="self">self</span>.write_pos..][..words];
-        <span class="kw">let </span>prev_write_pos = <span class="self">self</span>.write_pos;
-        <span class="self">self</span>.write_pos += words;
-        <span class="kw">let </span>(meta, rv) = slot.split_at_mut(<span class="self">Self</span>::meta_words());
+        </span><span class="kw">let </span>slot = <span class="kw-2">&amp;mut </span><a class="self" href="#39">self</a>.data.<a href="../buffer.rs.html#23">as_mut</a>()[<a class="self" href="#39">self</a>.write_pos..][..<a href="#43">words</a>];
+        <span class="kw">let </span>prev_write_pos = <a class="self" href="#39">self</a>.write_pos;
+        <a class="self" href="#39">self</a>.write_pos += <a href="#43">words</a>;
+        <span class="kw">let </span>(meta, rv) = <a href="#60">slot</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#78-80"><span class="self">Self</span>::meta_words</a>());
 
         <span class="comment">// Populate the metadata
-        </span>store_metadata(meta, metadata);
+        </span><a href="../helpers.rs.html#62-74">store_metadata</a>(<a href="#63">meta</a>, <a href="#41">metadata</a>);
 
         <span class="comment">// Increment offset and return
-        </span><span class="prelude-val">Ok</span>(PushInnerInfo {
-            meta,
-            data: rv,
-            reset_slot: <span class="kw-2">&amp;mut </span><span class="self">self</span>.write_pos,
-            reset_value: prev_write_pos,
+        </span><span class="prelude-val">Ok</span>(<a href="#11-21">PushInnerInfo</a> {
+            <a href="#63">meta</a>,
+            data: <a href="#63">rv</a>,
+            reset_slot: <span class="kw-2">&amp;mut </span><a class="self" href="#39">self</a>.write_pos,
+            reset_value: <a href="#61">prev_write_pos</a>,
         })
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>meta_words() -&gt; usize {
-        BUF::round_to_words(size_of::&lt;<span class="kw-2">&amp;</span>DST&gt;() - size_of::&lt;usize&gt;())
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>meta_words() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
+        <a href="../buffer.rs.html#29-31">BUF::round_to_words</a>(<a href="../../../../../devela/_core/mem/fn.size_of.html">size_of</a>::&lt;<span class="kw-2">&amp;</span>DST&gt;() - <a href="../../../../../devela/_core/mem/fn.size_of.html">size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;())
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">fn </span>space_words(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.data.as_ref().len() - <span class="self">self</span>.write_pos
+    </span><span class="kw">fn </span>space_words(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
+        <a class="self" href="#83">self</a>.data.<a href="../buffer.rs.html#20">as_ref</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - <a class="self" href="#83">self</a>.write_pos
     }
 
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>front_raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>DST {
-        <span class="macro">assert!</span>(<span class="self">self</span>.read_pos &lt; <span class="self">self</span>.write_pos);
+        <a class="macro" href="../../../../../devela/_core/macro.assert.html">assert!</a>(<span class="self">self</span>.read_pos &lt; <span class="self">self</span>.write_pos);
         <span class="comment">// SAFETY: Internal consistency maintains the metadata validity.
-        </span><span class="kw">unsafe </span>{ <span class="self">self</span>.raw_at(<span class="self">self</span>.read_pos) }
+        </span><span class="kw">unsafe </span>{ <a class="self" href="#88">self</a>.<a href="#96-104">raw_at</a>(<a class="self" href="#88">self</a>.read_pos) }
     }
 
     <span class="attr">#[must_use]
     </span><span class="comment">// SAFETY: Caller must ensure that `pos` is the start of an object.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>raw_at(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: usize) -&gt; <span class="kw-2">*mut </span>DST {
-        <span class="macro">assert!</span>(pos &gt;= <span class="self">self</span>.read_pos);
-        <span class="macro">assert!</span>(pos &lt; <span class="self">self</span>.write_pos);
-        <span class="kw">let </span>meta = <span class="kw-2">&amp;</span><span class="self">self</span>.data.as_ref()[pos..];
-        <span class="kw">let </span>mw = <span class="self">Self</span>::meta_words();
-        <span class="kw">let </span>(meta, data) = meta.split_at(mw);
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>raw_at(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">*mut </span>DST {
+        <a class="macro" href="../../../../../devela/_core/macro.assert.html">assert!</a>(pos &gt;= <span class="self">self</span>.read_pos);
+        <a class="macro" href="../../../../../devela/_core/macro.assert.html">assert!</a>(pos &lt; <span class="self">self</span>.write_pos);
+        <span class="kw">let </span>meta = <span class="kw-2">&amp;</span><a class="self" href="#96">self</a>.data.<a href="../buffer.rs.html#20">as_ref</a>()[<a href="#96">pos</a>..];
+        <span class="kw">let </span>mw = <a href="#78-80"><span class="self">Self</span>::meta_words</a>();
+        <span class="kw">let </span>(meta, data) = <a href="#99">meta</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#100">mw</a>);
         <span class="comment">// SAFETY: caller must ensure safety
-        </span><span class="kw">unsafe </span>{ make_fat_ptr(data.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>(), meta) }
+        </span><span class="kw">unsafe </span>{ <a href="../helpers.rs.html#28-59">make_fat_ptr</a>(<a href="#101">data</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>() <span class="kw">as </span><span class="kw-2">*mut </span>(), <a href="#101">meta</a>) }
     }
 
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>front_raw_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>DST {
-        <span class="macro">assert!</span>(<span class="self">self</span>.read_pos &lt; <span class="self">self</span>.write_pos);
+        <a class="macro" href="../../../../../devela/_core/macro.assert.html">assert!</a>(<span class="self">self</span>.read_pos &lt; <span class="self">self</span>.write_pos);
         <span class="comment">// SAFETY: Internal consistency maintains the metadata validity.
-        </span><span class="kw">unsafe </span>{ <span class="self">self</span>.raw_at_mut(<span class="self">self</span>.read_pos) }
+        </span><span class="kw">unsafe </span>{ <a class="self" href="#107">self</a>.<a href="#115-123">raw_at_mut</a>(<a class="self" href="#107">self</a>.read_pos) }
     }
 
     <span class="attr">#[must_use]
     </span><span class="comment">// SAFETY: Caller must ensure that `pos` is the start of an object.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>raw_at_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pos: usize) -&gt; <span class="kw-2">*mut </span>DST {
-        <span class="macro">assert!</span>(pos &gt;= <span class="self">self</span>.read_pos);
-        <span class="macro">assert!</span>(pos &lt; <span class="self">self</span>.write_pos);
-        <span class="kw">let </span>meta = <span class="kw-2">&amp;mut </span><span class="self">self</span>.data.as_mut()[pos..];
-        <span class="kw">let </span>mw = <span class="self">Self</span>::meta_words();
-        <span class="kw">let </span>(meta, data) = meta.split_at_mut(mw);
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>raw_at_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pos: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">*mut </span>DST {
+        <a class="macro" href="../../../../../devela/_core/macro.assert.html">assert!</a>(pos &gt;= <span class="self">self</span>.read_pos);
+        <a class="macro" href="../../../../../devela/_core/macro.assert.html">assert!</a>(pos &lt; <span class="self">self</span>.write_pos);
+        <span class="kw">let </span>meta = <span class="kw-2">&amp;mut </span><a class="self" href="#115">self</a>.data.<a href="../buffer.rs.html#23">as_mut</a>()[<a href="#115">pos</a>..];
+        <span class="kw">let </span>mw = <a href="#78-80"><span class="self">Self</span>::meta_words</a>();
+        <span class="kw">let </span>(meta, data) = <a href="#118">meta</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#119">mw</a>);
         <span class="comment">// SAFETY: caller must ensure safety
-        </span><span class="kw">unsafe </span>{ make_fat_ptr(data.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>(), meta) }
+        </span><span class="kw">unsafe </span>{ <a href="../helpers.rs.html#28-59">make_fat_ptr</a>(<a href="#120">data</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_mut_ptr">as_mut_ptr</a>() <span class="kw">as </span><span class="kw-2">*mut </span>(), <a href="#120">meta</a>) }
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>pop_front_inner(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// SAFETY: `front_raw_mut` asserts that there's an item, rest is correct.
         </span><span class="kw">unsafe </span>{
-            <span class="kw">let </span>ptr = <span class="kw-2">&amp;mut *</span><span class="self">self</span>.front_raw_mut();
-            <span class="kw">let </span>len = size_of_val(ptr);
-            Ptr::drop_in_place(ptr);
-            <span class="kw">let </span>words = BUF::round_to_words(len);
-            <span class="self">self</span>.read_pos += <span class="self">Self</span>::meta_words() + words;
+            <span class="kw">let </span>ptr = <span class="kw-2">&amp;mut *</span><a class="self" href="#125">self</a>.<a href="#107-111">front_raw_mut</a>();
+            <span class="kw">let </span>len = <a href="../../../../../devela/_core/mem/fn.size_of_val.html">size_of_val</a>(<a href="#128">ptr</a>);
+            <a href="../../../sys/mem/ptr/namespace.rs.html#194-197">Ptr::drop_in_place</a>(<a href="#128">ptr</a>);
+            <span class="kw">let </span>words = <a href="../buffer.rs.html#29-31">BUF::round_to_words</a>(<a href="#129">len</a>);
+            <a class="self" href="#125">self</a>.read_pos += <a href="#78-80"><span class="self">Self</span>::meta_words</a>() + <a href="#131">words</a>;
         }
     }
 }

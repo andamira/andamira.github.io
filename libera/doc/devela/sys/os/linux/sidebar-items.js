@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["io","process","terminal","thread"],"struct":["LINUX_ERRNO","LINUX_FILENO","LINUX_IOCTL","LINUX_SYS_AARCH64","LINUX_SYS_ARM","LINUX_SYS_RISCV","LINUX_SYS_X86","LINUX_SYS_X86_64"],"type":["LINUX_SYS"]};
+window.SIDEBAR_ITEMS = {"mod":["io","process","thread"],"static":["LINUX_TERMINAL_STATE"],"struct":["LinuxTerminal"]};

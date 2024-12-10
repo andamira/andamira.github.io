@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/structs/sigaction.rs`."><title>sigaction.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/structs/sigaction.rs`."><title>sigaction.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -127,43 +163,43 @@
 /// [`sigaction`]: https://man7.org/linux/man-pages/man2/sigaction.2.html
 </span><span class="attr">#[derive(Debug)]
 #[repr(C)]
-</span><span class="kw">pub struct </span>LinuxSigaction {
+</span><span class="kw">pub struct </span><a href="../../../../../../devela/sys/os/linux/process/struct.LinuxSigaction.html">LinuxSigaction</a> {
     <span class="doccomment">/// A pointer to a signal handling function.
     ///
     /// This function receives the signal number as its only argument.
-    </span><span class="kw">pub </span>sa_handler: <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(i32),
+    </span><span class="kw">pub </span>sa_handler: <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>),
 
     <span class="doccomment">/// A set of flags which modify the behavior of the signal.
-    </span><span class="kw">pub </span>sa_flags: usize,
+    </span><span class="kw">pub </span>sa_flags: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
 
     <span class="doccomment">/// A legacy field that is not used on modern Linux systems, but must be
     /// filled in for compatibility
-    </span><span class="kw">pub </span>sa_restorer: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>()&gt;,
+    </span><span class="kw">pub </span>sa_restorer: <a class="prelude-ty" href="../../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>()&gt;,
 
     <span class="doccomment">/// A mask of signals that should be blocked.
-    </span><span class="kw">pub </span>sa_mask: LinuxSigset,
+    </span><span class="kw">pub </span>sa_mask: <a href="#54-59">LinuxSigset</a>,
 }
 
-<span class="kw">impl </span>LinuxSigaction {
+<span class="kw">impl </span><a href="#9-24">LinuxSigaction</a> {
     <span class="doccomment">/// Retuns a new `LinuxSigation`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>new(handler: <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(i32), flags: usize, mask: LinuxSigset) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(handler: <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>), flags: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, mask: <a href="#54-59">LinuxSigset</a>) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            sa_handler: handler,
-            sa_flags: flags,
+            sa_handler: <a href="#29">handler</a>,
+            sa_flags: <a href="#29">flags</a>,
             sa_restorer: <span class="prelude-val">None</span>,
-            sa_mask: mask,
+            sa_mask: <a href="#29">mask</a>,
         }
     }
 }
 
 <span class="doccomment">/// [`sa_handler`][Self::sa_handler] field constants.
-</span><span class="kw">impl </span>LinuxSigaction {
+</span><span class="kw">impl </span><a href="#9-24">LinuxSigaction</a> {
     <span class="doccomment">/// The default signal handling.
-    </span><span class="kw">pub const </span>SIG_DFL: isize = <span class="number">0</span>;
+    </span><span class="kw">pub const </span>SIG_DFL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">0</span>;
 
     <span class="doccomment">/// Ignore this signal.
-    </span><span class="kw">pub const </span>SIG_IGN: isize = <span class="number">1</span>;
+    </span><span class="kw">pub const </span>SIG_IGN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">1</span>;
 
     <span class="comment">// /// Error return from signal.
     // pub const SIG_ERR: isize = -1;
@@ -172,26 +208,26 @@
 <span class="doccomment">/// A set of signals.
 </span><span class="attr">#[repr(C)]
 #[derive(Debug, Default, Clone, Copy)]
-</span><span class="kw">pub struct </span>LinuxSigset {
+</span><span class="kw">pub struct </span><a href="../../../../../../devela/sys/os/linux/process/struct.LinuxSigset.html">LinuxSigset</a> {
     <span class="doccomment">/// An array of signals.
     ///
     /// Its lenght is calculated from the number of signals divided by the bits of a usize.
-    </span><span class="kw">pub </span>sig: [usize; <span class="self">Self</span>::LEN],
+    </span><span class="kw">pub </span>sig: [<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>; <span class="self">Self</span>::LEN],
 }
-<span class="kw">impl </span>LinuxSigset {
-    <span class="kw">const </span>BITS_PER_USIZE: usize = usize::BITS <span class="kw">as </span>usize;
+<span class="kw">impl </span><a href="#54-59">LinuxSigset</a> {
+    <span class="kw">const </span>BITS_PER_USIZE: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = usize::BITS <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>;
     <span class="comment">// The hardcoded number of system signals defined in `LINUX_SIGNAL`.
-    </span><span class="kw">const </span>NSIG: usize = <span class="number">36</span>;
+    </span><span class="kw">const </span>NSIG: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">36</span>;
     <span class="comment">// The size of the array is the number of signals divided by the bits of an usize.
-    </span><span class="kw">const </span>LEN: usize = { <span class="self">Self</span>::NSIG.div_ceil(<span class="self">Self</span>::BITS_PER_USIZE) };
+    </span><span class="kw">const </span>LEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = { <span class="self">Self</span>::NSIG.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.div_ceil">div_ceil</a>(<span class="self">Self</span>::BITS_PER_USIZE) };
 
     <span class="doccomment">/// Returns the size in bytes of `LinuxSigset`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>size() -&gt; usize {
-        core::mem::size_of::&lt;<span class="self">Self</span>&gt;()
+    </span><span class="kw">pub const fn </span>size() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
+        <a href="../../../../../../devela/_core/mem/fn.size_of.html">core::mem::size_of</a>::&lt;<span class="self">Self</span>&gt;()
     }
 }
-<span class="kw">impl </span>LinuxSigset {
+<span class="kw">impl </span><a href="#54-59">LinuxSigset</a> {
     <span class="doccomment">/// Sets the bit corresponding to a `signal` in the `sig` array.
     ///
     /// # Arguments
@@ -199,15 +235,15 @@
     ///
     /// # Panics
     /// Panics if `signum` &lt; 1 or &gt; 36.
-    </span><span class="kw">pub fn </span>set_signal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, signal: i32) {
-        <span class="kw">let </span>signal = signal <span class="kw">as </span>usize;
-        <span class="macro">assert!</span>[(<span class="number">1</span>..=<span class="self">Self</span>::NSIG).contains(<span class="kw-2">&amp;</span>signal)];
+    </span><span class="kw">pub fn </span>set_signal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, signal: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) {
+        <span class="kw">let </span>signal = <a href="#81">signal</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>;
+        <a class="macro" href="../../../../../../devela/_core/macro.assert.html">assert!</a>[(<span class="number">1</span>..=<span class="self">Self</span>::NSIG).contains(<span class="kw-2">&amp;</span>signal)];
 
         <span class="comment">// Subtract 1 from the signal number because signal numbers start from 1
         // but array indices start from 0
-        </span><span class="kw">let </span>signal_index = (signal - <span class="number">1</span>) / <span class="self">Self</span>::BITS_PER_USIZE;
-        <span class="kw">let </span>bit_position = (signal - <span class="number">1</span>) % <span class="self">Self</span>::BITS_PER_USIZE;
-        <span class="self">self</span>.sig[signal_index] |= <span class="number">1 </span>&lt;&lt; bit_position;
+        </span><span class="kw">let </span>signal_index = (<a href="#82">signal</a> - <span class="number">1</span>) / <span class="self">Self</span>::BITS_PER_USIZE;
+        <span class="kw">let </span>bit_position = (<a href="#82">signal</a> - <span class="number">1</span>) % <span class="self">Self</span>::BITS_PER_USIZE;
+        <a class="self" href="#81">self</a>.sig[<a href="#87">signal_index</a>] |= <span class="number">1 </span>&lt;&lt; <a href="#88">bit_position</a>;
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/interval.rs`."><title>interval.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/interval.rs`."><title>interval.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -459,23 +495,23 @@
 </span><span class="doccomment">//!
 </span><span class="comment">//
 
-</span><span class="kw">use crate</span>::{iif, Bound, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive};
+</span><span class="kw">use crate</span>::{<a href="../code/macros/iif.rs.html#60-89">iif</a>, <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>, <a href="../../../devela/_core/range/legacy/struct.Range.html">Range</a>, <a href="../../../devela/_core/range/legacy/struct.RangeFrom.html">RangeFrom</a>, <a href="../../../devela/_core/range/struct.RangeFull.html">RangeFull</a>, <a href="../../../devela/_core/range/legacy/struct.RangeInclusive.html">RangeInclusive</a>, <a href="../../../devela/_core/range/struct.RangeTo.html">RangeTo</a>, <a href="../../../devela/_core/range/struct.RangeToInclusive.html">RangeToInclusive</a>};
 
 <span class="doccomment">/// An interval type.
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-</span><span class="kw">pub struct </span>Interval&lt;T&gt; {
+</span><span class="kw">pub struct </span><a href="../../../devela/num/struct.Interval.html">Interval</a>&lt;T&gt; {
     <span class="doccomment">/// The lower bound (also known as the *start* bound or the *left* bound).
-    </span><span class="kw">pub </span>lower: Bound&lt;T&gt;,
+    </span><span class="kw">pub </span>lower: <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;,
     <span class="doccomment">/// The upper bound (also known as the *end* bound or the *right* bound).
-    </span><span class="kw">pub </span>upper: Bound&lt;T&gt;,
+    </span><span class="kw">pub </span>upper: <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;,
 }
 
 <span class="doccomment">/// # Constructors
-</span><span class="kw">impl</span>&lt;T&gt; Interval&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T&gt; <a href="#10-15">Interval</a>&lt;T&gt; {
     <span class="doccomment">/// Creates a new interval with the given `lower` and `upper` bounds.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(lower: Bound&lt;T&gt;, upper: Bound&lt;T&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ lower, upper }
+    </span><span class="kw">pub const fn </span>new(lower: <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;, upper: <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ <a href="#21">lower</a>, <a href="#21">upper</a> }
     }
 
     <span class="comment">// lower-closed
@@ -483,17 +519,17 @@
     </span><span class="doccomment">/// Creates a closed interval $[l, u]$ `lower..=upper` [`RangeInclusive`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>closed(lower: T, upper: T) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(Bound::Included(lower), Bound::Included(upper))
+        <a href="#21-23"><span class="self">Self</span>::new</a>(<a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(<a href="#29">lower</a>), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(<a href="#29">upper</a>))
     }
     <span class="doccomment">/// Creates a half-open interval $[l, u)$ `lower..upper` [`Range`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>closed_open(lower: T, upper: T) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(Bound::Included(lower), Bound::Excluded(upper))
+        <a href="#21-23"><span class="self">Self</span>::new</a>(<a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(<a href="#34">lower</a>), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(<a href="#34">upper</a>))
     }
     <span class="doccomment">/// Creates an interval $[l, ∞)$ `lower..` [`RangeFrom`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>closed_unbounded(lower: T) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(Bound::Included(lower), Bound::Unbounded)
+        <a href="#21-23"><span class="self">Self</span>::new</a>(<a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(<a href="#39">lower</a>), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>)
     }
 
     <span class="comment">// lower-unbounded
@@ -501,17 +537,17 @@
     </span><span class="doccomment">/// Creates an unbounded interval $(-∞, ∞)$ `..` [`RangeFull`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>unbounded() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(Bound::Unbounded, Bound::Unbounded)
+        <a href="#21-23"><span class="self">Self</span>::new</a>(<a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>, <a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>)
     }
     <span class="doccomment">/// Creates an interval $(-∞, u]$ `..upper` [`RangeTo`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>unbounded_closed(upper: T) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(Bound::Unbounded, Bound::Included(upper))
+        <a href="#21-23"><span class="self">Self</span>::new</a>(<a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>, <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(<a href="#52">upper</a>))
     }
     <span class="doccomment">/// Creates an interval $(-∞, u)$ `..=upper` [`RangeToInclusive`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>unbounded_open(upper: T) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(Bound::Unbounded, Bound::Excluded(upper))
+        <a href="#21-23"><span class="self">Self</span>::new</a>(<a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>, <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(<a href="#57">upper</a>))
     }
 
     <span class="comment">// lower-open
@@ -519,23 +555,23 @@
     </span><span class="doccomment">/// Creates an open interval $(l, u)$.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>open(lower: T, upper: T) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(Bound::Excluded(lower), Bound::Excluded(upper))
+        <a href="#21-23"><span class="self">Self</span>::new</a>(<a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(<a href="#65">lower</a>), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(<a href="#65">upper</a>))
     }
 
     <span class="doccomment">/// Creates a half-open interval $(a, b]$.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>open_closed(lower: T, upper: T) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(Bound::Excluded(lower), Bound::Included(upper))
+        <a href="#21-23"><span class="self">Self</span>::new</a>(<a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(<a href="#71">lower</a>), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(<a href="#71">upper</a>))
     }
 
     <span class="doccomment">/// Creates an interval $(l, ∞)$.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>open_unbounded(lower: T) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(Bound::Excluded(lower), Bound::Unbounded)
+        <a href="#21-23"><span class="self">Self</span>::new</a>(<a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(<a href="#77">lower</a>), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>)
     }
 }
 
-<span class="kw">impl</span>&lt;T: Copy&gt; Interval&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: <a href="../../../devela/_core/marker/trait.Copy.html">Copy</a>&gt; <a href="#10-15">Interval</a>&lt;T&gt; {
     <span class="doccomment">/// Returns a copy of both bounds as a tuple `(lower, upper)`.
     ///
     /// # Example
@@ -545,120 +581,120 @@
     /// assert_eq!("bc", &amp;"abcd"[r.to_tuple()]);
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>to_tuple(<span class="self">self</span>) -&gt; (Bound&lt;T&gt;, Bound&lt;T&gt;) {
-        (<span class="self">self</span>.lower, <span class="self">self</span>.upper)
+    </span><span class="kw">pub const fn </span>to_tuple(<span class="self">self</span>) -&gt; (<a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;, <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;) {
+        (<a class="self" href="#92">self</a>.lower, <a class="self" href="#92">self</a>.upper)
     }
 }
 
-<span class="kw">impl</span>&lt;T&gt; Interval&lt;T&gt; {
+<span class="kw">impl</span>&lt;T&gt; <a href="#10-15">Interval</a>&lt;T&gt; {
     <span class="doccomment">/// Returns both bounds as a tuple `(lower, upper)`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>into_tuple(<span class="self">self</span>) -&gt; (Bound&lt;T&gt;, Bound&lt;T&gt;) {
-        (<span class="self">self</span>.lower, <span class="self">self</span>.upper)
+    </span><span class="kw">pub fn </span>into_tuple(<span class="self">self</span>) -&gt; (<a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;, <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;) {
+        (<a class="self" href="#100">self</a>.lower, <a class="self" href="#100">self</a>.upper)
     }
 
     <span class="doccomment">/// Returns a reference to both bounds as a tuple `(&amp;lower, &amp;upper)`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>to_tuple_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (Bound&lt;<span class="kw-2">&amp;</span>T&gt;, Bound&lt;<span class="kw-2">&amp;</span>T&gt;) {
-        (<span class="self">self</span>.lower_ref(), <span class="self">self</span>.upper_ref())
+    </span><span class="kw">pub fn </span>to_tuple_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;<span class="kw-2">&amp;</span>T&gt;, <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;<span class="kw-2">&amp;</span>T&gt;) {
+        (<a class="self" href="#106">self</a>.<a href="#112-114">lower_ref</a>(), <a class="self" href="#106">self</a>.<a href="#118-120">upper_ref</a>())
     }
 
     <span class="doccomment">/// Returns a reference to the lower bound.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>lower_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Bound&lt;<span class="kw-2">&amp;</span>T&gt; {
-        <span class="self">self</span>.lower.as_ref()
+    </span><span class="kw">pub fn </span>lower_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;<span class="kw-2">&amp;</span>T&gt; {
+        <a class="self" href="#112">self</a>.lower.<a href="https://doc.rust-lang.org/nightly/core/ops/range/enum.Bound.html#method.as_ref">as_ref</a>()
     }
 
     <span class="doccomment">/// Returns a reference to the upper bound.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>upper_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Bound&lt;<span class="kw-2">&amp;</span>T&gt; {
-        <span class="self">self</span>.upper.as_ref()
+    </span><span class="kw">pub fn </span>upper_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;<span class="kw-2">&amp;</span>T&gt; {
+        <a class="self" href="#118">self</a>.upper.<a href="https://doc.rust-lang.org/nightly/core/ops/range/enum.Bound.html#method.as_ref">as_ref</a>()
     }
 
     <span class="doccomment">/// Checks if the interval is both lower and upper bounded.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_bounded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.is_lower_bounded() &amp;&amp; <span class="self">self</span>.is_upper_bounded()
+    </span><span class="kw">pub const fn </span>is_bounded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="self" href="#124">self</a>.<a href="#129-131">is_lower_bounded</a>() &amp;&amp; <a class="self" href="#124">self</a>.<a href="#134-136">is_upper_bounded</a>()
     }
     <span class="doccomment">/// Checks if the lower bound is bounded.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_lower_bounded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        !<span class="macro">matches!</span>(<span class="self">self</span>.lower, Bound::Unbounded)
+    </span><span class="kw">pub const fn </span>is_lower_bounded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        !<a class="macro" href="../../../devela/_core/macro.matches.html">matches!</a>(<span class="self">self</span>.lower, Bound::Unbounded)
     }
     <span class="doccomment">/// Checks if the upper bound is bounded.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_upper_bounded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        !<span class="macro">matches!</span>(<span class="self">self</span>.upper, Bound::Unbounded)
+    </span><span class="kw">pub const fn </span>is_upper_bounded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        !<a class="macro" href="../../../devela/_core/macro.matches.html">matches!</a>(<span class="self">self</span>.upper, Bound::Unbounded)
     }
     <span class="doccomment">/// Checks if the lower bound is open (excluded).
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_lower_open(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>.lower, Bound::Excluded(<span class="kw">_</span>))
+    </span><span class="kw">pub const fn </span>is_lower_open(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="macro" href="../../../devela/_core/macro.matches.html">matches!</a>(<span class="self">self</span>.lower, Bound::Excluded(<span class="kw">_</span>))
     }
     <span class="doccomment">/// Checks if the lower bound is closed (included).
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_lower_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>.lower, Bound::Included(<span class="kw">_</span>))
+    </span><span class="kw">pub const fn </span>is_lower_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="macro" href="../../../devela/_core/macro.matches.html">matches!</a>(<span class="self">self</span>.lower, Bound::Included(<span class="kw">_</span>))
     }
     <span class="doccomment">/// Checks if the upper bound is open (excluded).
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_upper_open(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>.upper, Bound::Excluded(<span class="kw">_</span>))
+    </span><span class="kw">pub const fn </span>is_upper_open(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="macro" href="../../../devela/_core/macro.matches.html">matches!</a>(<span class="self">self</span>.upper, Bound::Excluded(<span class="kw">_</span>))
     }
     <span class="doccomment">/// Checks if the upper bound is closed (included).
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_upper_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>.upper, Bound::Included(<span class="kw">_</span>))
+    </span><span class="kw">pub const fn </span>is_upper_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="macro" href="../../../devela/_core/macro.matches.html">matches!</a>(<span class="self">self</span>.upper, Bound::Included(<span class="kw">_</span>))
     }
 }
 
-<span class="kw">impl</span>&lt;T: PartialOrd&gt; Interval&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: <a href="../../../devela/_core/cmp/trait.PartialOrd.html">PartialOrd</a>&gt; <a href="#10-15">Interval</a>&lt;T&gt; {
     <span class="doccomment">/// Validates that the interval is properly ordered.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>is_valid(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">match </span>(<span class="kw-2">&amp;</span><span class="self">self</span>.lower, <span class="kw-2">&amp;</span><span class="self">self</span>.upper) {
-            (Bound::Unbounded, <span class="kw">_</span>) | (<span class="kw">_</span>, Bound::Unbounded) =&gt; <span class="bool-val">true</span>,
-            (Bound::Included(a), Bound::Included(b)) =&gt; a &lt;= b,
-            (Bound::Included(a), Bound::Excluded(b)) =&gt; a &lt; b,
-            (Bound::Excluded(a), Bound::Included(b)) =&gt; a &lt; b,
-            (Bound::Excluded(a), Bound::Excluded(b)) =&gt; a &lt; b,
+    </span><span class="kw">pub fn </span>is_valid(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <span class="kw">match </span>(<span class="kw-2">&amp;</span><a class="self" href="#162">self</a>.lower, <span class="kw-2">&amp;</span><a class="self" href="#162">self</a>.upper) {
+            (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>, <span class="kw">_</span>) | (<span class="kw">_</span>, <a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>) =&gt; <span class="bool-val">true</span>,
+            (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(a), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(b)) =&gt; <a href="#165">a</a> &lt;= <a href="#165">b</a>,
+            (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(a), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(b)) =&gt; <a href="#166">a</a> &lt; <a href="#166">b</a>,
+            (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(a), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(b)) =&gt; <a href="#167">a</a> &lt; <a href="#167">b</a>,
+            (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(a), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(b)) =&gt; <a href="#168">a</a> &lt; <a href="#168">b</a>,
         }
     }
 
     <span class="doccomment">/// Checks if the interval contains the given value.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; bool {
-        <span class="kw">let </span>lower_check = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.lower {
-            Bound::Included(<span class="kw-2">ref </span>lower) =&gt; <span class="kw-2">*</span>lower &lt;= <span class="kw-2">*</span>value,
-            Bound::Excluded(<span class="kw-2">ref </span>lower) =&gt; <span class="kw-2">*</span>lower &lt; <span class="kw-2">*</span>value,
-            Bound::Unbounded =&gt; <span class="bool-val">true</span>,
+    </span><span class="kw">pub fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <span class="kw">let </span>lower_check = <span class="kw">match </span><span class="kw-2">&amp;</span><a class="self" href="#174">self</a>.lower {
+            <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(<span class="kw-2">ref </span>lower) =&gt; <span class="kw-2">*</span><a href="#176">lower</a> &lt;= <span class="kw-2">*</span><a href="#174">value</a>,
+            <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(<span class="kw-2">ref </span>lower) =&gt; <span class="kw-2">*</span><a href="#177">lower</a> &lt; <span class="kw-2">*</span><a href="#174">value</a>,
+            <a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a> =&gt; <span class="bool-val">true</span>,
         };
-        <span class="kw">let </span>upper_check = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.upper {
-            Bound::Included(<span class="kw-2">ref </span>upper) =&gt; <span class="kw-2">*</span>value &lt;= <span class="kw-2">*</span>upper,
-            Bound::Excluded(<span class="kw-2">ref </span>upper) =&gt; <span class="kw-2">*</span>value &lt; <span class="kw-2">*</span>upper,
-            Bound::Unbounded =&gt; <span class="bool-val">true</span>,
+        <span class="kw">let </span>upper_check = <span class="kw">match </span><span class="kw-2">&amp;</span><a class="self" href="#174">self</a>.upper {
+            <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(<span class="kw-2">ref </span>upper) =&gt; <span class="kw-2">*</span><a href="#174">value</a> &lt;= <span class="kw-2">*</span><a href="#181">upper</a>,
+            <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(<span class="kw-2">ref </span>upper) =&gt; <span class="kw-2">*</span><a href="#174">value</a> &lt; <span class="kw-2">*</span><a href="#182">upper</a>,
+            <a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a> =&gt; <span class="bool-val">true</span>,
         };
-        lower_check &amp;&amp; upper_check
+        <a href="#175">lower_check</a> &amp;&amp; <a href="#180">upper_check</a>
     }
 
     <span class="doccomment">/// Returns the size of the interval, if finite.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt;
+    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../devela/_core/option/enum.Option.html">Option</a>&lt;T&gt;
     <span class="kw">where
-        </span>T: Clone + core::ops::Sub&lt;Output = T&gt;,
+        </span>T: <a href="../../../devela/_core/clone/trait.Clone.html">Clone</a> + <a href="../../../devela/_core/ops/trait.Sub.html">core::ops::Sub</a>&lt;Output = T&gt;,
     {
-        <span class="kw">match </span>(<span class="kw-2">&amp;</span><span class="self">self</span>.lower, <span class="kw-2">&amp;</span><span class="self">self</span>.upper) {
-            (Bound::Included(a), Bound::Included(b)) =&gt; {
-                <span class="macro">iif!</span>[a &lt;= b; <span class="prelude-val">Some</span>(b.clone() - a.clone()); <span class="prelude-val">None</span>]
+        <span class="kw">match </span>(<span class="kw-2">&amp;</span><a class="self" href="#190">self</a>.lower, <span class="kw-2">&amp;</span><a class="self" href="#190">self</a>.upper) {
+            (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(a), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(b)) =&gt; {
+                <a class="macro" href="../code/macros/iif.rs.html#60-89">iif!</a>[a &lt;= b; <span class="prelude-val">Some</span>(b.clone() - a.clone()); <span class="prelude-val">None</span>]
             }
-            (Bound::Included(a), Bound::Excluded(b)) =&gt; {
-                <span class="macro">iif!</span>[a &lt; b; <span class="prelude-val">Some</span>(b.clone() - a.clone()); <span class="prelude-val">None</span>]
+            (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(a), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(b)) =&gt; {
+                <a class="macro" href="../code/macros/iif.rs.html#60-89">iif!</a>[a &lt; b; <span class="prelude-val">Some</span>(b.clone() - a.clone()); <span class="prelude-val">None</span>]
             }
-            (Bound::Excluded(a), Bound::Included(b)) =&gt; {
-                <span class="macro">iif!</span>[a &lt; b; <span class="prelude-val">Some</span>(b.clone() - a.clone()); <span class="prelude-val">None</span>]
+            (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(a), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(b)) =&gt; {
+                <a class="macro" href="../code/macros/iif.rs.html#60-89">iif!</a>[a &lt; b; <span class="prelude-val">Some</span>(b.clone() - a.clone()); <span class="prelude-val">None</span>]
             }
-            (Bound::Excluded(a), Bound::Excluded(b)) =&gt; {
-                <span class="macro">iif!</span>[a &lt; b; <span class="prelude-val">Some</span>(b.clone() - a.clone()); <span class="prelude-val">None</span>]
+            (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(a), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(b)) =&gt; {
+                <a class="macro" href="../code/macros/iif.rs.html#60-89">iif!</a>[a &lt; b; <span class="prelude-val">Some</span>(b.clone() - a.clone()); <span class="prelude-val">None</span>]
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>, <span class="comment">// Unbounded intervals don't have a finite size
         </span>}
@@ -668,38 +704,38 @@
 <span class="attr">#[rustfmt::skip]
 </span><span class="kw">mod </span>impl_traits {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use crate</span>::{NumError, NumError::IncompatibleBounds, NumResult, Ordering, RangeBounds};
+    <span class="kw">use crate</span>::{<a href="error.rs.html#14-52">NumError</a>, <a href="error.rs.html#39">NumError::IncompatibleBounds</a>, <a href="error.rs.html#9">NumResult</a>, <a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering</a>, <a href="../../../devela/_core/range/trait.RangeBounds.html">RangeBounds</a>};
 
     <span class="comment">/* infallible conversions */
 
     // lower-closed
-    </span><span class="kw">impl</span>&lt;T&gt; From&lt;RangeInclusive&lt;T&gt;&gt; <span class="kw">for </span>Interval&lt;T&gt; {
+    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.From.html">From</a>&lt;<a href="../../../devela/_core/range/legacy/struct.RangeInclusive.html">RangeInclusive</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="#10-15">Interval</a>&lt;T&gt; {
         <span class="attr">#[must_use]
-        </span><span class="kw">fn </span>from(r: RangeInclusive&lt;T&gt;) -&gt; <span class="self">Self </span>{
-            <span class="kw">let </span>(start, end) = r.into_inner();
-            <span class="self">Self</span>::closed(start, end)
+        </span><span class="kw">fn </span>from(r: <a href="../../../devela/_core/range/legacy/struct.RangeInclusive.html">RangeInclusive</a>&lt;T&gt;) -&gt; <span class="self">Self </span>{
+            <span class="kw">let </span>(start, end) = <a href="#222">r</a>.<a href="https://doc.rust-lang.org/nightly/core/ops/range/struct.RangeInclusive.html#method.into_inner">into_inner</a>();
+            <a href="#29-31"><span class="self">Self</span>::closed</a>(<a href="#223">start</a>, <a href="#223">end</a>)
         }
     }
-    <span class="kw">impl</span>&lt;T&gt; From&lt;Range&lt;T&gt;&gt; <span class="kw">for </span>Interval&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.From.html">From</a>&lt;<a href="../../../devela/_core/range/legacy/struct.Range.html">Range</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="#10-15">Interval</a>&lt;T&gt; {
         <span class="attr">#[must_use]
-        </span><span class="kw">fn </span>from(r: Range&lt;T&gt;) -&gt; <span class="self">Self </span>{ <span class="self">Self</span>::closed_open(r.start, r.end) }
+        </span><span class="kw">fn </span>from(r: <a href="../../../devela/_core/range/legacy/struct.Range.html">Range</a>&lt;T&gt;) -&gt; <span class="self">Self </span>{ <a href="#34-36"><span class="self">Self</span>::closed_open</a>(<a href="#229">r</a>.start, <a href="#229">r</a>.end) }
     }
-    <span class="kw">impl</span>&lt;T&gt; From&lt;RangeFrom&lt;T&gt;&gt; <span class="kw">for </span>Interval&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.From.html">From</a>&lt;<a href="../../../devela/_core/range/legacy/struct.RangeFrom.html">RangeFrom</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="#10-15">Interval</a>&lt;T&gt; {
         <span class="attr">#[must_use]
-        </span><span class="kw">fn </span>from(r: RangeFrom&lt;T&gt;) -&gt; <span class="self">Self </span>{ <span class="self">Self</span>::closed_unbounded(r.start) }
+        </span><span class="kw">fn </span>from(r: <a href="../../../devela/_core/range/legacy/struct.RangeFrom.html">RangeFrom</a>&lt;T&gt;) -&gt; <span class="self">Self </span>{ <a href="#39-41"><span class="self">Self</span>::closed_unbounded</a>(<a href="#233">r</a>.start) }
     }
     <span class="comment">// lower-unbounded
-    </span><span class="kw">impl</span>&lt;T&gt; From&lt;RangeFull&gt; <span class="kw">for </span>Interval&lt;T&gt; {
+    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.From.html">From</a>&lt;<a href="../../../devela/_core/range/struct.RangeFull.html">RangeFull</a>&gt; <span class="kw">for </span><a href="#10-15">Interval</a>&lt;T&gt; {
         <span class="attr">#[must_use]
-        </span><span class="kw">fn </span>from(<span class="kw">_</span>: RangeFull) -&gt; <span class="self">Self </span>{ <span class="self">Self</span>::unbounded() }
+        </span><span class="kw">fn </span>from(<span class="kw">_</span>: <a href="../../../devela/_core/range/struct.RangeFull.html">RangeFull</a>) -&gt; <span class="self">Self </span>{ <a href="#47-49"><span class="self">Self</span>::unbounded</a>() }
     }
-    <span class="kw">impl</span>&lt;T&gt; From&lt;RangeTo&lt;T&gt;&gt; <span class="kw">for </span>Interval&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.From.html">From</a>&lt;<a href="../../../devela/_core/range/struct.RangeTo.html">RangeTo</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="#10-15">Interval</a>&lt;T&gt; {
         <span class="attr">#[must_use]
-        </span><span class="kw">fn </span>from(r: RangeTo&lt;T&gt;) -&gt; <span class="self">Self </span>{ <span class="self">Self</span>::unbounded_closed(r.end) }
+        </span><span class="kw">fn </span>from(r: <a href="../../../devela/_core/range/struct.RangeTo.html">RangeTo</a>&lt;T&gt;) -&gt; <span class="self">Self </span>{ <a href="#52-54"><span class="self">Self</span>::unbounded_closed</a>(<a href="#242">r</a>.end) }
     }
-    <span class="kw">impl</span>&lt;T&gt; From&lt;RangeToInclusive&lt;T&gt;&gt; <span class="kw">for </span>Interval&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.From.html">From</a>&lt;<a href="../../../devela/_core/range/struct.RangeToInclusive.html">RangeToInclusive</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="#10-15">Interval</a>&lt;T&gt; {
         <span class="attr">#[must_use]
-        </span><span class="kw">fn </span>from(r: RangeToInclusive&lt;T&gt;) -&gt; <span class="self">Self </span>{ <span class="self">Self</span>::unbounded_open(r.end) }
+        </span><span class="kw">fn </span>from(r: <a href="../../../devela/_core/range/struct.RangeToInclusive.html">RangeToInclusive</a>&lt;T&gt;) -&gt; <span class="self">Self </span>{ <a href="#57-59"><span class="self">Self</span>::unbounded_open</a>(<a href="#246">r</a>.end) }
     }
 
     <span class="comment">/* fallible conversions */
@@ -707,101 +743,101 @@
     // lower-closed
     </span><span class="doccomment">/// # Errors
     /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
-    </span><span class="kw">impl</span>&lt;T&gt; TryFrom&lt;Interval&lt;T&gt;&gt; <span class="kw">for </span>RangeInclusive&lt;T&gt; {
-        <span class="kw">type </span>Error = NumError;
-        <span class="kw">fn </span>try_from(interval: Interval&lt;T&gt;) -&gt; NumResult&lt;<span class="self">Self</span>&gt; {
-            <span class="kw">match </span>(interval.lower, interval.upper) {
-                (Bound::Included(start), Bound::Included(end)) =&gt; <span class="prelude-val">Ok</span>(start..=end),
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(IncompatibleBounds),
+    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<a href="#10-15">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../devela/_core/range/legacy/struct.RangeInclusive.html">RangeInclusive</a>&lt;T&gt; {
+        <span class="kw">type </span>Error = <a href="error.rs.html#14-52">NumError</a>;
+        <span class="kw">fn </span>try_from(interval: <a href="#10-15">Interval</a>&lt;T&gt;) -&gt; <a href="error.rs.html#9">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">match </span>(<a href="#256">interval</a>.lower, <a href="#256">interval</a>.upper) {
+                (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(start), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(end)) =&gt; <span class="prelude-val">Ok</span>(<a href="#258">start</a>..=<a href="#258">end</a>),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<a href="error.rs.html#39">IncompatibleBounds</a>),
             }
         }
     }
     <span class="doccomment">/// # Errors
     /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
-    </span><span class="kw">impl</span>&lt;T&gt; TryFrom&lt;Interval&lt;T&gt;&gt; <span class="kw">for </span>Range&lt;T&gt; {
-        <span class="kw">type </span>Error = NumError;
-        <span class="kw">fn </span>try_from(interval: Interval&lt;T&gt;) -&gt; NumResult&lt;<span class="self">Self</span>&gt; {
-            <span class="kw">match </span>(interval.lower, interval.upper) {
-                (Bound::Included(start), Bound::Excluded(end)) =&gt; <span class="prelude-val">Ok</span>(start..end),
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(IncompatibleBounds),
+    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<a href="#10-15">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../devela/_core/range/legacy/struct.Range.html">Range</a>&lt;T&gt; {
+        <span class="kw">type </span>Error = <a href="error.rs.html#14-52">NumError</a>;
+        <span class="kw">fn </span>try_from(interval: <a href="#10-15">Interval</a>&lt;T&gt;) -&gt; <a href="error.rs.html#9">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">match </span>(<a href="#267">interval</a>.lower, <a href="#267">interval</a>.upper) {
+                (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(start), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(end)) =&gt; <span class="prelude-val">Ok</span>(<a href="#269">start</a>..<a href="#269">end</a>),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<a href="error.rs.html#39">IncompatibleBounds</a>),
             }
         }
     }
     <span class="doccomment">/// # Errors
     /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
-    </span><span class="kw">impl</span>&lt;T&gt; TryFrom&lt;Interval&lt;T&gt;&gt; <span class="kw">for </span>RangeFrom&lt;T&gt; {
-        <span class="kw">type </span>Error = NumError;
-        <span class="kw">fn </span>try_from(interval: Interval&lt;T&gt;) -&gt; NumResult&lt;<span class="self">Self</span>&gt; {
-            <span class="kw">match </span>(interval.lower, interval.upper) {
-                (Bound::Included(start), Bound::Unbounded) =&gt; <span class="prelude-val">Ok</span>(start..),
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(IncompatibleBounds),
+    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<a href="#10-15">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../devela/_core/range/legacy/struct.RangeFrom.html">RangeFrom</a>&lt;T&gt; {
+        <span class="kw">type </span>Error = <a href="error.rs.html#14-52">NumError</a>;
+        <span class="kw">fn </span>try_from(interval: <a href="#10-15">Interval</a>&lt;T&gt;) -&gt; <a href="error.rs.html#9">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">match </span>(<a href="#278">interval</a>.lower, <a href="#278">interval</a>.upper) {
+                (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(start), <a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>) =&gt; <span class="prelude-val">Ok</span>(<a href="#280">start</a>..),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<a href="error.rs.html#39">IncompatibleBounds</a>),
             }
         }
     }
     <span class="comment">// lower-unbounded
     </span><span class="doccomment">/// # Errors
     /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
-    </span><span class="kw">impl</span>&lt;T&gt; TryFrom&lt;Interval&lt;T&gt;&gt; <span class="kw">for </span>RangeFull {
-        <span class="kw">type </span>Error = NumError;
-        <span class="kw">fn </span>try_from(interval: Interval&lt;T&gt;) -&gt; NumResult&lt;<span class="self">Self</span>&gt; {
-            <span class="kw">match </span>(interval.lower, interval.upper) {
-                (Bound::Unbounded, Bound::Unbounded) =&gt; <span class="prelude-val">Ok</span>(..),
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(IncompatibleBounds),
+    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<a href="#10-15">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../devela/_core/range/struct.RangeFull.html">RangeFull</a> {
+        <span class="kw">type </span>Error = <a href="error.rs.html#14-52">NumError</a>;
+        <span class="kw">fn </span>try_from(interval: <a href="#10-15">Interval</a>&lt;T&gt;) -&gt; <a href="error.rs.html#9">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">match </span>(<a href="#290">interval</a>.lower, <a href="#290">interval</a>.upper) {
+                (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>, <a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>) =&gt; <span class="prelude-val">Ok</span>(..),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<a href="error.rs.html#39">IncompatibleBounds</a>),
             }
         }
     }
     <span class="doccomment">/// # Errors
     /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
-    </span><span class="kw">impl</span>&lt;T&gt; TryFrom&lt;Interval&lt;T&gt;&gt; <span class="kw">for </span>RangeTo&lt;T&gt; {
-        <span class="kw">type </span>Error = NumError;
-        <span class="kw">fn </span>try_from(interval: Interval&lt;T&gt;) -&gt; NumResult&lt;<span class="self">Self</span>&gt; {
-            <span class="kw">match </span>(interval.lower, interval.upper) {
-                (Bound::Unbounded, Bound::Excluded(end)) =&gt; <span class="prelude-val">Ok</span>(..end),
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(IncompatibleBounds),
+    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<a href="#10-15">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../devela/_core/range/struct.RangeTo.html">RangeTo</a>&lt;T&gt; {
+        <span class="kw">type </span>Error = <a href="error.rs.html#14-52">NumError</a>;
+        <span class="kw">fn </span>try_from(interval: <a href="#10-15">Interval</a>&lt;T&gt;) -&gt; <a href="error.rs.html#9">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">match </span>(<a href="#301">interval</a>.lower, <a href="#301">interval</a>.upper) {
+                (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>, <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(end)) =&gt; <span class="prelude-val">Ok</span>(..<a href="#303">end</a>),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<a href="error.rs.html#39">IncompatibleBounds</a>),
             }
         }
     }
     <span class="doccomment">/// # Errors
     /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
-    </span><span class="kw">impl</span>&lt;T&gt; TryFrom&lt;Interval&lt;T&gt;&gt; <span class="kw">for </span>RangeToInclusive&lt;T&gt; {
-        <span class="kw">type </span>Error = NumError;
-        <span class="kw">fn </span>try_from(interval: Interval&lt;T&gt;) -&gt; NumResult&lt;<span class="self">Self</span>&gt; {
-            <span class="kw">match </span>(interval.lower, interval.upper) {
-                (Bound::Unbounded, Bound::Included(end)) =&gt; <span class="prelude-val">Ok</span>(..=end),
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(IncompatibleBounds),
+    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<a href="#10-15">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../devela/_core/range/struct.RangeToInclusive.html">RangeToInclusive</a>&lt;T&gt; {
+        <span class="kw">type </span>Error = <a href="error.rs.html#14-52">NumError</a>;
+        <span class="kw">fn </span>try_from(interval: <a href="#10-15">Interval</a>&lt;T&gt;) -&gt; <a href="error.rs.html#9">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">match </span>(<a href="#312">interval</a>.lower, <a href="#312">interval</a>.upper) {
+                (<a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a>, <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(end)) =&gt; <span class="prelude-val">Ok</span>(..=<a href="#314">end</a>),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<a href="error.rs.html#39">IncompatibleBounds</a>),
             }
         }
     }
 
     <span class="comment">/* other traits */
 
-    </span><span class="kw">impl</span>&lt;T&gt; RangeBounds&lt;T&gt; <span class="kw">for </span>Interval&lt;T&gt; {
-        <span class="kw">fn </span>start_bound(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Bound&lt;<span class="kw-2">&amp;</span>T&gt; {
-            <span class="self">self</span>.lower_ref()
+    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../devela/_core/range/trait.RangeBounds.html">RangeBounds</a>&lt;T&gt; <span class="kw">for </span><a href="#10-15">Interval</a>&lt;T&gt; {
+        <span class="kw">fn </span>start_bound(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;<span class="kw-2">&amp;</span>T&gt; {
+            <a class="self" href="#323">self</a>.<a href="#112-114">lower_ref</a>()
         }
-        <span class="kw">fn </span>end_bound(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Bound&lt;<span class="kw-2">&amp;</span>T&gt; {
-            <span class="self">self</span>.upper_ref()
+        <span class="kw">fn </span>end_bound(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;<span class="kw-2">&amp;</span>T&gt; {
+            <a class="self" href="#326">self</a>.<a href="#118-120">upper_ref</a>()
         }
     }
 
     <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
     </span><span class="macro">crate::items!</span> {
-        <span class="kw">use crate</span>::{format, String};
-        <span class="kw">use </span>core::fmt;
+        <span class="kw">use crate</span>::{<a href="../../../devela/_dep/_std/macro.format.html">format</a>, <a href="../../../devela/_dep/_std/string/struct.String.html">String</a>};
+        <span class="kw">use </span><a href="../../../devela/_core/fmt/index.html">core::fmt</a>;
 
-        <span class="kw">impl</span>&lt;T: fmt::Display&gt; fmt::Display <span class="kw">for </span>Interval&lt;T&gt; {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-                <span class="kw">let </span>lower = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.lower {
-                    Bound::Included(value) =&gt; <span class="macro">format!</span>(<span class="string">"[{}"</span>, value),
-                    Bound::Excluded(value) =&gt; <span class="macro">format!</span>(<span class="string">"({}"</span>, value),
-                    Bound::Unbounded =&gt; String::from(<span class="string">"(-∞"</span>),
+        <span class="kw">impl</span>&lt;T: <a href="../../../devela/_core/fmt/trait.Display.html">fmt::Display</a>&gt; <a href="../../../devela/_core/fmt/trait.Display.html">fmt::Display</a> <span class="kw">for </span><a href="#10-15">Interval</a>&lt;T&gt; {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../devela/_core/fmt/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
+                <span class="kw">let </span>lower = <span class="kw">match </span><span class="kw-2">&amp;</span><a class="self" href="#337">self</a>.lower {
+                    <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(value) =&gt; <a class="macro" href="../../../devela/_dep/_std/macro.format.html">format!</a>(<span class="string">"[{}"</span>, value),
+                    <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(value) =&gt; <a class="macro" href="../../../devela/_dep/_std/macro.format.html">format!</a>(<span class="string">"({}"</span>, value),
+                    <a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a> =&gt; <a href="../../../devela/_core/convert/trait.From.html">String::from</a>(<span class="string">"(-∞"</span>),
                 };
-                <span class="kw">let </span>upper = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.upper {
-                    Bound::Included(value) =&gt; <span class="macro">format!</span>(<span class="string">"{}, {}]"</span>, lower, value),
-                    Bound::Excluded(value) =&gt; <span class="macro">format!</span>(<span class="string">"{}, {})"</span>, lower, value),
-                    Bound::Unbounded =&gt; <span class="macro">format!</span>(<span class="string">"{}, ∞)"</span>, lower),
+                <span class="kw">let </span>upper = <span class="kw">match </span><span class="kw-2">&amp;</span><a class="self" href="#337">self</a>.upper {
+                    <a href="../../../devela/_core/range/enum.Bound.html">Bound::Included</a>(value) =&gt; <a class="macro" href="../../../devela/_dep/_std/macro.format.html">format!</a>(<span class="string">"{}, {}]"</span>, lower, value),
+                    <a href="../../../devela/_core/range/enum.Bound.html">Bound::Excluded</a>(value) =&gt; <a class="macro" href="../../../devela/_dep/_std/macro.format.html">format!</a>(<span class="string">"{}, {})"</span>, lower, value),
+                    <a href="../../../devela/_core/range/enum.Bound.html">Bound::Unbounded</a> =&gt; <a class="macro" href="../../../devela/_dep/_std/macro.format.html">format!</a>(<span class="string">"{}, ∞)"</span>, lower),
                 };
-                <span class="macro">write!</span>(f, <span class="string">"{}"</span>, upper)
+                <a class="macro" href="../../../devela/_core/macro.write.html">write!</a>(<a href="#337">f</a>, <span class="string">"{}"</span>, upper)
             }
         }
     }
@@ -811,11 +847,11 @@
     /// - If the lower bounds are equal, we compare the upper bounds.
     /// - We define Unbounded as less than any bounded value.
     /// - We define that Included(a) &lt; Excluded(a) at same point a.
-    </span><span class="kw">impl</span>&lt;T: PartialOrd&gt; PartialOrd <span class="kw">for </span>Interval&lt;T&gt; {
-        <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
-            <span class="kw">match </span>compare_bounds(<span class="kw-2">&amp;</span><span class="self">self</span>.lower, <span class="kw-2">&amp;</span>other.lower) {
-                <span class="prelude-val">Some</span>(Ordering::Equal) =&gt; compare_bounds(<span class="kw-2">&amp;</span><span class="self">self</span>.upper, <span class="kw-2">&amp;</span>other.upper),
-                ord =&gt; ord,
+    </span><span class="kw">impl</span>&lt;T: <a href="../../../devela/_core/cmp/trait.PartialOrd.html">PartialOrd</a>&gt; <a href="../../../devela/_core/cmp/trait.PartialOrd.html">PartialOrd</a> <span class="kw">for </span><a href="#10-15">Interval</a>&lt;T&gt; {
+        <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <a class="prelude-ty" href="../../../devela/_core/option/enum.Option.html">Option</a>&lt;<a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering</a>&gt; {
+            <span class="kw">match </span><a href="#382-403">compare_bounds</a>(<span class="kw-2">&amp;</span><a class="self" href="#359">self</a>.lower, <span class="kw-2">&amp;</span><a href="#359">other</a>.lower) {
+                <span class="prelude-val">Some</span>(<a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Equal</a>) =&gt; <a href="#382-403">compare_bounds</a>(<span class="kw-2">&amp;</span><a class="self" href="#359">self</a>.upper, <span class="kw-2">&amp;</span><a href="#359">other</a>.upper),
+                ord =&gt; <a href="#362">ord</a>,
             }
         }
     }
@@ -824,57 +860,57 @@
     /// - If the lower bounds are equal, we compare the upper bounds.
     /// - We define Unbounded as less than any bounded value.
     /// - We define that Included(a) &lt; Excluded(a) at same point a.
-    </span><span class="kw">impl</span>&lt;T: Ord&gt; Ord <span class="kw">for </span>Interval&lt;T&gt; {
-        <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
-            <span class="kw">match </span>compare_bounds_ord(<span class="kw-2">&amp;</span><span class="self">self</span>.lower, <span class="kw-2">&amp;</span>other.lower) {
-                Ordering::Equal =&gt; compare_bounds_ord(<span class="kw-2">&amp;</span><span class="self">self</span>.upper, <span class="kw-2">&amp;</span>other.upper),
-                ord =&gt; ord,
+    </span><span class="kw">impl</span>&lt;T: <a href="../../../devela/_core/cmp/trait.Ord.html">Ord</a>&gt; <a href="../../../devela/_core/cmp/trait.Ord.html">Ord</a> <span class="kw">for </span><a href="#10-15">Interval</a>&lt;T&gt; {
+        <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering</a> {
+            <span class="kw">match </span><a href="#404-425">compare_bounds_ord</a>(<span class="kw-2">&amp;</span><a class="self" href="#372">self</a>.lower, <span class="kw-2">&amp;</span><a href="#372">other</a>.lower) {
+                <a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Equal</a> =&gt; <a href="#404-425">compare_bounds_ord</a>(<span class="kw-2">&amp;</span><a class="self" href="#372">self</a>.upper, <span class="kw-2">&amp;</span><a href="#372">other</a>.upper),
+                ord =&gt; <a href="#375">ord</a>,
             }
         }
     }
 
     <span class="comment">/* helpers */
 
-    </span><span class="kw">fn </span>compare_bounds&lt;T: PartialOrd&gt;(a: <span class="kw-2">&amp;</span>Bound&lt;T&gt;, b: <span class="kw-2">&amp;</span>Bound&lt;T&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
-        <span class="kw">use </span>Bound::{Excluded, Included, Unbounded};
-        <span class="kw">match </span>(a, b) {
-            (Unbounded, Unbounded) =&gt; <span class="prelude-val">Some</span>(Ordering::Equal),
-            (Unbounded, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Ordering::Less),
-            (<span class="kw">_</span>, Unbounded) =&gt; <span class="prelude-val">Some</span>(Ordering::Greater),
-            (Included(<span class="kw-2">ref </span>a_val), Included(<span class="kw-2">ref </span>b_val)) =&gt; a_val.partial_cmp(b_val),
-            (Excluded(<span class="kw-2">ref </span>a_val), Excluded(<span class="kw-2">ref </span>b_val)) =&gt; a_val.partial_cmp(b_val),
-            (Included(<span class="kw-2">ref </span>a_val), Excluded(<span class="kw-2">ref </span>b_val)) =&gt; {
-                <span class="kw">match </span>a_val.partial_cmp(b_val) {
-                    <span class="prelude-val">Some</span>(Ordering::Equal) =&gt; <span class="prelude-val">Some</span>(Ordering::Less),
-                    ord =&gt; ord,
+    </span><span class="kw">fn </span>compare_bounds&lt;T: <a href="../../../devela/_core/cmp/trait.PartialOrd.html">PartialOrd</a>&gt;(a: <span class="kw-2">&amp;</span><a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;, b: <span class="kw-2">&amp;</span><a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;) -&gt; <a class="prelude-ty" href="../../../devela/_core/option/enum.Option.html">Option</a>&lt;<a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering</a>&gt; {
+        <span class="kw">use </span>Bound::{<a href="../../../devela/_core/range/enum.Bound.html">Excluded</a>, <a href="../../../devela/_core/range/enum.Bound.html">Included</a>, <a href="../../../devela/_core/range/enum.Bound.html">Unbounded</a>};
+        <span class="kw">match </span>(<a href="#382">a</a>, <a href="#382">b</a>) {
+            (<a href="../../../devela/_core/range/enum.Bound.html">Unbounded</a>, <a href="../../../devela/_core/range/enum.Bound.html">Unbounded</a>) =&gt; <span class="prelude-val">Some</span>(<a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Equal</a>),
+            (<a href="../../../devela/_core/range/enum.Bound.html">Unbounded</a>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Less</a>),
+            (<span class="kw">_</span>, <a href="../../../devela/_core/range/enum.Bound.html">Unbounded</a>) =&gt; <span class="prelude-val">Some</span>(<a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Greater</a>),
+            (<a href="../../../devela/_core/range/enum.Bound.html">Included</a>(<span class="kw-2">ref </span>a_val), <a href="../../../devela/_core/range/enum.Bound.html">Included</a>(<span class="kw-2">ref </span>b_val)) =&gt; <a href="#388">a_val</a>.<a href="../../../devela/_core/cmp/trait.PartialOrd.html">partial_cmp</a>(<a href="#388">b_val</a>),
+            (<a href="../../../devela/_core/range/enum.Bound.html">Excluded</a>(<span class="kw-2">ref </span>a_val), <a href="../../../devela/_core/range/enum.Bound.html">Excluded</a>(<span class="kw-2">ref </span>b_val)) =&gt; <a href="#389">a_val</a>.<a href="../../../devela/_core/cmp/trait.PartialOrd.html">partial_cmp</a>(<a href="#389">b_val</a>),
+            (<a href="../../../devela/_core/range/enum.Bound.html">Included</a>(<span class="kw-2">ref </span>a_val), <a href="../../../devela/_core/range/enum.Bound.html">Excluded</a>(<span class="kw-2">ref </span>b_val)) =&gt; {
+                <span class="kw">match </span><a href="#390">a_val</a>.<a href="../../../devela/_core/cmp/trait.PartialOrd.html">partial_cmp</a>(<a href="#390">b_val</a>) {
+                    <span class="prelude-val">Some</span>(<a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Equal</a>) =&gt; <span class="prelude-val">Some</span>(<a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Less</a>),
+                    ord =&gt; <a href="#393">ord</a>,
                 }
             }
-            (Excluded(<span class="kw-2">ref </span>a_val), Included(<span class="kw-2">ref </span>b_val)) =&gt; {
-                <span class="kw">match </span>a_val.partial_cmp(b_val) {
-                    <span class="prelude-val">Some</span>(Ordering::Equal) =&gt; <span class="prelude-val">Some</span>(Ordering::Greater),
-                    ord =&gt; ord,
+            (<a href="../../../devela/_core/range/enum.Bound.html">Excluded</a>(<span class="kw-2">ref </span>a_val), <a href="../../../devela/_core/range/enum.Bound.html">Included</a>(<span class="kw-2">ref </span>b_val)) =&gt; {
+                <span class="kw">match </span><a href="#396">a_val</a>.<a href="../../../devela/_core/cmp/trait.PartialOrd.html">partial_cmp</a>(<a href="#396">b_val</a>) {
+                    <span class="prelude-val">Some</span>(<a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Equal</a>) =&gt; <span class="prelude-val">Some</span>(<a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Greater</a>),
+                    ord =&gt; <a href="#399">ord</a>,
                 }
             }
         }
     }
-    <span class="kw">fn </span>compare_bounds_ord&lt;T: Ord&gt;(a: <span class="kw-2">&amp;</span>Bound&lt;T&gt;, b: <span class="kw-2">&amp;</span>Bound&lt;T&gt;) -&gt; Ordering {
-        <span class="kw">use </span>Bound::{Excluded, Included, Unbounded};
-        <span class="kw">match </span>(a, b) {
-            (Unbounded, Unbounded) =&gt; Ordering::Equal,
-            (Unbounded, <span class="kw">_</span>) =&gt; Ordering::Less,
-            (<span class="kw">_</span>, Unbounded) =&gt; Ordering::Greater,
-            (Included(<span class="kw-2">ref </span>a_val), Included(<span class="kw-2">ref </span>b_val)) =&gt; a_val.cmp(b_val),
-            (Excluded(<span class="kw-2">ref </span>a_val), Excluded(<span class="kw-2">ref </span>b_val)) =&gt; a_val.cmp(b_val),
-            (Included(<span class="kw-2">ref </span>a_val), Excluded(<span class="kw-2">ref </span>b_val)) =&gt; {
-                <span class="kw">match </span>a_val.cmp(b_val) {
-                    Ordering::Equal =&gt; Ordering::Less,
-                    ord =&gt; ord,
+    <span class="kw">fn </span>compare_bounds_ord&lt;T: <a href="../../../devela/_core/cmp/trait.Ord.html">Ord</a>&gt;(a: <span class="kw-2">&amp;</span><a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;, b: <span class="kw-2">&amp;</span><a href="../../../devela/_core/range/enum.Bound.html">Bound</a>&lt;T&gt;) -&gt; <a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering</a> {
+        <span class="kw">use </span>Bound::{<a href="../../../devela/_core/range/enum.Bound.html">Excluded</a>, <a href="../../../devela/_core/range/enum.Bound.html">Included</a>, <a href="../../../devela/_core/range/enum.Bound.html">Unbounded</a>};
+        <span class="kw">match </span>(<a href="#404">a</a>, <a href="#404">b</a>) {
+            (<a href="../../../devela/_core/range/enum.Bound.html">Unbounded</a>, <a href="../../../devela/_core/range/enum.Bound.html">Unbounded</a>) =&gt; <a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Equal</a>,
+            (<a href="../../../devela/_core/range/enum.Bound.html">Unbounded</a>, <span class="kw">_</span>) =&gt; <a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Less</a>,
+            (<span class="kw">_</span>, <a href="../../../devela/_core/range/enum.Bound.html">Unbounded</a>) =&gt; <a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Greater</a>,
+            (<a href="../../../devela/_core/range/enum.Bound.html">Included</a>(<span class="kw-2">ref </span>a_val), <a href="../../../devela/_core/range/enum.Bound.html">Included</a>(<span class="kw-2">ref </span>b_val)) =&gt; <a href="#410">a_val</a>.<a href="../../../devela/_core/cmp/trait.Ord.html">cmp</a>(<a href="#410">b_val</a>),
+            (<a href="../../../devela/_core/range/enum.Bound.html">Excluded</a>(<span class="kw-2">ref </span>a_val), <a href="../../../devela/_core/range/enum.Bound.html">Excluded</a>(<span class="kw-2">ref </span>b_val)) =&gt; <a href="#411">a_val</a>.<a href="../../../devela/_core/cmp/trait.Ord.html">cmp</a>(<a href="#411">b_val</a>),
+            (<a href="../../../devela/_core/range/enum.Bound.html">Included</a>(<span class="kw-2">ref </span>a_val), <a href="../../../devela/_core/range/enum.Bound.html">Excluded</a>(<span class="kw-2">ref </span>b_val)) =&gt; {
+                <span class="kw">match </span><a href="#412">a_val</a>.<a href="../../../devela/_core/cmp/trait.Ord.html">cmp</a>(<a href="#412">b_val</a>) {
+                    <a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Equal</a> =&gt; <a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Less</a>,
+                    ord =&gt; <a href="#415">ord</a>,
                 }
             }
-            (Excluded(<span class="kw-2">ref </span>a_val), Included(<span class="kw-2">ref </span>b_val)) =&gt; {
-                <span class="kw">match </span>a_val.cmp(b_val) {
-                    Ordering::Equal =&gt; Ordering::Greater,
-                    ord =&gt; ord,
+            (<a href="../../../devela/_core/range/enum.Bound.html">Excluded</a>(<span class="kw-2">ref </span>a_val), <a href="../../../devela/_core/range/enum.Bound.html">Included</a>(<span class="kw-2">ref </span>b_val)) =&gt; {
+                <span class="kw">match </span><a href="#418">a_val</a>.<a href="../../../devela/_core/cmp/trait.Ord.html">cmp</a>(<a href="#418">b_val</a>) {
+                    <a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Equal</a> =&gt; <a href="../../../devela/_core/cmp/enum.Ordering.html">Ordering::Greater</a>,
+                    ord =&gt; <a href="#421">ord</a>,
                 }
             }
         }

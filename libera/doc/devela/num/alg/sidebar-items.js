@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["linear"],"struct":["VecVector","Vector"],"trait":["NumVector"],"type":["Vector2d","Vector3d"]};

@@ -1,0 +1,9 @@
+(function() {
+    var type_impls = Object.fromEntries([["devela",[["<details class=\"toggle implementors-toggle\" open><summary><section id=\"impl-Debug-for-sysinfo\" class=\"impl\"><a href=\"#impl-Debug-for-sysinfo\" class=\"anchor\">§</a><h3 class=\"code-header\">impl <a class=\"trait\" href=\"devela/_core/fmt/trait.Debug.html\" title=\"trait devela::_core::fmt::Debug\">Debug</a> for sysinfo</h3></section></summary><div class=\"impl-items\"><details class=\"toggle method-toggle\" open><summary><section id=\"method.fmt\" class=\"method trait-impl\"><a href=\"#method.fmt\" class=\"anchor\">§</a><h4 class=\"code-header\">fn <a href=\"devela/_core/fmt/trait.Debug.html#tymethod.fmt\" class=\"fn\">fmt</a>(&amp;self, f: &amp;mut <a class=\"struct\" href=\"devela/_core/fmt/struct.Formatter.html\" title=\"struct devela::_core::fmt::Formatter\">Formatter</a>&lt;'_&gt;) -&gt; <a class=\"enum\" href=\"devela/_core/result/enum.Result.html\" title=\"enum devela::_core::result::Result\">Result</a>&lt;<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>, <a class=\"struct\" href=\"devela/_core/fmt/struct.Error.html\" title=\"struct devela::_core::fmt::Error\">Error</a>&gt; <a href=\"#\" class=\"tooltip\" data-notable-ty=\"Result&lt;(), Error&gt;\">ⓘ</a></h4></section></summary><div class='docblock'>Formats the value using the given formatter. <a href=\"devela/_core/fmt/trait.Debug.html#tymethod.fmt\">Read more</a></div></details></div></details>","Debug","devela::_dep::rustix::system::Sysinfo"]]]]);
+    if (window.register_type_impls) {
+        window.register_type_impls(type_impls);
+    } else {
+        window.pending_type_impls = type_impls;
+    }
+})()
+//{"start":55,"fragment_lengths":[1500]}

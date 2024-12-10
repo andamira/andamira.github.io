@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["MediaError"],"mod":["audio","color","draw","font","image"],"type":["MediaResult"]};
+window.SIDEBAR_ITEMS = {"enum":["AudioError","ColorError","DrawError","FontError","ImageError","MediaError"],"mod":["audio","color","draw","font","image"],"struct":["Color","Pnm"],"trait":["Canvas","ColorBase"],"type":["AudioResult","ColorResult","DrawResult","FontResult","ImageResult","MediaResult"]};

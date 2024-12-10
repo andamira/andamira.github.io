@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["MAX_ERRNO"],"fn":["check_errno","syscall0","syscall1","syscall2","syscall3","syscall4","syscall5","syscall6"],"type":["Errno","Sysno"]};

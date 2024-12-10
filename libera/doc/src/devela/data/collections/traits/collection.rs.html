@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/collections/traits/collection.rs`."><title>collection.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/collections/traits/collection.rs`."><title>collection.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -256,55 +292,55 @@
 //   - UnorderedMap
 //   - UnorderedSet
 
-</span><span class="kw">use crate</span>::{Array, DataError <span class="kw">as </span>E, DataResult <span class="kw">as </span><span class="prelude-ty">Result</span>, Storage};
+</span><span class="kw">use crate</span>::{<a href="../array/d1/definitions.rs.html#63-65">Array</a>, <a href="../../error.rs.html#14-72">DataError</a> <span class="kw">as </span>E, <a href="../../error.rs.html#9">DataResult</a> <span class="kw">as </span><span class="prelude-ty">Result</span>, <a href="../../../sys/mem/storage/mod.rs.html#55-69">Storage</a>};
 <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">use crate</span>::{BTreeMap, BTreeSet, BinaryHeap, Vec, VecDeque};
+</span><span class="kw">use crate</span>::{<a href="../../../../../devela/_dep/_std/collections/btree_map/struct.BTreeMap.html">BTreeMap</a>, <a href="../../../../../devela/_dep/_std/collections/btree_set/struct.BTreeSet.html">BTreeSet</a>, <a href="../../../../../devela/_dep/_std/collections/binary_heap/struct.BinaryHeap.html">BinaryHeap</a>, <a href="../../../../../devela/_dep/_std/vec/struct.Vec.html">Vec</a>, <a href="../../../../../devela/_dep/_std/collections/vec_deque/struct.VecDeque.html">VecDeque</a>};
 <span class="attr">#[cfg(all(feature = <span class="string">"alloc"</span>, feature = <span class="string">"dep_hashbrown"</span>))]
-</span><span class="kw">use crate</span>::{HashMap, HashSet};
+</span><span class="kw">use crate</span>::{<a href="../../../../../devela/_dep/hashbrown/struct.HashMap.html">HashMap</a>, <a href="../../../../../devela/_dep/hashbrown/struct.HashSet.html">HashSet</a>};
 
 <span class="doccomment">/// An abstract data collection.
 ///
 /// By default returns [`NotImplemented`][E::NotImplemented] for every method.
 </span><span class="attr">#[rustfmt::skip] #[allow(unused_variables)]
-</span><span class="kw">pub trait </span>DataCollection {
+</span><span class="kw">pub trait </span><a href="../../../../../devela/data/collections/trait.DataCollection.html">DataCollection</a> {
     <span class="doccomment">/// The element type of the collection.
     </span><span class="kw">type </span>Element;
 
     <span class="doccomment">/// Returns the reserved capacity for elements in the collection.
-    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { E::ni() }
+    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <a href="../../error.rs.html#76-78">E::ni</a>() }
     <span class="doccomment">/// Returns the current number of elements in the collection.
-    </span><span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { E::ni() }
+    </span><span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <a href="../../error.rs.html#76-78">E::ni</a>() }
 
     <span class="doccomment">/// Returns `true` if the collection is empty, `false` if it's not.
-    </span><span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ni() }
+    </span><span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <a href="../../error.rs.html#76-78">E::ni</a>() }
     <span class="doccomment">/// Returns `true` if the collection is full, `false` if it's not.
-    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ni() }
+    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <a href="../../error.rs.html#76-78">E::ni</a>() }
 
     <span class="doccomment">/// Returns `true` if the collection contains the given `element`.
-    </span><span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt;
-    <span class="kw">where </span><span class="self">Self</span>::Element: PartialEq { E::ni() }
+    </span><span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt;
+    <span class="kw">where </span><span class="self">Self</span>::Element: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> { <a href="../../error.rs.html#76-78">E::ni</a>() }
     <span class="doccomment">/// Counts the number of times a given `element` appears in the collection.
-    </span><span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;
-    <span class="kw">where </span><span class="self">Self</span>::Element: PartialEq { E::ni() }
+    </span><span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;
+    <span class="kw">where </span><span class="self">Self</span>::Element: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> { <a href="../../error.rs.html#76-78">E::ni</a>() }
 }
 
 <span class="comment">/* impl for devela types */
 
 </span><span class="attr">#[rustfmt::skip]
-</span><span class="kw">impl</span>&lt;T, <span class="kw">const </span>LEN: usize, S: Storage&gt; DataCollection <span class="kw">for </span>Array&lt;T, LEN, S&gt; {
+</span><span class="kw">impl</span>&lt;T, <span class="kw">const </span>LEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, S: <a href="../../../sys/mem/storage/mod.rs.html#55-69">Storage</a>&gt; <a href="#29-49">DataCollection</a> <span class="kw">for </span><a href="../array/d1/definitions.rs.html#63-65">Array</a>&lt;T, <a href="#54">LEN</a>, S&gt; {
     <span class="kw">type </span>Element = T;
     <span class="doccomment">/// The capacity of a fixed-size array is always equal to its length.
-    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(LEN) }
-    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(LEN) }
+    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a href="#54">LEN</a>) }
+    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a href="#54">LEN</a>) }
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported] since a fixed-size array is never empty or full.
-    </span><span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ns() }
+    </span><span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported] since a fixed-size array is never empty or full.
-    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ns() }
-    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; <span class="kw">where </span>T: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.contains(<span class="kw-2">&amp;</span>element))
+    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
+    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; <span class="kw">where </span>T: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#63">self</a>.<a href="../array/d1/methods.rs.html#136-138">contains</a>(<span class="kw-2">&amp;</span><a href="#63">element</a>))
     }
-    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; <span class="kw">where </span>T: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.iter().filter(|<span class="kw-2">&amp;</span>e| e == element).count())
+    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <span class="kw">where </span>T: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#66">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>().<a href="../../../../../devela/_core/iter/trait.Iterator.html">filter</a>(|<span class="kw-2">&amp;</span>e| <a href="#67">e</a> == <a href="#66">element</a>).<a href="../../../../../devela/_core/iter/trait.Iterator.html">count</a>())
     }
 }
 
@@ -312,140 +348,140 @@
 
 // array
 </span><span class="attr">#[rustfmt::skip]
-</span><span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; DataCollection <span class="kw">for </span>[T; N] {
+</span><span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#29-49">DataCollection</a> <span class="kw">for </span>[T; <a href="#75">N</a>] {
     <span class="kw">type </span>Element = T;
     <span class="comment">// For a fixed-size array, the capacity is always the length of the array.
-    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(N) }
-    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(N) }
+    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a href="#75">N</a>) }
+    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a href="#75">N</a>) }
     <span class="comment">// A fixed-size array is never empty nor full.
     </span><span class="doccomment">/// Returns [`NotSupported`][E::NotSupported] since a fixed-size array is never empty or full.
-    </span><span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ns() }
+    </span><span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported] since a fixed-size array is never empty or full.
-    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ns() }
+    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
 
-    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; <span class="kw">where </span>T: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.contains(<span class="kw-2">&amp;</span>element))
+    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; <span class="kw">where </span>T: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#86">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.contains">contains</a>(<span class="kw-2">&amp;</span><a href="#86">element</a>))
     }
-    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; <span class="kw">where </span>T: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.iter().filter(|<span class="kw-2">&amp;</span>e| e == element).count())
+    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <span class="kw">where </span>T: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#89">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>().<a href="../../../../../devela/_core/iter/trait.Iterator.html">filter</a>(|<span class="kw-2">&amp;</span>e| <a href="#90">e</a> == <a href="#89">element</a>).<a href="../../../../../devela/_core/iter/trait.Iterator.html">count</a>())
     }
 }
 
 <span class="attr">#[rustfmt::skip]
 #[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">impl</span>&lt;T&gt; DataCollection <span class="kw">for </span>Vec&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T&gt; <a href="#29-49">DataCollection</a> <span class="kw">for </span><a href="../../../../../devela/_dep/_std/vec/struct.Vec.html">Vec</a>&lt;T&gt; {
     <span class="kw">type </span>Element = T;
-    <span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.capacity()) }
-    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len()) }
-    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.is_empty()) }
-    <span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len() &gt;= <span class="self">self</span>.capacity()) }
-    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; <span class="kw">where </span>T: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.contains(<span class="kw-2">&amp;</span>element))
+    <span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#98">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.capacity">capacity</a>()) }
+    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#99">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>()) }
+    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#100">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.is_empty">is_empty</a>()) }
+    <span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#101">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.len">len</a>() &gt;= <a class="self" href="#101">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.capacity">capacity</a>()) }
+    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; <span class="kw">where </span>T: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#102">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.contains">contains</a>(<span class="kw-2">&amp;</span><a href="#102">element</a>))
     }
-    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; <span class="kw">where </span>T: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.iter().filter(|<span class="kw-2">&amp;</span>e| e == element).count())
+    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <span class="kw">where </span>T: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#105">self</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>().<a href="../../../../../devela/_core/iter/trait.Iterator.html">filter</a>(|<span class="kw-2">&amp;</span>e| <a href="#106">e</a> == <a href="#105">element</a>).<a href="../../../../../devela/_core/iter/trait.Iterator.html">count</a>())
     }
 }
 
 <span class="attr">#[rustfmt::skip]
 #[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">impl</span>&lt;T&gt; DataCollection <span class="kw">for </span>VecDeque&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T&gt; <a href="#29-49">DataCollection</a> <span class="kw">for </span><a href="../../../../../devela/_dep/_std/collections/vec_deque/struct.VecDeque.html">VecDeque</a>&lt;T&gt; {
     <span class="kw">type </span>Element = T;
-    <span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.capacity()) }
-    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len()) }
-    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.is_empty()) }
-    <span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len() &gt;= <span class="self">self</span>.capacity()) }
-    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; <span class="kw">where </span>T: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.contains(<span class="kw-2">&amp;</span>element))
+    <span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#114">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/vec_deque/struct.VecDeque.html#method.capacity">capacity</a>()) }
+    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#115">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/vec_deque/struct.VecDeque.html#method.len">len</a>()) }
+    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#116">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/vec_deque/struct.VecDeque.html#method.is_empty">is_empty</a>()) }
+    <span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#117">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/vec_deque/struct.VecDeque.html#method.len">len</a>() &gt;= <a class="self" href="#117">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/vec_deque/struct.VecDeque.html#method.capacity">capacity</a>()) }
+    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; <span class="kw">where </span>T: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#118">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/vec_deque/struct.VecDeque.html#method.contains">contains</a>(<span class="kw-2">&amp;</span><a href="#118">element</a>))
     }
-    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; <span class="kw">where </span>T: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.iter().filter(|<span class="kw-2">&amp;</span>e| e == element).count())
+    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <span class="kw">where </span>T: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#121">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/vec_deque/struct.VecDeque.html#method.iter">iter</a>().<a href="../../../../../devela/_core/iter/trait.Iterator.html">filter</a>(|<span class="kw-2">&amp;</span>e| <a href="#122">e</a> == <a href="#121">element</a>).<a href="../../../../../devela/_core/iter/trait.Iterator.html">count</a>())
     }
 }
 
 <span class="attr">#[rustfmt::skip]
 #[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">impl</span>&lt;T&gt; DataCollection <span class="kw">for </span>BinaryHeap&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T&gt; <a href="#29-49">DataCollection</a> <span class="kw">for </span><a href="../../../../../devela/_dep/_std/collections/binary_heap/struct.BinaryHeap.html">BinaryHeap</a>&lt;T&gt; {
     <span class="kw">type </span>Element = T;
-    <span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.capacity()) }
-    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len()) }
-    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.is_empty()) }
-    <span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len() &gt;= <span class="self">self</span>.capacity()) }
+    <span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#130">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/binary_heap/struct.BinaryHeap.html#method.capacity">capacity</a>()) }
+    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#131">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/binary_heap/struct.BinaryHeap.html#method.len">len</a>()) }
+    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#132">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/binary_heap/struct.BinaryHeap.html#method.is_empty">is_empty</a>()) }
+    <span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#133">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/binary_heap/struct.BinaryHeap.html#method.len">len</a>() &gt;= <a class="self" href="#133">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/binary_heap/struct.BinaryHeap.html#method.capacity">capacity</a>()) }
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
-    </span><span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ns() }
+    </span><span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
-    </span><span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { E::ns() }
+    </span><span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
 }
 
 <span class="attr">#[rustfmt::skip]
 #[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">impl</span>&lt;K, V&gt; DataCollection <span class="kw">for </span>BTreeMap&lt;K, V&gt; {
+</span><span class="kw">impl</span>&lt;K, V&gt; <a href="#29-49">DataCollection</a> <span class="kw">for </span><a href="../../../../../devela/_dep/_std/collections/btree_map/struct.BTreeMap.html">BTreeMap</a>&lt;K, V&gt; {
     <span class="kw">type </span>Element = V;
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
-    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { E::ns() }
-    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len()) }
-    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.is_empty()) }
+    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
+    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#146">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/btree/map/struct.BTreeMap.html#method.len">len</a>()) }
+    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#147">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/btree/map/struct.BTreeMap.html#method.is_empty">is_empty</a>()) }
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
-    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ns() }
-    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; <span class="kw">where </span>V: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.values().any(|value| <span class="kw-2">*</span>value == element))
+    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
+    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; <span class="kw">where </span>V: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#150">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/btree/map/struct.BTreeMap.html#method.values">values</a>().<a href="../../../../../devela/_core/iter/trait.Iterator.html">any</a>(|value| <span class="kw-2">*</span><a href="#151">value</a> == <a href="#150">element</a>))
     }
-    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; <span class="kw">where </span>V: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.values().filter(|<span class="kw-2">&amp;</span>value| value == element).count())
+    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <span class="kw">where </span>V: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#153">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/btree/map/struct.BTreeMap.html#method.values">values</a>().<a href="../../../../../devela/_core/iter/trait.Iterator.html">filter</a>(|<span class="kw-2">&amp;</span>value| <a href="#154">value</a> == <a href="#153">element</a>).<a href="../../../../../devela/_core/iter/trait.Iterator.html">count</a>())
     }
 }
 <span class="attr">#[rustfmt::skip]
 #[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">impl</span>&lt;V&gt; DataCollection <span class="kw">for </span>BTreeSet&lt;V&gt; {
+</span><span class="kw">impl</span>&lt;V&gt; <a href="#29-49">DataCollection</a> <span class="kw">for </span><a href="../../../../../devela/_dep/_std/collections/btree_set/struct.BTreeSet.html">BTreeSet</a>&lt;V&gt; {
     <span class="kw">type </span>Element = V;
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
-    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { E::ns() }
-    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len()) }
-    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.is_empty()) }
+    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
+    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#163">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/btree/set/struct.BTreeSet.html#method.len">len</a>()) }
+    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#164">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/btree/set/struct.BTreeSet.html#method.is_empty">is_empty</a>()) }
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
-    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ns() }
+    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
     <span class="doccomment">/// This is less efficent than [`BTreeSet::contains`] for not having [`Ord`].
-    </span><span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; <span class="kw">where </span>V: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.iter().any(|value| <span class="kw-2">*</span>value == element))
+    </span><span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; <span class="kw">where </span>V: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#168">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/btree/set/struct.BTreeSet.html#method.iter">iter</a>().<a href="../../../../../devela/_core/iter/trait.Iterator.html">any</a>(|value| <span class="kw-2">*</span><a href="#169">value</a> == <a href="#168">element</a>))
     }
     <span class="doccomment">/// This is less efficent than [`BTreeSet::contains`] for not having [`Ord`].
-    </span><span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; <span class="kw">where </span>V: PartialEq {
-        <span class="prelude-val">Ok</span>(usize::from(<span class="self">self</span>.iter().any(|e| e == element)))
+    </span><span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <span class="kw">where </span>V: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a href="../../../../../devela/_core/convert/trait.From.html">usize::from</a>(<a class="self" href="#172">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/btree/set/struct.BTreeSet.html#method.iter">iter</a>().<a href="../../../../../devela/_core/iter/trait.Iterator.html">any</a>(|e| <a href="#173">e</a> == <a href="#172">element</a>)))
     }
 }
 
 <span class="attr">#[rustfmt::skip]
 #[cfg(all(feature = <span class="string">"alloc"</span>, feature = <span class="string">"dep_hashbrown"</span>))]
-</span><span class="kw">impl</span>&lt;K, V&gt; DataCollection <span class="kw">for </span>HashMap&lt;K, V&gt; {
+</span><span class="kw">impl</span>&lt;K, V&gt; <a href="#29-49">DataCollection</a> <span class="kw">for </span><a href="../../../../../devela/_dep/hashbrown/struct.HashMap.html">HashMap</a>&lt;K, V&gt; {
     <span class="kw">type </span>Element = V;
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
-    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { E::ns() }
-    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len()) }
-    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.is_empty()) }
+    </span><span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
+    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#183">self</a>.len()) }
+    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#184">self</a>.is_empty()) }
     <span class="doccomment">/// Returns [`NotSupported`][E::NotSupported].
-    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ns() }
-    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; <span class="kw">where </span>V: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.values().any(|value| <span class="kw-2">*</span>value == element))
+    </span><span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
+    <span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; <span class="kw">where </span>V: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#187">self</a>.values().<a href="../../../../../devela/_core/iter/trait.Iterator.html">any</a>(|value| <span class="kw-2">*</span><a href="#188">value</a> == <a href="#187">element</a>))
     }
-    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; <span class="kw">where </span>V: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.values().filter(|<span class="kw-2">&amp;</span>value| value == element).count())
+    <span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <span class="kw">where </span>V: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#190">self</a>.values().<a href="../../../../../devela/_core/iter/trait.Iterator.html">filter</a>(|<span class="kw-2">&amp;</span>value| <a href="#191">value</a> == <a href="#190">element</a>).<a href="../../../../../devela/_core/iter/trait.Iterator.html">count</a>())
     }
 }
 <span class="attr">#[rustfmt::skip]
 #[cfg(all(feature = <span class="string">"alloc"</span>, feature = <span class="string">"dep_hashbrown"</span>))]
-</span><span class="kw">impl</span>&lt;V&gt; DataCollection <span class="kw">for </span>HashSet&lt;V&gt; {
+</span><span class="kw">impl</span>&lt;V&gt; <a href="#29-49">DataCollection</a> <span class="kw">for </span><a href="../../../../../devela/_dep/hashbrown/struct.HashSet.html">HashSet</a>&lt;V&gt; {
     <span class="kw">type </span>Element = V;
-    <span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.capacity()) }
-    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.len()) }
-    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.is_empty()) }
-    <span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; { E::ns() }
+    <span class="kw">fn </span>collection_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#198">self</a>.capacity()) }
+    <span class="kw">fn </span>collection_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#199">self</a>.len()) }
+    <span class="kw">fn </span>collection_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <span class="prelude-val">Ok</span>(<a class="self" href="#200">self</a>.is_empty()) }
+    <span class="kw">fn </span>collection_is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; { <a href="../../error.rs.html#79-81">E::ns</a>() }
     <span class="doccomment">/// This is less efficent than [`HashSet::contains`] for not having [`Hash`] and [`Eq`].
-    </span><span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; <span class="kw">where </span>V: PartialEq {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.iter().any(|value| <span class="kw-2">*</span>value == element))
+    </span><span class="kw">fn </span>collection_contains(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; <span class="kw">where </span>V: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a class="self" href="#203">self</a>.iter().<a href="../../../../../devela/_core/iter/trait.Iterator.html">any</a>(|value| <span class="kw-2">*</span><a href="#204">value</a> == <a href="#203">element</a>))
     }
     <span class="doccomment">/// This is less efficent than [`HashSet::contains`] for not having [`Hash`] and [`Eq`].
-    </span><span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; <span class="kw">where </span>V: PartialEq {
-        <span class="prelude-val">Ok</span>(usize::from(<span class="self">self</span>.iter().any(|e| e == element)))
+    </span><span class="kw">fn </span>collection_count(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span><span class="self">Self</span>::Element) -&gt; <a class="prelude-ty" href="../../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <span class="kw">where </span>V: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
+        <span class="prelude-val">Ok</span>(<a href="../../../../../devela/_core/convert/trait.From.html">usize::from</a>(<a class="self" href="#207">self</a>.iter().<a href="../../../../../devela/_core/iter/trait.Iterator.html">any</a>(|e| <a href="#208">e</a> == <a href="#207">element</a>)))
     }
 }
 </code></pre></div></section></main></body></html>

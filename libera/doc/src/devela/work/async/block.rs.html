@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/work/async/block.rs`."><title>block.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/work/async/block.rs`."><title>block.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -164,7 +200,7 @@
 // - [Lock-free and alloc-free implementation](https://github.com/zesterer/pollster/pull/9)
 // - [add benchmarks](https://github.com/zesterer/pollster/pull/20)
 
-</span><span class="kw">use crate</span>::{pin, Arc, Condvar, Future, Mutex, TaskContext, TaskPoll, TaskWake, TaskWaker};
+</span><span class="kw">use crate</span>::{<a href="../../../../devela/_core/pin/macro.pin.html">pin</a>, <a href="../../../../devela/all/struct.Arc.html">Arc</a>, <a href="../../../../devela/all/struct.Condvar.html">Condvar</a>, <a href="../../../../devela/_core/future/trait.Future.html">Future</a>, <a href="../../../../devela/all/struct.Mutex.html">Mutex</a>, <a href="../../../../devela/_core/task/struct.Context.html">TaskContext</a>, <a href="../../../../devela/_core/task/enum.Poll.html">TaskPoll</a>, <a href="../../../../devela/all/trait.TaskWake.html">TaskWake</a>, <a href="../../../../devela/_core/task/struct.Waker.html">TaskWaker</a>};
 
 <span class="doccomment">/// Blocks the thread until the `future` is ready.
 ///
@@ -175,33 +211,33 @@
 /// let future = async {};
 /// let result = devela::work::future_block(future);
 /// ```
-</span><span class="kw">pub fn </span>future_block&lt;F: Future&gt;(<span class="kw-2">mut </span>future: F) -&gt; F::Output {
+</span><span class="kw">pub fn </span><a href="../../../../devela/work/fn.future_block.html">future_block</a>&lt;F: <a href="../../../../devela/_core/future/trait.Future.html">Future</a>&gt;(<span class="kw-2">mut </span>future: F) -&gt; F::Output {
     <span class="comment">// Pin the future so that it can be polled.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>future = <span class="macro">pin!</span>(future);
+    </span><span class="kw">let </span><span class="kw-2">mut </span>future = <a class="macro" href="../../../../devela/_core/pin/macro.pin.html">pin!</a>(future);
 
     <span class="comment">// Signal used to wake up the thread for polling as the future moves to completion. We need to
     // use an `Arc` because, although the lifetime of `future` is limited to this function, the
     // underlying IO abstraction might keep the signal alive for far longer. `Arc` is a thread-safe
     // way to allow this to happen.
     // MAYBE: Investigate ways to reuse this `Arc&lt;Signal&gt;`... perhaps via a `static`?
-    </span><span class="kw">let </span>signal = Arc::new(Signal::new());
+    </span><span class="kw">let </span>signal = <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#method.new">Arc::new</a>(<a href="#69-74">Signal::new</a>());
 
     <span class="comment">// Create a context that will be passed to the future.
-    </span><span class="kw">let </span>waker = TaskWaker::from(Arc::clone(<span class="kw-2">&amp;</span>signal));
-    <span class="kw">let </span><span class="kw-2">mut </span>context = TaskContext::from_waker(<span class="kw-2">&amp;</span>waker);
+    </span><span class="kw">let </span>waker = <a href="../../../../devela/_core/convert/trait.From.html">TaskWaker::from</a>(<a href="../../../../devela/_core/clone/trait.Clone.html">Arc::clone</a>(<span class="kw-2">&amp;</span><a href="#36">signal</a>));
+    <span class="kw">let </span><span class="kw-2">mut </span>context = <a href="https://doc.rust-lang.org/nightly/core/task/wake/struct.Context.html#method.from_waker">TaskContext::from_waker</a>(<span class="kw-2">&amp;</span><a href="#39">waker</a>);
 
     <span class="comment">// Poll the future to completion
     </span><span class="kw">loop </span>{
-        <span class="kw">match </span>future.as_mut().poll(<span class="kw-2">&amp;mut </span>context) {
-            TaskPoll::Pending =&gt; signal.wait(),
-            TaskPoll::Ready(item) =&gt; <span class="kw">break </span>item,
+        <span class="kw">match </span><a href="#29">future</a>.<a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.as_mut">as_mut</a>().<a href="../../../../devela/_core/future/trait.Future.html">poll</a>(<span class="kw-2">&amp;mut </span><a href="#40">context</a>) {
+            <a href="../../../../devela/_core/task/enum.Poll.html">TaskPoll::Pending</a> =&gt; <a href="#36">signal</a>.<a href="#76-100">wait</a>(),
+            <a href="../../../../devela/_core/task/enum.Poll.html">TaskPoll::Ready</a>(item) =&gt; <span class="kw">break </span><a href="#46">item</a>,
         }
     }
 }
 
 <span class="kw">struct </span>Signal {
-    state: Mutex&lt;SignalState&gt;,
-    cond: Condvar,
+    state: <a href="../../../../devela/all/struct.Mutex.html">Mutex</a>&lt;<a href="#56-60">SignalState</a>&gt;,
+    cond: <a href="../../../../devela/all/struct.Condvar.html">Condvar</a>,
 }
 
 <span class="kw">enum </span>SignalState {
@@ -210,39 +246,39 @@
     Notified,
 }
 
-<span class="kw">impl </span>TaskWake <span class="kw">for </span>Signal {
-    <span class="kw">fn </span>wake(<span class="self">self</span>: Arc&lt;<span class="self">Self</span>&gt;) {
-        <span class="self">self</span>.notify();
+<span class="kw">impl </span><a href="../../../../devela/all/trait.TaskWake.html">TaskWake</a> <span class="kw">for </span><a href="#51-54">Signal</a> {
+    <span class="kw">fn </span>wake(<span class="self">self</span>: <a href="../../../../devela/all/struct.Arc.html">Arc</a>&lt;<span class="self">Self</span>&gt;) {
+        <a class="self" href="#63">self</a>.<a href="#102-120">notify</a>();
     }
 }
 
-<span class="kw">impl </span>Signal {
+<span class="kw">impl </span><a href="#51-54">Signal</a> {
     <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            state: Mutex::new(SignalState::Empty),
-            cond: Condvar::new(),
+            state: <a href="https://doc.rust-lang.org/nightly/std/sync/mutex/struct.Mutex.html#method.new">Mutex::new</a>(<a href="#57">SignalState::Empty</a>),
+            cond: <a href="https://doc.rust-lang.org/nightly/std/sync/condvar/struct.Condvar.html#method.new">Condvar::new</a>(),
         }
     }
 
     <span class="kw">fn </span>wait(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.state.lock().unwrap();
-        <span class="kw">match </span><span class="kw-2">*</span>state {
-            SignalState::Notified =&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>state = <a class="self" href="#76">self</a>.state.<a href="https://doc.rust-lang.org/nightly/std/sync/mutex/struct.Mutex.html#method.lock">lock</a>().<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>();
+        <span class="kw">match </span><span class="kw-2">*</span><a href="#77">state</a> {
+            <a href="#59">SignalState::Notified</a> =&gt; {
                 <span class="comment">// notify() was called before we got here,
                 // consume it here without waiting and return immediately.
-                </span><span class="kw-2">*</span>state = SignalState::Empty;
+                </span><span class="kw-2">*</span><a href="#77">state</a> = <a href="#57">SignalState::Empty</a>;
             }
             <span class="comment">// This should not be possible because our signal is created within a function and
             // never handed out to any other threads. If this is the case, we have a serious
             // problem so we panic immediately to avoid anything more problematic happening.
-            </span>SignalState::Waiting =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">"Multiple threads waiting on the same signal: Open a bug report!"</span>);
+            </span><a href="#58">SignalState::Waiting</a> =&gt; {
+                <a class="macro" href="../../../../devela/_core/macro.unreachable.html">unreachable!</a>(<span class="string">"Multiple threads waiting on the same signal: Open a bug report!"</span>);
             }
-            SignalState::Empty =&gt; {
+            <a href="#57">SignalState::Empty</a> =&gt; {
                 <span class="comment">// Nothing has happened yet, and we're the only thread waiting (as should be the
                 // case!). Set the state accordingly and begin polling the condvar in a loop until
                 // it's no longer telling us to wait. The loop prevents incorrect spurious wakeups.
-                </span><span class="kw-2">*</span>state = SignalState::Waiting;
+                </span><span class="kw-2">*</span><a href="#77">state</a> = <a href="#58">SignalState::Waiting</a>;
                 <span class="kw">while let </span>SignalState::Waiting = <span class="kw-2">*</span>state {
                     state = <span class="self">self</span>.cond.wait(state).unwrap();
                 }
@@ -251,21 +287,21 @@
     }
 
     <span class="kw">fn </span>notify(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.state.lock().unwrap();
-        <span class="kw">match </span><span class="kw-2">*</span>state {
+        <span class="kw">let </span><span class="kw-2">mut </span>state = <a class="self" href="#102">self</a>.state.<a href="https://doc.rust-lang.org/nightly/std/sync/mutex/struct.Mutex.html#method.lock">lock</a>().<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>();
+        <span class="kw">match </span><span class="kw-2">*</span><a href="#103">state</a> {
             <span class="comment">// The signal was already notified, no need to do anything because the thread will be
             // waking up anyway
-            </span>SignalState::Notified =&gt; {}
+            </span><a href="#59">SignalState::Notified</a> =&gt; {}
             <span class="comment">// The signal wasn't notified but a thread isnt waiting on it, so we can avoid doing
             // unnecessary work by skipping the condvar and leaving behind a message telling the
             // thread that a notification has already occurred should it come along in the future.
-            </span>SignalState::Empty =&gt; <span class="kw-2">*</span>state = SignalState::Notified,
+            </span><a href="#57">SignalState::Empty</a> =&gt; <span class="kw-2">*</span><a href="#103">state</a> = <a href="#59">SignalState::Notified</a>,
             <span class="comment">// The signal wasn't notified and there's a waiting thread. Reset the signal so it can
             // be waited on again and wake up the thread. Because there should only be a single
             // thread waiting, `notify_all` would also be valid.
-            </span>SignalState::Waiting =&gt; {
-                <span class="kw-2">*</span>state = SignalState::Empty;
-                <span class="self">self</span>.cond.notify_one();
+            </span><a href="#58">SignalState::Waiting</a> =&gt; {
+                <span class="kw-2">*</span><a href="#103">state</a> = <a href="#57">SignalState::Empty</a>;
+                <a class="self" href="#102">self</a>.cond.<a href="https://doc.rust-lang.org/nightly/std/sync/condvar/struct.Condvar.html#method.notify_one">notify_one</a>();
             }
         }
     }

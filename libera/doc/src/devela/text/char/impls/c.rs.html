@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/char/impls/c.rs`."><title>c.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/char/impls/c.rs`."><title>c.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -115,79 +151,79 @@
 </span><span class="comment">//
 // Note: `char` can only implement the trait, not the associated const methods.
 
-</span><span class="kw">use crate</span>::{Char, UnicodeScalar};
+</span><span class="kw">use crate</span>::{<a href="../namespace.rs.html#9">Char</a>, <a href="../definitions.rs.html#96-244">UnicodeScalar</a>};
 
-<span class="kw">impl </span>UnicodeScalar <span class="kw">for </span>char {
+<span class="kw">impl </span><a href="../definitions.rs.html#96-244">UnicodeScalar</a> <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a> {
     <span class="kw">const </span>MIN: <span class="self">Self </span>= <span class="self">Self</span>::MIN;
     <span class="kw">const </span>MAX: <span class="self">Self </span>= <span class="self">Self</span>::MAX;
 
     <span class="comment">/* encode */
 
-    </span><span class="kw">fn </span>byte_len(<span class="self">self</span>) -&gt; usize {
-        Char::byte_len(<span class="self">self </span><span class="kw">as </span>u32)
+    </span><span class="kw">fn </span>byte_len(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
+        <a href="../namespace.rs.html#14-20">Char::byte_len</a>(<span class="self"><a href="#15">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)
     }
-    <span class="kw">fn </span>len_utf8(<span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.len_utf8()
+    <span class="kw">fn </span>len_utf8(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
+        <a class="self" href="#18">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>()
     }
-    <span class="kw">fn </span>len_utf16(<span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.len_utf16()
+    <span class="kw">fn </span>len_utf16(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
+        <a class="self" href="#21">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf16">len_utf16</a>()
     }
-    <span class="kw">fn </span>encode_utf8(<span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="kw-2">&amp;mut </span>str {
-        <span class="self">self</span>.encode_utf8(dst)
+    <span class="kw">fn </span>encode_utf8(<span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> {
+        <a class="self" href="#24">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.encode_utf8">encode_utf8</a>(<a href="#24">dst</a>)
     }
-    <span class="kw">fn </span>to_utf8_bytes(<span class="self">self</span>) -&gt; [u8; <span class="number">4</span>] {
-        Char::to_utf8_bytes(<span class="self">self</span>)
+    <span class="kw">fn </span>to_utf8_bytes(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">4</span>] {
+        <a href="../namespace.rs.html#83-118">Char::to_utf8_bytes</a>(<a class="self" href="#27">self</a>)
     }
-    <span class="kw">fn </span>encode_utf16(<span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[u16]) -&gt; <span class="kw-2">&amp;mut </span>[u16] {
-        <span class="self">self</span>.encode_utf16(dst)
+    <span class="kw">fn </span>encode_utf16(<span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>]) -&gt; <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>] {
+        <a class="self" href="#30">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.encode_utf16">encode_utf16</a>(<a href="#30">dst</a>)
     }
-    <span class="kw">fn </span>to_digit(<span class="self">self</span>, radix: u32) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
-        <span class="self">self</span>.to_digit(radix)
+    <span class="kw">fn </span>to_digit(<span class="self">self</span>, radix: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; {
+        <a class="self" href="#33">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.to_digit">to_digit</a>(<a href="#33">radix</a>)
     }
-    <span class="kw">fn </span>to_ascii_uppercase(<span class="self">self</span>) -&gt; char {
-        char::to_ascii_uppercase(<span class="kw-2">&amp;</span><span class="self">self</span>)
+    <span class="kw">fn </span>to_ascii_uppercase(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a> {
+        <a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.to_ascii_uppercase">char::to_ascii_uppercase</a>(<span class="kw-2">&amp;</span><a class="self" href="#36">self</a>)
     }
-    <span class="kw">fn </span>to_ascii_lowercase(<span class="self">self</span>) -&gt; char {
-        char::to_ascii_lowercase(<span class="kw-2">&amp;</span><span class="self">self</span>)
+    <span class="kw">fn </span>to_ascii_lowercase(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a> {
+        <a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.to_ascii_lowercase">char::to_ascii_lowercase</a>(<span class="kw-2">&amp;</span><a class="self" href="#39">self</a>)
     }
 
     <span class="comment">/* queries */
 
-    </span><span class="kw">fn </span>is_noncharacter(<span class="self">self</span>) -&gt; bool {
-        Char::is_noncharacter(<span class="self">self </span><span class="kw">as </span>u32)
+    </span><span class="kw">fn </span>is_noncharacter(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a href="../namespace.rs.html#33-42">Char::is_noncharacter</a>(<span class="self"><a href="#45">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)
     }
-    <span class="kw">fn </span>is_digit(<span class="self">self</span>, radix: u32) -&gt; bool {
-        <span class="self">self</span>.is_digit(radix)
+    <span class="kw">fn </span>is_digit(<span class="self">self</span>, radix: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="self" href="#48">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.is_digit">is_digit</a>(<a href="#48">radix</a>)
     }
-    <span class="kw">fn </span>is_control(<span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.is_control()
+    <span class="kw">fn </span>is_control(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="self" href="#51">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.is_control">is_control</a>()
     }
-    <span class="kw">fn </span>is_nul(<span class="self">self</span>) -&gt; bool {
-        <span class="self">self </span><span class="kw">as </span>u32 == <span class="number">0
+    <span class="kw">fn </span>is_nul(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <span class="self"><a href="#54">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> == <span class="number">0
     </span>}
-    <span class="kw">fn </span>is_alphabetic(<span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.is_alphabetic()
+    <span class="kw">fn </span>is_alphabetic(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="self" href="#57">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.is_alphabetic">is_alphabetic</a>()
     }
-    <span class="kw">fn </span>is_numeric(<span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.is_numeric()
+    <span class="kw">fn </span>is_numeric(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="self" href="#60">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.is_numeric">is_numeric</a>()
     }
-    <span class="kw">fn </span>is_alphanumeric(<span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.is_alphanumeric()
+    <span class="kw">fn </span>is_alphanumeric(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="self" href="#63">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.is_alphanumeric">is_alphanumeric</a>()
     }
-    <span class="kw">fn </span>is_lowercase(<span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.is_lowercase()
+    <span class="kw">fn </span>is_lowercase(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="self" href="#66">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.is_lowercase">is_lowercase</a>()
     }
-    <span class="kw">fn </span>is_uppercase(<span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.is_uppercase()
+    <span class="kw">fn </span>is_uppercase(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="self" href="#69">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.is_uppercase">is_uppercase</a>()
     }
-    <span class="kw">fn </span>is_whitespace(<span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.is_whitespace()
+    <span class="kw">fn </span>is_whitespace(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <a class="self" href="#72">self</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.is_whitespace">is_whitespace</a>()
     }
 
     <span class="comment">/* ascii queries*/
 
-    </span><span class="kw">fn </span>is_ascii(<span class="self">self</span>) -&gt; bool {
-        (<span class="self">self </span><span class="kw">as </span>u32) &lt;= <span class="number">0x7F
+    </span><span class="kw">fn </span>is_ascii(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        (<span class="self"><a href="#78">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) &lt;= <span class="number">0x7F
     </span>}
 }
 </code></pre></div></section></main></body></html>

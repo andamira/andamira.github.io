@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/ascii/wrapper.rs`."><title>wrapper.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/ascii/wrapper.rs`."><title>wrapper.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -697,24 +733,24 @@
 </span><span class="doccomment">//! Ascii functionality wrapper struct.
 </span><span class="comment">//
 
-</span><span class="kw">use </span><span class="kw">crate</span>::code::iif;
+</span><span class="kw">use </span><a href="../../code/macros/iif.rs.html#60-89"><span class="kw">crate</span>::iif</a>;
 
 <span class="comment">// imports for the `digits_str` method
 </span><span class="attr">#[cfg(all(feature = <span class="string">"_string_u8"</span>, any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>))))]
 </span><span class="kw">use </span><span class="kw">crate</span>::unwrap;
 <span class="attr">#[cfg(all(feature = <span class="string">"_string_u8"</span>, feature = <span class="string">"_cmp_u8"</span>))]
-</span><span class="kw">use </span><span class="kw">crate</span>::Compare;
+</span><span class="kw">use </span><a href="../../num/cmp/compare.rs.html#36"><span class="kw">crate</span>::Compare</a>;
 <span class="attr">#[cfg(feature = <span class="string">"_string_u8"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::StringU8;
+</span><span class="kw">use </span><a href="../str/string_u.rs.html#693"><span class="kw">crate</span>::StringU8</a>;
 
 <span class="doccomment">/// Provides ASCII operations on `T`, most of them *const*.
 </span><span class="attr">#[derive(Clone, Copy)]
 #[repr(transparent)]
-</span><span class="kw">pub struct </span>Ascii&lt;T: Copy&gt;(<span class="kw">pub </span>T);
+</span><span class="kw">pub struct </span><a href="../../../../devela/text/struct.Ascii.html">Ascii</a>&lt;T: <a href="../../../../devela/_core/marker/trait.Copy.html">Copy</a>&gt;(<span class="kw">pub </span>T);
 
-<span class="kw">impl </span>Ascii&lt;usize&gt; {
+<span class="kw">impl </span><a href="#19">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
     <span class="doccomment">/// The maximum number of decimal digits a `usize` can represent in the current platform.
-    </span><span class="kw">pub const </span>MAX_DIGITS: usize = Ascii(usize::MAX).count_digits() <span class="kw">as </span>usize;
+    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <a href="#19">Ascii</a>(usize::MAX).<a href="#51-53">count_digits</a>() <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>;
 
     <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `usize` number.
     ///
@@ -728,8 +764,8 @@
     /// assert_eq!(Ascii(12345_usize).calc_digit(1000), b'2');
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: usize) -&gt; u8 {
-        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) <span class="kw">as </span>u8 + <span class="string">b'0'
+    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        (<a class="self" href="#37">self</a>.<span class="number">0 </span>/ <a href="#37">divisor</a> % <span class="number">10</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> + <span class="string">b'0'
     </span>}
 
     <span class="doccomment">/// Counts the number of decimal digits.
@@ -742,8 +778,8 @@
     /// assert_eq![4, Ascii(9876_usize).count_digits()];
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-        <span class="macro">iif!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
     }
 
     <span class="doccomment">/// Converts a `usize` into a byte array of `5` ascii digits with leading zeros.
@@ -775,8 +811,8 @@
     /// You can trim the leading zeros with
     /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
     </span><span class="attr">#[must_use] #[cfg(target_pointer_width = <span class="string">"64"</span>)] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="self">Self</span>::MAX_DIGITS] {
-        Ascii(<span class="self">self</span>.<span class="number">0 </span><span class="kw">as </span>u64).digits()
+    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="self">Self</span>::MAX_DIGITS] {
+        <a href="#19">Ascii</a>(<a class="self" href="#84">self</a>.<span class="number">0 </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>).<a href="#477-502">digits</a>()
     }
 
     <span class="doccomment">/// Returns a static string with zero-padded digits with minimum `width`.
@@ -790,15 +826,15 @@
     </span><span class="attr">#[cfg(feature = <span class="string">"_cmp_u8"</span>)] </span><span class="comment">// const
     </span><span class="attr">#[cfg(feature = <span class="string">"_string_u8"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"string_u8"</span>)))]
-    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;{ <span class="self">Self</span>::MAX_DIGITS }&gt; {
-        <span class="kw">let </span>width = Compare(width).clamp(<span class="self">self</span>.count_digits(), <span class="self">Self</span>::MAX_DIGITS <span class="kw">as </span>u8);
+    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#693">StringU8</a>&lt;{ <span class="self">Self</span>::MAX_DIGITS }&gt; {
+        <span class="kw">let </span>width = <a href="../../num/cmp/compare.rs.html#36">Compare</a>(<a href="#99">width</a>).<a href="../../num/cmp/compare.rs.html#348">clamp</a>(<a class="self" href="#99">self</a>.<a href="#51-53">count_digits</a>(), <span class="self">Self</span>::MAX_DIGITS <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
 
         <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
         </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;{<span class="self">Self</span>::MAX_DIGITS}&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
         <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
         </span><span class="comment">// SAFETY: the bytes are valid utf-8
         </span><span class="kw">unsafe </span>{
-            StringU8::&lt;{ <span class="self">Self</span>::MAX_DIGITS }&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+            <a href="../str/string_u.rs.html#693">StringU8</a>::&lt;{ <span class="self">Self</span>::MAX_DIGITS }&gt;::from_bytes_nright_unchecked(<a class="self" href="#99">self</a>.<a href="#84-86">digits</a>(), <a href="#100">width</a>)
         }
     }
     <span class="attr">#[allow(missing_docs)]
@@ -817,9 +853,9 @@
     }
 }
 
-<span class="kw">impl </span>Ascii&lt;u8&gt; {
+<span class="kw">impl </span><a href="#19">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; {
     <span class="doccomment">/// The maximum number of decimal digits a `u8` can represent.
-    </span><span class="kw">pub const </span>MAX_DIGITS: usize = <span class="number">3</span>;
+    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">3</span>;
 
     <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `u8` number.
     ///
@@ -833,8 +869,8 @@
     /// assert_eq!(Ascii(123_u8).calc_digit(100), b'1');
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: u8) -&gt; u8 {
-        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) + <span class="string">b'0'
+    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        (<a class="self" href="#142">self</a>.<span class="number">0 </span>/ <a href="#142">divisor</a> % <span class="number">10</span>) + <span class="string">b'0'
     </span>}
 
     <span class="doccomment">/// Counts the number of decimal digits.
@@ -847,8 +883,8 @@
     /// assert_eq![3, Ascii(123_u8).count_digits()];
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-        <span class="macro">iif!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
     }
 
     <span class="doccomment">/// Converts a `u8` into a byte array of `3` ASCII digits with leading zeros.
@@ -856,13 +892,13 @@
     /// You can trim the leading zeros with
     /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="number">3</span>] {
+    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">3</span>] {
         [
             <span class="comment">//              321
             //              255 u8::MAX
-            </span><span class="self">self</span>.calc_digit(<span class="number">100</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1</span>),
+            </span><a class="self" href="#165">self</a>.<a href="#142-144">calc_digit</a>(<span class="number">100</span>),
+            <a class="self" href="#165">self</a>.<a href="#142-144">calc_digit</a>(<span class="number">10</span>),
+            <a class="self" href="#165">self</a>.<a href="#142-144">calc_digit</a>(<span class="number">1</span>),
         ]
     }
 
@@ -877,15 +913,15 @@
     </span><span class="attr">#[cfg(feature = <span class="string">"_cmp_u8"</span>)] </span><span class="comment">// const
     </span><span class="attr">#[cfg(feature = <span class="string">"_string_u8"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"string_u8"</span>)))]
-    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;<span class="number">3</span>&gt; {
-        <span class="kw">let </span>width = Compare(width).clamp(<span class="self">self</span>.count_digits(), <span class="number">3</span>);
+    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#693">StringU8</a>&lt;<span class="number">3</span>&gt; {
+        <span class="kw">let </span>width = <a href="../../num/cmp/compare.rs.html#36">Compare</a>(<a href="#186">width</a>).<a href="../../num/cmp/compare.rs.html#348">clamp</a>(<a class="self" href="#186">self</a>.<a href="#156-158">count_digits</a>(), <span class="number">3</span>);
 
         <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
         </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;<span class="number">3</span>&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
         <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
         </span><span class="comment">// SAFETY: the bytes are valid utf-8
         </span><span class="kw">unsafe </span>{
-            StringU8::&lt;<span class="number">3</span>&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+            <a href="../str/string_u.rs.html#693">StringU8</a>::&lt;<span class="number">3</span>&gt;::from_bytes_nright_unchecked(<a class="self" href="#186">self</a>.<a href="#165-173">digits</a>(), <a href="#187">width</a>)
         }
     }
     <span class="attr">#[allow(missing_docs)]
@@ -908,9 +944,9 @@
     /// # Panics
     /// This function panics in debug if the given number is &gt; 9.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>digits_1(<span class="self">self</span>) -&gt; u8 {
-        <span class="macro">debug_assert!</span>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">9</span>];
-        <span class="self">self</span>.<span class="number">0 </span>+ <span class="string">b'0'
+    </span><span class="kw">pub const fn </span>digits_1(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        <a class="macro" href="../../../../devela/_core/macro.debug_assert.html">debug_assert!</a>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">9</span>];
+        <a class="self" href="#217">self</a>.<span class="number">0 </span>+ <span class="string">b'0'
     </span>}
 
     <span class="doccomment">/// Converts a two-digit number to the corresponding `2` ASCII digits.
@@ -918,15 +954,15 @@
     /// # Panics
     /// This function panics in debug if the given number is &gt; 99.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>digits_2(<span class="self">self</span>) -&gt; [u8; <span class="number">2</span>] {
-        <span class="macro">debug_assert!</span>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">99</span>];
-        [<span class="self">self</span>.calc_digit(<span class="number">10</span>), <span class="self">self</span>.calc_digit(<span class="number">1</span>)]
+    </span><span class="kw">pub const fn </span>digits_2(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">2</span>] {
+        <a class="macro" href="../../../../devela/_core/macro.debug_assert.html">debug_assert!</a>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">99</span>];
+        [<a class="self" href="#227">self</a>.<a href="#142-144">calc_digit</a>(<span class="number">10</span>), <a class="self" href="#227">self</a>.<a href="#142-144">calc_digit</a>(<span class="number">1</span>)]
     }
 }
 
-<span class="kw">impl </span>Ascii&lt;u16&gt; {
+<span class="kw">impl </span><a href="#19">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt; {
     <span class="doccomment">/// The maximum number of decimal digits a `u16` can represent.
-    </span><span class="kw">pub const </span>MAX_DIGITS: usize = <span class="number">5</span>;
+    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">5</span>;
 
     <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `u16` number.
     ///
@@ -940,8 +976,8 @@
     /// assert_eq!(Ascii(12345_u16).calc_digit(1000), b'2');
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: u16) -&gt; u8 {
-        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) <span class="kw">as </span>u8 + <span class="string">b'0'
+    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        (<a class="self" href="#249">self</a>.<span class="number">0 </span>/ <a href="#249">divisor</a> % <span class="number">10</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> + <span class="string">b'0'
     </span>}
 
     <span class="doccomment">/// Counts the number of decimal digits.
@@ -954,8 +990,8 @@
     /// assert_eq![4, Ascii(9876_u16).count_digits()];
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-        <span class="macro">iif!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
     }
 
     <span class="doccomment">/// Converts a `u16` into a byte array of `5` ASCII digits with leading zeros.
@@ -963,15 +999,15 @@
     /// You can trim the leading zeros with
     /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="number">5</span>] {
+    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">5</span>] {
         [
             <span class="comment">//              54321
             //              65535    ← u16::MAX
-            </span><span class="self">self</span>.calc_digit(<span class="number">10000</span>), <span class="comment">// 5 digits
-            </span><span class="self">self</span>.calc_digit(<span class="number">1000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1</span>),
+            </span><a class="self" href="#272">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">10000</span>), <span class="comment">// 5 digits
+            </span><a class="self" href="#272">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">1000</span>),
+            <a class="self" href="#272">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">100</span>),
+            <a class="self" href="#272">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">10</span>),
+            <a class="self" href="#272">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">1</span>),
         ]
     }
 
@@ -986,15 +1022,15 @@
     </span><span class="attr">#[cfg(feature = <span class="string">"_cmp_u8"</span>)] </span><span class="comment">// const
     </span><span class="attr">#[cfg(feature = <span class="string">"_string_u8"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"string_u8"</span>)))]
-    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;<span class="number">5</span>&gt; {
-        <span class="kw">let </span>width = Compare(width).clamp(<span class="self">self</span>.count_digits(), <span class="number">5</span>);
+    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#693">StringU8</a>&lt;<span class="number">5</span>&gt; {
+        <span class="kw">let </span>width = <a href="../../num/cmp/compare.rs.html#36">Compare</a>(<a href="#295">width</a>).<a href="../../num/cmp/compare.rs.html#348">clamp</a>(<a class="self" href="#295">self</a>.<a href="#263-265">count_digits</a>(), <span class="number">5</span>);
 
         <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
         </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;<span class="number">5</span>&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
         <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
         </span><span class="comment">// SAFETY: the bytes are valid utf-8
         </span><span class="kw">unsafe </span>{
-            StringU8::&lt;<span class="number">5</span>&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+            <a href="../str/string_u.rs.html#693">StringU8</a>::&lt;<span class="number">5</span>&gt;::from_bytes_nright_unchecked(<a class="self" href="#295">self</a>.<a href="#272-282">digits</a>(), <a href="#296">width</a>)
         }
     }
     <span class="attr">#[allow(missing_docs)]
@@ -1017,9 +1053,9 @@
     /// # Panics
     /// This function panics in debug if the given number is &gt; 999.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>digits_3(<span class="self">self</span>) -&gt; [u8; <span class="number">3</span>] {
-        <span class="macro">debug_assert!</span>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">999</span>];
-        [<span class="self">self</span>.calc_digit(<span class="number">100</span>), <span class="self">self</span>.calc_digit(<span class="number">10</span>), <span class="self">self</span>.calc_digit(<span class="number">1</span>)]
+    </span><span class="kw">pub const fn </span>digits_3(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">3</span>] {
+        <a class="macro" href="../../../../devela/_core/macro.debug_assert.html">debug_assert!</a>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">999</span>];
+        [<a class="self" href="#326">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">100</span>), <a class="self" href="#326">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">10</span>), <a class="self" href="#326">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">1</span>)]
     }
 
     <span class="doccomment">/// Converts a four-digit number to the corresponding `4` ASCII digits.
@@ -1027,15 +1063,15 @@
     /// # Panics
     /// This function panics in debug if the given number is &gt; 9999.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>digits_4(<span class="self">self</span>) -&gt; [u8; <span class="number">4</span>] {
-        <span class="macro">debug_assert!</span>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">9999</span>];
-        [<span class="self">self</span>.calc_digit(<span class="number">1000</span>), <span class="self">self</span>.calc_digit(<span class="number">100</span>), <span class="self">self</span>.calc_digit(<span class="number">10</span>), <span class="self">self</span>.calc_digit(<span class="number">1</span>)]
+    </span><span class="kw">pub const fn </span>digits_4(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">4</span>] {
+        <a class="macro" href="../../../../devela/_core/macro.debug_assert.html">debug_assert!</a>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">9999</span>];
+        [<a class="self" href="#336">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">1000</span>), <a class="self" href="#336">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">100</span>), <a class="self" href="#336">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">10</span>), <a class="self" href="#336">self</a>.<a href="#249-251">calc_digit</a>(<span class="number">1</span>)]
     }
 }
 
-<span class="kw">impl </span>Ascii&lt;u32&gt; {
+<span class="kw">impl </span><a href="#19">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; {
     <span class="doccomment">/// The maximum number of decimal digits a `u32` can represent.
-    </span><span class="kw">pub const </span>MAX_DIGITS: usize = <span class="number">10</span>;
+    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">10</span>;
 
     <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `u32` number.
     ///
@@ -1049,8 +1085,8 @@
     /// assert_eq!(Ascii(12345_u32).calc_digit(1000), b'2');
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: u32) -&gt; u8 {
-        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) <span class="kw">as </span>u8 + <span class="string">b'0'
+    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        (<a class="self" href="#358">self</a>.<span class="number">0 </span>/ <a href="#358">divisor</a> % <span class="number">10</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> + <span class="string">b'0'
     </span>}
 
     <span class="doccomment">/// Counts the number of decimal digits.
@@ -1063,8 +1099,8 @@
     /// assert_eq![4, Ascii(9876_u32).count_digits()];
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-        <span class="macro">iif!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
     }
 
     <span class="doccomment">/// Converts a `u32` into a byte array of `10` ASCII digits with leading zeros.
@@ -1073,20 +1109,20 @@
     /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
     </span><span class="attr">#[must_use]
     #[allow(clippy::unreadable_literal)]
-    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="number">10</span>] {
+    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">10</span>] {
         [
             <span class="comment">//              0987654321
             //              4294967295    ← u32::MAX
-            </span><span class="self">self</span>.calc_digit(<span class="number">1000000000</span>), <span class="comment">// 10 digits
-            </span><span class="self">self</span>.calc_digit(<span class="number">100000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000</span>), <span class="comment">// 5 digits
-            </span><span class="self">self</span>.calc_digit(<span class="number">1000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1</span>),
+            </span><a class="self" href="#382">self</a>.<a href="#358-360">calc_digit</a>(<span class="number">1000000000</span>), <span class="comment">// 10 digits
+            </span><a class="self" href="#382">self</a>.<a href="#358-360">calc_digit</a>(<span class="number">100000000</span>),
+            <a class="self" href="#382">self</a>.<a href="#358-360">calc_digit</a>(<span class="number">10000000</span>),
+            <a class="self" href="#382">self</a>.<a href="#358-360">calc_digit</a>(<span class="number">1000000</span>),
+            <a class="self" href="#382">self</a>.<a href="#358-360">calc_digit</a>(<span class="number">100000</span>),
+            <a class="self" href="#382">self</a>.<a href="#358-360">calc_digit</a>(<span class="number">10000</span>), <span class="comment">// 5 digits
+            </span><a class="self" href="#382">self</a>.<a href="#358-360">calc_digit</a>(<span class="number">1000</span>),
+            <a class="self" href="#382">self</a>.<a href="#358-360">calc_digit</a>(<span class="number">100</span>),
+            <a class="self" href="#382">self</a>.<a href="#358-360">calc_digit</a>(<span class="number">10</span>),
+            <a class="self" href="#382">self</a>.<a href="#358-360">calc_digit</a>(<span class="number">1</span>),
         ]
     }
 
@@ -1101,15 +1137,15 @@
     </span><span class="attr">#[cfg(feature = <span class="string">"_cmp_u8"</span>)] </span><span class="comment">// const
     </span><span class="attr">#[cfg(feature = <span class="string">"_string_u8"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"string_u8"</span>)))]
-    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;<span class="number">10</span>&gt; {
-        <span class="kw">let </span>width = Compare(width).clamp(<span class="self">self</span>.count_digits(), <span class="number">10</span>);
+    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#693">StringU8</a>&lt;<span class="number">10</span>&gt; {
+        <span class="kw">let </span>width = <a href="../../num/cmp/compare.rs.html#36">Compare</a>(<a href="#410">width</a>).<a href="../../num/cmp/compare.rs.html#348">clamp</a>(<a class="self" href="#410">self</a>.<a href="#372-374">count_digits</a>(), <span class="number">10</span>);
 
         <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
         </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;<span class="number">10</span>&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
         <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
         </span><span class="comment">// SAFETY: the bytes are valid utf-8
         </span><span class="kw">unsafe </span>{
-            StringU8::&lt;<span class="number">10</span>&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+            <a href="../str/string_u.rs.html#693">StringU8</a>::&lt;<span class="number">10</span>&gt;::from_bytes_nright_unchecked(<a class="self" href="#410">self</a>.<a href="#382-397">digits</a>(), <a href="#411">width</a>)
         }
     }
     <span class="attr">#[allow(missing_docs)]
@@ -1128,9 +1164,9 @@
     }
 }
 
-<span class="kw">impl </span>Ascii&lt;u64&gt; {
+<span class="kw">impl </span><a href="#19">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt; {
     <span class="doccomment">/// The maximum number of decimal digits a `u64` can represent.
-    </span><span class="kw">pub const </span>MAX_DIGITS: usize = <span class="number">20</span>;
+    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">20</span>;
 
     <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `u64` number.
     ///
@@ -1144,8 +1180,8 @@
     /// assert_eq!(Ascii(12345_u64).calc_digit(1000), b'2');
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: u64) -&gt; u8 {
-        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) <span class="kw">as </span>u8 + <span class="string">b'0'
+    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        (<a class="self" href="#453">self</a>.<span class="number">0 </span>/ <a href="#453">divisor</a> % <span class="number">10</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> + <span class="string">b'0'
     </span>}
 
     <span class="doccomment">/// Counts the number of decimal digits.
@@ -1158,8 +1194,8 @@
     /// assert_eq![4, Ascii(9876_u64).count_digits()];
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-        <span class="macro">iif!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
     }
 
     <span class="doccomment">/// Converts a `u64` into a byte array of `20` ascii digits with leading zeros.
@@ -1168,30 +1204,30 @@
     /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
     </span><span class="attr">#[must_use]
     #[allow(clippy::unreadable_literal)]
-    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="number">20</span>] {
+    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">20</span>] {
         [
             <span class="comment">//              0987654321_987654321
             //              18446744073709551615    ← u64::MAX
-            </span><span class="self">self</span>.calc_digit(<span class="number">10000000000000000000</span>), <span class="comment">// 20 digits
-            </span><span class="self">self</span>.calc_digit(<span class="number">1000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000</span>), <span class="comment">// 10 digits
-            </span><span class="self">self</span>.calc_digit(<span class="number">100000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1</span>),
+            </span><a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">10000000000000000000</span>), <span class="comment">// 20 digits
+            </span><a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">1000000000000000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">100000000000000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">10000000000000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">1000000000000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">100000000000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">10000000000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">1000000000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">100000000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">10000000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">1000000000</span>), <span class="comment">// 10 digits
+            </span><a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">100000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">10000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">1000000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">100000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">10000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">1000</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">100</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">10</span>),
+            <a class="self" href="#477">self</a>.<a href="#453-455">calc_digit</a>(<span class="number">1</span>),
         ]
     }
 
@@ -1206,15 +1242,15 @@
     </span><span class="attr">#[cfg(feature = <span class="string">"_cmp_u8"</span>)] </span><span class="comment">// const
     </span><span class="attr">#[cfg(feature = <span class="string">"_string_u8"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"string_u8"</span>)))]
-    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;<span class="number">20</span>&gt; {
-        <span class="kw">let </span>width = Compare(width).clamp(<span class="self">self</span>.count_digits(), <span class="number">20</span>);
+    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#693">StringU8</a>&lt;<span class="number">20</span>&gt; {
+        <span class="kw">let </span>width = <a href="../../num/cmp/compare.rs.html#36">Compare</a>(<a href="#515">width</a>).<a href="../../num/cmp/compare.rs.html#348">clamp</a>(<a class="self" href="#515">self</a>.<a href="#467-469">count_digits</a>(), <span class="number">20</span>);
 
         <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
         </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;<span class="number">20</span>&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
         <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
         </span><span class="comment">// SAFETY: the bytes are valid utf-8
         </span><span class="kw">unsafe </span>{
-            StringU8::&lt;<span class="number">20</span>&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+            <a href="../str/string_u.rs.html#693">StringU8</a>::&lt;<span class="number">20</span>&gt;::from_bytes_nright_unchecked(<a class="self" href="#515">self</a>.<a href="#477-502">digits</a>(), <a href="#516">width</a>)
         }
     }
     <span class="attr">#[allow(missing_docs)]
@@ -1233,9 +1269,9 @@
     }
 }
 
-<span class="kw">impl </span>Ascii&lt;u128&gt; {
+<span class="kw">impl </span><a href="#19">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt; {
     <span class="doccomment">/// The maximum number of decimal digits a `u128` can represent.
-    </span><span class="kw">pub const </span>MAX_DIGITS: usize = <span class="number">30</span>;
+    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">30</span>;
 
     <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `u128` number.
     ///
@@ -1249,8 +1285,8 @@
     /// assert_eq!(Ascii(12345_u128).calc_digit(1000), b'2');
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: u128) -&gt; u8 {
-        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) <span class="kw">as </span>u8 + <span class="string">b'0'
+    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        (<a class="self" href="#558">self</a>.<span class="number">0 </span>/ <a href="#558">divisor</a> % <span class="number">10</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> + <span class="string">b'0'
     </span>}
 
     <span class="doccomment">/// Counts the number of decimal digits.
@@ -1263,8 +1299,8 @@
     /// assert_eq![19, Ascii(9876543210987654321_u128).count_digits()];
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-        <span class="macro">iif!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
     }
 
     <span class="doccomment">/// Converts a `u128` into a byte array of `39` ascii digits with leading zeros.
@@ -1273,49 +1309,49 @@
     /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
     </span><span class="attr">#[must_use]
     #[allow(clippy::unreadable_literal)]
-    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="number">39</span>] {
+    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">39</span>] {
         [
             <span class="comment">//              987654321_987654321_987654321_987654321
             //              340282366920938463463374607431768211455    ← u128::MAX
-            </span><span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000000000000000000</span>), <span class="comment">// 39 digits
-            </span><span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000000000</span>), <span class="comment">// 30 digits
-            </span><span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000000</span>), <span class="comment">// 20 digits
-            </span><span class="self">self</span>.calc_digit(<span class="number">1000000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000000</span>), <span class="comment">// 10 digits
-            </span><span class="self">self</span>.calc_digit(<span class="number">100000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1000</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">100</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">10</span>),
-            <span class="self">self</span>.calc_digit(<span class="number">1</span>),
+            </span><a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000000000000000000000000000000000000</span>), <span class="comment">// 39 digits
+            </span><a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000000000000000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000000000000000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000000000000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000000000000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000000000000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000000000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000000000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000000000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000000000000000000000000000</span>), <span class="comment">// 30 digits
+            </span><a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000000000000000000</span>), <span class="comment">// 20 digits
+            </span><a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000000000</span>), <span class="comment">// 10 digits
+            </span><a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1000</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">100</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">10</span>),
+            <a class="self" href="#582">self</a>.<a href="#558-560">calc_digit</a>(<span class="number">1</span>),
         ]
     }
 
@@ -1330,15 +1366,15 @@
     </span><span class="attr">#[cfg(feature = <span class="string">"_cmp_u8"</span>)] </span><span class="comment">// const
     </span><span class="attr">#[cfg(feature = <span class="string">"_string_u8"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"string_u8"</span>)))]
-    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;<span class="number">39</span>&gt; {
-        <span class="kw">let </span>width = Compare(width).clamp(<span class="self">self</span>.count_digits(), <span class="number">39</span>);
+    </span><span class="kw">pub const fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#693">StringU8</a>&lt;<span class="number">39</span>&gt; {
+        <span class="kw">let </span>width = <a href="../../num/cmp/compare.rs.html#36">Compare</a>(<a href="#639">width</a>).<a href="../../num/cmp/compare.rs.html#348">clamp</a>(<a class="self" href="#639">self</a>.<a href="#572-574">count_digits</a>(), <span class="number">39</span>);
 
         <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
         </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;<span class="number">39</span>&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
         <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
         </span><span class="comment">// SAFETY: the bytes are valid utf-8
         </span><span class="kw">unsafe </span>{
-            StringU8::&lt;<span class="number">39</span>&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+            <a href="../str/string_u.rs.html#693">StringU8</a>::&lt;<span class="number">39</span>&gt;::from_bytes_nright_unchecked(<a class="self" href="#639">self</a>.<a href="#582-626">digits</a>(), <a href="#640">width</a>)
         }
     }
     <span class="attr">#[cfg(not(feature = <span class="string">"_cmp_u8"</span>))] </span><span class="comment">// !const

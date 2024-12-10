@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/float/wrapper/libm_std.rs`."><title>libm_std.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/float/wrapper/libm_std.rs`."><title>libm_std.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -621,7 +657,10 @@
 <a href="#590" id="590">590</a>
 <a href="#591" id="591">591</a>
 <a href="#592" id="592">592</a>
-<a href="#593" id="593">593</a></pre></div><pre class="rust"><code><span class="comment">// devela::num::float::wrapper::libm_std
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a></pre></div><pre class="rust"><code><span class="comment">// devela::num::float::wrapper::libm_std
 //
 </span><span class="doccomment">//! Methods depending on libm, std, or their absence
 </span><span class="comment">//
@@ -630,7 +669,7 @@
 // - impls for std &amp;&amp; not(libm)
 // - impls for not(std) &amp;&amp; not(libm)
 
-</span><span class="kw">use </span><span class="kw">crate</span>::Float;
+</span><span class="kw">use </span><a href="mod.rs.html#44"><span class="kw">crate</span>::Float</a>;
 
 <span class="attr">#[doc = <span class="macro">crate::doc_private!</span>()]
 </span><span class="doccomment">/// macro helper for implementing methods for `Float`, from either `libm` or `std`.
@@ -681,15 +720,15 @@
     };
 }
 <span class="attr">#[cfg(any(feature = <span class="string">"dep_libm"</span>, feature = <span class="string">"std"</span>))]
-</span><span class="kw">use </span>impl_fp;
+</span><span class="kw">use </span><a href="#21-59">impl_fp</a>;
 
 <span class="attr">#[cfg(feature = <span class="string">"dep_libm"</span>)]
 </span><span class="kw">mod </span>_libm {
-    <span class="kw">use super</span>::{<span class="kw">super</span>::<span class="kw">super</span>::shared_docs::<span class="kw-2">*</span>, impl_fp, Float};
-    <span class="kw">use crate</span>::{_dep::libm::Libm, iif};
+    <span class="kw">use super</span>::{<a href="../mod.rs.html#14"><span class="kw">super</span>::<span class="kw">super</span>::shared_docs</a>::<span class="kw-2">*</span>, <a href="#21-59">impl_fp</a>, <a href="mod.rs.html#44">Float</a>};
+    <span class="kw">use crate</span>::{<a href="../../../../../devela/_dep/libm/struct.Libm.html">_dep::libm::Libm</a>, <a href="../../../code/macros/iif.rs.html#60-89">iif</a>};
 
     <span class="comment">// custom implementations are commented out
-    </span><span class="macro">impl_fp!</span>[libm:f<span class="kw-2">*</span>:
+    </span><a class="macro" href="#21-59">impl_fp!</a>[libm:f<span class="kw-2">*</span>:
         <span class="string">r"The largest integer less than or equal to `x`.
         $$ \lfloor x \rfloor = \max \{ n \in \mathbb{Z} \,|\, n \leq x \} $$ "
         </span>floor = floor: ;
@@ -825,6 +864,7 @@
                 }
 
                 <span class="doccomment">/// A number that represents the sign of `x`, propagating `NaN`.
+                </span><span class="comment">// WAIT:1.85 [const_float_methods](https://github.com/rust-lang/rust/pull/133389)
                 </span><span class="attr">#[must_use]
                 </span><span class="kw">pub fn </span>signum(<span class="self">self</span>) -&gt; Float&lt;<span class="macro-nonterminal">$f</span>&gt; {
                     <span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.is_nan() {
@@ -896,7 +936,7 @@
             }
         };
     }
-    <span class="macro">custom_impls!</span>();
+    <a class="macro" href="#174-276">custom_impls!</a>();
 }
 
 <span class="attr">#[cfg(all(not(feature = <span class="string">"dep_libm"</span>), feature = <span class="string">"std"</span>))]
@@ -1177,12 +1217,14 @@
                 }
 
                 <span class="doccomment">/// The maximum between itself and `other`, ignoring `NaN`.
+                </span><span class="comment">// WAIT:1.85 [const_float_methods](https://github.com/rust-lang/rust/pull/133389)
                 </span><span class="attr">#[must_use]
                 </span><span class="kw">pub fn </span>max(<span class="self">self</span>, other: <span class="macro-nonterminal">$f</span>) -&gt; Float&lt;<span class="macro-nonterminal">$f</span>&gt; {
                     <span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.is_nan() || <span class="self">self</span>.<span class="number">0 </span>&lt; other { Float(other) } <span class="kw">else </span>{ <span class="self">self </span>}
                 }
 
                 <span class="doccomment">/// The minimum between itself and other, ignoring `NaN`.
+                </span><span class="comment">// WAIT:1.85 [const_float_methods](https://github.com/rust-lang/rust/pull/133389)
                 </span><span class="attr">#[must_use]
                 </span><span class="kw">pub fn </span>min(<span class="self">self</span>, other: <span class="macro-nonterminal">$f</span>) -&gt; Float&lt;<span class="macro-nonterminal">$f</span>&gt; {
                     <span class="kw">if </span>other.is_nan() || <span class="self">self</span>.<span class="number">0 </span>&lt; other { <span class="self">self </span>} <span class="kw">else </span>{ Float(other) }

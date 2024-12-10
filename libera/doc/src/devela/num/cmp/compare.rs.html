@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/cmp/compare.rs`."><title>compare.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/cmp/compare.rs`."><title>compare.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -417,7 +453,20 @@
 <a href="#386" id="386">386</a>
 <a href="#387" id="387">387</a>
 <a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a></pre></div><pre class="rust"><code><span class="comment">// devela::num::cmp::compare
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a></pre></div><pre class="rust"><code><span class="comment">// devela::num::cmp::compare
 //
 </span><span class="doccomment">//! Helper wrapper for comparing.
 </span><span class="comment">//
@@ -432,10 +481,12 @@
 
 </span><span class="attr">#[allow(unused_imports)]
 #[cfg(_float_·)]
-</span><span class="kw">use </span><span class="kw">crate</span>::Float;
-<span class="kw">use </span><span class="kw">crate</span>::Ordering::{<span class="self">self</span>, Equal, Greater, Less};
+</span><span class="kw">use </span><a href="../float/wrapper/mod.rs.html#44"><span class="kw">crate</span>::Float</a>;
+<span class="kw">use </span><span class="kw">crate</span>::Ordering::{<a class="self" href="../../../../devela/_core/cmp/enum.Ordering.html">self</a>, <a href="../../../../devela/_core/cmp/enum.Ordering.html">Equal</a>, <a href="../../../../devela/_core/cmp/enum.Ordering.html">Greater</a>, <a href="../../../../devela/_core/cmp/enum.Ordering.html">Less</a>};
 <span class="attr">#[allow(unused_imports)]
-</span><span class="kw">use crate</span>::{iif, paste};
+</span><span class="kw">use crate</span>::{<a href="../../code/macros/iif.rs.html#60-89">iif</a>, <a href="../../code/macros/paste.rs.html#69-73">paste</a>};
+<span class="attr">#[cfg(feature = <span class="string">"nightly_float"</span>)]
+</span><span class="kw">use </span>::core::{<a href="../../../../devela/_core/f128/index.html">f128</a>, <a href="../../../../devela/_core/f16/index.html">f16</a>};
 
 <span class="doccomment">/// Provides comparing methods for `T`, most of them *const*.
 ///
@@ -450,41 +501,41 @@
 /// - they implement aditional methods:
 ///  `is_positive`, `is_negative`, `is_finite`, `is_infinite`, `is_nan`.
 </span><span class="attr">#[repr(transparent)]
-</span><span class="kw">pub struct </span>Compare&lt;T&gt;(<span class="kw">pub </span>T);
+</span><span class="kw">pub struct </span><a href="../../../../devela/num/struct.Compare.html">Compare</a>&lt;T&gt;(<span class="kw">pub </span>T);
 
 <span class="attr">#[rustfmt::skip]
 </span><span class="kw">mod </span>core_impls {
-    <span class="kw">use </span>{<span class="kw">super</span>::{Compare, Ordering}, core::fmt};
+    <span class="kw">use </span>{<span class="kw">super</span>::{<a href="#36">Compare</a>, <a href="../../../../devela/_core/cmp/enum.Ordering.html">Ordering</a>}, <a href="../../../../devela/_core/fmt/index.html">core::fmt</a>};
 
-    <span class="kw">impl</span>&lt;T: Clone&gt; Clone <span class="kw">for </span>Compare&lt;T&gt; { <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{ <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.clone()) } }
-    <span class="kw">impl</span>&lt;T: Copy&gt; Copy <span class="kw">for </span>Compare&lt;T&gt; {}
+    <span class="kw">impl</span>&lt;T: <a href="../../../../devela/_core/clone/trait.Clone.html">Clone</a>&gt; <a href="../../../../devela/_core/clone/trait.Clone.html">Clone</a> <span class="kw">for </span><a href="#36">Compare</a>&lt;T&gt; { <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{ <span class="self">Self</span>(<a class="self" href="#42">self</a>.<span class="number">0</span>.<a href="../../../../devela/_core/clone/trait.Clone.html">clone</a>()) } }
+    <span class="kw">impl</span>&lt;T: <a href="../../../../devela/_core/marker/trait.Copy.html">Copy</a>&gt; <a href="../../../../devela/_core/marker/trait.Copy.html">Copy</a> <span class="kw">for </span><a href="#36">Compare</a>&lt;T&gt; {}
 
-    <span class="kw">impl</span>&lt;T: PartialEq&gt; PartialEq <span class="kw">for </span>Compare&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T: <a href="../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a>&gt; <a href="../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> <span class="kw">for </span><a href="#36">Compare</a>&lt;T&gt; {
         <span class="attr">#[must_use]
-        </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool { <span class="self">self</span>.<span class="number">0</span>.eq(<span class="kw-2">&amp;</span>other.<span class="number">0</span>) }
+        </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <a class="self" href="#47">self</a>.<span class="number">0</span>.<a href="../../../../devela/_core/cmp/trait.PartialEq.html">eq</a>(<span class="kw-2">&amp;</span><a href="#47">other</a>.<span class="number">0</span>) }
     }
-    <span class="kw">impl</span>&lt;T: Eq&gt; Eq <span class="kw">for </span>Compare&lt;T&gt; {}
-    <span class="kw">impl</span>&lt;T: PartialOrd&gt; PartialOrd <span class="kw">for </span>Compare&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T: <a href="../../../../devela/_core/cmp/trait.Eq.html">Eq</a>&gt; <a href="../../../../devela/_core/cmp/trait.Eq.html">Eq</a> <span class="kw">for </span><a href="#36">Compare</a>&lt;T&gt; {}
+    <span class="kw">impl</span>&lt;T: <a href="../../../../devela/_core/cmp/trait.PartialOrd.html">PartialOrd</a>&gt; <a href="../../../../devela/_core/cmp/trait.PartialOrd.html">PartialOrd</a> <span class="kw">for </span><a href="#36">Compare</a>&lt;T&gt; {
         <span class="attr">#[must_use]
-        </span><span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; { <span class="self">self</span>.<span class="number">0</span>.partial_cmp(<span class="kw-2">&amp;</span>other.<span class="number">0</span>) }
+        </span><span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<a href="../../../../devela/_core/cmp/enum.Ordering.html">Ordering</a>&gt; { <a class="self" href="#52">self</a>.<span class="number">0</span>.<a href="../../../../devela/_core/cmp/trait.PartialOrd.html">partial_cmp</a>(<span class="kw-2">&amp;</span><a href="#52">other</a>.<span class="number">0</span>) }
     }
-    <span class="kw">impl</span>&lt;T: Ord&gt; Ord <span class="kw">for </span>Compare&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T: <a href="../../../../devela/_core/cmp/trait.Ord.html">Ord</a>&gt; <a href="../../../../devela/_core/cmp/trait.Ord.html">Ord</a> <span class="kw">for </span><a href="#36">Compare</a>&lt;T&gt; {
         <span class="attr">#[must_use]
-        </span><span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering { <span class="self">self</span>.<span class="number">0</span>.cmp(<span class="kw-2">&amp;</span>other.<span class="number">0</span>) }
+        </span><span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <a href="../../../../devela/_core/cmp/enum.Ordering.html">Ordering</a> { <a class="self" href="#56">self</a>.<span class="number">0</span>.<a href="../../../../devela/_core/cmp/trait.Ord.html">cmp</a>(<span class="kw-2">&amp;</span><a href="#56">other</a>.<span class="number">0</span>) }
     }
 
-    <span class="kw">impl</span>&lt;T: fmt::Display&gt; fmt::Display <span class="kw">for </span>Compare&lt;T&gt; {
-        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result { fmt::Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, f) }
+    <span class="kw">impl</span>&lt;T: <a href="../../../../devela/_core/fmt/trait.Display.html">fmt::Display</a>&gt; <a href="../../../../devela/_core/fmt/trait.Display.html">fmt::Display</a> <span class="kw">for </span><a href="#36">Compare</a>&lt;T&gt; {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/_core/fmt/struct.Formatter.html">fmt::Formatter</a>) -&gt; <a href="../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> { <a href="../../../../devela/_core/fmt/trait.Display.html">fmt::Display::fmt</a>(<span class="kw-2">&amp;</span><a class="self" href="#60">self</a>.<span class="number">0</span>, <a href="#60">f</a>) }
     }
-    <span class="kw">impl</span>&lt;T: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>Compare&lt;T&gt; {
-        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-            f.debug_tuple(<span class="string">"Compare"</span>).field(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>).finish()
+    <span class="kw">impl</span>&lt;T: <a href="../../../../devela/_core/fmt/trait.Debug.html">fmt::Debug</a>&gt; <a href="../../../../devela/_core/fmt/trait.Debug.html">fmt::Debug</a> <span class="kw">for </span><a href="#36">Compare</a>&lt;T&gt; {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/_core/fmt/struct.Formatter.html">fmt::Formatter</a>) -&gt; <a href="../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
+            <a href="#63">f</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.debug_tuple">debug_tuple</a>(<span class="string">"Compare"</span>).<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugTuple.html#method.field">field</a>(<span class="kw-2">&amp;</span><a class="self" href="#63">self</a>.<span class="number">0</span>).<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugTuple.html#method.finish">finish</a>()
         }
     }
 }
 
 <span class="attr">#[rustfmt::skip]
-</span><span class="kw">impl</span>&lt;T: PartialOrd&gt; Compare&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T: <a href="../../../../devela/_core/cmp/trait.PartialOrd.html">PartialOrd</a>&gt; <a href="#36">Compare</a>&lt;T&gt; {
     <span class="doccomment">/// Compares and returns a [`PartialOrd`]ered `value` clamped between `min` and `max`.
     ///
     /// Returns `None` if comparisons are indeterminate.
@@ -500,12 +551,12 @@
     /// assert_eq![None, Compare(1.0).pclamp(0.2, f32::NAN)];
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>pclamp(<span class="self">self</span>, min: T, max: T) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
-        <span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.partial_cmp(<span class="kw-2">&amp;</span>min) {
-            <span class="prelude-val">Some</span>(Less) =&gt; <span class="prelude-val">Some</span>(min),
-            <span class="prelude-val">Some</span>(Greater | Equal) =&gt; <span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.partial_cmp(<span class="kw-2">&amp;</span>max) {
-                <span class="prelude-val">Some</span>(Greater) =&gt; <span class="prelude-val">Some</span>(max),
-                <span class="prelude-val">Some</span>(Less | Equal) =&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="number">0</span>),
+    </span><span class="kw">pub fn </span>pclamp(<span class="self">self</span>, min: T, max: T) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;T&gt; {
+        <span class="kw">match </span><a class="self" href="#86">self</a>.<span class="number">0</span>.<a href="../../../../devela/_core/cmp/trait.PartialOrd.html">partial_cmp</a>(<span class="kw-2">&amp;</span><a href="#86">min</a>) {
+            <span class="prelude-val">Some</span>(<a href="../../../../devela/_core/cmp/enum.Ordering.html">Less</a>) =&gt; <span class="prelude-val">Some</span>(<a href="#86">min</a>),
+            <span class="prelude-val">Some</span>(<a href="../../../../devela/_core/cmp/enum.Ordering.html">Greater</a> | <a href="../../../../devela/_core/cmp/enum.Ordering.html">Equal</a>) =&gt; <span class="kw">match </span><a class="self" href="#86">self</a>.<span class="number">0</span>.<a href="../../../../devela/_core/cmp/trait.PartialOrd.html">partial_cmp</a>(<span class="kw-2">&amp;</span><a href="#86">max</a>) {
+                <span class="prelude-val">Some</span>(<a href="../../../../devela/_core/cmp/enum.Ordering.html">Greater</a>) =&gt; <span class="prelude-val">Some</span>(<a href="#86">max</a>),
+                <span class="prelude-val">Some</span>(<a href="../../../../devela/_core/cmp/enum.Ordering.html">Less</a> | <a href="../../../../devela/_core/cmp/enum.Ordering.html">Equal</a>) =&gt; <span class="prelude-val">Some</span>(<a class="self" href="#86">self</a>.<span class="number">0</span>),
                 <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
             },
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
@@ -526,10 +577,10 @@
     /// assert_eq![None, Compare(f32::NAN).pmax(0.4)];
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>pmax(<span class="self">self</span>, other: T) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
-        <span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.partial_cmp(<span class="kw-2">&amp;</span>other) {
-            <span class="prelude-val">Some</span>(Less) =&gt; <span class="prelude-val">Some</span>(other),
-            <span class="prelude-val">Some</span>(Greater | Equal) =&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="number">0</span>),
+    </span><span class="kw">pub fn </span>pmax(<span class="self">self</span>, other: T) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;T&gt; {
+        <span class="kw">match </span><a class="self" href="#112">self</a>.<span class="number">0</span>.<a href="../../../../devela/_core/cmp/trait.PartialOrd.html">partial_cmp</a>(<span class="kw-2">&amp;</span><a href="#112">other</a>) {
+            <span class="prelude-val">Some</span>(<a href="../../../../devela/_core/cmp/enum.Ordering.html">Less</a>) =&gt; <span class="prelude-val">Some</span>(<a href="#112">other</a>),
+            <span class="prelude-val">Some</span>(<a href="../../../../devela/_core/cmp/enum.Ordering.html">Greater</a> | <a href="../../../../devela/_core/cmp/enum.Ordering.html">Equal</a>) =&gt; <span class="prelude-val">Some</span>(<a class="self" href="#112">self</a>.<span class="number">0</span>),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
@@ -548,16 +599,17 @@
     /// assert_eq![None, Compare(f32::NAN).pmin(0.4)];
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>pmin(<span class="self">self</span>, other: T) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
-        <span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.partial_cmp(<span class="kw-2">&amp;</span>other) {
-            <span class="prelude-val">Some</span>(Greater) =&gt; <span class="prelude-val">Some</span>(other),
-            <span class="prelude-val">Some</span>(Less | Equal) =&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="number">0</span>),
+    </span><span class="kw">pub fn </span>pmin(<span class="self">self</span>, other: T) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;T&gt; {
+        <span class="kw">match </span><a class="self" href="#134">self</a>.<span class="number">0</span>.<a href="../../../../devela/_core/cmp/trait.PartialOrd.html">partial_cmp</a>(<span class="kw-2">&amp;</span><a href="#134">other</a>) {
+            <span class="prelude-val">Some</span>(<a href="../../../../devela/_core/cmp/enum.Ordering.html">Greater</a>) =&gt; <span class="prelude-val">Some</span>(<a href="#134">other</a>),
+            <span class="prelude-val">Some</span>(<a href="../../../../devela/_core/cmp/enum.Ordering.html">Less</a> | <a href="../../../../devela/_core/cmp/enum.Ordering.html">Equal</a>) =&gt; <span class="prelude-val">Some</span>(<a class="self" href="#134">self</a>.<span class="number">0</span>),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="comment">// implement for primitives
+<span class="attr">#[doc = <span class="macro">crate::doc_private!</span>()]
+</span><span class="doccomment">/// Implement [`Comparing`] for primitives.
 </span><span class="macro">macro_rules!</span> impl_comparing {
     () =&gt; {
         <span class="macro">impl_comparing!</span>[int:
@@ -572,15 +624,22 @@
             i32:<span class="string">"_cmp_i32"</span>,
             i64:<span class="string">"_cmp_i64"</span>,
             i128:<span class="string">"_cmp_i128"</span>,
-            isize:<span class="string">"_cmp_isize"</span>];
+            isize:<span class="string">"_cmp_isize"
+        </span>];
         <span class="macro">impl_comparing!</span>[float:
             f32:<span class="string">"_cmp_f32"</span>:<span class="number">32</span>:<span class="number">31</span>,
-            f64:<span class="string">"_cmp_f64"</span>:<span class="number">64</span>:<span class="number">63</span>];
+            f64:<span class="string">"_cmp_f64"</span>:<span class="number">64</span>:<span class="number">63
+        </span>];
+        <span class="attr">#[cfg(feature = <span class="string">"nightly_float"</span>)]
+        </span><span class="macro">impl_comparing!</span>[float:
+            f16:<span class="string">"_cmp_f16"</span>:<span class="number">16</span>:<span class="number">15</span>,
+            f128:<span class="string">"_cmp_f128"</span>:<span class="number">128</span>:<span class="number">127
+        </span>];
     };
-
+    (
     <span class="comment">// $p: the integer type
     // $cap: the capability feature associated with the `$f` type. E.g "_cmp_usize".
-    </span>(int: $(<span class="macro-nonterminal">$p</span>:ty : <span class="macro-nonterminal">$cap</span>:literal),+) =&gt; { $( <span class="macro">impl_comparing!</span>[@int: <span class="macro-nonterminal">$p</span>:<span class="macro-nonterminal">$cap</span>]; )+ };
+    </span>int: $(<span class="macro-nonterminal">$p</span>:ty : <span class="macro-nonterminal">$cap</span>:literal),+) =&gt; { $( <span class="macro">impl_comparing!</span>[@int: <span class="macro-nonterminal">$p</span>:<span class="macro-nonterminal">$cap</span>]; )+ };
     (@int: <span class="macro-nonterminal">$p</span>:ty : <span class="macro-nonterminal">$cap</span>:literal) =&gt; {
         <span class="attr">#[cfg(feature = <span class="macro-nonterminal">$cap</span>)]
         </span><span class="kw">impl </span>Compare&lt;<span class="macro-nonterminal">$p</span>&gt; {
@@ -618,12 +677,12 @@
             </span><span class="kw">pub const fn </span>ge(<span class="self">self</span>, other: <span class="macro-nonterminal">$p</span>) -&gt; bool { <span class="self">self</span>.<span class="number">0 </span>&gt;= other }
         }
     };
-
+    (
     <span class="comment">// $f:    the floating-point type
     // $fcap: the capability feature associated with the `$f` type. E.g "_cmp_f32".
     // $b:    the bits of the floating-point primitive
     // $sh:   the shift amount for the given bits ($b - 1)
-    </span>(float: $(<span class="macro-nonterminal">$f</span>:ty:<span class="macro-nonterminal">$fcap</span>:literal:<span class="macro-nonterminal">$b</span>:literal:<span class="macro-nonterminal">$sh</span>:literal),+) =&gt; {
+    </span>float: $(<span class="macro-nonterminal">$f</span>:ty:<span class="macro-nonterminal">$fcap</span>:literal:<span class="macro-nonterminal">$b</span>:literal:<span class="macro-nonterminal">$sh</span>:literal),+) =&gt; {
         $( <span class="macro">impl_comparing!</span>[@float: <span class="macro-nonterminal">$f</span>:<span class="macro-nonterminal">$fcap</span>:<span class="macro-nonterminal">$b</span>:<span class="macro-nonterminal">$sh</span>]; )+
     };
     (@float: <span class="macro-nonterminal">$f</span>:ty:<span class="macro-nonterminal">$fcap</span>:literal:<span class="macro-nonterminal">$b</span>:literal:<span class="macro-nonterminal">$sh</span>:literal) =&gt; { <span class="macro">paste!</span> {
@@ -645,7 +704,8 @@
             ///
             /// # Examples
             /// ```
-            /// # use devela::Compare;
+            </span><span class="attr">#[cfg_attr(feature = <span class="string">"nightly_float"</span>, doc = <span class="string">"#![feature(f16, f128)]"</span>)]
+            </span><span class="doccomment">/// # use devela::Compare;
             </span><span class="attr">#[doc = <span class="string">"assert_eq![2.0, Compare(5.0" </span><span class="macro-nonterminal">$f </span><span class="string">").clamp(-1.0, 2.0)];"</span>]
             #[doc = <span class="string">"assert_eq![-1.0, Compare(-5.0" </span><span class="macro-nonterminal">$f </span><span class="string">").clamp(-1.0, 2.0)];"</span>]
             </span><span class="doccomment">/// ```
@@ -665,7 +725,8 @@
             ///
             /// # Examples
             /// ```
-            /// # use devela::Compare;
+            </span><span class="attr">#[cfg_attr(feature = <span class="string">"nightly_float"</span>, doc = <span class="string">"#![feature(f16, f128)]"</span>)]
+            </span><span class="doccomment">/// # use devela::Compare;
             </span><span class="attr">#[doc = <span class="string">"assert_eq![2.0, Compare(2.0" </span><span class="macro-nonterminal">$f </span><span class="string">").max(-1.0)];"</span>]
             #[doc = <span class="string">"assert_eq![2.0, Compare(1.0" </span><span class="macro-nonterminal">$f </span><span class="string">").max(2.0)];"</span>]
             #[doc = <span class="string">"assert_eq![0.0, Compare(-0.0" </span><span class="macro-nonterminal">$f </span><span class="string">").max(0.0)];"</span>]
@@ -682,7 +743,8 @@
             ///
             /// # Examples
             /// ```
-            /// # use devela::Compare;
+            </span><span class="attr">#[cfg_attr(feature = <span class="string">"nightly_float"</span>, doc = <span class="string">"#![feature(f16, f128)]"</span>)]
+            </span><span class="doccomment">/// # use devela::Compare;
             </span><span class="attr">#[doc = <span class="string">"assert_eq![-1.0, Compare(2.0" </span><span class="macro-nonterminal">$f </span><span class="string">").min(-1.0)];"</span>]
             #[doc = <span class="string">"assert_eq![1.0, Compare(1.0" </span><span class="macro-nonterminal">$f </span><span class="string">").min(2.0)];"</span>]
             #[doc = <span class="string">"assert_eq![-0.0, Compare(-0.0" </span><span class="macro-nonterminal">$f </span><span class="string">").min(0.0)];"</span>]
@@ -751,7 +813,7 @@
         }
     }};
 }
-<span class="macro">impl_comparing!</span>();
+<a class="macro" href="#145-347">impl_comparing!</a>();
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test_min_max_clamp {

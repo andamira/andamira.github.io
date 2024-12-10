@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/grapheme/string_u8.rs`."><title>string_u8.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/grapheme/string_u8.rs`."><title>string_u8.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -250,19 +286,7 @@
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
 <a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a></pre></div><pre class="rust"><code><span class="comment">// devela::text::grapheme::string_u8
+<a href="#222" id="222">222</a></pre></div><pre class="rust"><code><span class="comment">// devela::text::grapheme::string_u8
 //
 </span><span class="doccomment">//!
 </span><span class="comment">//
@@ -270,16 +294,16 @@
 // - definitions
 // - trait impls
 
-</span><span class="kw">use </span><span class="kw">super</span>::Grapheme;
+</span><span class="kw">use </span><a href="trait.rs.html#7"><span class="kw">super</span>::Grapheme</a>;
 <span class="attr">#[cfg(_char·)]
-</span><span class="kw">use </span><span class="kw">crate</span>::text::char::<span class="kw-2">*</span>;
+</span><span class="kw">use </span><a href="../mod.rs.html#16"><span class="kw">crate</span>::text::char</a>::<span class="kw-2">*</span>;
 <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::CString;
+</span><span class="kw">use </span><a href="../../../../devela/all/struct.CString.html"><span class="kw">crate</span>::CString</a>;
 <span class="attr">#[cfg(doc)]
-</span><span class="kw">use </span><span class="kw">crate</span>::TextError::OutOfBounds;
+</span><span class="kw">use </span><a href="../error.rs.html#41"><span class="kw">crate</span>::TextError::OutOfBounds</a>;
 <span class="kw">use crate</span>::{
-    text::helpers::impl_sized_alias, unwrap, ConstDefault, IterChars, StringU8,
-    TextResult <span class="kw">as </span><span class="prelude-ty">Result</span>,
+    <a href="../helpers.rs.html#9-33">text::helpers::impl_sized_alias</a>, <a href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap</a>, <a href="../../code/default.rs.html#9-12">ConstDefault</a>, <a href="../../../../devela/_core/str/struct.Chars.html">IterChars</a>, <a href="../str/string_u.rs.html#693">StringU8</a>,
+    <a href="../error.rs.html#9">TextResult</a> <span class="kw">as </span><span class="prelude-ty">Result</span>,
 };
 <span class="comment">// use unicode_segmentation::UnicodeSegmentation;
 
@@ -290,9 +314,9 @@
 </span><span class="attr">#[derive(Clone, PartialEq, Eq, Hash)]
 #[repr(transparent)]
 #[must_use]
-</span><span class="kw">pub struct </span>GraphemeU8&lt;<span class="kw">const </span>CAP: usize&gt;(StringU8&lt;CAP&gt;);
+</span><span class="kw">pub struct </span><a href="../../../../devela/text/struct.GraphemeU8.html">GraphemeU8</a>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;(<a href="../str/string_u.rs.html#693">StringU8</a>&lt;<a href="#29">CAP</a>&gt;);
 
-<span class="macro">impl_sized_alias!</span>[
+<a class="macro" href="../helpers.rs.html#9-33">impl_sized_alias!</a>[
     Grapheme, GraphemeU8,
     <span class="string">"&lt;abbr title='Extended Grapheme Cluster'&gt;EGC&lt;/abbr&gt;, backed by an array of "</span>,
     <span class="string">"."</span>:
@@ -302,13 +326,13 @@
     <span class="string">"A" </span><span class="number">128</span>, <span class="number">15 </span><span class="string">"s"
 </span>];
 
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: usize&gt; GraphemeU8&lt;CAP&gt; {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#29">GraphemeU8</a>&lt;<a href="#41">CAP</a>&gt; {
     <span class="doccomment">/// Creates a new empty `GraphemeU8`.
     ///
     /// # Errors
     /// Returns [`OutOfBounds`] if `CAP &gt; 255.
-    </span><span class="kw">pub const fn </span>new() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">unwrap!</span>[ok<span class="question-mark">? </span>StringU8::new()]))
+    </span><span class="kw">pub const fn </span>new() -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span>StringU8::new()]))
     }
 
     <span class="doccomment">/// Creates a new `GraphemeU8` from a `char7`.
@@ -319,8 +343,8 @@
     /// Will always succeed if `CAP` &gt;= 1 and &lt;= 255.
     </span><span class="attr">#[cfg(feature = <span class="string">"_char7"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"_char7"</span>)))]
-    </span><span class="kw">pub const fn </span>from_char7(c: char7) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">unwrap!</span>[ok<span class="question-mark">? </span>StringU8::from_char7(c)]))
+    </span><span class="kw">pub const fn </span>from_char7(c: <a href="../char/definitions.rs.html#53">char7</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span>StringU8::from_char7(c)]))
     }
 
     <span class="doccomment">/// Creates a new `GraphemeU8` from a `char8`.
@@ -331,8 +355,8 @@
     /// Will always succeed if `CAP` &gt;= 2 and &lt;= 255.
     </span><span class="attr">#[cfg(feature = <span class="string">"_char8"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"_char8"</span>)))]
-    </span><span class="kw">pub const fn </span>from_char8(c: char8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">unwrap!</span>[ok<span class="question-mark">? </span>StringU8::from_char8(c)]))
+    </span><span class="kw">pub const fn </span>from_char8(c: <a href="../char/definitions.rs.html#71">char8</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span>StringU8::from_char8(c)]))
     }
 
     <span class="doccomment">/// Creates a new `GraphemeU8` from a `char16`.
@@ -343,20 +367,8 @@
     /// Will always succeed if `CAP` &gt;= 3 and &lt;= 255.
     </span><span class="attr">#[cfg(feature = <span class="string">"_char16"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"_char16"</span>)))]
-    </span><span class="kw">pub const fn </span>from_char16(c: char16) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">unwrap!</span>[ok<span class="question-mark">? </span>StringU8::from_char16(c)]))
-    }
-
-    <span class="doccomment">/// Creates a new `GraphemeU8` from a `char24`.
-    ///
-    /// # Errors
-    /// Returns [`OutOfBounds`] if `CAP` &gt; 255 or &lt; `c.`[`len_utf8()`][char24#method.len_utf8].
-    ///
-    /// Will always succeed if `CAP` &gt;= 4 and &lt;= 255.
-    </span><span class="attr">#[cfg(feature = <span class="string">"_char24"</span>)]
-    #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"_char24"</span>)))]
-    </span><span class="kw">pub const fn </span>from_char24(c: char24) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">unwrap!</span>[ok<span class="question-mark">? </span>StringU8::from_char24(c)]))
+    </span><span class="kw">pub const fn </span>from_char16(c: <a href="../char/definitions.rs.html#90">char16</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span>StringU8::from_char16(c)]))
     }
 
     <span class="doccomment">/// Creates a new `GraphemeU8` from a `char`.
@@ -364,41 +376,41 @@
     /// Panics if `CAP` &gt; 255 or &lt; `c.`[`len_utf8()`][UnicodeScalar#method.len_utf8].
     ///
     /// Will never panic if `CAP` &gt;= 4 and &lt;= 255.
-    </span><span class="kw">pub const fn </span>from_char(c: char) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">unwrap!</span>[ok<span class="question-mark">? </span>StringU8::from_char(c)]))
+    </span><span class="kw">pub const fn </span>from_char(c: <a href="../char/definitions.rs.html#36">char</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span>StringU8::from_char(c)]))
     }
 
     <span class="comment">//
 
     </span><span class="doccomment">/// Returns the length in bytes.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize { <span class="self">self</span>.<span class="number">0</span>.len() }
+    </span><span class="kw">pub const fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { <a class="self" href="#99">self</a>.<span class="number">0</span>.<a href="../str/string_u.rs.html#693">len</a>() }
 
     <span class="doccomment">/// Returns `true` if the current length is 0.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool { <span class="self">self</span>.<span class="number">0</span>.len() == <span class="number">0 </span>}
+    </span><span class="kw">pub const fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <a class="self" href="#103">self</a>.<span class="number">0</span>.<a href="../str/string_u.rs.html#693">len</a>() == <span class="number">0 </span>}
 
     <span class="doccomment">/// Returns the total capacity in bytes.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>capacity() -&gt; usize { CAP }
+    </span><span class="kw">pub const fn </span>capacity() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { <a href="#41">CAP</a> }
 
     <span class="doccomment">/// Returns the remaining capacity.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>remaining_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize { CAP - <span class="self">self</span>.len() }
+    </span><span class="kw">pub const fn </span>remaining_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { <a href="#41">CAP</a> - <a class="self" href="#111">self</a>.<a href="#99">len</a>() }
 
     <span class="doccomment">/// Returns `true` if the current remaining capacity is 0.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool { <span class="self">self</span>.len() == CAP }
+    </span><span class="kw">pub const fn </span>is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <a class="self" href="#115">self</a>.<a href="#99">len</a>() == <a href="#41">CAP</a> }
 
     <span class="doccomment">/// Sets the length to 0, by resetting all bytes to 0.
     </span><span class="attr">#[rustfmt::skip]
-    </span><span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) { <span class="self">self</span>.<span class="number">0</span>.clear(); }
+    </span><span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) { <a class="self" href="#119">self</a>.<span class="number">0</span>.<a href="../str/string_u.rs.html#693">clear</a>(); }
 
     <span class="comment">//
 
     </span><span class="doccomment">/// Returns a byte slice of the inner string slice.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] { <span class="self">self</span>.<span class="number">0</span>.as_bytes() }
+    </span><span class="kw">pub const fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] { <a class="self" href="#125">self</a>.<span class="number">0</span>.<a href="../str/string_u.rs.html#693">as_bytes</a>() }
 
     <span class="doccomment">/// Returns a mutable byte slice of the inner string slice.
     /// # Safety
@@ -406,78 +418,78 @@
     </span><span class="attr">#[must_use]
     #[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_slice"</span>))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_slice"</span>)))]
-    </span><span class="kw">pub unsafe fn </span>as_bytes_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8] {
+    </span><span class="kw">pub unsafe fn </span>as_bytes_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] {
         <span class="comment">// SAFETY: caller must ensure safety
-        </span><span class="kw">unsafe </span>{ <span class="self">self</span>.<span class="number">0</span>.as_bytes_mut() }
+        </span><span class="kw">unsafe </span>{ <a class="self" href="#133">self</a>.<span class="number">0</span>.<a href="../str/string_u.rs.html#693">as_bytes_mut</a>() }
     }
 
     <span class="doccomment">/// Returns a copy of the inner array with the full contents.
     ///
     /// The array contains all the bytes, including those outside the current length.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>as_array(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [u8; CAP] { <span class="self">self</span>.<span class="number">0</span>.as_array() }
+    </span><span class="kw">pub const fn </span>as_array(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#41">CAP</a>] { <a class="self" href="#142">self</a>.<span class="number">0</span>.<a href="../str/string_u.rs.html#693">as_array</a>() }
 
     <span class="doccomment">/// Returns the inner array with the full contents.
     ///
     /// The array contains all the bytes, including those outside the current length.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>into_array(<span class="self">self</span>) -&gt; [u8; CAP] { <span class="self">self</span>.<span class="number">0</span>.into_array() }
+    </span><span class="kw">pub const fn </span>into_array(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#41">CAP</a>] { <a class="self" href="#148">self</a>.<span class="number">0</span>.<a href="../str/string_u.rs.html#693">into_array</a>() }
 
     <span class="doccomment">/// Returns the inner string slice.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str { <span class="self">self</span>.<span class="number">0</span>.as_str() }
+    </span><span class="kw">pub const fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> { <a class="self" href="#152">self</a>.<span class="number">0</span>.<a href="../str/string_u.rs.html#693">as_str</a>() }
 
     <span class="doccomment">/// Returns the mutable inner string slice.
     /// # Safety
     /// The content must be valid UTF-8.
     </span><span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_slice"</span>))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_slice"</span>)))]
-    </span><span class="kw">pub unsafe fn </span>as_mut_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>str {
-        <span class="self">self</span>.<span class="number">0</span>.as_mut_str()
+    </span><span class="kw">pub unsafe fn </span>as_mut_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> {
+        <a class="self" href="#159">self</a>.<span class="number">0</span>.<a href="../str/string_u.rs.html#693">as_mut_str</a>()
     }
 
     <span class="doccomment">/// Returns an iterator over the `chars` of this grapheme cluster.
     </span><span class="attr">#[rustfmt::skip]
-    </span><span class="kw">pub fn </span>chars(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IterChars { <span class="self">self</span>.<span class="number">0</span>.chars() }
+    </span><span class="kw">pub fn </span>chars(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="../../../../devela/_core/str/struct.Chars.html">IterChars</a> { <a class="self" href="#165">self</a>.<span class="number">0</span>.<a href="../str/string_u.rs.html#693">chars</a>() }
 
     <span class="doccomment">/// Returns a new allocated C-compatible, nul-terminanted string.
     </span><span class="attr">#[rustfmt::skip]
     #[cfg(feature = <span class="string">"alloc"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"alloc"</span>)))]
-    </span><span class="kw">pub fn </span>to_cstring(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CString { <span class="self">self</span>.<span class="number">0</span>.to_cstring() }
+    </span><span class="kw">pub fn </span>to_cstring(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="../../../../devela/all/struct.CString.html">CString</a> { <a class="self" href="#171">self</a>.<span class="number">0</span>.<a href="../str/string_u.rs.html#693">to_cstring</a>() }
 }
 
 <span class="comment">/* traits */
 
-</span><span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: usize&gt; Grapheme <span class="kw">for </span>GraphemeU8&lt;CAP&gt; {}
+</span><span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="trait.rs.html#7">Grapheme</a> <span class="kw">for </span><a href="#29">GraphemeU8</a>&lt;<a href="#176">CAP</a>&gt; {}
 
 <span class="kw">mod </span>core_impls {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>core::fmt;
+    <span class="kw">use </span><a href="../../../../devela/_core/fmt/index.html">core::fmt</a>;
 
-    <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: usize&gt; Default <span class="kw">for </span>GraphemeU8&lt;CAP&gt; {
+    <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/_core/default/trait.Default.html">Default</a> <span class="kw">for </span><a href="#29">GraphemeU8</a>&lt;<a href="#182">CAP</a>&gt; {
         <span class="doccomment">/// Returns an empty extended grapheme character.
         ///
         /// # Panics
         /// Panics if `CAP` &gt; 255.
         </span><span class="attr">#[rustfmt::skip]
-        </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{ <span class="macro">unwrap!</span>[ok <span class="self">Self</span>::new()] }
+        </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{ <a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok <span class="self">Self</span>::new()] }
     }
-    <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: usize&gt; ConstDefault <span class="kw">for </span>GraphemeU8&lt;CAP&gt; {
+    <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#29">GraphemeU8</a>&lt;<a href="#190">CAP</a>&gt; {
         <span class="doccomment">/// Returns an empty string.
         ///
         /// # Panics
         /// Panics if `CAP &gt; 255`.
-        </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro">unwrap!</span>[ok <span class="self">Self</span>::new()];
+        </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok <span class="self">Self</span>::new()];
     }
 
-    <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: usize&gt; fmt::Display <span class="kw">for </span>GraphemeU8&lt;CAP&gt; {
+    <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/_core/fmt/trait.Display.html">fmt::Display</a> <span class="kw">for </span><a href="#29">GraphemeU8</a>&lt;<a href="#198">CAP</a>&gt; {
         <span class="attr">#[rustfmt::skip]
-        </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result { <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.<span class="number">0</span>) }
+        </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/_core/fmt/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> { <a class="macro" href="../../../../devela/_core/macro.write.html">write!</a>(<a href="#200">f</a>, <span class="string">"{}"</span>, <span class="self">self</span>.<span class="number">0</span>) }
     }
-    <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: usize&gt; fmt::Debug <span class="kw">for </span>GraphemeU8&lt;CAP&gt; {
+    <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/_core/fmt/trait.Debug.html">fmt::Debug</a> <span class="kw">for </span><a href="#29">GraphemeU8</a>&lt;<a href="#202">CAP</a>&gt; {
         <span class="attr">#[rustfmt::skip]
-        </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result { <span class="macro">write!</span>(f, <span class="string">"{:?}"</span>, <span class="self">self</span>.<span class="number">0</span>) }
+        </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/_core/fmt/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> { <a class="macro" href="../../../../devela/_core/macro.write.html">write!</a>(<a href="#204">f</a>, <span class="string">"{:?}"</span>, <span class="self">self</span>.<span class="number">0</span>) }
     }
 
     <span class="comment">// impl From&lt;String&gt; for GraphemeU8 {

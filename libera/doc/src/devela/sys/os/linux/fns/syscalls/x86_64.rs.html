@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/fns/syscalls/x86_64.rs`."><title>x86_64.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../../../../" data-static-root-path="../../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../../src-files.js"></script><script defer src="../../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/fns/syscalls/x86_64.rs`."><title>x86_64.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../../../" data-static-root-path="../../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../../src-files.js"></script><script defer src="../../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -196,178 +232,172 @@
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
 <a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a></pre></div><pre class="rust"><code><span class="comment">// devela::io::linux::fns::syscalls:x86_64
+<a href="#168" id="168">168</a></pre></div><pre class="rust"><code><span class="comment">// devela::io::linux::fns::syscalls:x86_64
 //
 </span><span class="doccomment">//!
 </span><span class="comment">//
 // - https://arm64.syscall.sh/
 
-</span><span class="kw">use </span><span class="kw">crate</span>::sys::os::linux::{LinuxSigaction, LinuxTimespec, LINUX_SYS_X86_64 <span class="kw">as </span>SYS};
-<span class="kw">use </span>core::{
-    arch::asm,
-    ffi::{c_int, c_uint, c_ulong},
-};
+</span><span class="kw">use </span><a href="mod.rs.html#10"><span class="kw">super</span>::shared_docs</a>::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{<a href="../../../../../../../devela/_core/arch/macro.asm.html">asm</a>, <a href="../../../../../../../devela/_core/ffi/type.c_int.html">c_int</a>, <a href="../../../../../../../devela/_core/ffi/type.c_uint.html">c_uint</a>, <a href="../../../../../../../devela/_core/ffi/type.c_ulong.html">c_ulong</a>, <a href="../../structs/sigaction.rs.html#9-24">LinuxSigaction</a>, <a href="../../structs/timespec.rs.html#11-16">LinuxTimespec</a>, <a href="../../consts/syscall/x86_64.rs.html#9">LINUX_SYS_X86_64</a> <span class="kw">as </span>SYS};
 
-<span class="attr">#[doc = <span class="macro">include_str!</span>(<span class="string">"./doc/Sys_exit.md"</span>)]
-</span><span class="kw">pub unsafe fn </span>linux_sys_exit(status: c_int) -&gt; ! {
+<span class="attr">#[doc = <span class="macro">SYS_EXIT!</span>()]
+</span><span class="kw">pub unsafe fn </span><a href="../../../../../../../devela/sys/os/linux/process/fn.linux_sys_exit.html">linux_sys_exit</a>(status: <a href="../../../../../../../devela/_core/ffi/type.c_int.html">c_int</a>) -&gt; ! {
     <span class="kw">unsafe </span>{
         <span class="macro">asm!</span>(
             <span class="string">"mov rax, {EXIT}"</span>,
             <span class="string">"syscall"</span>,
             EXIT = <span class="kw">const </span>SYS::EXIT,
-            <span class="kw">in</span>(<span class="string">"rdi"</span>) status,
+            <span class="kw">in</span>(<span class="string">"rdi"</span>) <a href="#11">status</a>,
             options(noreturn)
         );
     }
 }
 
-<span class="attr">#[doc = <span class="macro">include_str!</span>(<span class="string">"./doc/Sys_read.md"</span>)]
+<span class="attr">#[doc = <span class="macro">SYS_READ!</span>()]
 #[must_use]
-</span><span class="kw">pub unsafe fn </span>linux_sys_read(fd: c_int, buf: <span class="kw-2">*mut </span>u8, count: usize) -&gt; isize {
+</span><span class="kw">pub unsafe fn </span><a href="../../../../../../../devela/sys/os/linux/io/fn.linux_sys_read.html">linux_sys_read</a>(fd: <a href="../../../../../../../devela/_core/ffi/type.c_int.html">c_int</a>, buf: <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, count: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
     <span class="kw">let </span>result;
     <span class="kw">unsafe </span>{
         <span class="macro">asm!</span>(
             <span class="string">"mov rax, {READ}"</span>,
             <span class="string">"syscall"</span>,
             READ = <span class="kw">const </span>SYS::READ,
-            <span class="kw">in</span>(<span class="string">"rdi"</span>) fd,
-            <span class="kw">in</span>(<span class="string">"rsi"</span>) buf,
-            <span class="kw">in</span>(<span class="string">"rdx"</span>) count,
-            lateout(<span class="string">"rax"</span>) result,
+            <span class="kw">in</span>(<span class="string">"rdi"</span>) <a href="#25">fd</a>,
+            <span class="kw">in</span>(<span class="string">"rsi"</span>) <a href="#25">buf</a>,
+            <span class="kw">in</span>(<span class="string">"rdx"</span>) <a href="#25">count</a>,
+            lateout(<span class="string">"rax"</span>) <a href="#26">result</a>,
             lateout(<span class="string">"rcx"</span>) <span class="kw">_</span>,
             lateout(<span class="string">"r11"</span>) <span class="kw">_</span>,
             options(nostack)
         );
     }
-    result
+    <a href="#26">result</a>
 }
 
-<span class="attr">#[doc = <span class="macro">include_str!</span>(<span class="string">"./doc/Sys_write.md"</span>)]
+<span class="attr">#[doc = <span class="macro">SYS_WRITE!</span>()]
 #[must_use]
-</span><span class="kw">pub unsafe fn </span>linux_sys_write(fd: c_int, buf: <span class="kw-2">*const </span>u8, count: usize) -&gt; isize {
+</span><span class="kw">pub unsafe fn </span><a href="../../../../../../../devela/sys/os/linux/io/fn.linux_sys_write.html">linux_sys_write</a>(fd: <a href="../../../../../../../devela/_core/ffi/type.c_int.html">c_int</a>, buf: <span class="kw-2">*const </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, count: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
     <span class="kw">let </span>result;
     <span class="kw">unsafe </span>{
         <span class="macro">asm!</span>(
             <span class="string">"mov rax, {WRITE}"</span>,
             <span class="string">"syscall"</span>,
             WRITE = <span class="kw">const </span>SYS::WRITE,
-            <span class="kw">in</span>(<span class="string">"rdi"</span>) fd,
-            <span class="kw">in</span>(<span class="string">"rsi"</span>) buf,
-            <span class="kw">in</span>(<span class="string">"rdx"</span>) count,
-            lateout(<span class="string">"rax"</span>) result,
+            <span class="kw">in</span>(<span class="string">"rdi"</span>) <a href="#46">fd</a>,
+            <span class="kw">in</span>(<span class="string">"rsi"</span>) <a href="#46">buf</a>,
+            <span class="kw">in</span>(<span class="string">"rdx"</span>) <a href="#46">count</a>,
+            lateout(<span class="string">"rax"</span>) <a href="#47">result</a>,
             lateout(<span class="string">"rcx"</span>) <span class="kw">_</span>,
             lateout(<span class="string">"r11"</span>) <span class="kw">_</span>,
             options(nostack)
         );
     }
-    result
+    <a href="#47">result</a>
 }
 
-<span class="attr">#[doc = <span class="macro">include_str!</span>(<span class="string">"./doc/Sys_nanosleep.md"</span>)]
+<span class="attr">#[doc = <span class="macro">SYS_NANOSLEEP!</span>()]
 #[must_use]
-</span><span class="kw">pub unsafe fn </span>linux_sys_nanosleep(req: <span class="kw-2">*const </span>LinuxTimespec, rem: <span class="kw-2">*mut </span>LinuxTimespec) -&gt; isize {
+</span><span class="kw">pub unsafe fn </span><a href="../../../../../../../devela/sys/os/linux/thread/fn.linux_sys_nanosleep.html">linux_sys_nanosleep</a>(req: <span class="kw-2">*const </span><a href="../../structs/timespec.rs.html#11-16">LinuxTimespec</a>, rem: <span class="kw-2">*mut </span><a href="../../structs/timespec.rs.html#11-16">LinuxTimespec</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
     <span class="kw">let </span>result;
     <span class="kw">unsafe </span>{
         <span class="macro">asm!</span>(
             <span class="string">"mov rax, {NANOSLEEP}"</span>,
             <span class="string">"syscall"</span>,
             NANOSLEEP = <span class="kw">const </span>SYS::NANOSLEEP,
-            <span class="kw">in</span>(<span class="string">"rdi"</span>) req,
-            <span class="kw">in</span>(<span class="string">"rsi"</span>) rem,
-            lateout(<span class="string">"rax"</span>) result,
+            <span class="kw">in</span>(<span class="string">"rdi"</span>) <a href="#67">req</a>,
+            <span class="kw">in</span>(<span class="string">"rsi"</span>) <a href="#67">rem</a>,
+            lateout(<span class="string">"rax"</span>) <a href="#68">result</a>,
             lateout(<span class="string">"rcx"</span>) <span class="kw">_</span>,
             lateout(<span class="string">"r11"</span>) <span class="kw">_</span>,
             options(nostack)
         );
     }
-    result
+    <a href="#68">result</a>
 }
 
-<span class="attr">#[doc = <span class="macro">include_str!</span>(<span class="string">"./doc/Sys_ioctl.md"</span>)]
+<span class="attr">#[doc = <span class="macro">SYS_IOCTL!</span>()]
 #[must_use]
-</span><span class="kw">pub unsafe fn </span>linux_sys_ioctl(fd: c_int, request: c_ulong, argp: <span class="kw-2">*mut </span>u8) -&gt; isize {
+</span><span class="kw">pub unsafe fn </span><a href="../../../../../../../devela/sys/os/linux/io/fn.linux_sys_ioctl.html">linux_sys_ioctl</a>(fd: <a href="../../../../../../../devela/_core/ffi/type.c_int.html">c_int</a>, request: <a href="../../../../../../../devela/_core/ffi/type.c_ulong.html">c_ulong</a>, argp: <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
     <span class="kw">let </span>result;
     <span class="kw">unsafe </span>{
         <span class="macro">asm!</span>(
             <span class="string">"mov rax, {IOCTL}"</span>,
             <span class="string">"syscall"</span>,
             IOCTL = <span class="kw">const </span>SYS::IOCTL,
-            <span class="kw">in</span>(<span class="string">"rdi"</span>) fd,
-            <span class="kw">in</span>(<span class="string">"rsi"</span>) request,
-            <span class="kw">in</span>(<span class="string">"rdx"</span>) argp,
-            lateout(<span class="string">"rax"</span>) result,
+            <span class="kw">in</span>(<span class="string">"rdi"</span>) <a href="#87">fd</a>,
+            <span class="kw">in</span>(<span class="string">"rsi"</span>) <a href="#87">request</a>,
+            <span class="kw">in</span>(<span class="string">"rdx"</span>) <a href="#87">argp</a>,
+            lateout(<span class="string">"rax"</span>) <a href="#88">result</a>,
             lateout(<span class="string">"rcx"</span>) <span class="kw">_</span>,
             lateout(<span class="string">"r11"</span>) <span class="kw">_</span>,
             options(nostack)
         );
     }
-    result
+    <a href="#88">result</a>
 }
 
-<span class="attr">#[doc = <span class="macro">include_str!</span>(<span class="string">"./doc/Sys_getrandom.md"</span>)]
+<span class="attr">#[doc = <span class="macro">SYS_GETRANDOM!</span>()]
 #[must_use]
-</span><span class="kw">pub unsafe fn </span>linux_sys_getrandom(buffer: <span class="kw-2">*mut </span>u8, size: usize, flags: c_uint) -&gt; isize {
+</span><span class="kw">pub unsafe fn </span><a href="../../../../../../../devela/sys/os/linux/io/fn.linux_sys_getrandom.html">linux_sys_getrandom</a>(buffer: <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, size: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, flags: <a href="../../../../../../../devela/_core/ffi/type.c_uint.html">c_uint</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
     <span class="kw">let </span>result;
     <span class="kw">unsafe </span>{
         <span class="macro">asm!</span>(
             <span class="string">"mov rax, {GETRANDOM}"</span>,
             <span class="string">"syscall"</span>,
             GETRANDOM = <span class="kw">const </span>SYS::GETRANDOM,
-            <span class="kw">in</span>(<span class="string">"rdi"</span>) buffer,
-            <span class="kw">in</span>(<span class="string">"rsi"</span>) size,
-            <span class="kw">in</span>(<span class="string">"rdx"</span>) flags,
-            lateout(<span class="string">"rax"</span>) result,
+            <span class="kw">in</span>(<span class="string">"rdi"</span>) <a href="#108">buffer</a>,
+            <span class="kw">in</span>(<span class="string">"rsi"</span>) <a href="#108">size</a>,
+            <span class="kw">in</span>(<span class="string">"rdx"</span>) <a href="#108">flags</a>,
+            lateout(<span class="string">"rax"</span>) <a href="#109">result</a>,
             lateout(<span class="string">"rcx"</span>) <span class="kw">_</span>,
             lateout(<span class="string">"r11"</span>) <span class="kw">_</span>,
             options(nostack)
         );
     }
-    result
+    <a href="#109">result</a>
 }
 
-<span class="attr">#[doc = <span class="macro">include_str!</span>(<span class="string">"./doc/Sys_getpid.md"</span>)]
+<span class="attr">#[doc = <span class="macro">SYS_GETPID!</span>()]
 #[must_use]
-</span><span class="kw">pub unsafe fn </span>linux_sys_getpid() -&gt; i32 {
-    <span class="kw">let </span>result: isize;
+</span><span class="kw">pub unsafe fn </span><a href="../../../../../../../devela/sys/os/linux/thread/fn.linux_sys_getpid.html">linux_sys_getpid</a>() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a> {
+    <span class="kw">let </span>result: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>;
     <span class="kw">unsafe </span>{
         <span class="macro">asm!</span>(
             <span class="string">"mov rax, {GETPID}"</span>,
             <span class="string">"syscall"</span>,
             GETPID = <span class="kw">const </span>SYS::GETPID,
-            lateout(<span class="string">"rax"</span>) result,
+            lateout(<span class="string">"rax"</span>) <a href="#130">result</a>,
             options(nostack)
         );
     }
-    result <span class="kw">as </span>i32
+    <a href="#130">result</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>
 }
 
-<span class="attr">#[doc = <span class="macro">include_str!</span>(<span class="string">"./doc/Sys_rt_sigaction.md"</span>)]
+<span class="attr">#[doc = <span class="macro">SYS_RT_SIGACTION!</span>()]
 #[must_use]
-</span><span class="kw">pub unsafe fn </span>linux_sys_rt_sigaction(
-    sig: c_int,
-    act: <span class="kw-2">*const </span>LinuxSigaction,
-    oact: <span class="kw-2">*mut </span>LinuxSigaction,
-    sigsetsize: usize,
-) -&gt; isize {
+</span><span class="kw">pub unsafe fn </span><a href="../../../../../../../devela/sys/os/linux/process/fn.linux_sys_rt_sigaction.html">linux_sys_rt_sigaction</a>(
+    sig: <a href="../../../../../../../devela/_core/ffi/type.c_int.html">c_int</a>,
+    act: <span class="kw-2">*const </span><a href="../../structs/sigaction.rs.html#9-24">LinuxSigaction</a>,
+    oact: <span class="kw-2">*mut </span><a href="../../structs/sigaction.rs.html#9-24">LinuxSigaction</a>,
+    sigsetsize: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
     <span class="kw">let </span>result;
     <span class="kw">unsafe </span>{
         <span class="macro">asm!</span>(
             <span class="string">"mov rax, {RT_SIGACTION}"</span>,
             <span class="string">"syscall"</span>,
             RT_SIGACTION = <span class="kw">const </span>SYS::RT_SIGACTION,
-            <span class="kw">in</span>(<span class="string">"rdi"</span>) sig,
-            <span class="kw">in</span>(<span class="string">"rsi"</span>) act,
-            <span class="kw">in</span>(<span class="string">"rdx"</span>) oact,
-            <span class="kw">in</span>(<span class="string">"r10"</span>) sigsetsize,
-            lateout(<span class="string">"rax"</span>) result,
+            <span class="kw">in</span>(<span class="string">"rdi"</span>) <a href="#146">sig</a>,
+            <span class="kw">in</span>(<span class="string">"rsi"</span>) <a href="#147">act</a>,
+            <span class="kw">in</span>(<span class="string">"rdx"</span>) <a href="#148">oact</a>,
+            <span class="kw">in</span>(<span class="string">"r10"</span>) <a href="#149">sigsetsize</a>,
+            lateout(<span class="string">"rax"</span>) <a href="#151">result</a>,
             lateout(<span class="string">"rcx"</span>) <span class="kw">_</span>,
             lateout(<span class="string">"r11"</span>) <span class="kw">_</span>,
             options(nostack)
         );
     }
-    result
+    <a href="#151">result</a>
 }
 </code></pre></div></section></main></body></html>

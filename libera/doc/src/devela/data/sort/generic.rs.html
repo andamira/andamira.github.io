@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/sort/generic.rs`."><title>generic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/sort/generic.rs`."><title>generic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -406,11 +442,11 @@
 </span><span class="doccomment">//! Implements sorting algorithms for exclusive generic arrays `[T: Ord; N]`.
 </span><span class="comment">//
 
-</span><span class="kw">use crate</span>::{iif, Sort};
+</span><span class="kw">use crate</span>::{<a href="../../code/macros/iif.rs.html#60-89">iif</a>, <a href="definition.rs.html#61">Sort</a>};
 <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">use crate</span>::{BTreeMap, Vec};
+</span><span class="kw">use crate</span>::{<a href="../../../../devela/_dep/_std/collections/btree_map/struct.BTreeMap.html">BTreeMap</a>, <a href="../../../../devela/_dep/_std/vec/struct.Vec.html">Vec</a>};
 
-<span class="kw">impl</span>&lt;T: Ord&gt; Sort&lt;<span class="kw-2">&amp;mut </span>[T]&gt; {
+<span class="kw">impl</span>&lt;T: <a href="../../../../devela/_core/cmp/trait.Ord.html">Ord</a>&gt; <a href="definition.rs.html#61">Sort</a>&lt;<span class="kw-2">&amp;mut </span>[T]&gt; {
     <span class="doccomment">/// Sorts a slice using bubble sort.
     ///
     /// # Examples
@@ -443,17 +479,17 @@
     /// ```
     </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"alloc"</span>)))]
-    </span><span class="kw">pub fn </span>counting(<span class="self">self</span>) -&gt; Vec&lt;usize&gt;
+    </span><span class="kw">pub fn </span>counting(<span class="self">self</span>) -&gt; <a href="../../../../devela/_dep/_std/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;
     <span class="kw">where
-        </span>T: Clone,
+        </span>T: <a href="../../../../devela/_core/clone/trait.Clone.html">Clone</a>,
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>counts = BTreeMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>counts = <a href="https://doc.rust-lang.org/nightly/alloc/collections/btree/map/struct.BTreeMap.html#method.new">BTreeMap::new</a>();
         <span class="comment">// Calculate the frequencies and save them
         </span><span class="kw">for </span>item <span class="kw">in </span><span class="self">self</span>.<span class="number">0</span>.iter() {
             <span class="kw">let </span>count = counts.entry(item.clone()).or_insert(<span class="number">0</span>);
             <span class="kw-2">*</span>count += <span class="number">1</span>;
         }
-        <span class="kw">let </span>freq: Vec&lt;usize&gt; = counts.values().copied().collect();
+        <span class="kw">let </span>freq: <a href="../../../../devela/_dep/_std/vec/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; = <a href="#47">counts</a>.<a href="https://doc.rust-lang.org/nightly/alloc/collections/btree/map/struct.BTreeMap.html#method.values">values</a>().<a href="../../../../devela/_core/iter/trait.Iterator.html">copied</a>().<a href="../../../../devela/_core/iter/trait.Iterator.html">collect</a>();
         <span class="comment">// Reconstruct the sorted slice
         </span><span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
         <span class="kw">for </span>(item, <span class="kw-2">&amp;</span>count) <span class="kw">in </span>counts.iter() {
@@ -462,7 +498,7 @@
                 i += <span class="number">1</span>;
             }
         }
-        freq
+        <a href="#53">freq</a>
     }
 
     <span class="doccomment">/// Sorts a slice using counting sort, and writes the frequencies, without allocating.
@@ -493,11 +529,11 @@
     /// ```
     /// # Panics
     /// Panics in debug if the length of `freq` and `values` is not the same.
-    </span><span class="kw">pub fn </span>counting_buf(<span class="self">self</span>, freq: <span class="kw-2">&amp;mut </span>[T], values: <span class="kw-2">&amp;</span>[T]) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt;
+    </span><span class="kw">pub fn </span>counting_buf(<span class="self">self</span>, freq: <span class="kw-2">&amp;mut </span>[T], values: <span class="kw-2">&amp;</span>[T]) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;()&gt;
     <span class="kw">where
-        </span>T: Clone + TryInto&lt;usize&gt; + TryFrom&lt;usize&gt;,
+        </span>T: <a href="../../../../devela/_core/clone/trait.Clone.html">Clone</a> + <a href="../../../../devela/_core/convert/trait.TryInto.html">TryInto</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; + <a href="../../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
     {
-        <span class="macro">debug_assert_eq!</span>[freq.len(), values.len()];
+        <a class="macro" href="../../../../devela/_core/macro.debug_assert_eq.html">debug_assert_eq!</a>[freq.len(), values.len()];
         <span class="comment">// Calculate the frequencies
         </span><span class="kw">for </span>item <span class="kw">in </span><span class="self">self</span>.<span class="number">0</span>.iter() {
             <span class="kw">let </span>index = values.iter().position(|x| x == item)<span class="question-mark">?</span>;
@@ -552,12 +588,12 @@
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"alloc"</span>)))]
     </span><span class="kw">pub fn </span>merge(<span class="self">self</span>)
     <span class="kw">where
-        </span>T: Copy,
+        </span>T: <a href="../../../../devela/_core/marker/trait.Copy.html">Copy</a>,
     {
-        <span class="kw">let </span>len = <span class="self">self</span>.<span class="number">0</span>.len();
-        <span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::with_capacity(len);
-        buffer.resize(len, <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>]);
-        helper::sort_merge_internal(<span class="self">self</span>.<span class="number">0</span>, <span class="kw-2">&amp;mut </span>buffer);
+        <span class="kw">let </span>len = <a class="self" href="#150">self</a>.<span class="number">0</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>();
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer = <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.with_capacity">Vec::with_capacity</a>(<a href="#154">len</a>);
+        <a href="#155">buffer</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.resize">resize</a>(<a href="#154">len</a>, <a class="self" href="#150">self</a>.<span class="number">0</span>[<span class="number">0</span>]);
+        <a href="#305-313">helper::sort_merge_internal</a>(<a class="self" href="#150">self</a>.<span class="number">0</span>, <span class="kw-2">&amp;mut </span><a href="#155">buffer</a>);
     }
 
     <span class="doccomment">/// Sorts a slice using selection sort.
@@ -570,7 +606,7 @@
     /// assert_eq![arr, [-13, -5, 0, 1, 4, 7]];
     /// ```
     </span><span class="kw">pub fn </span>selection(<span class="self">self</span>) {
-        <span class="kw">let </span>len = <span class="self">self</span>.<span class="number">0</span>.len();
+        <span class="kw">let </span>len = <a class="self" href="#169">self</a>.<span class="number">0</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>();
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..len - <span class="number">1 </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>min_index = i;
             <span class="kw">for </span>j <span class="kw">in </span>(i + <span class="number">1</span>)..len {
@@ -593,9 +629,9 @@
     /// ```
     </span><span class="kw">pub fn </span>shaker(<span class="self">self</span>)
     <span class="kw">where
-        </span>T: Clone,
+        </span>T: <a href="../../../../devela/_core/clone/trait.Clone.html">Clone</a>,
     {
-        <span class="kw">let </span>(<span class="kw-2">mut </span>swapped, <span class="kw-2">mut </span>start, <span class="kw-2">mut </span>end) = (<span class="bool-val">true</span>, <span class="number">0</span>, <span class="self">self</span>.<span class="number">0</span>.len());
+        <span class="kw">let </span>(<span class="kw-2">mut </span>swapped, <span class="kw-2">mut </span>start, <span class="kw-2">mut </span>end) = (<span class="bool-val">true</span>, <span class="number">0</span>, <a class="self" href="#191">self</a>.<span class="number">0</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
         <span class="kw">while </span>swapped {
             swapped = <span class="bool-val">false</span>;
             <span class="kw">for </span>i <span class="kw">in </span>start..end - <span class="number">1 </span>{
@@ -612,7 +648,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Ord + <span class="lifetime">'a</span>&gt; Sort&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[T]&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <a href="../../../../devela/_core/cmp/trait.Ord.html">Ord</a> + <span class="lifetime">'a</span>&gt; <a href="definition.rs.html#61">Sort</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[T]&gt; {
     <span class="doccomment">/// Sorts a `slice` using quick sort with the Lomuto partition scheme.
     ///
     /// It performs more swaps compared to the Hoare partition scheme.
@@ -626,10 +662,10 @@
     /// assert_eq![arr, [-13, -5, 0, 1, 4, 7]];
     /// ```
     </span><span class="kw">pub fn </span>quick_lomuto(slice: <span class="kw-2">&amp;mut </span>[T]) {
-        <span class="macro">iif!</span>[slice.len() &lt; <span class="number">2</span>; <span class="kw">return</span>];
-        <span class="kw">let </span>ipivot = helper::sort_quick_lomuto_partition(slice);
-        <span class="self">Self</span>::quick_lomuto(<span class="kw-2">&amp;mut </span>slice[<span class="number">0</span>..ipivot]);
-        <span class="self">Self</span>::quick_lomuto(<span class="kw-2">&amp;mut </span>slice[ipivot + <span class="number">1</span>..]);
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[slice.len() &lt; <span class="number">2</span>; <span class="kw">return</span>];
+        <span class="kw">let </span>ipivot = <a href="#327-337">helper::sort_quick_lomuto_partition</a>(<a href="#225">slice</a>);
+        <a href="#225-230"><span class="self">Self</span>::quick_lomuto</a>(<span class="kw-2">&amp;mut </span><a href="#225">slice</a>[<span class="number">0</span>..<a href="#227">ipivot</a>]);
+        <a href="#225-230"><span class="self">Self</span>::quick_lomuto</a>(<span class="kw-2">&amp;mut </span><a href="#225">slice</a>[<a href="#227">ipivot</a> + <span class="number">1</span>..]);
     }
     <span class="comment">// NOTE: can't use self because of multiple mutable borrows
     // pub fn quick_lomuto(self) {
@@ -652,13 +688,13 @@
     /// ```
     </span><span class="kw">pub fn </span>quick_3way(slice: <span class="kw-2">&amp;mut </span>[T])
     <span class="kw">where
-        </span>T: Clone,
+        </span>T: <a href="../../../../devela/_core/clone/trait.Clone.html">Clone</a>,
     {
-        <span class="kw">let </span>len = slice.len();
-        <span class="macro">iif!</span>[len &lt; <span class="number">2</span>; <span class="kw">return</span>];
-        <span class="kw">let </span>(lt, gt) = helper::sort_quick_3way_partition(slice);
-        <span class="self">Self</span>::quick_3way(<span class="kw-2">&amp;mut </span>slice[<span class="number">0</span>..lt]);
-        <span class="macro">iif!</span>[gt &lt; len; <span class="self">Self</span>::quick_3way(<span class="kw-2">&amp;mut </span>slice[gt..])];
+        <span class="kw">let </span>len = <a href="#250">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>();
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[len &lt; <span class="number">2</span>; <span class="kw">return</span>];
+        <span class="kw">let </span>(lt, gt) = <a href="#338-358">helper::sort_quick_3way_partition</a>(<a href="#250">slice</a>);
+        <a href="#250-259"><span class="self">Self</span>::quick_3way</a>(<span class="kw-2">&amp;mut </span><a href="#250">slice</a>[<span class="number">0</span>..<a href="#256">lt</a>]);
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[gt &lt; len; <span class="self">Self</span>::quick_3way(<span class="kw-2">&amp;mut </span>slice[gt..])];
     }
     <span class="comment">// NOTE: can't use self because of multiple mutable borrows
     // pub fn quick_3way(self) where T: Clone {
@@ -682,13 +718,13 @@
     /// ```
     </span><span class="kw">pub fn </span>quick_hoare(slice: <span class="kw-2">&amp;mut </span>[T])
     <span class="kw">where
-        </span>T: Clone,
+        </span>T: <a href="../../../../devela/_core/clone/trait.Clone.html">Clone</a>,
     {
-        <span class="kw">let </span>len = slice.len();
-        <span class="macro">iif!</span>[len &lt; <span class="number">2</span>; <span class="kw">return</span>];
-        <span class="kw">let </span>ipivot = helper::sort_quick_hoare_partition(slice);
-        <span class="macro">iif!</span>[ipivot &gt; <span class="number">0</span>; <span class="self">Self</span>::quick_hoare(<span class="kw-2">&amp;mut </span>slice[<span class="number">0</span>..ipivot])];
-        <span class="macro">iif!</span>[ipivot + <span class="number">1 </span>&lt; len; <span class="self">Self</span>::quick_hoare(<span class="kw-2">&amp;mut </span>slice[ipivot + <span class="number">1</span>..])];
+        <span class="kw">let </span>len = <a href="#280">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>();
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[len &lt; <span class="number">2</span>; <span class="kw">return</span>];
+        <span class="kw">let </span>ipivot = <a href="#359-372">helper::sort_quick_hoare_partition</a>(<a href="#280">slice</a>);
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[ipivot &gt; <span class="number">0</span>; <span class="self">Self</span>::quick_hoare(<span class="kw-2">&amp;mut </span>slice[<span class="number">0</span>..ipivot])];
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[ipivot + <span class="number">1 </span>&lt; len; <span class="self">Self</span>::quick_hoare(<span class="kw-2">&amp;mut </span>slice[ipivot + <span class="number">1</span>..])];
     }
     <span class="comment">// NOTE: can't use self because of multiple mutable borrows
     // pub fn quick_hoare(self) where T: Clone {
@@ -702,20 +738,20 @@
 
 <span class="comment">// private helper fns
 </span><span class="kw">mod </span>helper {
-    <span class="kw">use crate</span>::{iif, sf, Ordering};
+    <span class="kw">use crate</span>::{<a href="../../code/macros/iif.rs.html#60-89">iif</a>, <a href="../../code/macros/items.rs.html#25">sf</a>, <a href="../../../../devela/_core/cmp/enum.Ordering.html">Ordering</a>};
 
     <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>sort_merge_internal&lt;T: Ord + Copy&gt;(slice: <span class="kw-2">&amp;mut </span>[T], buffer: <span class="kw-2">&amp;mut </span>[T]) {
-        <span class="kw">let </span>len = slice.len();
-        <span class="macro">iif!</span>[len &lt;= <span class="number">1</span>; <span class="kw">return</span>];
-        <span class="kw">let </span>mid = len / <span class="number">2</span>;
-        sort_merge_internal(<span class="kw-2">&amp;mut </span>slice[..mid], buffer);
-        sort_merge_internal(<span class="kw-2">&amp;mut </span>slice[mid..], buffer);
-        sort_merge_merge(<span class="kw-2">&amp;</span>slice[..mid], <span class="kw-2">&amp;</span>slice[mid..], <span class="kw-2">&amp;mut </span>buffer[..len]);
-        slice.copy_from_slice(<span class="kw-2">&amp;</span>buffer[..len]);
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>sort_merge_internal&lt;T: <a href="../../../../devela/_core/cmp/trait.Ord.html">Ord</a> + <a href="../../../../devela/_core/marker/trait.Copy.html">Copy</a>&gt;(slice: <span class="kw-2">&amp;mut </span>[T], buffer: <span class="kw-2">&amp;mut </span>[T]) {
+        <span class="kw">let </span>len = <a href="#305">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>();
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[len &lt;= <span class="number">1</span>; <span class="kw">return</span>];
+        <span class="kw">let </span>mid = <a href="#306">len</a> / <span class="number">2</span>;
+        <a href="#305-313">sort_merge_internal</a>(<span class="kw-2">&amp;mut </span><a href="#305">slice</a>[..<a href="#308">mid</a>], <a href="#305">buffer</a>);
+        <a href="#305-313">sort_merge_internal</a>(<span class="kw-2">&amp;mut </span><a href="#305">slice</a>[<a href="#308">mid</a>..], <a href="#305">buffer</a>);
+        <a href="#315-326">sort_merge_merge</a>(<span class="kw-2">&amp;</span><a href="#305">slice</a>[..<a href="#308">mid</a>], <span class="kw-2">&amp;</span><a href="#305">slice</a>[<a href="#308">mid</a>..], <span class="kw-2">&amp;mut </span><a href="#305">buffer</a>[..<a href="#306">len</a>]);
+        <a href="#305">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.copy_from_slice">copy_from_slice</a>(<span class="kw-2">&amp;</span><a href="#305">buffer</a>[..<a href="#306">len</a>]);
     }
     <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>sort_merge_merge&lt;T: Ord + Copy&gt;(left: <span class="kw-2">&amp;</span>[T], right: <span class="kw-2">&amp;</span>[T], slice: <span class="kw-2">&amp;mut </span>[T]) {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>sort_merge_merge&lt;T: <a href="../../../../devela/_core/cmp/trait.Ord.html">Ord</a> + <a href="../../../../devela/_core/marker/trait.Copy.html">Copy</a>&gt;(left: <span class="kw-2">&amp;</span>[T], right: <span class="kw-2">&amp;</span>[T], slice: <span class="kw-2">&amp;mut </span>[T]) {
         <span class="kw">let </span>(<span class="kw-2">mut </span>i, <span class="kw-2">mut </span>j, <span class="kw-2">mut </span>k) = (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
         <span class="kw">while </span>i &lt; left.len() &amp;&amp; j &lt; right.len() {
             <span class="macro">iif!</span>[ left[i] &lt; right[j] ;
@@ -724,25 +760,25 @@
             ];
             k += <span class="number">1</span>;
         }
-        <span class="macro">iif!</span>[i &lt; left.len(); slice[k..].copy_from_slice(<span class="kw-2">&amp;</span>left[i..])];
-        <span class="macro">iif!</span>[j &lt; right.len(); slice[k..].copy_from_slice(<span class="kw-2">&amp;</span>right[j..])];
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[i &lt; left.len(); slice[k..].copy_from_slice(<span class="kw-2">&amp;</span>left[i..])];
+        <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[j &lt; right.len(); slice[k..].copy_from_slice(<span class="kw-2">&amp;</span>right[j..])];
     }
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>sort_quick_lomuto_partition&lt;T: Ord&gt;(slice: <span class="kw-2">&amp;mut </span>[T]) -&gt; usize {
-        <span class="kw">let </span>len = slice.len();
-        <span class="kw">let </span>ipivot = len / <span class="number">2</span>;
-        slice.swap(ipivot, len - <span class="number">1</span>);
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>sort_quick_lomuto_partition&lt;T: <a href="../../../../devela/_core/cmp/trait.Ord.html">Ord</a>&gt;(slice: <span class="kw-2">&amp;mut </span>[T]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
+        <span class="kw">let </span>len = <a href="#327">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>();
+        <span class="kw">let </span>ipivot = <a href="#328">len</a> / <span class="number">2</span>;
+        <a href="#327">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.swap">swap</a>(<a href="#329">ipivot</a>, <a href="#328">len</a> - <span class="number">1</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
         <span class="kw">for </span>j <span class="kw">in </span><span class="number">0</span>..len - <span class="number">1 </span>{
             <span class="macro">iif!</span>[slice[j] &lt;= slice[len - <span class="number">1</span>]; { slice.swap(i, j); i += <span class="number">1</span>; }];
         }
-        slice.swap(i, len - <span class="number">1</span>);
-        i
+        <a href="#327">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.swap">swap</a>(<a href="#331">i</a>, <a href="#328">len</a> - <span class="number">1</span>);
+        <a href="#331">i</a>
     }
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>sort_quick_3way_partition&lt;T: Ord + Clone&gt;(slice: <span class="kw-2">&amp;mut </span>[T]) -&gt; (usize, usize) {
-        <span class="kw">let </span>len = slice.len();
-        <span class="kw">let </span>ipivot = len / <span class="number">2</span>;
-        <span class="kw">let </span>pivot = slice[ipivot].clone();
-        <span class="kw">let </span>(<span class="kw-2">mut </span>lt, <span class="kw-2">mut </span>gt, <span class="kw-2">mut </span>i) = (<span class="number">0</span>, len, <span class="number">0</span>);
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>sort_quick_3way_partition&lt;T: <a href="../../../../devela/_core/cmp/trait.Ord.html">Ord</a> + <a href="../../../../devela/_core/clone/trait.Clone.html">Clone</a>&gt;(slice: <span class="kw-2">&amp;mut </span>[T]) -&gt; (<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) {
+        <span class="kw">let </span>len = <a href="#338">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>();
+        <span class="kw">let </span>ipivot = <a href="#339">len</a> / <span class="number">2</span>;
+        <span class="kw">let </span>pivot = <a href="#338">slice</a>[<a href="#340">ipivot</a>].<a href="../../../../devela/_core/clone/trait.Clone.html">clone</a>();
+        <span class="kw">let </span>(<span class="kw-2">mut </span>lt, <span class="kw-2">mut </span>gt, <span class="kw-2">mut </span>i) = (<span class="number">0</span>, <a href="#339">len</a>, <span class="number">0</span>);
         <span class="kw">while </span>i &lt; gt {
             <span class="kw">match </span>slice[i].cmp(<span class="kw-2">&amp;</span>pivot) {
                 Ordering::Less =&gt; {
@@ -757,20 +793,20 @@
                 Ordering::Equal =&gt; i += <span class="number">1</span>,
             }
         }
-        (lt, gt)
+        (<a href="#342">lt</a>, <a href="#342">gt</a>)
     }
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>sort_quick_hoare_partition&lt;T: Ord + Clone&gt;(slice: <span class="kw-2">&amp;mut </span>[T]) -&gt; usize {
-        <span class="kw">let </span>len = slice.len();
-        <span class="kw">let </span>ipivot = len / <span class="number">2</span>;
-        <span class="kw">let </span>pivot = slice[ipivot].clone();
-        <span class="kw">let </span>(<span class="kw-2">mut </span>i, <span class="kw-2">mut </span>j) = (<span class="number">0</span>, len - <span class="number">1</span>);
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>sort_quick_hoare_partition&lt;T: <a href="../../../../devela/_core/cmp/trait.Ord.html">Ord</a> + <a href="../../../../devela/_core/clone/trait.Clone.html">Clone</a>&gt;(slice: <span class="kw-2">&amp;mut </span>[T]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
+        <span class="kw">let </span>len = <a href="#359">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>();
+        <span class="kw">let </span>ipivot = <a href="#360">len</a> / <span class="number">2</span>;
+        <span class="kw">let </span>pivot = <a href="#359">slice</a>[<a href="#361">ipivot</a>].<a href="../../../../devela/_core/clone/trait.Clone.html">clone</a>();
+        <span class="kw">let </span>(<span class="kw-2">mut </span>i, <span class="kw-2">mut </span>j) = (<span class="number">0</span>, <a href="#360">len</a> - <span class="number">1</span>);
         <span class="kw">loop </span>{
             <span class="macro">sf!</span> {
                 <span class="kw">while </span>slice[i] &lt; pivot { i += <span class="number">1</span>; }
                 <span class="kw">while </span>slice[j] &gt; pivot { j -= <span class="number">1</span>; }
             }
-            <span class="macro">iif!</span>[i &gt;= j; <span class="kw">return </span>j];
-            slice.swap(i, j);
+            <a class="macro" href="../../code/macros/iif.rs.html#60-89">iif!</a>[i &gt;= j; <span class="kw">return </span>j];
+            <a href="#359">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.swap">swap</a>(<a href="#363">i</a>, <a href="#363">j</a>);
         }
     }
 }

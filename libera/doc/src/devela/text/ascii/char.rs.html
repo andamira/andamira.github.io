@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/ascii/char.rs`."><title>char.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/ascii/char.rs`."><title>char.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -634,8 +670,8 @@
 // - WAIT: [ascii::Char](https://github.com/rust-lang/rust/issues/110998)
 
 </span><span class="attr">#[cfg(feature = <span class="string">"unsafe_str"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::transmute;
-<span class="kw">use crate</span>::{ConstDefault, _core::fmt};
+</span><span class="kw">use </span><a href="../../../../devela/_core/mem/fn.transmute.html"><span class="kw">crate</span>::transmute</a>;
+<span class="kw">use crate</span>::{<a href="../../code/default.rs.html#9-12">ConstDefault</a>, <a href="../../../../devela/_core/fmt/index.html">_core::fmt</a>};
 
 <span class="doccomment">/// One of the 128 Unicode characters from U+0000 through U+007F,
 /// often known as the [ASCII] subset.
@@ -684,7 +720,7 @@
 /// [NamesList]: https://www.unicode.org/Public/15.0.0/ucd/NamesList.txt
 </span><span class="attr">#[derive(Debug, Copy, Clone, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[repr(u8)]
-</span><span class="kw">pub enum </span>AsciiChar {
+</span><span class="kw">pub enum </span><a href="../../../../devela/text/enum.AsciiChar.html">AsciiChar</a> {
     <span class="doccomment">/// U+0000 (Default variant)
     </span><span class="attr">#[default]
     </span>Null = <span class="number">0</span>,
@@ -944,12 +980,12 @@
     </span>Delete = <span class="number">127</span>,
 }
 
-<span class="kw">impl </span>AsciiChar {
+<span class="kw">impl </span><a href="#60-318">AsciiChar</a> {
     <span class="doccomment">/// Creates an ascii character from the byte `b`,
     /// or returns `None` if it's too large.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>from_u8(b: u8) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">match </span>b {
+    </span><span class="kw">pub const fn </span>from_u8(b: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span><a href="#324">b</a> {
             <span class="number">0 </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Null),
             <span class="number">1 </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::StartOfHeading),
             <span class="number">2 </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::StartOfText),
@@ -1089,9 +1125,9 @@
     </span><span class="attr">#[must_use]
     #[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_str"</span>)))]
-    </span><span class="kw">pub const unsafe fn </span>from_u8_unchecked(b: u8) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const unsafe fn </span>from_u8_unchecked(b: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <span class="self">Self </span>{
         <span class="comment">// SAFETY: Our safety precondition is that `b` is in-range.
-        </span><span class="kw">unsafe </span>{ transmute(b) }
+        </span><span class="kw">unsafe </span>{ <a href="../../../../devela/_core/mem/fn.transmute.html">transmute</a>(<a href="#465">b</a>) }
     }
 
     <span class="doccomment">/// When passed the *number* `0`, `1`, …, `9`, returns the *character*
@@ -1102,7 +1138,7 @@
     /// # Features
     /// Uses `unsafe_hint` for performance optimizations.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>digit(d: u8) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub const fn </span>digit(d: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">if </span>d &lt; <span class="number">10 </span>{
             <span class="kw">let </span>sum = {
                 <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_hint"</span>)))]
@@ -1112,10 +1148,10 @@
                 <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_hint"</span>))]
                 </span><span class="comment">// SAFETY: we've checked d &lt; 10
                 </span><span class="kw">unsafe </span>{
-                    <span class="string">b'0'</span>.unchecked_add(d)
+                    <span class="string">b'0'</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.unchecked_add">unchecked_add</a>(<a href="#478">d</a>)
                 }
             };
-            <span class="self">Self</span>::from_u8(sum)
+            <a href="#324-456"><span class="self">Self</span>::from_u8</a>(<a href="#480">sum</a>)
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
@@ -1138,58 +1174,58 @@
     </span><span class="attr">#[must_use]
     #[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_str"</span>)))]
-    </span><span class="kw">pub const unsafe fn </span>digit_unchecked(d: u8) -&gt; <span class="self">Self </span>{
-        <span class="macro">debug_assert!</span>(d &lt; <span class="number">10</span>);
+    </span><span class="kw">pub const unsafe fn </span>digit_unchecked(d: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <span class="self">Self </span>{
+        <a class="macro" href="../../../../devela/_core/macro.debug_assert.html">debug_assert!</a>(d &lt; <span class="number">10</span>);
 
         <span class="comment">// SAFETY: `'0'` through `'9'` are U+00030 through U+0039,
         // so because `d` must be 64 or less the addition can return at most
         // 112 (0x70), which doesn't overflow and is within the ASCII range.
         </span><span class="kw">unsafe </span>{
-            <span class="kw">let </span>byte = <span class="string">b'0'</span>.unchecked_add(d);
-            <span class="self">Self</span>::from_u8_unchecked(byte)
+            <span class="kw">let </span>byte = <span class="string">b'0'</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.unchecked_add">unchecked_add</a>(<a href="#514">d</a>);
+            <a href="#465-468"><span class="self">Self</span>::from_u8_unchecked</a>(<a href="#521">byte</a>)
         }
     }
 
     <span class="doccomment">/// Gets this ASCII character as a byte.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>as_u8(<span class="self">self</span>) -&gt; u8 {
-        <span class="self">self </span><span class="kw">as </span>u8
+    </span><span class="kw">pub const fn </span>as_u8(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+        <span class="self"><a href="#528">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>
     }
 
     <span class="doccomment">/// Gets this ASCII character as a `char` Unicode Scalar Value.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>as_char(<span class="self">self</span>) -&gt; char {
-        <span class="self">self </span><span class="kw">as </span>u8 <span class="kw">as </span>char
+    </span><span class="kw">pub const fn </span>as_char(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a> {
+        <span class="self"><a href="#534">self</a> </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>
     }
 
     <span class="doccomment">/// Views this ASCII character as a one-code-unit UTF-8 `str`.
     </span><span class="attr">#[must_use]
     #[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_str"</span>)))]
-    </span><span class="kw">pub const fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="self">Self</span>::slice_as_str(core::slice::from_ref(<span class="self">self</span>))
+    </span><span class="kw">pub const fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> {
+        <a href="#552-558"><span class="self">Self</span>::slice_as_str</a>(<a href="../../../../devela/_core/slice/fn.from_ref.html">core::slice::from_ref</a>(<a class="self" href="#542">self</a>))
     }
 }
 
-<span class="kw">impl </span>AsciiChar {
+<span class="kw">impl </span><a href="#60-318">AsciiChar</a> {
     <span class="doccomment">/// Views a slice of ASCII characters as a UTF-8 `str`.
     </span><span class="attr">#[must_use]
     #[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_str"</span>)))]
-    </span><span class="kw">pub const fn </span>slice_as_str(slice: <span class="kw-2">&amp;</span>[AsciiChar]) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="kw">let </span>ascii_ptr: <span class="kw-2">*const </span>[AsciiChar] = slice;
-        <span class="kw">let </span>str_ptr = ascii_ptr <span class="kw">as </span><span class="kw-2">*const </span>str;
+    </span><span class="kw">pub const fn </span>slice_as_str(slice: <span class="kw-2">&amp;</span>[<a href="#60-318">AsciiChar</a>]) -&gt; <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> {
+        <span class="kw">let </span>ascii_ptr: <span class="kw-2">*const </span>[<a href="#60-318">AsciiChar</a>] = <a href="#552">slice</a>;
+        <span class="kw">let </span>str_ptr = <a href="#553">ascii_ptr</a> <span class="kw">as </span><span class="kw-2">*const </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>;
         <span class="comment">// SAFETY: Each ASCII codepoint in UTF-8 is encoded as one single-byte
         // code unit having the same value as the ASCII byte.
-        </span><span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>str_ptr }
+        </span><span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><a href="#554">str_ptr</a> }
     }
 
     <span class="doccomment">/// Views a slice of ASCII characters as a slice of `u8` bytes.
     </span><span class="attr">#[must_use]
     #[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_str"</span>)))]
-    </span><span class="kw">pub const fn </span>slice_as_bytes(slice: <span class="kw-2">&amp;</span>[AsciiChar]) -&gt; <span class="kw-2">&amp;</span>[u8] {
-        AsciiChar::slice_as_str(slice).as_bytes()
+    </span><span class="kw">pub const fn </span>slice_as_bytes(slice: <span class="kw-2">&amp;</span>[<a href="#60-318">AsciiChar</a>]) -&gt; <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] {
+        <a href="#552-558">AsciiChar::slice_as_str</a>(<a href="#564">slice</a>).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>()
     }
 }
 <span class="comment">// impl [AsciiChar] {
@@ -1210,16 +1246,16 @@
 //     }
 // }
 
-</span><span class="kw">impl </span>fmt::Display <span class="kw">for </span>AsciiChar {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-        fmt::Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.as_char(), f)
+</span><span class="kw">impl </span><a href="../../../../devela/_core/fmt/trait.Display.html">fmt::Display</a> <span class="kw">for </span><a href="#60-318">AsciiChar</a> {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/_core/fmt/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
+        <a href="../../../../devela/_core/fmt/trait.Display.html">fmt::Display::fmt</a>(<span class="kw-2">&amp;</span><a class="self" href="#587">self</a>.<a href="#534-536">as_char</a>(), <a href="#587">f</a>)
     }
 }
 
-<span class="kw">impl </span>ConstDefault <span class="kw">for </span>AsciiChar {
-    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= AsciiChar::Null;
+<span class="kw">impl </span><a href="../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#60-318">AsciiChar</a> {
+    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="#63">AsciiChar::Null</a>;
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"bit"</span>)]
-</span><span class="macro">crate::bit_sized!</span>[= <span class="number">7</span>; <span class="kw">for </span>AsciiChar];
+</span><a class="macro" href="../../sys/mem/size/bit.rs.html#102-170">crate::bit_sized!</a>[= <span class="number">7</span>; <span class="kw">for </span><a href="#60-318">AsciiChar</a>];
 </code></pre></div></section></main></body></html>

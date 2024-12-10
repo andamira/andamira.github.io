@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"static":["LINUX_TERMINAL_STATE"],"struct":["LinuxTerminal"]};

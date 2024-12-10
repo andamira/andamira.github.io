@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/ext.rs`."><title>ext.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/ext.rs`."><title>ext.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -154,42 +190,42 @@
 </span><span class="doccomment">//! An extension trait for memory management over `T`.
 </span><span class="comment">//
 
-</span><span class="kw">use </span><span class="kw">super</span>::Mem;
+</span><span class="kw">use </span><a href="namespace.rs.html#22"><span class="kw">super</span>::Mem</a>;
 
-<span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>Sized&gt; ExtMem <span class="kw">for </span>T {}
+<span class="kw">impl</span>&lt;T: <span class="question-mark">?</span><a href="../../../../devela/_core/marker/trait.Sized.html">Sized</a>&gt; <a href="#15-121">ExtMem</a> <span class="kw">for </span>T {}
 
 <span class="doccomment">/// Extension trait for type memory information and manipulation.
 ///
 /// This trait is automatically implemented for every `?Sized` type,
 /// although most methods are only available where `Self: Sized`.
 </span><span class="attr">#[rustfmt::skip]
-</span><span class="kw">pub trait </span>ExtMem {
+</span><span class="kw">pub trait </span><a href="../../../../devela/sys/mem/trait.ExtMem.html">ExtMem</a> {
     <span class="doccomment">/// Know whether dropping values of this type matters, in compile-time.
-    </span><span class="kw">const </span>NEEDS_DROP: bool = Mem::needs_drop::&lt;<span class="self">Self</span>&gt;();
+    </span><span class="kw">const </span>NEEDS_DROP: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> = Mem::needs_drop::&lt;<span class="self">Self</span>&gt;();
 
     <span class="doccomment">/// Returns the minimum alignment of the type in bytes.
     ///
     /// See [`Mem::align_of`].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>mem_align_of&lt;T&gt;() -&gt; usize { Mem::align_of::&lt;T&gt;() }
+    </span><span class="kw">fn </span>mem_align_of&lt;T&gt;() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { Mem::align_of::&lt;T&gt;() }
 
     <span class="doccomment">/// Returns the alignment of the pointed-to value in bytes.
     ///
     /// See [`Mem::align_of_val`].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>mem_align_of_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize { Mem::align_of_val(<span class="self">self</span>) }
+    </span><span class="kw">fn </span>mem_align_of_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { <a href="namespace.rs.html#39-41">Mem::align_of_val</a>(<a class="self" href="#29">self</a>) }
 
     <span class="doccomment">/// Returns the size of a type in bytes.
     ///
     /// See [`Mem::size_of`].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>mem_size_of&lt;T&gt;() -&gt; usize { Mem::size_of::&lt;T&gt;() }
+    </span><span class="kw">fn </span>mem_size_of&lt;T&gt;() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { Mem::size_of::&lt;T&gt;() }
 
     <span class="doccomment">/// Returns the size of the pointed-to value in bytes.
     ///
     /// See [`Mem::size_of_val`].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>mem_size_of_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize { Mem::size_of_val(<span class="self">self</span>) }
+    </span><span class="kw">fn </span>mem_size_of_val(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { <a href="namespace.rs.html#108-110">Mem::size_of_val</a>(<a class="self" href="#41">self</a>) }
 
     <span class="doccomment">/// Bitwise-copies a value.
     ///
@@ -198,40 +234,40 @@
     ///
     /// See [`Mem::copy`].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>mem_copy(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span><span class="kw">where </span><span class="self">Self</span>: Copy { Mem::copy(<span class="self">self</span>) }
+    </span><span class="kw">fn </span>mem_copy(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span><span class="kw">where </span><span class="self">Self</span>: <a href="../../../../devela/_core/marker/trait.Copy.html">Copy</a> { <a href="namespace.rs.html#56-58">Mem::copy</a>(<a class="self" href="#50">self</a>) }
 
     <span class="doccomment">/// Returns `true` if dropping values of this type matters.
     ///
     /// See [`Mem::needs_drop`].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>mem_needs_drop(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool { <span class="self">Self</span>::NEEDS_DROP }
+    </span><span class="kw">fn </span>mem_needs_drop(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <span class="self">Self</span>::NEEDS_DROP }
 
     <span class="doccomment">/// Drops `self` by running its destructor.
     ///
     /// See [`Mem::drop`].
-    </span><span class="kw">fn </span>mem_drop(<span class="self">self</span>) <span class="kw">where </span><span class="self">Self</span>: Sized { Mem::drop(<span class="self">self</span>) }
+    </span><span class="kw">fn </span>mem_drop(<span class="self">self</span>) <span class="kw">where </span><span class="self">Self</span>: <a href="../../../../devela/_core/marker/trait.Sized.html">Sized</a> { <a href="namespace.rs.html#69-71">Mem::drop</a>(<a class="self" href="#61">self</a>) }
 
     <span class="doccomment">/// Forgets about `self` *without running its destructor*.
     ///
     /// See [`Mem::forget`].
-    </span><span class="kw">fn </span>mem_forget(<span class="self">self</span>) <span class="kw">where </span><span class="self">Self</span>: Sized { Mem::forget(<span class="self">self</span>) }
+    </span><span class="kw">fn </span>mem_forget(<span class="self">self</span>) <span class="kw">where </span><span class="self">Self</span>: <a href="../../../../devela/_core/marker/trait.Sized.html">Sized</a> { <a href="namespace.rs.html#76-78">Mem::forget</a>(<a class="self" href="#66">self</a>) }
 
     <span class="doccomment">/// Replaces `self` with other, returning the previous value of `self`.
     ///
     /// See [`Mem::replace`].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>mem_replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span><span class="kw">where </span><span class="self">Self</span>: Sized { Mem::replace(<span class="self">self</span>, other) }
+    </span><span class="kw">fn </span>mem_replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span><span class="kw">where </span><span class="self">Self</span>: <a href="../../../../devela/_core/marker/trait.Sized.html">Sized</a> { <a href="namespace.rs.html#92-94">Mem::replace</a>(<a class="self" href="#72">self</a>, <a href="#72">other</a>) }
 
     <span class="doccomment">/// Replaces `self` with its default value, returning the previous value of `self`.
     ///
     /// See [`Mem::take`].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>mem_take(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span><span class="kw">where </span><span class="self">Self</span>: Default, { Mem::take(<span class="self">self</span>) }
+    </span><span class="kw">fn </span>mem_take(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span><span class="kw">where </span><span class="self">Self</span>: <a href="../../../../devela/_core/default/trait.Default.html">Default</a>, { <a href="namespace.rs.html#123-125">Mem::take</a>(<a class="self" href="#78">self</a>) }
 
     <span class="doccomment">/// Swaps the value of `self` and `other` without deinitializing either one.
     ///
     /// See [`Mem::swap`].
-    </span><span class="kw">fn </span>mem_swap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;mut </span><span class="self">Self</span>) <span class="kw">where </span><span class="self">Self</span>: Sized { Mem::swap(<span class="self">self</span>, other); }
+    </span><span class="kw">fn </span>mem_swap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;mut </span><span class="self">Self</span>) <span class="kw">where </span><span class="self">Self</span>: <a href="../../../../devela/_core/marker/trait.Sized.html">Sized</a> { <a href="namespace.rs.html#115-117">Mem::swap</a>(<a class="self" href="#83">self</a>, <a href="#83">other</a>); }
 
     <span class="doccomment">/// Returns the value of type `T` represented by the all-zero byte-pattern.
     ///
@@ -250,7 +286,7 @@
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_layout"</span>)))]
     #[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_layout"</span>))]
     </span><span class="kw">unsafe fn </span>mem_transmute_copy&lt;Src, Dst&gt;(src: <span class="kw-2">&amp;</span>Src) -&gt; Dst {
-        <span class="kw">unsafe </span>{ Mem::transmute_copy::&lt;Src, Dst&gt;(src) }
+        <span class="kw">unsafe </span>{ Mem::transmute_copy::&lt;Src, Dst&gt;(<a href="#101">src</a>) }
     }
 
     <span class="doccomment">/// View a `Sync + Unpin` `self` as `&amp;[u8]`.
@@ -260,7 +296,7 @@
     </span><span class="attr">#[must_use]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_slice"</span>)))]
     #[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_slice"</span>))]
-    </span><span class="kw">fn </span>mem_as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] <span class="kw">where </span><span class="self">Self</span>: Sync + Unpin { Mem::as_bytes(<span class="self">self</span>) }
+    </span><span class="kw">fn </span>mem_as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] <span class="kw">where </span><span class="self">Self</span>: <a href="../../../../devela/_core/marker/trait.Sync.html">Sync</a> + <a href="../../../../devela/_core/marker/trait.Unpin.html">Unpin</a> { <a href="namespace.rs.html#186-189">Mem::as_bytes</a>(<a class="self" href="#112">self</a>) }
 
     <span class="doccomment">/// View a `Sync + Unpin` `self` as `&amp;mut [u8]`.
     ///
@@ -268,6 +304,6 @@
     </span><span class="attr">#[must_use]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_slice"</span>)))]
     #[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_slice"</span>))]
-    </span><span class="kw">fn </span>mem_as_bytes_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8] <span class="kw">where </span><span class="self">Self</span>: Sync + Unpin { Mem::as_bytes_mut(<span class="self">self</span>) }
+    </span><span class="kw">fn </span>mem_as_bytes_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] <span class="kw">where </span><span class="self">Self</span>: <a href="../../../../devela/_core/marker/trait.Sync.html">Sync</a> + <a href="../../../../devela/_core/marker/trait.Unpin.html">Unpin</a> { <a href="namespace.rs.html#212-215">Mem::as_bytes_mut</a>(<a class="self" href="#120">self</a>) }
 }
 </code></pre></div></section></main></body></html>

@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/dst/buffer.rs`."><title>buffer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/dst/buffer.rs`."><title>buffer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -199,7 +235,7 @@
 <a href="#168" id="168">168</a>
 <a href="#169" id="169">169</a></pre></div><pre class="rust"><code><span class="comment">// devela::data::dst
 
-</span><span class="kw">use crate</span>::{Array, ConstDefault, Deref, DerefMut, MaybeUninit, MemPod};
+</span><span class="kw">use crate</span>::{<a href="../collections/array/d1/definitions.rs.html#63-65">Array</a>, <a href="../../code/default.rs.html#9-12">ConstDefault</a>, <a href="../../../../devela/_core/ops/trait.Deref.html">Deref</a>, <a href="../../../../devela/_core/ops/trait.DerefMut.html">DerefMut</a>, <a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>, <a href="../../sys/mem/pod.rs.html#69-122">MemPod</a>};
 
 <span class="doccomment">/// Represents the backing buffer for storing dynamically sized types.
 ///
@@ -211,52 +247,52 @@
 ///   let b = foo.as_mut().as_ptr(); assert!(a == b)` always holds).
 /// - `extend` must not change any contained data
 ///   (but may extend with unspecified values).
-</span><span class="kw">pub unsafe trait </span>DstBuf {
+</span><span class="kw">pub unsafe trait </span><a href="../../../../devela/data/dst/trait.DstBuf.html">DstBuf</a> {
     <span class="doccomment">/// Inner type of the buffer
-    </span><span class="kw">type </span>Inner: MemPod;
+    </span><span class="kw">type </span>Inner: <a href="../../sys/mem/pod.rs.html#69-122">MemPod</a>;
 
     <span class="doccomment">/// Get the buffer slice as shared reference.
-    </span><span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[MaybeUninit&lt;<span class="self">Self</span>::Inner&gt;];
+    </span><span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;<span class="self">Self</span>::Inner&gt;];
 
     <span class="doccomment">/// Get the buffer slice as an exclusive reference.
-    </span><span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[MaybeUninit&lt;<span class="self">Self</span>::Inner&gt;];
+    </span><span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;<span class="self">Self</span>::Inner&gt;];
 
     <span class="doccomment">/// Extend the buffer (fallible).
-    </span><span class="kw">fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt;;
+    </span><span class="kw">fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), ()&gt;;
 
     <span class="doccomment">/// Convert a byte count to a word count (rounding up).
-    </span><span class="kw">fn </span>round_to_words(bytes: usize) -&gt; usize {
-        <span class="kw">super</span>::round_to_words::&lt;<span class="self">Self</span>::Inner&gt;(bytes)
+    </span><span class="kw">fn </span>round_to_words(bytes: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
+        <a href="helpers.rs.html#76-78"><span class="kw">super</span>::round_to_words</a>::&lt;<span class="self">Self</span>::Inner&gt;(<a href="#29">bytes</a>)
     }
 }
 
 <span class="comment">// impl for an exclusive reference
 </span><span class="attr">#[rustfmt::skip]
-</span><span class="kw">unsafe impl</span>&lt;T, U&gt; DstBuf <span class="kw">for </span><span class="kw-2">&amp;mut </span>T <span class="kw">where </span>U: MemPod, T: DstBuf&lt;Inner = U&gt; {
+</span><span class="kw">unsafe impl</span>&lt;T, U&gt; <a href="#15-32">DstBuf</a> <span class="kw">for </span><span class="kw-2">&amp;mut </span>T <span class="kw">where </span>U: <a href="../../sys/mem/pod.rs.html#69-122">MemPod</a>, T: <a href="#15-32">DstBuf</a>&lt;Inner = U&gt; {
     <span class="kw">type </span>Inner = T::Inner;
 
-    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[MaybeUninit&lt;<span class="self">Self</span>::Inner&gt;] {
-        (<span class="kw-2">**</span><span class="self">self</span>).as_ref()
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;<span class="self">Self</span>::Inner&gt;] {
+        (<span class="kw-2">**</span><a class="self" href="#39">self</a>).<a href="#20">as_ref</a>()
     }
-    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[MaybeUninit&lt;<span class="self">Self</span>::Inner&gt;] {
-        (<span class="kw-2">**</span><span class="self">self</span>).as_mut()
+    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;<span class="self">Self</span>::Inner&gt;] {
+        (<span class="kw-2">**</span><a class="self" href="#42">self</a>).<a href="#23">as_mut</a>()
     }
-    <span class="kw">fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
-        (<span class="kw-2">**</span><span class="self">self</span>).extend(len)
+    <span class="kw">fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), ()&gt; {
+        (<span class="kw-2">**</span><a class="self" href="#45">self</a>).<a href="#26">extend</a>(<a href="#45">len</a>)
     }
 }
 
 <span class="comment">// impl for array
-</span><span class="kw">unsafe impl</span>&lt;T: MemPod, <span class="kw">const </span>CAP: usize&gt; DstBuf <span class="kw">for </span>[MaybeUninit&lt;T&gt;; CAP] {
+</span><span class="kw">unsafe impl</span>&lt;T: <a href="../../sys/mem/pod.rs.html#69-122">MemPod</a>, <span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#15-32">DstBuf</a> <span class="kw">for </span>[<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;T&gt;; <a href="#51">CAP</a>] {
     <span class="kw">type </span>Inner = T;
 
-    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[MaybeUninit&lt;<span class="self">Self</span>::Inner&gt;] {
-        <span class="self">self
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;<span class="self">Self</span>::Inner&gt;] {
+        <span class="self"><a href="#54">self</a>
     </span>}
-    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[MaybeUninit&lt;<span class="self">Self</span>::Inner&gt;] {
-        <span class="self">self
+    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;<span class="self">Self</span>::Inner&gt;] {
+        <span class="self"><a href="#57">self</a>
     </span>}
-    <span class="kw">fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
+    <span class="kw">fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), ()&gt; {
         <span class="kw">if </span>len &gt; CAP {
             <span class="prelude-val">Err</span>(())
         } <span class="kw">else </span>{
@@ -280,19 +316,19 @@
 /// ```
 </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"alloc"</span>)))]
-</span><span class="kw">unsafe impl</span>&lt;T: MemPod&gt; DstBuf <span class="kw">for </span><span class="kw">crate</span>::Vec&lt;MaybeUninit&lt;T&gt;&gt; {
+</span><span class="kw">unsafe impl</span>&lt;T: <a href="../../sys/mem/pod.rs.html#69-122">MemPod</a>&gt; <a href="#15-32">DstBuf</a> <span class="kw">for </span><a href="../../../../devela/_dep/_std/vec/struct.Vec.html"><span class="kw">crate</span>::Vec</a>&lt;<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;T&gt;&gt; {
     <span class="kw">type </span>Inner = T;
-    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[MaybeUninit&lt;<span class="self">Self</span>::Inner&gt;] {
-        <span class="self">self
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;<span class="self">Self</span>::Inner&gt;] {
+        <span class="self"><a href="#86">self</a>
     </span>}
-    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[MaybeUninit&lt;<span class="self">Self</span>::Inner&gt;] {
-        <span class="self">self
+    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;<span class="self">Self</span>::Inner&gt;] {
+        <span class="self"><a href="#89">self</a>
     </span>}
-    <span class="kw">fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
+    <span class="kw">fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), ()&gt; {
         <span class="kw">if </span>len &gt; <span class="self">self</span>.len() {
-            <span class="self">self</span>.resize(len, MaybeUninit::uninit());
-            <span class="kw">let </span>cap = <span class="self">self</span>.capacity();
-            <span class="self">self</span>.resize(cap, MaybeUninit::uninit());
+            <a class="self" href="#92">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.resize">resize</a>(<a href="#92">len</a>, <a href="https://doc.rust-lang.org/nightly/core/mem/maybe_uninit/union.MaybeUninit.html#method.uninit">MaybeUninit::uninit</a>());
+            <span class="kw">let </span>cap = <a class="self" href="#92">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.capacity">capacity</a>();
+            <a class="self" href="#92">self</a>.<a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.resize">resize</a>(<a href="#95">cap</a>, <a href="https://doc.rust-lang.org/nightly/core/mem/maybe_uninit/union.MaybeUninit.html#method.uninit">MaybeUninit::uninit</a>());
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -300,54 +336,54 @@
 
 <span class="doccomment">/// A static array for storing &lt;abbr title="Dynamically sized
 /// type"&gt;DST&lt;/abbr&gt;s.
-</span><span class="kw">pub struct </span>DstArray&lt;T, <span class="kw">const </span>CAP: usize&gt; {
-    inner: Array&lt;MaybeUninit&lt;T&gt;, CAP&gt;,
+</span><span class="kw">pub struct </span><a href="../../../../devela/data/dst/struct.DstArray.html">DstArray</a>&lt;T, <span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
+    inner: <a href="../collections/array/d1/definitions.rs.html#63-65">Array</a>&lt;<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;T&gt;, <a href="#104">CAP</a>&gt;,
 }
-<span class="kw">impl</span>&lt;T, <span class="kw">const </span>CAP: usize&gt; Deref <span class="kw">for </span>DstArray&lt;T, CAP&gt; {
-    <span class="kw">type </span>Target = Array&lt;MaybeUninit&lt;T&gt;, CAP&gt;;
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/_core/ops/trait.Deref.html">Deref</a> <span class="kw">for </span><a href="#104-106">DstArray</a>&lt;T, <a href="#107">CAP</a>&gt; {
+    <span class="kw">type </span>Target = <a href="../collections/array/d1/definitions.rs.html#63-65">Array</a>&lt;<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;T&gt;, <a href="#107">CAP</a>&gt;;
 
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.inner
+        <span class="kw-2">&amp;</span><a class="self" href="#110">self</a>.inner
     }
 }
-<span class="kw">impl</span>&lt;T, <span class="kw">const </span>CAP: usize&gt; DerefMut <span class="kw">for </span>DstArray&lt;T, CAP&gt; {
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/_core/ops/trait.DerefMut.html">DerefMut</a> <span class="kw">for </span><a href="#104-106">DstArray</a>&lt;T, <a href="#114">CAP</a>&gt; {
     <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner
+        <span class="kw-2">&amp;mut </span><a class="self" href="#115">self</a>.inner
     }
 }
-<span class="kw">impl</span>&lt;T: MemPod, <span class="kw">const </span>CAP: usize&gt; Default <span class="kw">for </span>DstArray&lt;T, CAP&gt; {
+<span class="kw">impl</span>&lt;T: <a href="../../sys/mem/pod.rs.html#69-122">MemPod</a>, <span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/_core/default/trait.Default.html">Default</a> <span class="kw">for </span><a href="#104-106">DstArray</a>&lt;T, <a href="#119">CAP</a>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ inner: Array::new([MaybeUninit::uninit(); CAP]) }
+        <span class="self">Self </span>{ inner: <a href="../collections/array/d1/methods.rs.html#26-28">Array::new</a>([<a href="https://doc.rust-lang.org/nightly/core/mem/maybe_uninit/union.MaybeUninit.html#method.uninit">MaybeUninit::uninit</a>(); <a href="#119">CAP</a>]) }
     }
 }
-<span class="kw">impl</span>&lt;T: MemPod, <span class="kw">const </span>CAP: usize&gt; ConstDefault <span class="kw">for </span>DstArray&lt;T, CAP&gt; {
+<span class="kw">impl</span>&lt;T: <a href="../../sys/mem/pod.rs.html#69-122">MemPod</a>, <span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#104-106">DstArray</a>&lt;T, <a href="#124">CAP</a>&gt; {
     <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="self">Self </span>{
-        inner: Array::new_bare([MaybeUninit::uninit(); CAP]),
+        inner: <a href="../collections/array/d1/methods.rs.html#43-45">Array::new_bare</a>([<a href="https://doc.rust-lang.org/nightly/core/mem/maybe_uninit/union.MaybeUninit.html#method.uninit">MaybeUninit::uninit</a>(); <a href="#124">CAP</a>]),
     };
 }
 <span class="attr">#[rustfmt::skip]
-</span><span class="kw">unsafe impl</span>&lt;T: MemPod, <span class="kw">const </span>CAP: usize&gt; DstBuf <span class="kw">for </span>DstArray&lt;T, CAP&gt; {
+</span><span class="kw">unsafe impl</span>&lt;T: <a href="../../sys/mem/pod.rs.html#69-122">MemPod</a>, <span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#15-32">DstBuf</a> <span class="kw">for </span><a href="#104-106">DstArray</a>&lt;T, <a href="#130">CAP</a>&gt; {
     <span class="kw">type </span>Inner = T;
-    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[MaybeUninit&lt;<span class="self">Self</span>::Inner&gt;] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.inner
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;<span class="self">Self</span>::Inner&gt;] {
+        <span class="kw-2">&amp;</span><a class="self" href="#132">self</a>.inner
     }
-    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[MaybeUninit&lt;<span class="self">Self</span>::Inner&gt;] {
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner
+    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;<span class="self">Self</span>::Inner&gt;] {
+        <span class="kw-2">&amp;mut </span><a class="self" href="#135">self</a>.inner
     }
-    <span class="kw">fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
+    <span class="kw">fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), ()&gt; {
         <span class="kw">if </span>len &gt; CAP { <span class="prelude-val">Err</span>(()) } <span class="kw">else </span>{ <span class="prelude-val">Ok</span>(()) }
     }
 }
 
 <span class="doccomment">/// A statically allocated buffer for storing &lt;abbr title="Dynamically sized
 /// type"&gt;DST&lt;/abbr&gt;s with pointer alignment.
-</span><span class="kw">pub type </span>DstArrayUsize&lt;<span class="kw">const </span>CAP: usize&gt; = DstArray&lt;usize, CAP&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/data/dst/type.DstArrayUsize.html">DstArrayUsize</a>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; = <a href="#104-106">DstArray</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="#145">CAP</a>&gt;;
 
 <span class="doccomment">/// A dynamically allocated buffer for storing &lt;abbr title="Dynamically sized
 /// type"&gt;DST&lt;/abbr&gt;s with pointer alignment.
 </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"alloc"</span>)))]
-</span><span class="kw">pub type </span>DstVecUsize = <span class="kw">crate</span>::Vec&lt;MaybeUninit&lt;usize&gt;&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/data/dst/type.DstVecUsize.html">DstVecUsize</a> = <a href="../../../../devela/_dep/_std/vec/struct.Vec.html"><span class="kw">crate</span>::Vec</a>&lt;<a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;&gt;;
 
 <span class="comment">// MAYBE
 // /// A DST buffer backing onto a Vec.

@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/size/bit.rs`."><title>bit.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/size/bit.rs`."><title>bit.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -283,9 +319,7 @@
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
 <a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::mem::size::bit
+<a href="#255" id="255">255</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::mem::size::bit
 //
 </span><span class="doccomment">//! Functionality related to memory bit size.
 </span><span class="comment">//
@@ -296,37 +330,37 @@
 // - trait impls
 
 </span><span class="kw">use crate</span>::{
-    bytes_from_bits, BareBox, ByteSized, Duration, Infallible, NonZeroI128, NonZeroI16, NonZeroI32,
-    NonZeroI64, NonZeroI8, NonZeroIsize, NonZeroU128, NonZeroU16, NonZeroU32, NonZeroU64,
-    NonZeroU8, NonZeroUsize, Ordering, PhantomData, PhantomPinned,
+    <a href="byte.rs.html#70-76">bytes_from_bits</a>, <a href="../storage/bare.rs.html#27">BareBox</a>, <a href="byte.rs.html#14-64">ByteSized</a>, <a href="../../../../../devela/_core/time/struct.Duration.html">Duration</a>, <a href="../../../../../devela/_core/convert/enum.Infallible.html">Infallible</a>, <a href="../../../../../devela/_core/num/type.NonZeroI128.html">NonZeroI128</a>, <a href="../../../../../devela/_core/num/type.NonZeroI16.html">NonZeroI16</a>, <a href="../../../../../devela/_core/num/type.NonZeroI32.html">NonZeroI32</a>,
+    <a href="../../../../../devela/_core/num/type.NonZeroI64.html">NonZeroI64</a>, <a href="../../../../../devela/_core/num/type.NonZeroI8.html">NonZeroI8</a>, <a href="../../../../../devela/_core/num/type.NonZeroIsize.html">NonZeroIsize</a>, <a href="../../../../../devela/_core/num/type.NonZeroU128.html">NonZeroU128</a>, <a href="../../../../../devela/_core/num/type.NonZeroU16.html">NonZeroU16</a>, <a href="../../../../../devela/_core/num/type.NonZeroU32.html">NonZeroU32</a>, <a href="../../../../../devela/_core/num/type.NonZeroU64.html">NonZeroU64</a>,
+    <a href="../../../../../devela/_core/num/type.NonZeroU8.html">NonZeroU8</a>, <a href="../../../../../devela/_core/num/type.NonZeroUsize.html">NonZeroUsize</a>, <a href="../../../../../devela/_core/cmp/enum.Ordering.html">Ordering</a>, <a href="../../../../../devela/_core/marker/struct.PhantomData.html">PhantomData</a>, <a href="../../../../../devela/_core/marker/struct.PhantomPinned.html">PhantomPinned</a>,
 };
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">use crate</span>::{Arc, HashMap, HashSet, Mutex, Rc, SystemInstant, SystemTime};
+</span><span class="kw">use crate</span>::{<a href="../../../../../devela/all/struct.Arc.html">Arc</a>, <a href="../../../../../devela/_dep/hashbrown/struct.HashMap.html">HashMap</a>, <a href="../../../../../devela/_dep/hashbrown/struct.HashSet.html">HashSet</a>, <a href="../../../../../devela/all/struct.Mutex.html">Mutex</a>, <a href="../../../../../devela/all/struct.Rc.html">Rc</a>, <a href="../../../../../devela/all/struct.SystemInstant.html">SystemInstant</a>, <a href="../../../../../devela/all/struct.SystemTime.html">SystemTime</a>};
 
 <span class="comment">// WAIT: [generic_const_exprs](https://github.com/rust-lang/rust/issues/76560#issuecomment-1202124275)
 // #[cfg(feature = "text")]
 // use crate::{StringU16, StringU32, GraphemeU8, StringU8};
 </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::GraphemeString;
+</span><span class="kw">use </span><a href="../../../text/grapheme/string.rs.html#21"><span class="kw">crate</span>::GraphemeString</a>;
 <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">use crate</span>::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, String, Vec, VecDeque};
+</span><span class="kw">use crate</span>::{<a href="../../../../../devela/_dep/_std/collections/btree_map/struct.BTreeMap.html">BTreeMap</a>, <a href="../../../../../devela/_dep/_std/collections/btree_set/struct.BTreeSet.html">BTreeSet</a>, <a href="../../../../../devela/_dep/_std/collections/binary_heap/struct.BinaryHeap.html">BinaryHeap</a>, <a href="../../../../../devela/_dep/_std/collections/linked_list/struct.LinkedList.html">LinkedList</a>, <a href="../../../../../devela/_dep/_std/string/struct.String.html">String</a>, <a href="../../../../../devela/_dep/_std/vec/struct.Vec.html">Vec</a>, <a href="../../../../../devela/_dep/_std/collections/vec_deque/struct.VecDeque.html">VecDeque</a>};
 <span class="attr">#[cfg(feature = <span class="string">"_string_nonul"</span>)]
-</span><span class="kw">use crate</span>::{GraphemeNonul, StringNonul};
+</span><span class="kw">use crate</span>::{<a href="../../../text/grapheme/nonul.rs.html#29">GraphemeNonul</a>, <a href="../../../text/str/nonul.rs.html#65-67">StringNonul</a>};
 
 <span class="attr">#[cfg(feature = <span class="string">"dep_portable_atomic"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::_dep::portable_atomic::{AtomicF32, AtomicF64, AtomicI128, AtomicU128};
+</span><span class="kw">use </span><span class="kw">crate</span>::_dep::portable_atomic::{<a href="../../../../../devela/all/struct.AtomicF32.html">AtomicF32</a>, <a href="../../../../../devela/all/struct.AtomicF64.html">AtomicF64</a>, <a href="../../../../../devela/all/struct.AtomicI128.html">AtomicI128</a>, <a href="../../../../../devela/all/struct.AtomicU128.html">AtomicU128</a>};
 <span class="attr">#[cfg(feature = <span class="string">"work"</span>)]
-</span><span class="kw">use crate</span>::{AtomicBool, AtomicOrdering};
+</span><span class="kw">use crate</span>::{<a href="../../../../../devela/all/struct.AtomicBool.html">AtomicBool</a>, <a href="../../../../../devela/_core/sync/atomic/enum.Ordering.html">AtomicOrdering</a>};
 <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"16"</span>)))]
-</span><span class="kw">use crate</span>::{AtomicI16, AtomicU16};
+</span><span class="kw">use crate</span>::{<a href="../../../../../devela/all/struct.AtomicI16.html">AtomicI16</a>, <a href="../../../../../devela/all/struct.AtomicU16.html">AtomicU16</a>};
 <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"32"</span>)))]
-</span><span class="kw">use crate</span>::{AtomicI32, AtomicU32};
+</span><span class="kw">use crate</span>::{<a href="../../../../../devela/all/struct.AtomicI32.html">AtomicI32</a>, <a href="../../../../../devela/all/struct.AtomicU32.html">AtomicU32</a>};
 <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"64"</span>)))]
-</span><span class="kw">use crate</span>::{AtomicI64, AtomicU64};
+</span><span class="kw">use crate</span>::{<a href="../../../../../devela/all/struct.AtomicI64.html">AtomicI64</a>, <a href="../../../../../devela/all/struct.AtomicU64.html">AtomicU64</a>};
 <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"8"</span>)))]
-</span><span class="kw">use crate</span>::{AtomicI8, AtomicU8};
+</span><span class="kw">use crate</span>::{<a href="../../../../../devela/all/struct.AtomicI8.html">AtomicI8</a>, <a href="../../../../../devela/all/struct.AtomicU8.html">AtomicU8</a>};
 <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"ptr"</span>)))]
-</span><span class="kw">use crate</span>::{AtomicIsize, AtomicPtr, AtomicUsize};
+</span><span class="kw">use crate</span>::{<a href="../../../../../devela/all/struct.AtomicIsize.html">AtomicIsize</a>, <a href="../../../../../devela/all/struct.AtomicPtr.html">AtomicPtr</a>, <a href="../../../../../devela/all/struct.AtomicUsize.html">AtomicUsize</a>};
 
 <span class="comment">/* trait definition */
 
@@ -335,17 +369,17 @@
 /// Indicates a size of exactly `LEN` bits for the relevant data part of this type.
 ///
 /// E.g. a `bool` has a BitSized of 1 bit.
-</span><span class="kw">pub trait </span>BitSized&lt;<span class="kw">const </span>LEN: usize&gt;: ByteSized {
+</span><span class="kw">pub trait </span><a href="../../../../../devela/sys/mem/trait.BitSized.html">BitSized</a>&lt;<span class="kw">const </span>LEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;: <a href="byte.rs.html#14-64">ByteSized</a> {
     <span class="doccomment">/// The bit size of this type (only the relevant data part, without padding).
     ///
     /// # Panics
     /// Panics if `MIN_BYTE_SIZE &gt; `[`BYTE_SIZE`][ByteSized::BYTE_SIZE],
-    </span><span class="kw">const </span>BIT_SIZE: usize = {
-        <span class="kw">let </span>min_byte_size = bytes_from_bits(LEN);
+    </span><span class="kw">const </span>BIT_SIZE: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = {
+        <span class="kw">let </span>min_byte_size = <a href="byte.rs.html#70-76">bytes_from_bits</a>(<a href="#51">LEN</a>);
         <span class="kw">if </span>min_byte_size &gt; <span class="self">Self</span>::BYTE_SIZE {
-            <span class="macro">panic!</span>[<span class="string">"BitSized::MIN_BYTE_SIZE &gt; ByteSized::BYTE_SIZE"</span>];
+            <a class="macro" href="../../../../../devela/_dep/_std/macro.panic.html">panic!</a>[<span class="string">"BitSized::MIN_BYTE_SIZE &gt; ByteSized::BYTE_SIZE"</span>];
         }
-        LEN
+        <a href="#51">LEN</a>
     };
 
     <span class="doccomment">/// The rounded up byte size for this type.
@@ -355,12 +389,12 @@
     ///
     /// # Panics
     /// Panics if `MIN_BYTE_SIZE &gt; `[`BYTE_SIZE`][ByteSized::BYTE_SIZE],
-    </span><span class="kw">const </span>MIN_BYTE_SIZE: usize = {
-        <span class="kw">let </span>min_byte_size = bytes_from_bits(LEN);
+    </span><span class="kw">const </span>MIN_BYTE_SIZE: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = {
+        <span class="kw">let </span>min_byte_size = <a href="byte.rs.html#70-76">bytes_from_bits</a>(<a href="#51">LEN</a>);
         <span class="kw">if </span>min_byte_size &gt; <span class="self">Self</span>::BYTE_SIZE {
-            <span class="macro">panic!</span>[<span class="string">"BitSized::MIN_BYTE_SIZE &gt; ByteSized::BYTE_SIZE"</span>];
+            <a class="macro" href="../../../../../devela/_dep/_std/macro.panic.html">panic!</a>[<span class="string">"BitSized::MIN_BYTE_SIZE &gt; ByteSized::BYTE_SIZE"</span>];
         }
-        min_byte_size
+        <a href="#72">min_byte_size</a>
     };
 
     <span class="doccomment">/// Returns the bit size of this type (only the relevant data part, without padding).
@@ -368,7 +402,7 @@
     /// # Panics
     /// Panics if `MIN_BYTE_SIZE &gt; `[`BYTE_SIZE`][ByteSized::BYTE_SIZE],
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>bit_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    </span><span class="kw">fn </span>bit_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
         <span class="self">Self</span>::BIT_SIZE
     }
 
@@ -380,7 +414,7 @@
     /// # Panics
     /// Panics if `MIN_BYTE_SIZE &gt; `[`BYTE_SIZE`][ByteSized::BYTE_SIZE],
     </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>min_byte_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    </span><span class="kw">fn </span>min_byte_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
         <span class="self">Self</span>::MIN_BYTE_SIZE
     }
 }
@@ -456,59 +490,57 @@
     };
 }
 <span class="attr">#[allow(unused_imports)] </span><span class="comment">// TEMP
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>bit_sized;
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><a href="#102-170">bit_sized</a>;
 
 <span class="comment">/* impl BitSized */
 
-</span><span class="kw">impl</span>&lt;T: BitSized&lt;LEN&gt;, <span class="kw">const </span>LEN: usize&gt; BitSized&lt;LEN&gt; <span class="kw">for </span>BareBox&lt;T&gt; {}
+</span><span class="kw">impl</span>&lt;T: <a href="#51-99">BitSized</a>&lt;<a href="#176">LEN</a>&gt;, <span class="kw">const </span>LEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#51-99">BitSized</a>&lt;<a href="#176">LEN</a>&gt; <span class="kw">for </span><a href="../storage/bare.rs.html#27">BareBox</a>&lt;T&gt; {}
 
-<span class="macro">bit_sized!</span>[&lt;T&gt; = <span class="number">0</span>; <span class="kw">for </span>PhantomData&lt;T&gt;];
-<span class="macro">bit_sized!</span>[= <span class="number">0</span>; <span class="kw">for </span>(), Infallible, PhantomPinned];
-<span class="macro">bit_sized!</span>[= <span class="number">1</span>; <span class="kw">for </span>bool];
-<span class="macro">bit_sized!</span>[= <span class="number">8</span>; <span class="kw">for </span>i8, u8, Ordering];
-<span class="macro">bit_sized!</span>[= <span class="number">16</span>; <span class="kw">for </span>i16, u16];
-<span class="macro">bit_sized!</span>[= <span class="number">32</span>; <span class="kw">for </span>i32, u32, f32, char];
-<span class="macro">bit_sized!</span>[= <span class="number">64</span>; <span class="kw">for </span>i64, u64, f64];
-<span class="macro">bit_sized!</span>[= <span class="number">128</span>; <span class="kw">for </span>i128, u128, Duration];
+<a class="macro" href="#102-170">bit_sized!</a>[&lt;T&gt; = <span class="number">0</span>; <span class="kw">for </span><a href="../../../../../devela/_core/marker/struct.PhantomData.html">PhantomData</a>&lt;T&gt;];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">0</span>; <span class="kw">for </span>(), <a href="../../../../../devela/_core/convert/enum.Infallible.html">Infallible</a>, <a href="../../../../../devela/_core/marker/struct.PhantomPinned.html">PhantomPinned</a>];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">1</span>; <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">8</span>; <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="../../../../../devela/_core/cmp/enum.Ordering.html">Ordering</a>];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">16</span>; <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">32</span>; <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">64</span>; <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">128</span>; <span class="kw">for </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i128.html">i128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>, <a href="../../../../../devela/_core/time/struct.Duration.html">Duration</a>];
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="macro">bit_sized!</span>[= <span class="number">128</span>; <span class="kw">for </span>SystemInstant, SystemTime];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">128</span>; <span class="kw">for </span><a href="../../../../../devela/all/struct.SystemInstant.html">SystemInstant</a>, <a href="../../../../../devela/all/struct.SystemTime.html">SystemTime</a>];
 
 <span class="attr">#[cfg(feature = <span class="string">"_char7"</span>)]
-</span><span class="macro">bit_sized!</span>[= <span class="number">7</span>; <span class="kw">for </span><span class="kw">crate</span>::char7];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">7</span>; <span class="kw">for </span><a href="../../../text/char/definitions.rs.html#53"><span class="kw">crate</span>::char7</a>];
 <span class="attr">#[cfg(feature = <span class="string">"_char8"</span>)]
-</span><span class="macro">bit_sized!</span>[= <span class="number">8</span>; <span class="kw">for </span><span class="kw">crate</span>::char8];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">8</span>; <span class="kw">for </span><a href="../../../text/char/definitions.rs.html#71"><span class="kw">crate</span>::char8</a>];
 <span class="attr">#[cfg(feature = <span class="string">"_char16"</span>)]
-</span><span class="macro">bit_sized!</span>[= <span class="number">16</span>; <span class="kw">for </span><span class="kw">crate</span>::char16];
-<span class="attr">#[cfg(feature = <span class="string">"_char24"</span>)]
-</span><span class="macro">bit_sized!</span>[= <span class="number">24</span>; <span class="kw">for </span><span class="kw">crate</span>::char24];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">16</span>; <span class="kw">for </span><a href="../../../text/char/definitions.rs.html#90"><span class="kw">crate</span>::char16</a>];
 
-<span class="macro">bit_sized!</span>[= <span class="number">8</span>; <span class="kw">for </span>NonZeroI8, NonZeroU8];
-<span class="macro">bit_sized!</span>[= <span class="number">16</span>; <span class="kw">for </span>NonZeroI16, NonZeroU16];
-<span class="macro">bit_sized!</span>[= <span class="number">32</span>; <span class="kw">for </span>NonZeroI32, NonZeroU32];
-<span class="macro">bit_sized!</span>[= <span class="number">64</span>; <span class="kw">for </span>NonZeroI64, NonZeroU64];
-<span class="macro">bit_sized!</span>[= <span class="number">128</span>; <span class="kw">for </span>NonZeroI128, NonZeroU128];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">8</span>; <span class="kw">for </span><a href="../../../../../devela/_core/num/type.NonZeroI8.html">NonZeroI8</a>, <a href="../../../../../devela/_core/num/type.NonZeroU8.html">NonZeroU8</a>];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">16</span>; <span class="kw">for </span><a href="../../../../../devela/_core/num/type.NonZeroI16.html">NonZeroI16</a>, <a href="../../../../../devela/_core/num/type.NonZeroU16.html">NonZeroU16</a>];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">32</span>; <span class="kw">for </span><a href="../../../../../devela/_core/num/type.NonZeroI32.html">NonZeroI32</a>, <a href="../../../../../devela/_core/num/type.NonZeroU32.html">NonZeroU32</a>];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">64</span>; <span class="kw">for </span><a href="../../../../../devela/_core/num/type.NonZeroI64.html">NonZeroI64</a>, <a href="../../../../../devela/_core/num/type.NonZeroU64.html">NonZeroU64</a>];
+<a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">128</span>; <span class="kw">for </span><a href="../../../../../devela/_core/num/type.NonZeroI128.html">NonZeroI128</a>, <a href="../../../../../devela/_core/num/type.NonZeroU128.html">NonZeroU128</a>];
 
 <span class="attr">#[cfg(feature = <span class="string">"work"</span>)]
-</span><span class="macro">bit_sized!</span>[= <span class="number">1</span>; <span class="kw">for </span>AtomicBool];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">1</span>; <span class="kw">for </span><a href="../../../../../devela/all/struct.AtomicBool.html">AtomicBool</a>];
 <span class="attr">#[cfg(feature = <span class="string">"work"</span>)]
-</span><span class="macro">bit_sized!</span>[= <span class="number">8</span>; <span class="kw">for </span>AtomicOrdering];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">8</span>; <span class="kw">for </span><a href="../../../../../devela/_core/sync/atomic/enum.Ordering.html">AtomicOrdering</a>];
 <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"8"</span>)))]
-</span><span class="macro">bit_sized!</span>[= <span class="number">8</span>; <span class="kw">for </span>AtomicI8, AtomicU8];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">8</span>; <span class="kw">for </span><a href="../../../../../devela/all/struct.AtomicI8.html">AtomicI8</a>, <a href="../../../../../devela/all/struct.AtomicU8.html">AtomicU8</a>];
 <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"16"</span>)))]
-</span><span class="macro">bit_sized!</span>[= <span class="number">16</span>; <span class="kw">for </span>AtomicI16, AtomicU16];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">16</span>; <span class="kw">for </span><a href="../../../../../devela/all/struct.AtomicI16.html">AtomicI16</a>, <a href="../../../../../devela/all/struct.AtomicU16.html">AtomicU16</a>];
 <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"32"</span>)))]
-</span><span class="macro">bit_sized!</span>[= <span class="number">32</span>; <span class="kw">for </span>AtomicI32, AtomicU32];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">32</span>; <span class="kw">for </span><a href="../../../../../devela/all/struct.AtomicI32.html">AtomicI32</a>, <a href="../../../../../devela/all/struct.AtomicU32.html">AtomicU32</a>];
 <span class="attr">#[cfg(all(feature = <span class="string">"work"</span>, any(feature = <span class="string">"dep_portable_atomic"</span>, target_has_atomic = <span class="string">"64"</span>)))]
-</span><span class="macro">bit_sized!</span>[= <span class="number">64</span>; <span class="kw">for </span>AtomicI64, AtomicU64];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">64</span>; <span class="kw">for </span><a href="../../../../../devela/all/struct.AtomicI64.html">AtomicI64</a>, <a href="../../../../../devela/all/struct.AtomicU64.html">AtomicU64</a>];
 <span class="attr">#[cfg(feature = <span class="string">"dep_portable_atomic"</span>)]
-</span><span class="macro">bit_sized!</span>[= <span class="number">32</span>; <span class="kw">for </span>AtomicF32];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">32</span>; <span class="kw">for </span><a href="../../../../../devela/all/struct.AtomicF32.html">AtomicF32</a>];
 <span class="attr">#[cfg(feature = <span class="string">"dep_portable_atomic"</span>)]
-</span><span class="macro">bit_sized!</span>[= <span class="number">64</span>; <span class="kw">for </span>AtomicF64];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">64</span>; <span class="kw">for </span><a href="../../../../../devela/all/struct.AtomicF64.html">AtomicF64</a>];
 <span class="attr">#[cfg(feature = <span class="string">"dep_portable_atomic"</span>)]
-</span><span class="macro">bit_sized!</span>[= <span class="number">128</span>; <span class="kw">for </span>AtomicI128, AtomicU128];
+</span><a class="macro" href="#102-170">bit_sized!</a>[= <span class="number">128</span>; <span class="kw">for </span><a href="../../../../../devela/all/struct.AtomicI128.html">AtomicI128</a>, <a href="../../../../../devela/all/struct.AtomicU128.html">AtomicU128</a>];
 
 <span class="attr">#[cfg(feature = <span class="string">"_string_nonul"</span>)]
-</span><span class="macro">bit_sized!</span>[&lt;<span class="kw">const </span>LEN: usize&gt; = LEN; <span class="kw">for </span>GraphemeNonul&lt;LEN&gt;, StringNonul&lt;LEN&gt;];
+</span><a class="macro" href="#102-170">bit_sized!</a>[&lt;<span class="kw">const </span>LEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; = LEN; <span class="kw">for </span><a href="../../../text/grapheme/nonul.rs.html#29">GraphemeNonul</a>&lt;<a href="#222">LEN</a>&gt;, <a href="../../../text/str/nonul.rs.html#65-67">StringNonul</a>&lt;<a href="#222">LEN</a>&gt;];
 <span class="comment">// WAIT: [generic_const_exprs](https://github.com/rust-lang/rust/issues/76560#issuecomment-1202124275)
 // bit_sized![&lt;const LEN: usize&gt; = { LEN + 8 }; for StringU8&lt;LEN&gt;, GraphemeU8&lt;LEN&gt;];
 // bit_sized![&lt;const LEN: usize&gt; = { LEN + 16 }; for StringU16&lt;LEN&gt;];
@@ -521,25 +553,25 @@
 <span class="attr">#[cfg(target_pointer_width = <span class="string">"32"</span>)]
 </span><span class="macro">bit_sized!</span>[pointer = <span class="number">32</span>];
 <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
-</span><span class="macro">bit_sized!</span>[pointer = <span class="number">64</span>];
+</span><a class="macro" href="#102-170">bit_sized!</a>[pointer = <span class="number">64</span>];
 <span class="attr">#[cfg(target_pointer_width = <span class="string">"128"</span>)]
 </span><span class="macro">bit_sized!</span>[pointer = <span class="number">128</span>];
 
 <span class="comment">// THINK: IMPROVE use const generics?
-</span><span class="macro">bit_sized!</span>[array = <span class="number">8 </span>* len <span class="kw">for </span>T: <span class="number">8 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>];
-<span class="macro">bit_sized!</span>[array = <span class="number">16 </span>* len <span class="kw">for </span>T: <span class="number">16 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>];
-<span class="macro">bit_sized!</span>[array = <span class="number">24 </span>* len <span class="kw">for </span>T: <span class="number">24 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
-</span><span class="macro">bit_sized!</span>[array = <span class="number">32 </span>* len <span class="kw">for </span>T: <span class="number">32 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>];
-<span class="macro">bit_sized!</span>[array = <span class="number">40 </span>* len <span class="kw">for </span>T: <span class="number">40 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
-</span><span class="macro">bit_sized!</span>[array = <span class="number">48 </span>* len <span class="kw">for </span>T: <span class="number">48 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
-</span><span class="macro">bit_sized!</span>[array = <span class="number">56 </span>* len <span class="kw">for </span>T: <span class="number">56 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
-</span><span class="macro">bit_sized!</span>[array = <span class="number">64 </span>* len <span class="kw">for </span>T: <span class="number">64 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>];
-<span class="macro">bit_sized!</span>[array = <span class="number">72 </span>* len <span class="kw">for </span>T: <span class="number">72 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
-</span><span class="macro">bit_sized!</span>[array = <span class="number">80 </span>* len <span class="kw">for </span>T: <span class="number">80 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
-</span><span class="macro">bit_sized!</span>[array = <span class="number">88 </span>* len <span class="kw">for </span>T: <span class="number">88 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
-</span><span class="macro">bit_sized!</span>[array = <span class="number">96 </span>* len <span class="kw">for </span>T: <span class="number">96 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
-</span><span class="macro">bit_sized!</span>[array = <span class="number">104 </span>* len <span class="kw">for </span>T: <span class="number">104 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
-</span><span class="macro">bit_sized!</span>[array = <span class="number">112 </span>* len <span class="kw">for </span>T: <span class="number">112 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
-</span><span class="macro">bit_sized!</span>[array = <span class="number">120 </span>* len <span class="kw">for </span>T: <span class="number">120 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
-</span><span class="macro">bit_sized!</span>[array = <span class="number">128 </span>* len <span class="kw">for </span>T: <span class="number">128 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>];
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">8 </span>* len <span class="kw">for </span>T: <span class="number">8 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>];
+<a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">16 </span>* len <span class="kw">for </span>T: <span class="number">16 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>];
+<a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">24 </span>* len <span class="kw">for </span>T: <span class="number">24 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">32 </span>* len <span class="kw">for </span>T: <span class="number">32 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>];
+<a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">40 </span>* len <span class="kw">for </span>T: <span class="number">40 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">48 </span>* len <span class="kw">for </span>T: <span class="number">48 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">56 </span>* len <span class="kw">for </span>T: <span class="number">56 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">64 </span>* len <span class="kw">for </span>T: <span class="number">64 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>];
+<a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">72 </span>* len <span class="kw">for </span>T: <span class="number">72 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">80 </span>* len <span class="kw">for </span>T: <span class="number">80 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">88 </span>* len <span class="kw">for </span>T: <span class="number">88 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">96 </span>* len <span class="kw">for </span>T: <span class="number">96 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">104 </span>* len <span class="kw">for </span>T: <span class="number">104 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">112 </span>* len <span class="kw">for </span>T: <span class="number">112 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">120 </span>* len <span class="kw">for </span>T: <span class="number">120 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>]; <span class="comment">// *
+</span><a class="macro" href="#102-170">bit_sized!</a>[array = <span class="number">128 </span>* len <span class="kw">for </span>T: <span class="number">128 </span>* len: <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>];
 </code></pre></div></section></main></body></html>

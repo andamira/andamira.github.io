@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["add_watch","init","inotify_add_watch","inotify_init","inotify_remove_watch","remove_watch"],"struct":["CreateFlags","InotifyEvent","ReadFlags","Reader","WatchFlags"]};

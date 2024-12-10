@@ -1,25 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/rand/xorshift/u128.rs`."><title>u128.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-dbdb5eec.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (c44b3d50f 2024-12-03)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/rand/xorshift/u128.rs`."><title>u128.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-
-<!-- To automatically render math in text elements, include the auto-render extension: -->
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "\\(", right: "\\)", display: false},
-                {left: "$", right: "$", display: false},
-                {left: "\\[", right: "\\]", display: true}
-            ]
-        });
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
     });
+  });
+</script>
+
+<!-- https://katex.org/docs/issues.html#css-customization -->
+<style>
+    .katex-display { overflow: hidden; }
+    .docblock p { overflow-y: hidden; }
+</style>
+
+<!-- https://katex.org/docs/browser.html#starter-template -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<!-- https://katex.org/docs/autorender.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      // trust: true, // https://katex.org/docs/options
+      trust: (context) => context.command === "\\href",
+    });
+  });
 </script>
 
 <!-- https://katex.org/docs/issues.html#css-customization -->
@@ -455,44 +491,44 @@
 </span><span class="doccomment">//! 128-bit versions of XorShift generators.
 </span><span class="comment">//
 
-</span><span class="kw">use crate</span>::{Cast, ConstDefault, Own};
+</span><span class="kw">use crate</span>::{<a href="../../primitive/namespace.rs.html#7">Cast</a>, <a href="../../../code/default.rs.html#9-12">ConstDefault</a>, <a href="../../../code/result/own/mod.rs.html#110-116">Own</a>};
 
 <span class="doccomment">/// The `XorShift128` pseudo-random number generator.
 ///
 /// It has a 128-bit state and generates 64-bit numbers.
 </span><span class="attr">#[must_use]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>XorShift128([u32; <span class="number">4</span>]);
+</span><span class="kw">pub struct </span><a href="../../../../../devela/num/rand/struct.XorShift128.html">XorShift128</a>([<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>; <span class="number">4</span>]);
 
-<span class="kw">impl </span>Default <span class="kw">for </span>XorShift128 {
+<span class="kw">impl </span><a href="../../../../../devela/_core/default/trait.Default.html">Default</a> <span class="kw">for </span><a href="#13">XorShift128</a> {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::DEFAULT
     }
 }
-<span class="kw">impl </span>ConstDefault <span class="kw">for </span>XorShift128 {
-    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="self">Self</span>::new_unchecked(<span class="self">Self</span>::DEFAULT_SEED);
+<span class="kw">impl </span><a href="../../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#13">XorShift128</a> {
+    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="#54-57"><span class="self">Self</span>::new_unchecked</a>(<span class="self">Self</span>::DEFAULT_SEED);
 }
 
 <span class="comment">// private associated items
-</span><span class="kw">impl </span>XorShift128 {
-    <span class="kw">const </span>DEFAULT_SEED: [u32; <span class="number">4</span>] = [<span class="number">0xDEFA_0017</span>; <span class="number">4</span>];
+</span><span class="kw">impl </span><a href="#13">XorShift128</a> {
+    <span class="kw">const </span>DEFAULT_SEED: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>; <span class="number">4</span>] = [<span class="number">0xDEFA_0017</span>; <span class="number">4</span>];
 
     <span class="attr">#[cold] #[rustfmt::skip]
-    </span><span class="kw">const fn </span>cold_path_result() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; { <span class="prelude-val">None </span>}
+    </span><span class="kw">const fn </span>cold_path_result() -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; { <span class="prelude-val">None </span>}
     <span class="attr">#[cold] #[allow(dead_code)] #[rustfmt::skip]
-    </span><span class="kw">const fn </span>cold_path_default() -&gt; <span class="self">Self </span>{ <span class="self">Self</span>::new_unchecked(<span class="self">Self</span>::DEFAULT_SEED) }
+    </span><span class="kw">const fn </span>cold_path_default() -&gt; <span class="self">Self </span>{ <a href="#54-57"><span class="self">Self</span>::new_unchecked</a>(<span class="self">Self</span>::DEFAULT_SEED) }
 }
 
-<span class="kw">impl </span>XorShift128 {
+<span class="kw">impl </span><a href="#13">XorShift128</a> {
     <span class="doccomment">/// Returns a seeded `XorShift128` generator from the given 4 × 32-bit seeds.
     ///
     /// Returns `None` if all given seeds are `0`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(seeds: [u32; <span class="number">4</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub const fn </span>new(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>; <span class="number">4</span>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">if </span>(seeds[<span class="number">0</span>] | seeds[<span class="number">1</span>] | seeds[<span class="number">2</span>] | seeds[<span class="number">3</span>]) == <span class="number">0 </span>{
-            <span class="self">Self</span>::cold_path_result()
+            <a href="#29"><span class="self">Self</span>::cold_path_result</a>()
         } <span class="kw">else </span>{
-            <span class="prelude-val">Some</span>(<span class="self">Self</span>([seeds[<span class="number">0</span>], seeds[<span class="number">1</span>], seeds[<span class="number">2</span>], seeds[<span class="number">3</span>]]))
+            <span class="prelude-val">Some</span>(<span class="self">Self</span>([<a href="#39">seeds</a>[<span class="number">0</span>], <a href="#39">seeds</a>[<span class="number">1</span>], <a href="#39">seeds</a>[<span class="number">2</span>], <a href="#39">seeds</a>[<span class="number">3</span>]]))
         }
     }
 
@@ -503,104 +539,104 @@
     ///
     /// # Panics
     /// Panics in debug if the seeds are all `0`.
-    </span><span class="kw">pub const fn </span>new_unchecked(seeds: [u32; <span class="number">4</span>]) -&gt; <span class="self">Self </span>{
-        <span class="macro">debug_assert!</span>[(seeds[<span class="number">0</span>] | seeds[<span class="number">1</span>] | seeds[<span class="number">2</span>] | seeds[<span class="number">3</span>]) != <span class="number">0</span>, <span class="string">"Seeds must be non-zero"</span>];
-        <span class="self">Self</span>(seeds)
+    </span><span class="kw">pub const fn </span>new_unchecked(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>; <span class="number">4</span>]) -&gt; <span class="self">Self </span>{
+        <a class="macro" href="../../../../../devela/_core/macro.debug_assert.html">debug_assert!</a>[(seeds[<span class="number">0</span>] | seeds[<span class="number">1</span>] | seeds[<span class="number">2</span>] | seeds[<span class="number">3</span>]) != <span class="number">0</span>, <span class="string">"Seeds must be non-zero"</span>];
+        <span class="self">Self</span>(<a href="#54">seeds</a>)
     }
 
     <span class="doccomment">/// Returns the current random `u64`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>current_u64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
-        ((<span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] <span class="kw">as </span>u64) &lt;&lt; <span class="number">32</span>) | (<span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] <span class="kw">as </span>u64)
+    </span><span class="kw">pub const fn </span>current_u64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+        ((<a class="self" href="#61">self</a>.<span class="number">0</span>[<span class="number">0</span>] <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) &lt;&lt; <span class="number">32</span>) | (<a class="self" href="#61">self</a>.<span class="number">0</span>[<span class="number">1</span>] <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>)
     }
 
     <span class="doccomment">/// Returns the next random `u64`.
     </span><span class="comment">// Note how the output of the RNG is computed before updating the state,
     // unlike on Xoroshiro128pp, for example.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-        <span class="kw">let </span>t = <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>];
-        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>];
-        <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>] = <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>];
-        <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>] = <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>];
-        <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] = s;
-        s ^= s &lt;&lt; <span class="number">11</span>;
-        s ^= s &gt;&gt; <span class="number">8</span>;
-        <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] = s ^ t ^ (t &gt;&gt; <span class="number">19</span>);
+    </span><span class="kw">pub fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+        <span class="kw">let </span>t = <a class="self" href="#69">self</a>.<span class="number">0</span>[<span class="number">3</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <a class="self" href="#69">self</a>.<span class="number">0</span>[<span class="number">0</span>];
+        <a class="self" href="#69">self</a>.<span class="number">0</span>[<span class="number">3</span>] = <a class="self" href="#69">self</a>.<span class="number">0</span>[<span class="number">2</span>];
+        <a class="self" href="#69">self</a>.<span class="number">0</span>[<span class="number">2</span>] = <a class="self" href="#69">self</a>.<span class="number">0</span>[<span class="number">1</span>];
+        <a class="self" href="#69">self</a>.<span class="number">0</span>[<span class="number">1</span>] = <a href="#71">s</a>;
+        <a href="#71">s</a> ^= <a href="#71">s</a> &lt;&lt; <span class="number">11</span>;
+        <a href="#71">s</a> ^= <a href="#71">s</a> &gt;&gt; <span class="number">8</span>;
+        <a class="self" href="#69">self</a>.<span class="number">0</span>[<span class="number">0</span>] = <a href="#71">s</a> ^ <a href="#70">t</a> ^ (<a href="#70">t</a> &gt;&gt; <span class="number">19</span>);
 
-        ((<span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] <span class="kw">as </span>u64) &lt;&lt; <span class="number">32</span>) | (<span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] <span class="kw">as </span>u64)
+        ((<a class="self" href="#69">self</a>.<span class="number">0</span>[<span class="number">0</span>] <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) &lt;&lt; <span class="number">32</span>) | (<a class="self" href="#69">self</a>.<span class="number">0</span>[<span class="number">1</span>] <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>)
     }
 
     <span class="doccomment">/// Returns a copy of the next new random state.
     </span><span class="kw">pub const fn </span>next_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>x = <span class="self">self</span>.<span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>x = <a class="self" href="#83">self</a>.<span class="number">0</span>;
 
-        <span class="kw">let </span>t = x[<span class="number">3</span>];
-        <span class="kw">let </span><span class="kw-2">mut </span>s = x[<span class="number">0</span>];
-        x[<span class="number">3</span>] = x[<span class="number">2</span>];
-        x[<span class="number">2</span>] = x[<span class="number">1</span>];
-        x[<span class="number">1</span>] = s;
-        s ^= s &lt;&lt; <span class="number">11</span>;
-        s ^= s &gt;&gt; <span class="number">8</span>;
-        x[<span class="number">0</span>] = s ^ t ^ (t &gt;&gt; <span class="number">19</span>);
+        <span class="kw">let </span>t = <a href="#84">x</a>[<span class="number">3</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <a href="#84">x</a>[<span class="number">0</span>];
+        <a href="#84">x</a>[<span class="number">3</span>] = <a href="#84">x</a>[<span class="number">2</span>];
+        <a href="#84">x</a>[<span class="number">2</span>] = <a href="#84">x</a>[<span class="number">1</span>];
+        <a href="#84">x</a>[<span class="number">1</span>] = <a href="#87">s</a>;
+        <a href="#87">s</a> ^= <a href="#87">s</a> &lt;&lt; <span class="number">11</span>;
+        <a href="#87">s</a> ^= <a href="#87">s</a> &gt;&gt; <span class="number">8</span>;
+        <a href="#84">x</a>[<span class="number">0</span>] = <a href="#87">s</a> ^ <a href="#86">t</a> ^ (<a href="#86">t</a> &gt;&gt; <span class="number">19</span>);
 
-        <span class="self">Self</span>(x)
+        <span class="self">Self</span>(<a href="#84">x</a>)
     }
 
     <span class="doccomment">/// Returns both the next random state and the `u64` value.
-    </span><span class="kw">pub const fn </span>own_next_u64(<span class="self">self</span>) -&gt; Own&lt;<span class="self">Self</span>, u64&gt; {
-        <span class="kw">let </span>s = <span class="self">self</span>.next_state();
-        <span class="kw">let </span>v = s.current_u64();
-        Own::new(s, v)
+    </span><span class="kw">pub const fn </span>own_next_u64(<span class="self">self</span>) -&gt; <a href="../../../code/result/own/mod.rs.html#110-116">Own</a>&lt;<span class="self">Self</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt; {
+        <span class="kw">let </span>s = <a class="self" href="#99">self</a>.<a href="#83-96">next_state</a>();
+        <span class="kw">let </span>v = <a href="#100">s</a>.<a href="#61-63">current_u64</a>();
+        <a href="../../../code/result/own/general.rs.html#21-23">Own::new</a>(<a href="#100">s</a>, <a href="#101">v</a>)
     }
 }
 
 <span class="doccomment">/// # Extra constructors
-</span><span class="kw">impl </span>XorShift128 {
+</span><span class="kw">impl </span><a href="#13">XorShift128</a> {
     <span class="doccomment">/// Returns a seeded `XorShift128` generator from the given 128-bit seed.
     ///
     /// The seeds will be split in little endian order.
-    </span><span class="kw">pub const fn </span>new1_u128(seed: u128) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">Self</span>::new(Cast(seed).into_u32_le())
+    </span><span class="kw">pub const fn </span>new1_u128(seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+        <a href="#39-45"><span class="self">Self</span>::new</a>(<a href="../../primitive/namespace.rs.html#7">Cast</a>(<a href="#111">seed</a>).<a href="../../primitive/split.rs.html#227-233">into_u32_le</a>())
     }
 
     <span class="doccomment">/// Returns a seeded `XorShift128` generator from the given 2 × 64-bit seeds.
     ///
     /// The seeds will be split in little endian order.
-    </span><span class="kw">pub const fn </span>new2_u64(seeds: [u64; <span class="number">2</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span>[x, y] = Cast(seeds[<span class="number">0</span>]).into_u32_le();
-        <span class="kw">let </span>[z, a] = Cast(seeds[<span class="number">1</span>]).into_u32_le();
-        <span class="self">Self</span>::new([x, y, z, a])
+    </span><span class="kw">pub const fn </span>new2_u64(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">2</span>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>[x, y] = <a href="../../primitive/namespace.rs.html#7">Cast</a>(<a href="#118">seeds</a>[<span class="number">0</span>]).<a href="../../primitive/split.rs.html#121-125">into_u32_le</a>();
+        <span class="kw">let </span>[z, a] = <a href="../../primitive/namespace.rs.html#7">Cast</a>(<a href="#118">seeds</a>[<span class="number">1</span>]).<a href="../../primitive/split.rs.html#121-125">into_u32_le</a>();
+        <a href="#39-45"><span class="self">Self</span>::new</a>([<a href="#119">x</a>, <a href="#119">y</a>, <a href="#120">z</a>, <a href="#120">a</a>])
     }
 
     <span class="doccomment">/// Returns a seeded `XorShift128` generator from the given 4 × 32-bit seeds.
     ///
     /// This is an alias of [`new`][Self#method.new].
-    </span><span class="kw">pub const fn </span>new4_u32(seeds: [u32; <span class="number">4</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">Self</span>::new(seeds)
+    </span><span class="kw">pub const fn </span>new4_u32(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>; <span class="number">4</span>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+        <a href="#39-45"><span class="self">Self</span>::new</a>(<a href="#127">seeds</a>)
     }
 
     <span class="doccomment">/// Returns a seeded `XorShift128` generator from the given 8 × 16-bit seeds.
     ///
     /// The seeds will be joined in little endian order.
-    </span><span class="kw">pub const fn </span>new8_u16(seeds: [u16; <span class="number">8</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">Self</span>::new([
-            Cast::&lt;u32&gt;::from_u16_le([seeds[<span class="number">0</span>], seeds[<span class="number">1</span>]]),
-            Cast::&lt;u32&gt;::from_u16_le([seeds[<span class="number">2</span>], seeds[<span class="number">3</span>]]),
-            Cast::&lt;u32&gt;::from_u16_le([seeds[<span class="number">4</span>], seeds[<span class="number">5</span>]]),
-            Cast::&lt;u32&gt;::from_u16_le([seeds[<span class="number">6</span>], seeds[<span class="number">7</span>]]),
+    </span><span class="kw">pub const fn </span>new8_u16(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>; <span class="number">8</span>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+        <a href="#39-45"><span class="self">Self</span>::new</a>([
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u16_le([<a href="#134">seeds</a>[<span class="number">0</span>], <a href="#134">seeds</a>[<span class="number">1</span>]]),
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u16_le([<a href="#134">seeds</a>[<span class="number">2</span>], <a href="#134">seeds</a>[<span class="number">3</span>]]),
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u16_le([<a href="#134">seeds</a>[<span class="number">4</span>], <a href="#134">seeds</a>[<span class="number">5</span>]]),
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u16_le([<a href="#134">seeds</a>[<span class="number">6</span>], <a href="#134">seeds</a>[<span class="number">7</span>]]),
         ])
     }
 
     <span class="doccomment">/// Returns a seeded `XorShift128` generator from the given 16 × 8-bit seeds.
     ///
     /// The seeds will be joined in little endian order.
-    </span><span class="kw">pub const fn </span>new16_u8(seeds: [u8; <span class="number">16</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">Self</span>::new([
-            Cast::&lt;u32&gt;::from_u8_le([seeds[<span class="number">0</span>], seeds[<span class="number">1</span>], seeds[<span class="number">2</span>], seeds[<span class="number">3</span>]]),
-            Cast::&lt;u32&gt;::from_u8_le([seeds[<span class="number">4</span>], seeds[<span class="number">5</span>], seeds[<span class="number">6</span>], seeds[<span class="number">7</span>]]),
-            Cast::&lt;u32&gt;::from_u8_le([seeds[<span class="number">8</span>], seeds[<span class="number">9</span>], seeds[<span class="number">10</span>], seeds[<span class="number">11</span>]]),
-            Cast::&lt;u32&gt;::from_u8_le([seeds[<span class="number">12</span>], seeds[<span class="number">13</span>], seeds[<span class="number">14</span>], seeds[<span class="number">15</span>]]),
+    </span><span class="kw">pub const fn </span>new16_u8(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">16</span>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+        <a href="#39-45"><span class="self">Self</span>::new</a>([
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u8_le([<a href="#146">seeds</a>[<span class="number">0</span>], <a href="#146">seeds</a>[<span class="number">1</span>], <a href="#146">seeds</a>[<span class="number">2</span>], <a href="#146">seeds</a>[<span class="number">3</span>]]),
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u8_le([<a href="#146">seeds</a>[<span class="number">4</span>], <a href="#146">seeds</a>[<span class="number">5</span>], <a href="#146">seeds</a>[<span class="number">6</span>], <a href="#146">seeds</a>[<span class="number">7</span>]]),
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u8_le([<a href="#146">seeds</a>[<span class="number">8</span>], <a href="#146">seeds</a>[<span class="number">9</span>], <a href="#146">seeds</a>[<span class="number">10</span>], <a href="#146">seeds</a>[<span class="number">11</span>]]),
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u8_le([<a href="#146">seeds</a>[<span class="number">12</span>], <a href="#146">seeds</a>[<span class="number">13</span>], <a href="#146">seeds</a>[<span class="number">14</span>], <a href="#146">seeds</a>[<span class="number">15</span>]]),
         ])
     }
 }
@@ -613,37 +649,37 @@
 /// [`XorShift128`].
 </span><span class="attr">#[must_use]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>XorShift128p([u64; <span class="number">2</span>]);
+</span><span class="kw">pub struct </span><a href="../../../../../devela/num/rand/struct.XorShift128p.html">XorShift128p</a>([<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">2</span>]);
 
-<span class="kw">impl </span>Default <span class="kw">for </span>XorShift128p {
+<span class="kw">impl </span><a href="../../../../../devela/_core/default/trait.Default.html">Default</a> <span class="kw">for </span><a href="#164">XorShift128p</a> {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::DEFAULT
     }
 }
-<span class="kw">impl </span>ConstDefault <span class="kw">for </span>XorShift128p {
-    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="self">Self</span>::new_unchecked(<span class="self">Self</span>::DEFAULT_SEED);
+<span class="kw">impl </span><a href="../../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#164">XorShift128p</a> {
+    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="#205-208"><span class="self">Self</span>::new_unchecked</a>(<span class="self">Self</span>::DEFAULT_SEED);
 }
 
 <span class="comment">// private associated items
-</span><span class="kw">impl </span>XorShift128p {
-    <span class="kw">const </span>DEFAULT_SEED: [u64; <span class="number">2</span>] = [<span class="number">0xDEFA_0017_DEFA_0017</span>; <span class="number">2</span>];
+</span><span class="kw">impl </span><a href="#164">XorShift128p</a> {
+    <span class="kw">const </span>DEFAULT_SEED: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">2</span>] = [<span class="number">0xDEFA_0017_DEFA_0017</span>; <span class="number">2</span>];
 
     <span class="attr">#[cold] #[rustfmt::skip]
-    </span><span class="kw">const fn </span>cold_path_result() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; { <span class="prelude-val">None </span>}
+    </span><span class="kw">const fn </span>cold_path_result() -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; { <span class="prelude-val">None </span>}
     <span class="attr">#[cold] #[allow(dead_code)] #[rustfmt::skip]
-    </span><span class="kw">const fn </span>cold_path_default() -&gt; <span class="self">Self </span>{ <span class="self">Self</span>::new_unchecked(<span class="self">Self</span>::DEFAULT_SEED) }
+    </span><span class="kw">const fn </span>cold_path_default() -&gt; <span class="self">Self </span>{ <a href="#205-208"><span class="self">Self</span>::new_unchecked</a>(<span class="self">Self</span>::DEFAULT_SEED) }
 }
 
-<span class="kw">impl </span>XorShift128p {
+<span class="kw">impl </span><a href="#164">XorShift128p</a> {
     <span class="doccomment">/// Returns a seeded `XorShift128+` generator from the given 2 × 64-bit seeds.
     ///
     /// Returns `None` if all given seeds are `0`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(seeds: [u64; <span class="number">2</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub const fn </span>new(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">2</span>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">if </span>(seeds[<span class="number">0</span>] | seeds[<span class="number">1</span>]) == <span class="number">0 </span>{
-            <span class="self">Self</span>::cold_path_result()
+            <a href="#180"><span class="self">Self</span>::cold_path_result</a>()
         } <span class="kw">else </span>{
-            <span class="prelude-val">Some</span>(<span class="self">Self</span>(seeds))
+            <span class="prelude-val">Some</span>(<span class="self">Self</span>(<a href="#190">seeds</a>))
         }
     }
 
@@ -654,94 +690,94 @@
     ///
     /// # Panics
     /// Panics in debug if the seeds are all `0`.
-    </span><span class="kw">pub const fn </span>new_unchecked(seeds: [u64; <span class="number">2</span>]) -&gt; <span class="self">Self </span>{
-        <span class="macro">debug_assert!</span>[(seeds[<span class="number">0</span>] | seeds[<span class="number">1</span>]) != <span class="number">0</span>, <span class="string">"Seeds must be non-zero"</span>];
-        <span class="self">Self</span>(seeds)
+    </span><span class="kw">pub const fn </span>new_unchecked(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">2</span>]) -&gt; <span class="self">Self </span>{
+        <a class="macro" href="../../../../../devela/_core/macro.debug_assert.html">debug_assert!</a>[(seeds[<span class="number">0</span>] | seeds[<span class="number">1</span>]) != <span class="number">0</span>, <span class="string">"Seeds must be non-zero"</span>];
+        <span class="self">Self</span>(<a href="#205">seeds</a>)
     }
 
     <span class="doccomment">/// Returns the current random `u64`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>current_u64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
-        <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>].wrapping_add(<span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>])
+    </span><span class="kw">pub const fn </span>current_u64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+        <a class="self" href="#212">self</a>.<span class="number">0</span>[<span class="number">0</span>].<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#212">self</a>.<span class="number">0</span>[<span class="number">1</span>])
     }
 
     <span class="doccomment">/// Returns the next random `u64`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-        <span class="kw">let </span>[s0, <span class="kw-2">mut </span>s1] = [<span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>], <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>]];
-        <span class="kw">let </span>result = s0.wrapping_add(s1);
+    </span><span class="kw">pub fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+        <span class="kw">let </span>[s0, <span class="kw-2">mut </span>s1] = [<a class="self" href="#218">self</a>.<span class="number">0</span>[<span class="number">0</span>], <a class="self" href="#218">self</a>.<span class="number">0</span>[<span class="number">1</span>]];
+        <span class="kw">let </span>result = <a href="#219">s0</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#219">s1</a>);
 
-        s1 ^= s0;
-        <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] = s0.rotate_left(<span class="number">55</span>) ^ s1 ^ (s1 &lt;&lt; <span class="number">14</span>); <span class="comment">// a, b
-        </span><span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] = s1.rotate_left(<span class="number">36</span>); <span class="comment">// c
+        <a href="#219">s1</a> ^= <a href="#219">s0</a>;
+        <a class="self" href="#218">self</a>.<span class="number">0</span>[<span class="number">0</span>] = <a href="#219">s0</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.rotate_left">rotate_left</a>(<span class="number">55</span>) ^ <a href="#219">s1</a> ^ (<a href="#219">s1</a> &lt;&lt; <span class="number">14</span>); <span class="comment">// a, b
+        </span><a class="self" href="#218">self</a>.<span class="number">0</span>[<span class="number">1</span>] = <a href="#219">s1</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.rotate_left">rotate_left</a>(<span class="number">36</span>); <span class="comment">// c
 
-        </span>result
+        </span><a href="#220">result</a>
     }
 
     <span class="doccomment">/// Returns a copy of the next new random state.
     </span><span class="kw">pub const fn </span>next_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>x = <span class="self">self</span>.<span class="number">0</span>;
-        <span class="kw">let </span>[s0, <span class="kw-2">mut </span>s1] = [x[<span class="number">0</span>], x[<span class="number">1</span>]];
+        <span class="kw">let </span><span class="kw-2">mut </span>x = <a class="self" href="#230">self</a>.<span class="number">0</span>;
+        <span class="kw">let </span>[s0, <span class="kw-2">mut </span>s1] = [<a href="#231">x</a>[<span class="number">0</span>], <a href="#231">x</a>[<span class="number">1</span>]];
 
-        s1 ^= s0;
-        x[<span class="number">0</span>] = s0.rotate_left(<span class="number">55</span>) ^ s1 ^ (s1 &lt;&lt; <span class="number">14</span>); <span class="comment">// a, b
-        </span>x[<span class="number">1</span>] = s1.rotate_left(<span class="number">36</span>); <span class="comment">// c
+        <a href="#232">s1</a> ^= <a href="#232">s0</a>;
+        <a href="#231">x</a>[<span class="number">0</span>] = <a href="#232">s0</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.rotate_left">rotate_left</a>(<span class="number">55</span>) ^ <a href="#232">s1</a> ^ (<a href="#232">s1</a> &lt;&lt; <span class="number">14</span>); <span class="comment">// a, b
+        </span><a href="#231">x</a>[<span class="number">1</span>] = <a href="#232">s1</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.rotate_left">rotate_left</a>(<span class="number">36</span>); <span class="comment">// c
 
-        </span><span class="self">Self</span>(x)
+        </span><span class="self">Self</span>(<a href="#231">x</a>)
     }
 
     <span class="doccomment">/// Returns both the next random state and the `u64` value.
-    </span><span class="kw">pub const fn </span>own_next_u64(<span class="self">self</span>) -&gt; Own&lt;<span class="self">Self</span>, u64&gt; {
-        <span class="kw">let </span>s = <span class="self">self</span>.next_state();
-        <span class="kw">let </span>v = s.current_u64();
-        Own::new(s, v)
+    </span><span class="kw">pub const fn </span>own_next_u64(<span class="self">self</span>) -&gt; <a href="../../../code/result/own/mod.rs.html#110-116">Own</a>&lt;<span class="self">Self</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt; {
+        <span class="kw">let </span>s = <a class="self" href="#242">self</a>.<a href="#230-239">next_state</a>();
+        <span class="kw">let </span>v = <a href="#243">s</a>.<a href="#212-214">current_u64</a>();
+        <a href="../../../code/result/own/general.rs.html#21-23">Own::new</a>(<a href="#243">s</a>, <a href="#244">v</a>)
     }
 }
 
 <span class="doccomment">/// # Extra constructors
-</span><span class="kw">impl </span>XorShift128p {
+</span><span class="kw">impl </span><a href="#164">XorShift128p</a> {
     <span class="doccomment">/// Returns a seeded `XorShift128+` generator from the given 128-bit seed.
     ///
     /// The seeds will be split in little endian order.
-    </span><span class="kw">pub const fn </span>new1_u128(seed: u128) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">Self</span>::new(Cast(seed).into_u64_le())
+    </span><span class="kw">pub const fn </span>new1_u128(seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+        <a href="#190-196"><span class="self">Self</span>::new</a>(<a href="../../primitive/namespace.rs.html#7">Cast</a>(<a href="#254">seed</a>).<a href="../../primitive/split.rs.html#199-203">into_u64_le</a>())
     }
 
     <span class="doccomment">/// Returns a seeded `XorShift128+` generator from the given 2 × 64-bit seeds.
     ///
     /// This is an alias of [`new`][Self#method.new].
-    </span><span class="kw">pub const fn </span>new2_u64(seeds: [u64; <span class="number">2</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">Self</span>::new(seeds)
+    </span><span class="kw">pub const fn </span>new2_u64(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">2</span>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+        <a href="#190-196"><span class="self">Self</span>::new</a>(<a href="#261">seeds</a>)
     }
 
     <span class="doccomment">/// Returns a seeded `XorShift128+` generator from the given 4 × 32-bit seeds.
     ///
     /// The seeds will be joined in little endian order.
-    </span><span class="kw">pub const fn </span>new4_u32(seeds: [u32; <span class="number">4</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">Self</span>::new([
-            Cast::&lt;u64&gt;::from_u32_le([seeds[<span class="number">0</span>], seeds[<span class="number">1</span>]]),
-            Cast::&lt;u64&gt;::from_u32_le([seeds[<span class="number">2</span>], seeds[<span class="number">3</span>]]),
+    </span><span class="kw">pub const fn </span>new4_u32(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>; <span class="number">4</span>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+        <a href="#190-196"><span class="self">Self</span>::new</a>([
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u32_le([<a href="#268">seeds</a>[<span class="number">0</span>], <a href="#268">seeds</a>[<span class="number">1</span>]]),
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u32_le([<a href="#268">seeds</a>[<span class="number">2</span>], <a href="#268">seeds</a>[<span class="number">3</span>]]),
         ])
     }
 
     <span class="doccomment">/// Returns a seeded `XorShift128+` generator from the given 8 × 16-bit seeds.
     ///
     /// The seeds will be joined in little endian order.
-    </span><span class="kw">pub const fn </span>new8_u16(seeds: [u16; <span class="number">8</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">Self</span>::new([
-            Cast::&lt;u64&gt;::from_u16_le([seeds[<span class="number">0</span>], seeds[<span class="number">1</span>], seeds[<span class="number">2</span>], seeds[<span class="number">3</span>]]),
-            Cast::&lt;u64&gt;::from_u16_le([seeds[<span class="number">4</span>], seeds[<span class="number">5</span>], seeds[<span class="number">6</span>], seeds[<span class="number">7</span>]]),
+    </span><span class="kw">pub const fn </span>new8_u16(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>; <span class="number">8</span>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+        <a href="#190-196"><span class="self">Self</span>::new</a>([
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u16_le([<a href="#278">seeds</a>[<span class="number">0</span>], <a href="#278">seeds</a>[<span class="number">1</span>], <a href="#278">seeds</a>[<span class="number">2</span>], <a href="#278">seeds</a>[<span class="number">3</span>]]),
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u16_le([<a href="#278">seeds</a>[<span class="number">4</span>], <a href="#278">seeds</a>[<span class="number">5</span>], <a href="#278">seeds</a>[<span class="number">6</span>], <a href="#278">seeds</a>[<span class="number">7</span>]]),
         ])
     }
 
     <span class="doccomment">/// Returns a seeded `XorShift128` generator from the given 4 × 8-bit seeds.
     ///
     /// The seeds will be joined in little endian order.
-    </span><span class="kw">pub const fn </span>new16_u8(seeds: [u8; <span class="number">16</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span>s = seeds;
-        <span class="self">Self</span>::new([
-            Cast::&lt;u64&gt;::from_u8_le([s[<span class="number">0</span>], s[<span class="number">1</span>], s[<span class="number">2</span>], s[<span class="number">3</span>], s[<span class="number">4</span>], s[<span class="number">5</span>], s[<span class="number">6</span>], s[<span class="number">7</span>]]),
-            Cast::&lt;u64&gt;::from_u8_le([s[<span class="number">8</span>], s[<span class="number">9</span>], s[<span class="number">10</span>], s[<span class="number">11</span>], s[<span class="number">12</span>], s[<span class="number">13</span>], s[<span class="number">14</span>], s[<span class="number">15</span>]]),
+    </span><span class="kw">pub const fn </span>new16_u8(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">16</span>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>s = <a href="#288">seeds</a>;
+        <a href="#190-196"><span class="self">Self</span>::new</a>([
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u8_le([<a href="#289">s</a>[<span class="number">0</span>], <a href="#289">s</a>[<span class="number">1</span>], <a href="#289">s</a>[<span class="number">2</span>], <a href="#289">s</a>[<span class="number">3</span>], <a href="#289">s</a>[<span class="number">4</span>], <a href="#289">s</a>[<span class="number">5</span>], <a href="#289">s</a>[<span class="number">6</span>], <a href="#289">s</a>[<span class="number">7</span>]]),
+            <a href="../../primitive/namespace.rs.html#7">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u8_le([<a href="#289">s</a>[<span class="number">8</span>], <a href="#289">s</a>[<span class="number">9</span>], <a href="#289">s</a>[<span class="number">10</span>], <a href="#289">s</a>[<span class="number">11</span>], <a href="#289">s</a>[<span class="number">12</span>], <a href="#289">s</a>[<span class="number">13</span>], <a href="#289">s</a>[<span class="number">14</span>], <a href="#289">s</a>[<span class="number">15</span>]]),
         ])
     }
 }
@@ -749,22 +785,22 @@
 <span class="attr">#[cfg(feature = <span class="string">"dep_rand_core"</span>)]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"dep_rand_core"</span>)))]
 </span><span class="kw">mod </span>impl_rand {
-    <span class="kw">use super</span>::{XorShift128, XorShift128p};
-    <span class="kw">use </span><span class="kw">crate</span>::_dep::rand_core::{Error, RngCore, SeedableRng};
+    <span class="kw">use super</span>::{<a href="#13">XorShift128</a>, <a href="#164">XorShift128p</a>};
+    <span class="kw">use </span><span class="kw">crate</span>::_dep::rand_core::{<a href="../../../../../devela/_dep/rand_core/struct.Error.html">Error</a>, <a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a>, <a href="../../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a>};
 
-    <span class="kw">impl </span>RngCore <span class="kw">for </span>XorShift128 {
+    <span class="kw">impl </span><a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a> <span class="kw">for </span><a href="#13">XorShift128</a> {
         <span class="doccomment">/// Returns the next random `u32`,
         /// from the first 32-bits of `next_u64`.
-        </span><span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u32 {
-            (<span class="self">self</span>.next_u64() &amp; <span class="number">0xFFFF_FFFF</span>) <span class="kw">as </span>u32
+        </span><span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
+            (<a class="self" href="#306">self</a>.<a href="#69-80">next_u64</a>() &amp; <span class="number">0xFFFF_FFFF</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>
         }
 
         <span class="doccomment">/// Returns the next random `u64`.
-        </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-            <span class="self">self</span>.next_u64()
+        </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+            <a class="self" href="#311">self</a>.<a href="#69-80">next_u64</a>()
         }
 
-        <span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) {
+        <span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) {
             <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
             <span class="kw">while </span>i &lt; dest.len() {
                 <span class="kw">let </span>random_u64 = <span class="self">self</span>.next_u64();
@@ -781,21 +817,21 @@
             }
         }
 
-        <span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-            <span class="self">self</span>.fill_bytes(dest);
+        <span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), <a href="../../../../../devela/_dep/rand_core/struct.Error.html">Error</a>&gt; {
+            <a class="self" href="#332">self</a>.<a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">fill_bytes</a>(<a href="#332">dest</a>);
             <span class="prelude-val">Ok</span>(())
         }
     }
 
-    <span class="kw">impl </span>SeedableRng <span class="kw">for </span>XorShift128 {
-        <span class="kw">type </span>Seed = [u8; <span class="number">16</span>];
+    <span class="kw">impl </span><a href="../../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a> <span class="kw">for </span><a href="#13">XorShift128</a> {
+        <span class="kw">type </span>Seed = [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">16</span>];
 
         <span class="doccomment">/// When seeded with zero this implementation uses the default seed
         /// value as the cold path.
         </span><span class="kw">fn </span>from_seed(seed: <span class="self">Self</span>::Seed) -&gt; <span class="self">Self </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>seed_u32s = [<span class="number">0u32</span>; <span class="number">4</span>];
             <span class="kw">if </span>seed == [<span class="number">0</span>; <span class="number">16</span>] {
-                <span class="self">Self</span>::cold_path_default()
+                <a href="#31"><span class="self">Self</span>::cold_path_default</a>()
             } <span class="kw">else </span>{
                 <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
                     seed_u32s[i] = u32::from_le_bytes([
@@ -805,24 +841,24 @@
                         seed[i * <span class="number">4 </span>+ <span class="number">3</span>],
                     ]);
                 }
-                <span class="self">Self</span>::new_unchecked(seed_u32s)
+                <a href="#54-57"><span class="self">Self</span>::new_unchecked</a>(<a href="#344">seed_u32s</a>)
             }
         }
     }
 
-    <span class="kw">impl </span>RngCore <span class="kw">for </span>XorShift128p {
+    <span class="kw">impl </span><a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a> <span class="kw">for </span><a href="#164">XorShift128p</a> {
         <span class="doccomment">/// Returns the next random `u32`,
         /// from the first 32-bits of `next_u64`.
-        </span><span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u32 {
-            (<span class="self">self</span>.next_u64() &amp; <span class="number">0xFFFF_FFFF</span>) <span class="kw">as </span>u32
+        </span><span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
+            (<a class="self" href="#364">self</a>.<a href="#218-227">next_u64</a>() &amp; <span class="number">0xFFFF_FFFF</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>
         }
 
         <span class="doccomment">/// Returns the next random `u64`.
-        </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-            <span class="self">self</span>.next_u64()
+        </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+            <a class="self" href="#369">self</a>.<a href="#218-227">next_u64</a>()
         }
 
-        <span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) {
+        <span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) {
             <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
             <span class="kw">while </span>i &lt; dest.len() {
                 <span class="kw">let </span>random_u64 = <span class="self">self</span>.next_u64();
@@ -839,21 +875,21 @@
             }
         }
 
-        <span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-            <span class="self">self</span>.fill_bytes(dest);
+        <span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), <a href="../../../../../devela/_dep/rand_core/struct.Error.html">Error</a>&gt; {
+            <a class="self" href="#390">self</a>.<a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">fill_bytes</a>(<a href="#390">dest</a>);
             <span class="prelude-val">Ok</span>(())
         }
     }
 
-    <span class="kw">impl </span>SeedableRng <span class="kw">for </span>XorShift128p {
-        <span class="kw">type </span>Seed = [u8; <span class="number">16</span>];
+    <span class="kw">impl </span><a href="../../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a> <span class="kw">for </span><a href="#164">XorShift128p</a> {
+        <span class="kw">type </span>Seed = [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">16</span>];
 
         <span class="doccomment">/// When seeded with zero this implementation uses the default seed
         /// value as the cold path.
         </span><span class="kw">fn </span>from_seed(seed: <span class="self">Self</span>::Seed) -&gt; <span class="self">Self </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>seed_u64s = [<span class="number">0u64</span>; <span class="number">2</span>];
             <span class="kw">if </span>seed == [<span class="number">0</span>; <span class="number">16</span>] {
-                <span class="self">Self</span>::cold_path_default()
+                <a href="#182"><span class="self">Self</span>::cold_path_default</a>()
             } <span class="kw">else </span>{
                 <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">2 </span>{
                     seed_u64s[i] = u64::from_le_bytes([
@@ -867,7 +903,7 @@
                         seed[i * <span class="number">8 </span>+ <span class="number">7</span>],
                     ]);
                 }
-                <span class="self">Self</span>::new_unchecked(seed_u64s)
+                <a href="#205-208"><span class="self">Self</span>::new_unchecked</a>(<a href="#402">seed_u64s</a>)
             }
         }
     }
