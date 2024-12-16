@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/structs/termios.rs`."><title>termios.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/structs/termios.rs`."><title>termios.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (d4025ee45 2024-12-12)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
@@ -250,15 +250,13 @@
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::os::linux::structs::termios
+<a href="#186" id="186">186</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::os::linux::structs::termios
 
-</span><span class="kw">use </span><a href="../../../../../../devela/_core/ffi/type.c_uint.html">core::ffi::c_uint</a>;
+</span><span class="attr">#![cfg_attr(not(feature = <span class="string">"unsafe_syscall"</span>), allow(dead_code))]
+
+</span><span class="kw">use </span><a href="../../../../../../devela/_core/ffi/type.c_uint.html"><span class="kw">crate</span>::c_uint</a>;
 <span class="attr">#[cfg(all(feature = <span class="string">"unsafe_syscall"</span>, not(miri)))]
-</span><span class="kw">use </span>{
-    <span class="kw">super</span>::<span class="kw">super</span>::{<a href="../fns/syscalls/x86_64.rs.html#87-104">linux_sys_ioctl</a>, <a href="../consts/errno.rs.html#8">LINUX_ERRNO</a>, <a href="../consts/fd.rs.html#10">LINUX_FILENO</a>, <a href="../consts/ioctl.rs.html#11">LINUX_IOCTL</a>, <a href="../consts/termios.rs.html#25">LINUX_TERMIOS_LFLAG</a>},
-    <a href="../../../../code/macros/iif.rs.html#60-89"><span class="kw">crate</span>::code::iif</a>,
-};
+</span><span class="kw">use crate</span>::{<a href="../../../../code/util/iif.rs.html#60-89">iif</a>, <a href="../fns/syscalls/x86_64.rs.html#87-104">linux_sys_ioctl</a>, <a href="../consts/errno.rs.html#8">LINUX_ERRNO</a>, <a href="../consts/fd.rs.html#10">LINUX_FILENO</a>, <a href="../consts/ioctl.rs.html#11">LINUX_IOCTL</a>, <a href="../consts/termios.rs.html#25">LINUX_TERMIOS_LFLAG</a>};
 
 <span class="doccomment">/// Represents the [`termios`] structure from libc,
 /// used to control terminal I/O.
@@ -294,9 +292,9 @@
     doc(cfg(all(feature = <span class="string">"unsafe_syscall"</span>, feature = <span class="string">"dep_bytemuck"</span>)))
 )]
 #[cfg(all(feature = <span class="string">"unsafe_syscall"</span>, feature = <span class="string">"dep_bytemuck"</span>))]
-</span><span class="kw">unsafe impl </span><a href="../../../../../../devela/_dep/bytemuck/trait.NoUninit.html"><span class="kw">crate</span>::_dep::bytemuck::NoUninit</a> <span class="kw">for </span><a href="#19-37">LinuxTermios</a> {}
+</span><span class="kw">unsafe impl </span><a href="../../../../../../devela/_dep/bytemuck/trait.NoUninit.html"><span class="kw">crate</span>::_dep::bytemuck::NoUninit</a> <span class="kw">for </span><a href="#18-36">LinuxTermios</a> {}
 
-<span class="kw">impl </span><a href="#19-37">LinuxTermios</a> {
+<span class="kw">impl </span><a href="#18-36">LinuxTermios</a> {
     <span class="doccomment">/// Returns a new empty struct.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
@@ -313,13 +311,13 @@
     <span class="doccomment">/// Returns a raw byte pointer to self.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>as_bytes_ptr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*const </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
-        <span class="self"><a href="#62">self</a> </span><span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self </span><span class="kw">as </span><span class="kw-2">*const </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>
+        <span class="self"><a href="#61">self</a> </span><span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self </span><span class="kw">as </span><span class="kw-2">*const </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>
     }
 
     <span class="doccomment">/// Returns a raw mutable byte pointer to self.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>as_mut_bytes_ptr(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
-        <span class="self"><a href="#68">self</a> </span><span class="kw">as </span><span class="kw-2">*mut </span><span class="self">Self </span><span class="kw">as </span><span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>
+        <span class="self"><a href="#67">self</a> </span><span class="kw">as </span><span class="kw-2">*mut </span><span class="self">Self </span><span class="kw">as </span><span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>
     }
 }
 
@@ -335,19 +333,19 @@
     feature = <span class="string">"unsafe_syscall"</span>,
     not(miri),
 ))]
-</span><span class="kw">impl </span><a href="#19-37">LinuxTermios</a> {
+</span><span class="kw">impl </span><a href="#18-36">LinuxTermios</a> {
     <span class="doccomment">/// Gets the current termios state into `state`.
     ///
     /// # Errors
     /// In case of an error returns the [`LINUX_ERRNO`] value from [`linux_sys_ioctl`].
     </span><span class="attr">#[cfg(all(feature = <span class="string">"unsafe_syscall"</span>, not(miri)))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_syscall"</span>)))]
-    </span><span class="kw">pub fn </span>get_state() -&gt; <a class="prelude-ty" href="../../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<a href="#19-37">LinuxTermios</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>state = <a href="#49-58">LinuxTermios::new</a>();
+    </span><span class="kw">pub fn </span>get_state() -&gt; <a class="prelude-ty" href="../../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<a href="#18-36">LinuxTermios</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>state = <a href="#48-57">LinuxTermios::new</a>();
         <span class="kw">let </span>res = <span class="kw">unsafe </span>{
-            <a href="../fns/syscalls/x86_64.rs.html#87-104">linux_sys_ioctl</a>(LINUX_FILENO::STDIN, LINUX_IOCTL::TCGETS, <a href="#93">state</a>.<a href="#68-70">as_mut_bytes_ptr</a>())
+            <a href="../fns/syscalls/x86_64.rs.html#87-104">linux_sys_ioctl</a>(LINUX_FILENO::STDIN, LINUX_IOCTL::TCGETS, <a href="#92">state</a>.<a href="#67-69">as_mut_bytes_ptr</a>())
         };
-        <a class="macro" href="../../../../code/macros/iif.rs.html#60-89">iif!</a>[res &gt;= <span class="number">0</span>; <span class="prelude-val">Ok</span>(state); <span class="prelude-val">Err</span>(res)]
+        <a class="macro" href="../../../../code/util/iif.rs.html#60-89">iif!</a>[res &gt;= <span class="number">0</span>; <span class="prelude-val">Ok</span>(state); <span class="prelude-val">Err</span>(res)]
     }
 
     <span class="doccomment">/// Sets the current termios `state`.
@@ -355,51 +353,51 @@
     /// Returns the [`LINUX_ERRNO`] value from [`linux_sys_ioctl`].
     </span><span class="attr">#[cfg(all(feature = <span class="string">"unsafe_syscall"</span>, not(miri)))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_syscall"</span>)))]
-    </span><span class="kw">pub fn </span>set_state(<span class="kw-2">mut </span>state: <a href="#19-37">LinuxTermios</a>) -&gt; <a class="prelude-ty" href="../../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
+    </span><span class="kw">pub fn </span>set_state(<span class="kw-2">mut </span>state: <a href="#18-36">LinuxTermios</a>) -&gt; <a class="prelude-ty" href="../../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
         <span class="kw">let </span>res = <span class="kw">unsafe </span>{
-            <a href="../fns/syscalls/x86_64.rs.html#87-104">linux_sys_ioctl</a>(LINUX_FILENO::STDIN, LINUX_IOCTL::TCSETS, <a href="#105">state</a>.<a href="#68-70">as_mut_bytes_ptr</a>())
+            <a href="../fns/syscalls/x86_64.rs.html#87-104">linux_sys_ioctl</a>(LINUX_FILENO::STDIN, LINUX_IOCTL::TCSETS, <a href="#104">state</a>.<a href="#67-69">as_mut_bytes_ptr</a>())
         };
-        <a class="macro" href="../../../../code/macros/iif.rs.html#60-89">iif!</a>[res &gt;= <span class="number">0</span>; <span class="prelude-val">Ok</span>(()); <span class="prelude-val">Err</span>(res)]
+        <a class="macro" href="../../../../code/util/iif.rs.html#60-89">iif!</a>[res &gt;= <span class="number">0</span>; <span class="prelude-val">Ok</span>(()); <span class="prelude-val">Err</span>(res)]
     }
 
     <span class="doccomment">/// Returns `true` if we're in a terminal context.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>is_terminal() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
-        <span class="kw">match </span><a href="#92-98"><span class="self">Self</span>::get_state</a>() {
+        <span class="kw">match </span><a href="#91-97"><span class="self">Self</span>::get_state</a>() {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-            <span class="prelude-val">Err</span>(e) =&gt; <a href="#117">e</a> != -LINUX_ERRNO::ENOTTY &amp;&amp; <a href="#117">e</a> != -LINUX_ERRNO::EINVAL,
+            <span class="prelude-val">Err</span>(e) =&gt; <a href="#116">e</a> != -LINUX_ERRNO::ENOTTY &amp;&amp; <a href="#116">e</a> != -LINUX_ERRNO::EINVAL,
         }
     }
 
     <span class="doccomment">/// Disables raw mode.
     </span><span class="kw">pub fn </span>disable_raw_mode() -&gt; <a class="prelude-ty" href="../../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>state = <a href="#92-98">LinuxTermios::get_state</a>()<span class="question-mark">?</span>;
-        <a href="#123">state</a>.c_lflag |= LINUX_TERMIOS_LFLAG::ICANON;
-        <a href="#123">state</a>.c_lflag |= LINUX_TERMIOS_LFLAG::ECHO;
-        <a href="#105-110">LinuxTermios::set_state</a>(<a href="#123">state</a>)
+        <span class="kw">let </span><span class="kw-2">mut </span>state = <a href="#91-97">LinuxTermios::get_state</a>()<span class="question-mark">?</span>;
+        <a href="#122">state</a>.c_lflag |= LINUX_TERMIOS_LFLAG::ICANON;
+        <a href="#122">state</a>.c_lflag |= LINUX_TERMIOS_LFLAG::ECHO;
+        <a href="#104-109">LinuxTermios::set_state</a>(<a href="#122">state</a>)
     }
 
     <span class="doccomment">/// Enables raw mode.
     </span><span class="kw">pub fn </span>enable_raw_mode() -&gt; <a class="prelude-ty" href="../../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;(), <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>state = <a href="#92-98"><span class="self">Self</span>::get_state</a>()<span class="question-mark">?</span>;
-        <a href="#131">state</a>.c_lflag &amp;= !LINUX_TERMIOS_LFLAG::ICANON;
-        <a href="#131">state</a>.c_lflag &amp;= !LINUX_TERMIOS_LFLAG::ECHO;
-        <a href="#105-110">LinuxTermios::set_state</a>(<a href="#131">state</a>)
+        <span class="kw">let </span><span class="kw-2">mut </span>state = <a href="#91-97"><span class="self">Self</span>::get_state</a>()<span class="question-mark">?</span>;
+        <a href="#130">state</a>.c_lflag &amp;= !LINUX_TERMIOS_LFLAG::ICANON;
+        <a href="#130">state</a>.c_lflag &amp;= !LINUX_TERMIOS_LFLAG::ECHO;
+        <a href="#104-109">LinuxTermios::set_state</a>(<a href="#130">state</a>)
     }
 
     <span class="doccomment">/// Returns the size of the window, in cells and pixels.
     </span><span class="attr">#[cfg(all(feature = <span class="string">"unsafe_syscall"</span>, not(miri)))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_syscall"</span>)))]
-    </span><span class="kw">pub fn </span>get_winsize() -&gt; <a class="prelude-ty" href="../../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<a href="#156-168">LinuxTerminalSize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
+    </span><span class="kw">pub fn </span>get_winsize() -&gt; <a class="prelude-ty" href="../../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<a href="#155-167">LinuxTerminalSize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>winsize = <a href="../../../../../../devela/_core/default/trait.Default.html">LinuxTerminalSize::default</a>();
         <span class="kw">let </span>res = <span class="kw">unsafe </span>{
             <a href="../fns/syscalls/x86_64.rs.html#87-104">linux_sys_ioctl</a>(
                 LINUX_FILENO::STDIN,
                 LINUX_IOCTL::TIOCGWINSZ,
-                <span class="kw-2">&amp;mut </span><a href="#141">winsize</a> <span class="kw">as </span><span class="kw-2">*mut </span><a href="#156-168">LinuxTerminalSize</a> <span class="kw">as </span><span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
+                <span class="kw-2">&amp;mut </span><a href="#140">winsize</a> <span class="kw">as </span><span class="kw-2">*mut </span><a href="#155-167">LinuxTerminalSize</a> <span class="kw">as </span><span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
             )
         };
-        <a class="macro" href="../../../../code/macros/iif.rs.html#60-89">iif!</a>[res &gt;= <span class="number">0</span>; <span class="prelude-val">Ok</span>(winsize); <span class="prelude-val">Err</span>(res)]
+        <a class="macro" href="../../../../code/util/iif.rs.html#60-89">iif!</a>[res &gt;= <span class="number">0</span>; <span class="prelude-val">Ok</span>(winsize); <span class="prelude-val">Err</span>(res)]
     }
 }
 
@@ -420,22 +418,22 @@
     </span><span class="kw">pub </span>y: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>,
 }
 
-<span class="kw">impl </span><a href="#156-168">LinuxTerminalSize</a> {
+<span class="kw">impl </span><a href="#155-167">LinuxTerminalSize</a> {
     <span class="doccomment">/// Returns the number of `[horizontal, vertical]` pixels.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>pixels(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>; <span class="number">2</span>] {
-        [<a class="self" href="#173">self</a>.x, <a class="self" href="#173">self</a>.y]
+        [<a class="self" href="#172">self</a>.x, <a class="self" href="#172">self</a>.y]
     }
     <span class="doccomment">/// Returns the number of `[columns, rows]` of cells.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>cells(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>; <span class="number">2</span>] {
-        [<a class="self" href="#178">self</a>.cols, <a class="self" href="#178">self</a>.rows]
+        [<a class="self" href="#177">self</a>.cols, <a class="self" href="#177">self</a>.rows]
     }
 
     <span class="doccomment">/// Returns the number of pixels per cell `[horizontal, vertical]`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>pixels_per_cell(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>; <span class="number">2</span>] {
-        [<a class="self" href="#184">self</a>.x / <a class="self" href="#184">self</a>.cols, <a class="self" href="#184">self</a>.y / <a class="self" href="#184">self</a>.rows]
+        [<a class="self" href="#183">self</a>.x / <a class="self" href="#183">self</a>.cols, <a class="self" href="#183">self</a>.y / <a class="self" href="#183">self</a>.rows]
     }
 }
 </code></pre></div></section></main></body></html>

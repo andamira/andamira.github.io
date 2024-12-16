@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"derive":["Hash"],"fn":["hash_pengy"],"struct":["HasherBuildDefault","HasherFnv","HasherFx","RandomState"],"trait":["Hash","Hasher","HasherBuild"],"type":["HasherBuildFnv","HasherBuildFx"]};
+window.SIDEBAR_ITEMS = {"derive":["Hash"],"struct":["HasherBuildDefault","HasherFnv","HasherFx","HasherPengy","RandomState"],"trait":["Hash","Hasher","HasherBuild"],"type":["HasherBuildFnv","HasherBuildFx"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/hash/pengy.rs`."><title>pengy.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/hash/pengy.rs`."><title>pengy.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (d4025ee45 2024-12-12)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
@@ -186,126 +186,194 @@
 <a href="#119" id="119">119</a>
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a></pre></div><pre class="rust"><code><span class="comment">// devela::data::hash::pengy
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a></pre></div><pre class="rust"><code><span class="comment">// devela::data::hash::pengy
 //
 </span><span class="doccomment">//! Based on pengyhash v0.2 LICENSED as BSD-2.
 </span><span class="comment">//
 
-</span><span class="doccomment">/// Pengy hasher function.
-</span><span class="attr">#[must_use]
-</span><span class="kw">pub const fn </span><a href="../../../../devela/data/hash/fn.hash_pengy.html">hash_pengy</a>(data: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
-    <span class="kw">let </span><span class="kw-2">mut </span>b: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">4</span>] = [<span class="number">0</span>; <span class="number">4</span>];
-    <span class="kw">let </span><span class="kw-2">mut </span>s: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">4</span>] = [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <a href="#8">data</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>];
-    <span class="kw">let </span><span class="kw-2">mut </span>remaining = <a href="#8">data</a>;
+</span><span class="kw">use crate</span>::{<a href="../../code/default.rs.html#9-12">ConstDefault</a>, <a href="../../../../devela/_core/hash/trait.Hasher.html">Hasher</a>};
 
-    <span class="kw">while </span>remaining.len() &gt;= <span class="number">32 </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-        <span class="kw">while </span>i &lt; <span class="number">4 </span>{
-            <span class="kw">let </span>(<span class="kw">_</span>, rest) = remaining.split_at(i * <span class="number">8</span>);
-            <span class="kw">let </span>(chunk, <span class="kw">_</span>) = rest.split_at(<span class="number">8</span>);
-            <span class="kw">let </span><span class="kw-2">mut </span>byte_array: [u8; <span class="number">8</span>] = [<span class="number">0</span>; <span class="number">8</span>];
-            <span class="kw">let </span><span class="kw-2">mut </span>j = <span class="number">0</span>;
-            <span class="kw">while </span>j &lt; chunk.len() {
-                byte_array[j] = chunk[j];
-                j += <span class="number">1</span>;
+<span class="doccomment">/// A fast 64-bit non-cryptographic hash algorithm
+///
+///
+/// # Derived work
+/// This is derived work from the [pengyhash] v0.2 algorithm,
+/// including the following modifications:
+/// - make it a struct implementing `Hasher`.
+/// - make the algorithm *const*.
+/// - make the seed 64-bit.
+/// - add extra methods.
+///
+/// [pengyhash]: https://github.com/tinypeng/pengyhash/blob/70a23e40a2be2e784a68078213b7675055f21949/pengyhash.c
+</span><span class="kw">pub struct </span><a href="../../../../devela/data/hash/struct.HasherPengy.html">HasherPengy</a> {
+    state: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">4</span>],
+    seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>,
+}
+
+<span class="kw">impl </span><a href="../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#20-23">HasherPengy</a> {
+    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="self">Self </span>{ state: [<span class="number">0</span>; <span class="number">4</span>], seed: <span class="number">0 </span>};
+}
+<span class="kw">impl </span><a href="../../../../devela/_core/default/trait.Default.html">Default</a> <span class="kw">for </span><a href="#20-23">HasherPengy</a> {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::DEFAULT
+    }
+}
+
+<span class="kw">impl </span><a href="#20-23">HasherPengy</a> {
+    <span class="doccomment">/// Returns a default pengy hasher.
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::DEFAULT
+    }
+
+    <span class="doccomment">/// Returns a new pengy hasher with the given `seed`.
+    </span><span class="kw">pub const fn </span>with_seed(seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ state: [<span class="number">0</span>; <span class="number">4</span>], <a href="#41">seed</a> }
+    }
+
+    <span class="doccomment">/// Checks whether the current state is uninitialized (or unchanged from default).
+    </span><span class="kw">pub const fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+        <span class="kw">let </span>[a, b, c, d] = <a class="self" href="#46">self</a>.state;
+        <a href="#47">a</a> + <a href="#47">b</a> + <a href="#47">c</a> + <a href="#47">d</a> == <span class="number">0
+    </span>}
+
+    <span class="doccomment">/// Resets the internal state to its initial default values without changing the seed.
+    </span><span class="kw">pub const fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <a class="self" href="#52">self</a>.state = [<span class="number">0</span>; <span class="number">4</span>];
+    }
+
+    <span class="doccomment">/// Resets both the state and seed for full reinitialization.
+    </span><span class="kw">pub const fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <a class="self" href="#57">self</a>.state = [<span class="number">0</span>; <span class="number">4</span>];
+        <a class="self" href="#57">self</a>.seed = <span class="number">0</span>;
+    }
+
+    <span class="doccomment">/// Processes the given data slice, updating the internal state.
+    </span><span class="kw">pub const fn </span>process(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) {
+        <span class="kw">let </span><span class="kw-2">mut </span>b: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">4</span>] = [<span class="number">0</span>; <span class="number">4</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>s: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">4</span>] = [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <a href="#63">data</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>];
+        <span class="kw">let </span><span class="kw-2">mut </span>remaining = <a href="#63">data</a>;
+
+        <span class="comment">// Process 32-byte chunks into 64-bit words
+        </span><span class="kw">while </span>remaining.len() &gt;= <span class="number">32 </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+            <span class="kw">while </span>i &lt; <span class="number">4 </span>{
+                <span class="kw">let </span>(<span class="kw">_</span>, rest) = remaining.split_at(i * <span class="number">8</span>);
+                <span class="kw">let </span>(chunk, <span class="kw">_</span>) = rest.split_at(<span class="number">8</span>);
+                b[i] = u64::from_le_bytes(<span class="self">Self</span>::make_byte_array(chunk));
+
+                i += <span class="number">1</span>;
             }
-            b[i] = u64::from_le_bytes(byte_array);
+            <span class="kw">let </span>(_left, right) = remaining.split_at(<span class="number">32</span>);
+            remaining = right;
 
+            s[<span class="number">0</span>] = s[<span class="number">0</span>].wrapping_add(s[<span class="number">1</span>]).wrapping_add(b[<span class="number">3</span>]);
+            s[<span class="number">1</span>] = s[<span class="number">0</span>].wrapping_add(s[<span class="number">1</span>].wrapping_shl(<span class="number">14</span>) | s[<span class="number">1</span>].wrapping_shr(<span class="number">50</span>));
+            s[<span class="number">2</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">3</span>]).wrapping_add(b[<span class="number">2</span>]);
+            s[<span class="number">3</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">3</span>].wrapping_shl(<span class="number">23</span>) | s[<span class="number">3</span>].wrapping_shr(<span class="number">41</span>));
+            s[<span class="number">0</span>] = s[<span class="number">0</span>].wrapping_add(s[<span class="number">3</span>]).wrapping_add(b[<span class="number">1</span>]);
+            s[<span class="number">3</span>] = s[<span class="number">0</span>] ^ (s[<span class="number">3</span>].wrapping_shl(<span class="number">16</span>) | s[<span class="number">3</span>].wrapping_shr(<span class="number">48</span>));
+            s[<span class="number">2</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">1</span>]).wrapping_add(b[<span class="number">0</span>]);
+            s[<span class="number">1</span>] = s[<span class="number">2</span>] ^ (s[<span class="number">1</span>].wrapping_shl(<span class="number">40</span>) | s[<span class="number">1</span>].wrapping_shr(<span class="number">24</span>));
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>tmp = [<span class="number">0u8</span>; <span class="number">32</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+        <span class="kw">while </span>i &lt; remaining.len() {
+            <span class="kw">if </span>i &lt; tmp.len() {
+                tmp[i] = remaining[i];
+            }
             i += <span class="number">1</span>;
         }
-        <span class="kw">let </span>(_left, right) = remaining.split_at(<span class="number">32</span>);
-        remaining = right;
 
-        s[<span class="number">0</span>] = s[<span class="number">0</span>].wrapping_add(s[<span class="number">1</span>]).wrapping_add(b[<span class="number">3</span>]);
-        s[<span class="number">1</span>] = s[<span class="number">0</span>].wrapping_add(s[<span class="number">1</span>].wrapping_shl(<span class="number">14</span>) | s[<span class="number">1</span>].wrapping_shr(<span class="number">50</span>));
-        s[<span class="number">2</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">3</span>]).wrapping_add(b[<span class="number">2</span>]);
-        s[<span class="number">3</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">3</span>].wrapping_shl(<span class="number">23</span>) | s[<span class="number">3</span>].wrapping_shr(<span class="number">41</span>));
-        s[<span class="number">0</span>] = s[<span class="number">0</span>].wrapping_add(s[<span class="number">3</span>]).wrapping_add(b[<span class="number">1</span>]);
-        s[<span class="number">3</span>] = s[<span class="number">0</span>] ^ (s[<span class="number">3</span>].wrapping_shl(<span class="number">16</span>) | s[<span class="number">3</span>].wrapping_shr(<span class="number">48</span>));
-        s[<span class="number">2</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">1</span>]).wrapping_add(b[<span class="number">0</span>]);
-        s[<span class="number">1</span>] = s[<span class="number">2</span>] ^ (s[<span class="number">1</span>].wrapping_shl(<span class="number">40</span>) | s[<span class="number">1</span>].wrapping_shr(<span class="number">24</span>));
-    }
-
-    <span class="kw">let </span><span class="kw-2">mut </span>tmp = [<span class="number">0u8</span>; <span class="number">32</span>];
-    <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-    <span class="kw">while </span>i &lt; remaining.len() {
-        <span class="kw">if </span>i &lt; tmp.len() {
-            tmp[i] = remaining[i];
+        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+        <span class="kw">while </span>i &lt; <span class="number">4 </span>{
+            <span class="kw">let </span>(<span class="kw">_</span>, rest) = tmp.split_at(i * <span class="number">8</span>);
+            <span class="kw">let </span>(chunk, <span class="kw">_</span>) = rest.split_at(<span class="number">8</span>);
+            b[i] = u64::from_le_bytes(<span class="self">Self</span>::make_byte_array(chunk));
+            i += <span class="number">1</span>;
         }
-        i += <span class="number">1</span>;
+
+        <span class="comment">// Perform final mixing of state with seed and remaining data
+        </span><span class="kw">let </span><span class="kw-2">mut </span>_i = <span class="number">0</span>;
+        <span class="kw">while </span>_i &lt; <span class="number">6 </span>{
+            s[<span class="number">0</span>] = s[<span class="number">0</span>].wrapping_add(s[<span class="number">1</span>]).wrapping_add(b[<span class="number">3</span>]);
+            s[<span class="number">1</span>] = s[<span class="number">0</span>]
+                .wrapping_add(s[<span class="number">1</span>].wrapping_shl(<span class="number">14</span>) | s[<span class="number">1</span>].wrapping_shr(<span class="number">50</span>))
+                .wrapping_add(<span class="self">self</span>.seed);
+            s[<span class="number">2</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">3</span>]).wrapping_add(b[<span class="number">2</span>]);
+            s[<span class="number">3</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">3</span>].wrapping_shl(<span class="number">23</span>) | s[<span class="number">3</span>].wrapping_shr(<span class="number">41</span>));
+            s[<span class="number">0</span>] = s[<span class="number">0</span>].wrapping_add(s[<span class="number">3</span>]).wrapping_add(b[<span class="number">1</span>]);
+            s[<span class="number">3</span>] = s[<span class="number">0</span>] ^ (s[<span class="number">3</span>].wrapping_shl(<span class="number">16</span>) | s[<span class="number">3</span>].wrapping_shr(<span class="number">48</span>));
+            s[<span class="number">2</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">1</span>]).wrapping_add(b[<span class="number">0</span>]);
+            s[<span class="number">1</span>] = s[<span class="number">2</span>] ^ (s[<span class="number">1</span>].wrapping_shl(<span class="number">40</span>) | s[<span class="number">1</span>].wrapping_shr(<span class="number">24</span>));
+            _i += <span class="number">1</span>;
+        }
+
+        <a class="self" href="#63">self</a>.state[<span class="number">0</span>] = <a href="#65">s</a>[<span class="number">0</span>];
+        <a class="self" href="#63">self</a>.state[<span class="number">1</span>] = <a href="#65">s</a>[<span class="number">1</span>];
+        <a class="self" href="#63">self</a>.state[<span class="number">2</span>] = <a href="#65">s</a>[<span class="number">2</span>];
+        <a class="self" href="#63">self</a>.state[<span class="number">3</span>] = <a href="#65">s</a>[<span class="number">3</span>];
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-    <span class="kw">while </span>i &lt; <span class="number">4 </span>{
-        <span class="kw">let </span>(<span class="kw">_</span>, rest) = tmp.split_at(i * <span class="number">8</span>);
-        <span class="kw">let </span>(chunk, <span class="kw">_</span>) = rest.split_at(<span class="number">8</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>byte_array: [u8; <span class="number">8</span>] = [<span class="number">0</span>; <span class="number">8</span>];
+    <span class="kw">const fn </span>make_byte_array(chunk: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">8</span>] {
+        <span class="kw">let </span><span class="kw-2">mut </span>byte_array = [<span class="number">0</span>; <span class="number">8</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>j = <span class="number">0</span>;
         <span class="kw">while </span>j &lt; chunk.len() {
             byte_array[j] = chunk[j];
             j += <span class="number">1</span>;
         }
-        b[i] = u64::from_le_bytes(byte_array);
-        i += <span class="number">1</span>;
+        <a href="#131">byte_array</a>
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>_i = <span class="number">0</span>;
-    <span class="kw">while </span>_i &lt; <span class="number">6 </span>{
-        s[<span class="number">0</span>] = s[<span class="number">0</span>].wrapping_add(s[<span class="number">1</span>]).wrapping_add(b[<span class="number">3</span>]);
-        s[<span class="number">1</span>] = s[<span class="number">0</span>]
-            .wrapping_add(s[<span class="number">1</span>].wrapping_shl(<span class="number">14</span>) | s[<span class="number">1</span>].wrapping_shr(<span class="number">50</span>))
-            .wrapping_add(seed <span class="kw">as </span>u64);
-        s[<span class="number">2</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">3</span>]).wrapping_add(b[<span class="number">2</span>]);
-        s[<span class="number">3</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">3</span>].wrapping_shl(<span class="number">23</span>) | s[<span class="number">3</span>].wrapping_shr(<span class="number">41</span>));
-        s[<span class="number">0</span>] = s[<span class="number">0</span>].wrapping_add(s[<span class="number">3</span>]).wrapping_add(b[<span class="number">1</span>]);
-        s[<span class="number">3</span>] = s[<span class="number">0</span>] ^ (s[<span class="number">3</span>].wrapping_shl(<span class="number">16</span>) | s[<span class="number">3</span>].wrapping_shr(<span class="number">48</span>));
-        s[<span class="number">2</span>] = s[<span class="number">2</span>].wrapping_add(s[<span class="number">1</span>]).wrapping_add(b[<span class="number">0</span>]);
-        s[<span class="number">1</span>] = s[<span class="number">2</span>] ^ (s[<span class="number">1</span>].wrapping_shl(<span class="number">40</span>) | s[<span class="number">1</span>].wrapping_shr(<span class="number">24</span>));
-        _i += <span class="number">1</span>;
+    <span class="doccomment">/// Produces the final hash value based on the internal state.
+    </span><span class="kw">pub const fn </span>digest(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+        <a class="self" href="#141">self</a>.state[<span class="number">0</span>]
+            .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#141">self</a>.state[<span class="number">1</span>])
+            .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#141">self</a>.state[<span class="number">2</span>])
+            .<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#141">self</a>.state[<span class="number">3</span>])
     }
-    <a href="#10">s</a>[<span class="number">0</span>].<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#10">s</a>[<span class="number">1</span>]).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#10">s</a>[<span class="number">2</span>]).<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#10">s</a>[<span class="number">3</span>])
 }
 
-<span class="comment">// /// non-const, non-wrapping version, most similar to the original.
-// pub fn pengyhash_orig(data: &amp;[u8], seed: u32) -&gt; u64 {
-//     let mut b: [u64; 4] = [0; 4];
-//     let mut s: [u64; 4] = [0, 0, 0, data.len() as u64];
-//     let mut remaining = data;
-//
-//     while remaining.len() &gt;= 32 {
-//         for i in 0..4 {
-//             b[i] = u64::from_le_bytes(remaining[i * 8..(i + 1) * 8].try_into().unwrap());
-//         }
-//         remaining = &amp;remaining[32..];
-//
-//         s[0] += s[1] + b[3];
-//         s[1] = s[0] + (s[1] &lt;&lt; 14 | s[1] &gt;&gt; 50);
-//         s[2] += s[3] + b[2];
-//         s[3] = s[2] + (s[3] &lt;&lt; 23 | s[3] &gt;&gt; 41);
-//         s[0] += s[3] + b[1];
-//         s[3] = s[0] ^ (s[3] &lt;&lt; 16 | s[3] &gt;&gt; 48);
-//         s[2] += s[1] + b[0];
-//         s[1] = s[2] ^ (s[1] &lt;&lt; 40 | s[1] &gt;&gt; 24);
-//     }
-//
-//     let mut tmp = [0u8; 32];
-//     tmp[..remaining.len()].copy_from_slice(remaining);
-//     for i in 0..4 {
-//         b[i] = u64::from_le_bytes(tmp[i * 8..(i + 1) * 8].try_into().unwrap());
-//     }
-//
-//     for _ in 0..6 {
-//         s[0] += s[1] + b[3];
-//         s[1] = s[0] + (s[1] &lt;&lt; 14 | s[1] &gt;&gt; 50) + seed as u64;
-//         s[2] += s[3] + b[2];
-//         s[3] = s[2] + (s[3] &lt;&lt; 23 | s[3] &gt;&gt; 41);
-//         s[0] += s[3] + b[1];
-//         s[3] = s[0] ^ (s[3] &lt;&lt; 16 | s[3] &gt;&gt; 48);
-//         s[2] += s[1] + b[0];
-//         s[1] = s[2] ^ (s[1] &lt;&lt; 40 | s[1] &gt;&gt; 24);
-//     }
-//     s[0].wrapping_add(s[1])
-//         .wrapping_add(s[2])
-//         .wrapping_add(s[3])
-// }
-</span></code></pre></div></section></main></body></html>
+<span class="kw">impl </span><a href="../../../../devela/_core/hash/trait.Hasher.html">Hasher</a> <span class="kw">for </span><a href="#20-23">HasherPengy</a> {
+    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) {
+        <a class="self" href="#150">self</a>.<a href="#63-128">process</a>(<a href="#150">data</a>);
+    }
+    <span class="kw">fn </span>finish(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+        <a class="self" href="#153">self</a>.<a href="#141-146">digest</a>()
+    }
+}
+</code></pre></div></section></main></body></html>

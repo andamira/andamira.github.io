@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4d669fb34 2024-12-08)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (d4025ee45 2024-12-12)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 
@@ -121,7 +121,15 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys
 //
 </span><span class="doccomment">//! System interfaces and hardware abstractions.
 </span><span class="attr">#![doc = <span class="macro">crate::doc_!</span>(modules: <span class="kw">crate</span>; sys: io, mem, os)]
@@ -130,47 +138,55 @@
 </span><span class="attr">#![doc = <span class="macro">crate::doc_!</span>(extends: alloc, arch, borrow, boxed, cell, env, fs, mem,
     io, net, os, path, pin, ptr, rc, slice, simd)]
 </span><span class="comment">//
+//
+// NOTE: You can get the full list of: `arch`, `os`, `target` and `target`-family, like this:
+// ```
+// rustc +nightly -Z unstable-options --print all-target-specs-json  \
+//     | jq '[ to_entries[] | {"arch": .value.arch, "target": .key,  \
+//     "target-family": (.value."target-family" // [] | join(", ")), \
+//     "os": (.value.os // "") } ]' | grep -v '""'
+// ```
 // safety
 </span><span class="attr">#![cfg_attr(feature = <span class="string">"safe_sys"</span>, forbid(unsafe_code))]
 
-</span><span class="kw">mod </span><a href="arch/mod.rs.html#3-26">arch</a>;
-<span class="kw">mod </span><a href="env/mod.rs.html#3-29">env</a>;
-<span class="kw">mod </span><a href="sound/mod.rs.html#3-13">sound</a>; <span class="comment">// IMPROVE
+</span><span class="kw">mod </span><a href="env/mod.rs.html#3-31">env</a>;
+<span class="kw">mod </span><a href="sound/mod.rs.html#3-16">sound</a>; <span class="comment">// IMPROVE
 
 </span><span class="attr">#[cfg(feature = <span class="string">"sys"</span>)]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"sys"</span>)))]
-</span><span class="kw">mod </span><a href="path/mod.rs.html#3-24">path</a>;
+</span><span class="kw">mod </span><a href="path/mod.rs.html#3-26">path</a>;
 
-<span class="kw">pub mod </span><a href="io/mod.rs.html#3-43">io</a>;
+<span class="kw">pub mod </span><a href="arch/mod.rs.html#3-34">arch</a>;
+<span class="kw">pub mod </span><a href="io/mod.rs.html#3-46">io</a>;
 <span class="kw">pub mod </span><a href="log/mod.rs.html#3-29">log</a>;
-<span class="kw">pub mod </span><a href="mem/mod.rs.html#3-57">mem</a>;
-<span class="kw">pub mod </span><a href="os/mod.rs.html#3-28">os</a>;
+<span class="kw">pub mod </span><a href="mem/mod.rs.html#3-64">mem</a>;
+<span class="kw">pub mod </span><a href="os/mod.rs.html#3-27">os</a>;
 
-<span class="comment">// structural access
-</span><span class="macro">crate::items!</span> {
-    <span class="attr">#[allow(unused_imports)]
-    </span><span class="kw">pub use </span>{<a href="#47-52">always</a>::<span class="kw-2">*</span>, <a href="#31-36">doc_inline</a>::<span class="kw-2">*</span>, <a href="#37-42">doc_hidden</a>::<span class="kw-2">*</span>, <a href="#43">items_hidden</a>::<span class="kw-2">*</span>};
+<span class="macro">crate::items!</span> { <span class="comment">// structural access: doc_inline, doc_hidden, items_hidden, all, always
+    </span><span class="attr">#[allow(unused)]
+    </span><span class="kw">pub use </span>{<a href="#40-44">doc_inline</a>::<span class="kw-2">*</span>, <a href="#45-48">doc_hidden</a>::<span class="kw-2">*</span>, <a href="#49-51">items_hidden</a>::<span class="kw-2">*</span>};
+    <span class="attr">#[allow(unused)] #[doc(hidden)] #[doc(no_inline)]
+    </span><span class="kw">pub use </span><a href="#56-60">always</a>::<span class="kw-2">*</span>;
 
-    <span class="kw">mod </span>doc_inline { <span class="attr">#![allow(unused_imports)]
-        </span><span class="kw">pub use super</span>::{<a href="arch/mod.rs.html#19-21">arch::all</a>::<span class="kw-2">*</span>, <a href="env/mod.rs.html#22-24">env::all</a>::<span class="kw-2">*</span>, <a href="io/mod.rs.html#36-38">io::all</a>::<span class="kw-2">*</span>, <a href="mem/mod.rs.html#50-52">mem::all</a>::<span class="kw-2">*</span>};
-        <span class="kw">pub use super</span>::{<a href="log/mod.rs.html#26-28">log::all</a>::<span class="kw-2">*</span>, <a href="os/mod.rs.html#25-27">os::all</a>::<span class="kw-2">*</span>, <a href="sound/mod.rs.html#10-12">sound::all</a>::<span class="kw-2">*</span>};
+    <span class="kw">mod </span>doc_inline { <span class="attr">#![allow(unused)]
+        </span><span class="kw">pub use super</span>::{<a href="env/mod.rs.html#24-27">env::all</a>::<span class="kw-2">*</span>, <a href="sound/mod.rs.html#12-15">sound::all</a>::<span class="kw-2">*</span>};
         <span class="attr">#[cfg(feature = <span class="string">"sys"</span>)]
-        </span><span class="kw">pub use </span><a href="path/mod.rs.html#20-23"><span class="kw">super</span>::path::all</a>::<span class="kw-2">*</span>;
+        </span><span class="kw">pub use </span><a href="path/mod.rs.html#21-25"><span class="kw">super</span>::path::all</a>::<span class="kw-2">*</span>;
     }
-    <span class="kw">mod </span>doc_hidden { <span class="attr">#[allow(unused_imports)]
+    <span class="kw">mod </span>doc_hidden { <span class="attr">#![allow(unused)]
         #[doc(hidden)] #[doc(no_inline)]
-        </span><span class="kw">pub use super</span>::{
-            <a href="io/mod.rs.html#36-38">io::all</a>::<span class="kw-2">*</span>, <a href="log/mod.rs.html#26-28">log::all</a>::<span class="kw-2">*</span>, <a href="mem/mod.rs.html#50-52">mem::all</a>::<span class="kw-2">*</span>, <a href="os/mod.rs.html#25-27">os::all</a>::<span class="kw-2">*</span>,
-        };
+        </span><span class="kw">pub use super</span>::{<a href="arch/mod.rs.html#27-30">arch::all</a>::<span class="kw-2">*</span>, <a href="io/mod.rs.html#38-41">io::all</a>::<span class="kw-2">*</span>, <a href="log/mod.rs.html#26-28">log::all</a>::<span class="kw-2">*</span>, <a href="mem/mod.rs.html#56-59">mem::all</a>::<span class="kw-2">*</span>, <a href="os/mod.rs.html#23-26">os::all</a>::<span class="kw-2">*</span>};
     }
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>items_hidden { <span class="kw">pub use </span><a href="mem/mod.rs.html#49"><span class="kw">super</span>::mem::items_hidden</a>::<span class="kw-2">*</span>; }
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>all { <span class="attr">#![allow(unused_imports)] #[doc(inline)]
-        </span><span class="kw">pub use super</span>::{<a href="#31-36">doc_inline</a>::<span class="kw-2">*</span>, <a href="#37-42">doc_hidden</a>::<span class="kw-2">*</span>};
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>items_hidden {
+        <span class="kw">pub use </span><a href="mem/mod.rs.html#53-55"><span class="kw">super</span>::mem::items_hidden</a>::<span class="kw-2">*</span>;
     }
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>always { <span class="attr">#![allow(unused_imports)]
-        #[doc(hidden)] #[doc(no_inline)]
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>all { <span class="attr">#![allow(unused)]
+        #[doc(inline)]
+        </span><span class="kw">pub use super</span>::{<a href="#40-44">doc_inline</a>::<span class="kw-2">*</span>, <a href="#45-48">doc_hidden</a>::<span class="kw-2">*</span>};
+    }
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>always { <span class="attr">#![allow(unused)]
         </span><span class="kw">pub use super</span>::{
-            <a href="arch/mod.rs.html#22-25">arch::always</a>::<span class="kw-2">*</span>, <a href="env/mod.rs.html#25-28">env::always</a>::<span class="kw-2">*</span>, <a href="io/mod.rs.html#39-42">io::always</a>::<span class="kw-2">*</span>, <a href="mem/mod.rs.html#53-56">mem::always</a>::<span class="kw-2">*</span>,
+            <a href="arch/mod.rs.html#31-33">arch::always</a>::<span class="kw-2">*</span>, <a href="env/mod.rs.html#28-30">env::always</a>::<span class="kw-2">*</span>, <a href="io/mod.rs.html#42-45">io::always</a>::<span class="kw-2">*</span>, <a href="mem/mod.rs.html#60-63">mem::always</a>::<span class="kw-2">*</span>,
         };
     }
 }

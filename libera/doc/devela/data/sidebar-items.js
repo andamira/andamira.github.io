@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CompressionMode","DataError","EncodingMode"],"macro":["bitfield","id_seq"],"mod":["collections","dst","hash","iter"],"struct":["Bitwise","IdPin","IdPinBox","Sort"],"trait":["BitOps"],"type":["DataResult"]};
+window.SIDEBAR_ITEMS = {"enum":["CompressionMode","DataError","EncodingMode"],"macro":["bitfield","id_seq"],"mod":["collections","dst","hash","iter"],"struct":["BitVec","Bitwise","Blocks","IdPin","IdPinBox","IntoIter","Iter","IterMut","MutBorrowedBit","Sort"],"trait":["BitBlock","BitOps"],"type":["DataResult"]};
