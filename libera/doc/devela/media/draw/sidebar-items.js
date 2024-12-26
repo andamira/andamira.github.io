@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["DrawError"],"trait":["Canvas"],"type":["DrawResult"]};
+window.SIDEBAR_ITEMS = {"enum":["DrawError"],"struct":["PixelGrid"],"trait":["Canvas"],"type":["DrawResult"]};

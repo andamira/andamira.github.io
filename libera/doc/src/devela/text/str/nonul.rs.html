@@ -1,15 +1,26 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/str/nonul.rs`."><title>nonul.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (d4025ee45 2024-12-12)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/str/nonul.rs`."><title>nonul.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (7c002ff9a 2024-12-25)" data-channel="nightly" data-search-js="search-036cda7a.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
+  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+  crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
+  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+  crossorigin="anonymous"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+  crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+  crossorigin="anonymous"></script>
+
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
-    onload="renderMathInElement(document.body);"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     renderMathInElement(document.body, {
@@ -32,17 +43,28 @@
 </style>
 
 <!-- https://katex.org/docs/browser.html#starter-template -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
+  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+  crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
+  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+  crossorigin="anonymous"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+  crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+  crossorigin="anonymous"></script>
+
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
-    onload="renderMathInElement(document.body);"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     renderMathInElement(document.body, {
@@ -684,8 +706,8 @@
     <a href="../../code/util/cfor.rs.html#117-184">cfor</a>, <a href="../../code/util/iif.rs.html#60-89">iif</a>,
     text::{<a href="../mod.rs.html#16">char</a>::<span class="kw-2">*</span>, <a href="../helpers.rs.html#9-33">helpers::impl_sized_alias</a>},
     <a href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap</a>, <a href="../../code/default.rs.html#9-12">ConstDefault</a>, <a href="../../../../devela/_core/ops/trait.Deref.html">Deref</a>, <a href="../../../../devela/_core/str/struct.Chars.html">IterChars</a>,
-    TextError::{<a class="self" href="../error.rs.html#14-42">self</a>, <a href="../error.rs.html#29">InvalidNul</a>, <a href="../error.rs.html#36">InvalidUtf8</a>, <a href="../error.rs.html#18">NotEnoughCapacity</a>, <a href="../error.rs.html#23">NotEnoughElements</a>, <a href="../error.rs.html#41">OutOfBounds</a>},
-    <a href="../error.rs.html#9">TextResult</a> <span class="kw">as </span><span class="prelude-ty">Result</span>,
+    TextError::{<a class="self" href="../error.rs.html#15-43">self</a>, <a href="../error.rs.html#30">InvalidNul</a>, <a href="../error.rs.html#37">InvalidUtf8</a>, <a href="../error.rs.html#19">NotEnoughCapacity</a>, <a href="../error.rs.html#24">NotEnoughElements</a>, <a href="../error.rs.html#42">OutOfBounds</a>},
+    <a href="../error.rs.html#10">TextResult</a> <span class="kw">as </span><span class="prelude-ty">Result</span>,
     <a href="../../../../devela/_core/fmt/index.html">_core::fmt</a>,
 };
 
@@ -695,7 +717,7 @@
 <span class="comment">/* definitions */
 
 </span><span class="doccomment">/// The nul character.
-</span><span class="kw">const </span>NUL_CHAR: <a href="../char/definitions.rs.html#36">char</a> = <span class="string">'\0'</span>;
+</span><span class="kw">const </span>NUL_CHAR: <a href="../char/reexports.rs.html#17">char</a> = <span class="string">'\0'</span>;
 
 <span class="doccomment">/// A UTF-8-encoded string, backed by an array with [`u8::MAX`] bytes of capacity.
 /// Can't contain nul chars.
@@ -743,11 +765,11 @@
     ///
     /// # Errors
     /// Returns [`OutOfBounds`] if `CAP` &gt; 255.
-    </span><span class="kw">pub const fn </span>new() -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub const fn </span>new() -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">if </span>CAP &lt;= u8::MAX <span class="kw">as </span>usize {
             <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ arr: [<span class="number">0</span>; <a href="#69">CAP</a>] })
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<a href="../error.rs.html#41">OutOfBounds</a>(<span class="prelude-val">Some</span>(<a href="#69">CAP</a>)))
+            <span class="prelude-val">Err</span>(<a href="../error.rs.html#42">OutOfBounds</a>(<span class="prelude-val">Some</span>(<a href="#69">CAP</a>)))
         }
     }
 
@@ -881,7 +903,7 @@
     <span class="doccomment">/// Removes the last character and returns it, or `None` if
     /// the string is empty.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<a href="../char/definitions.rs.html#36">char</a>&gt; {
+    </span><span class="kw">pub fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<a href="../char/reexports.rs.html#17">char</a>&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_empty() {
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
@@ -893,9 +915,9 @@
     ///
     /// # Errors
     /// Returns [`NotEnoughElements`] if the string is empty.
-    </span><span class="kw">pub fn </span>try_pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<a href="../char/definitions.rs.html#36">char</a>&gt; {
+    </span><span class="kw">pub fn </span>try_pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<a href="../char/reexports.rs.html#17">char</a>&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_empty() {
-            <span class="prelude-val">Err</span>(<a href="../error.rs.html#23">NotEnoughElements</a>(<span class="number">1</span>))
+            <span class="prelude-val">Err</span>(<a href="../error.rs.html#24">NotEnoughElements</a>(<span class="number">1</span>))
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(<a class="self" href="#224">self</a>.<a href="#237-248">pop_unchecked</a>())
         }
@@ -906,7 +928,7 @@
     /// # Panics
     /// Panics if the string is empty.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>pop_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="../char/definitions.rs.html#36">char</a> {
+    </span><span class="kw">pub fn </span>pop_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="../char/reexports.rs.html#17">char</a> {
         <span class="kw">let </span>len = <a class="self" href="#237">self</a>.<a href="#109-116">len</a>();
         <span class="kw">let </span><span class="kw-2">mut </span>idx_last_char = <a href="#238">len</a> - <span class="number">1</span>;
         <span class="kw">while </span>idx_last_char &gt; <span class="number">0 </span>&amp;&amp; !<span class="self">self</span>.as_str().is_char_boundary(idx_last_char) {
@@ -925,7 +947,7 @@
     ///
     /// It will return 0 bytes if the given `character` doesn't fit in
     /// the remaining capacity, or if it is the nul character.
-    </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, character: <a href="../char/definitions.rs.html#36">char</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
+    </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, character: <a href="../char/reexports.rs.html#17">char</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
         <span class="kw">let </span>char_len = <a href="#256">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>();
 
         <span class="kw">if </span>character != NUL_CHAR &amp;&amp; <span class="self">self</span>.remaining_capacity() &gt;= char_len {
@@ -948,7 +970,7 @@
     /// # Errors
     /// Returns [`NotEnoughCapacity`]
     /// if the capacity is not enough to hold the given character.
-    </span><span class="kw">pub fn </span>try_push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, character: <a href="../char/definitions.rs.html#36">char</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
+    </span><span class="kw">pub fn </span>try_push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, character: <a href="../char/reexports.rs.html#17">char</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
         <span class="kw">let </span>char_len = <a href="#279">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>();
 
         <span class="kw">if </span>character == NUL_CHAR {
@@ -960,7 +982,7 @@
             <span class="kw">let _ </span>= <a href="#279">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.encode_utf8">encode_utf8</a>(<span class="kw-2">&amp;mut </span><a class="self" href="#279">self</a>.arr[<a href="#285">len</a>..<a href="#286">new_len</a>]);
             <span class="prelude-val">Ok</span>(<a href="#280">char_len</a>)
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<a href="../error.rs.html#18">NotEnoughCapacity</a>(<a href="#280">char_len</a>))
+            <span class="prelude-val">Err</span>(<a href="../error.rs.html#19">NotEnoughCapacity</a>(<a href="#280">char_len</a>))
         }
     }
 
@@ -1000,10 +1022,10 @@
     /// # Errors
     /// Returns [`NotEnoughCapacity`] if the capacity is not enough
     /// to hold even the first non-nul character.
-    </span><span class="kw">pub fn </span>try_push_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
+    </span><span class="kw">pub fn </span>try_push_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
         <span class="kw">let </span>first_char_len = <a href="#331">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.chars">chars</a>().<a href="../../../../devela/_core/iter/trait.Iterator.html">find</a>(|<span class="kw-2">&amp;</span>c| <a href="#332">c</a> != <a href="#26">NUL_CHAR</a>).<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map_or">map_or</a>(<span class="number">0</span>, |c| <a href="#332">c</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>());
         <span class="kw">if </span><span class="self">self</span>.remaining_capacity() &lt; first_char_len {
-            <span class="prelude-val">Err</span>(<a href="../error.rs.html#18">NotEnoughCapacity</a>(<a href="#332">first_char_len</a>))
+            <span class="prelude-val">Err</span>(<a href="../error.rs.html#19">NotEnoughCapacity</a>(<a href="#332">first_char_len</a>))
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(<a class="self" href="#331">self</a>.<a href="#301-319">push_str</a>(<a href="#331">string</a>))
         }
@@ -1017,13 +1039,13 @@
     ///
     /// # Errors
     /// Returns [`NotEnoughCapacity`] if the slice wont completely fit.
-    </span><span class="kw">pub fn </span>try_push_str_complete(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
+    </span><span class="kw">pub fn </span>try_push_str_complete(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
         <span class="kw">let </span>non_nul_len = <a href="#348">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>().<a href="../../../../devela/_core/iter/trait.Iterator.html">filter</a>(|x| <span class="kw-2">**</span><a href="#349">x</a> != <span class="number">0</span>).<a href="../../../../devela/_core/iter/trait.Iterator.html">count</a>();
 
         <span class="kw">if </span><span class="self">self</span>.remaining_capacity() &gt;= non_nul_len {
             <span class="prelude-val">Ok</span>(<a class="self" href="#348">self</a>.<a href="#301-319">push_str</a>(<a href="#348">string</a>))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<a href="../error.rs.html#18">NotEnoughCapacity</a>(<a href="#349">non_nul_len</a>))
+            <span class="prelude-val">Err</span>(<a href="../error.rs.html#19">NotEnoughCapacity</a>(<a href="#349">non_nul_len</a>))
         }
     }
 
@@ -1040,7 +1062,7 @@
     ///
     /// Will always succeed if `CAP` &gt;= 4.
     </span><span class="attr">#[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>from_char(c: <a href="../char/definitions.rs.html#36">char</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub const fn </span>from_char(c: <a href="../char/reexports.rs.html#17">char</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>new = <a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::new()];
 
         <span class="kw">if </span>c <span class="kw">as </span>u32 != <span class="number">0 </span>{
@@ -1066,7 +1088,7 @@
     /// Will always succeed if `CAP` &gt;= 1.
     </span><span class="attr">#[cfg(feature = <span class="string">"_char7"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"_char7"</span>)))]
-    </span><span class="kw">pub const fn </span>from_char7(c: <a href="../char/definitions.rs.html#53">char7</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub const fn </span>from_char7(c: <a href="../char/definitions.rs.html#38">char7</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>new = <a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::new()];
         <span class="kw">if </span>!c.is_nul() {
             <a href="#398">new</a>.arr[<span class="number">0</span>] = <a href="#397">c</a>.<a href="../char/impls/c7.rs.html#135-139">to_utf8_bytes</a>()[<span class="number">0</span>];
@@ -1087,7 +1109,7 @@
     </span><span class="attr">#[rustfmt::skip]
     #[cfg(feature = <span class="string">"_char8"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"_char8"</span>)))]
-    </span><span class="kw">pub const fn </span>from_char8(c: <a href="../char/definitions.rs.html#71">char8</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub const fn </span>from_char8(c: <a href="../char/definitions.rs.html#56">char8</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>new = <a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::new()];
         <span class="kw">if </span>!c.is_nul() {
             <span class="kw">let </span>bytes = <a href="#418">c</a>.<a href="../char/impls/c8.rs.html#127-143">to_utf8_bytes</a>();
@@ -1112,7 +1134,7 @@
     </span><span class="attr">#[rustfmt::skip]
     #[cfg(feature = <span class="string">"_char16"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"_char16"</span>)))]
-    </span><span class="kw">pub const fn </span>from_char16(c: <a href="../char/definitions.rs.html#90">char16</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub const fn </span>from_char16(c: <a href="../char/definitions.rs.html#75">char16</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>new = <a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::new()];
         <span class="kw">if </span>!c.is_nul() {
             <span class="kw">let </span>bytes = <a href="#443">c</a>.<a href="../char/impls/c16.rs.html#154-179">to_utf8_bytes</a>();
@@ -1132,7 +1154,7 @@
     /// # Errors
     /// Returns [`InvalidUtf8`] if the bytes are not valid UTF-8,
     /// and [`InvalidNul`] if the bytes contains a NUL character.
-    </span><span class="kw">pub const fn </span>from_bytes(bytes: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#69">CAP</a>]) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub const fn </span>from_bytes(bytes: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#69">CAP</a>]) -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span><a href="../../../../devela/_core/str/fn.from_utf8.html">from_utf8</a>(<span class="kw-2">&amp;</span><a href="#463">bytes</a>) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
                 <a class="macro" href="../../code/util/cfor.rs.html#117-184">cfor!</a>[index <span class="kw">in </span><span class="number">0</span>..CAP =&gt; {
@@ -1140,7 +1162,7 @@
                 }];
                 <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ arr: <a href="#463">bytes</a> })
             }
-            <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(<a href="../error.rs.html#36">InvalidUtf8</a>(<span class="prelude-val">Some</span>(<a href="#471">e</a>))),
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(<a href="../error.rs.html#37">InvalidUtf8</a>(<span class="prelude-val">Some</span>(<a href="#471">e</a>))),
         }
     }
 
@@ -1214,17 +1236,17 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; <span class="kw">for </span><a href="#65-67">StringNonul</a>&lt;<a href="#544">CAP</a>&gt; {
-    <span class="kw">type </span>Error = <a href="../error.rs.html#14-42">TextError</a>;
+    <span class="kw">type </span>Error = <a href="../error.rs.html#15-43">TextError</a>;
 
     <span class="doccomment">/// Tries to create a new `StringNonul` from the given string slice.
     ///
     /// # Errors
     /// Returns [`OutOfBounds`] if `CAP &gt; `[`u8::MAX`],
     /// or [`NotEnoughCapacity`] if `CAP &lt; str.len()`.
-    </span><span class="kw">fn </span>try_from(string: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">fn </span>try_from(string: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>non_nul_len = <a href="#552">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>().<a href="../../../../devela/_core/iter/trait.Iterator.html">filter</a>(|x| <span class="kw-2">**</span><a href="#553">x</a> != <span class="number">0</span>).<a href="../../../../devela/_core/iter/trait.Iterator.html">count</a>();
         <span class="kw">if </span>CAP &lt; non_nul_len {
-            <span class="prelude-val">Err</span>(<a href="../error.rs.html#18">NotEnoughCapacity</a>(<a href="#553">non_nul_len</a>))
+            <span class="prelude-val">Err</span>(<a href="../error.rs.html#19">NotEnoughCapacity</a>(<a href="#553">non_nul_len</a>))
         } <span class="kw">else </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>new_string = <a href="#74-80"><span class="self">Self</span>::new</a>()<span class="question-mark">?</span>;
             <span class="kw">let </span>copied_bytes = <a href="#557">new_string</a>.<a href="#301-319">push_str</a>(<a href="#552">string</a>);
@@ -1235,7 +1257,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; <span class="kw">for </span><a href="#65-67">StringNonul</a>&lt;<a href="#565">CAP</a>&gt; {
-    <span class="kw">type </span>Error = <a href="../error.rs.html#14-42">TextError</a>;
+    <span class="kw">type </span>Error = <a href="../error.rs.html#15-43">TextError</a>;
 
     <span class="doccomment">/// Tries to create a new `StringNonul` from the given slice of `bytes`.
     ///
@@ -1243,7 +1265,7 @@
     /// Returns [`OutOfBounds`] if `CAP &gt; `[u8::MAX`],
     /// [`NotEnoughCapacity`] if `CAP &lt; bytes.len()`
     /// or [`InvalidUtf8`] if the `bytes` are not valid UTF-8.
-    </span><span class="kw">fn </span>try_from(bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../error.rs.html#9">Result</a>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">fn </span>try_from(bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../error.rs.html#10">Result</a>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span><a href="../../../../devela/_core/str/fn.from_utf8.html">from_utf8</a>(<a href="#574">bytes</a>) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>arr = [<span class="number">0</span>; <a href="#565">CAP</a>];
@@ -1261,7 +1283,7 @@
 
                 <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ <a href="#577">arr</a> })
             }
-            <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(<a href="../error.rs.html#36">InvalidUtf8</a>(<span class="prelude-val">Some</span>(<a href="#592">e</a>))),
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(<a href="../error.rs.html#37">InvalidUtf8</a>(<span class="prelude-val">Some</span>(<a href="#592">e</a>))),
         }
     }
 }

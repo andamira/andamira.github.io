@@ -1,15 +1,26 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/float/wrapper/shared_series.rs`."><title>shared_series.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (d4025ee45 2024-12-12)" data-channel="nightly" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/float/wrapper/shared_series.rs`."><title>shared_series.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (7c002ff9a 2024-12-25)" data-channel="nightly" data-search-js="search-036cda7a.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
+  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+  crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
+  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+  crossorigin="anonymous"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+  crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+  crossorigin="anonymous"></script>
+
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
-    onload="renderMathInElement(document.body);"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     renderMathInElement(document.body, {
@@ -32,17 +43,28 @@
 </style>
 
 <!-- https://katex.org/docs/browser.html#starter-template -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
+  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+  crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
+  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+  crossorigin="anonymous"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js" integrity="sha384-ifpG+NlgMq0kvOSGqGQxW1mJKpjjMDmZdpKGq3tbvD3WPhyshCEEYClriK/wRVU0"  crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+  crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+  crossorigin="anonymous"></script>
+
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
-    onload="renderMathInElement(document.body);"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     renderMathInElement(document.body, {
@@ -882,9 +904,7 @@
 <a href="#815" id="815">815</a>
 <a href="#816" id="816">816</a>
 <a href="#817" id="817">817</a>
-<a href="#818" id="818">818</a>
-<a href="#819" id="819">819</a>
-<a href="#820" id="820">820</a></pre></div><pre class="rust"><code><span class="comment">// devela::num::float::wrapper::shared_series
+<a href="#818" id="818">818</a></pre></div><pre class="rust"><code><span class="comment">// devela::num::float::wrapper::shared_series
 //
 </span><span class="doccomment">//! Shared methods implemented using Taylor Series.
 </span><span class="comment">//
@@ -897,8 +917,7 @@
 </span><span class="kw">use </span><a href="../mod.rs.html#14"><span class="kw">super</span>::<span class="kw">super</span>::shared_docs</a>::<span class="kw-2">*</span>;
 <span class="kw">use crate</span>::{<a href="../../../code/util/cfor.rs.html#117-184">cfor</a>, <a href="../../../code/util/iif.rs.html#60-89">iif</a>, <a href="../../../code/util/paste.rs.html#69-73">paste</a>, <a href="mod.rs.html#44">Float</a>};
 
-<span class="attr">#[doc = <span class="macro">crate::doc_private!</span>()]
-</span><span class="doccomment">/// Implements methods independently of any features
+<span class="doccomment">/// Implements methods independently of any features
 ///
 /// $f:   the floating-point type.
 /// $uf:  unsigned int type with the same bit-size.
@@ -927,7 +946,7 @@
             <span class="doccomment">/// Raises itself to the `y` floating point power using the Taylor series via the
             /// `exp` and `ln` functions.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_POWF_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See also [`ln_series_terms`][Self::ln_series_terms].
@@ -951,7 +970,7 @@
 
             <span class="doccomment">/// Computes the exponential function $e^x$ using Taylor series expansion.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_EXP_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See also [`exp_series_terms`][Self::exp_series_terms].
@@ -978,7 +997,7 @@
 
             <span class="doccomment">/// Calculates $ e^x - 1 $ using the Taylor series expansion.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_EXP_M1_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See also [`exp_series_terms`][Self::exp_series_terms].
@@ -1003,7 +1022,7 @@
 
             <span class="doccomment">/// Calculates $ 2^x $ using the Taylor series expansion.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_EXP2_SERIES!</span>()]
             </span><span class="doccomment">///
             /// The maximum values with a representable result are:
@@ -1033,7 +1052,7 @@
             /// This method is more efficient for values of `self` near 1. Values too
             /// small or too big could be impractical to calculate with precision.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_LN_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See also [`ln_series_terms`][Self::ln_series_terms].
@@ -1086,7 +1105,7 @@
 
             <span class="doccomment">/// Computes the logarithm to the given `base` using the change of base formula.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_LOG_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See also [`ln_series_terms`][Self::ln_series_terms].
@@ -1106,7 +1125,7 @@
 
             <span class="doccomment">/// Computes the base-2 logarithm using the change of base formula.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_LOG2_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See also [`ln_series_terms`][Self::ln_series_terms].
@@ -1117,7 +1136,7 @@
 
             <span class="doccomment">/// Computes the base-10 logarithm using the change of base formula.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_LOG10_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See also [`ln_series_terms`][Self::ln_series_terms].
@@ -1136,7 +1155,7 @@
 
             <span class="doccomment">/// The sine calculated using Taylor series expansion.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_SIN_SERIES!</span>()]
             </span><span class="doccomment">///
             /// This Taylor series converges relatively quickly and uniformly
@@ -1158,7 +1177,7 @@
 
             <span class="doccomment">/// Computes the cosine using taylor series expansion.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_COS_SERIES!</span>()]
             </span><span class="doccomment">///
             /// This Taylor series converges relatively quickly and uniformly
@@ -1186,7 +1205,7 @@
 
             <span class="doccomment">/// Computes the tangent using Taylor series expansion of sine and cosine.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_TAN_SERIES!</span>()]
             </span><span class="doccomment">///
             /// The tangent function has singularities and is not defined for
@@ -1206,7 +1225,7 @@
 
             <span class="doccomment">/// Computes the arcsine using Taylor series expansion.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_ASIN_SERIES!</span>()]
             </span><span class="doccomment">///
             /// asin is undefined for $ |x| &gt; 1 $ and in that case returns `NaN`.
@@ -1244,7 +1263,7 @@
 
             <span class="doccomment">/// Computes the arccosine using the Taylor expansion of arcsine.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_ACOS_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See the [`asin_series_terms`][Self#method.asin_series_terms] table for
@@ -1266,7 +1285,7 @@
 
             <span class="doccomment">/// Computes the arctangent using Taylor series expansion.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_ATAN_SERIES!</span>()]
             </span><span class="doccomment">///
             /// The series converges more slowly near the edges of the domain
@@ -1331,7 +1350,7 @@
             <span class="doccomment">/// The hyperbolic sine calculated using Taylor series expansion
             /// via the exponent formula.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_SINH_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See the [`exp_series_terms`][Self#method.exp_series_terms] table for
@@ -1344,7 +1363,7 @@
             <span class="doccomment">/// The hyperbolic cosine calculated using Taylor series expansion
             /// via the exponent formula.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_COSH_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See the [`exp_series_terms`][Self#method.exp_series_terms] table for
@@ -1357,7 +1376,7 @@
             <span class="doccomment">/// Computes the hyperbolic tangent using Taylor series expansion of
             /// hyperbolic sine and cosine.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_TANH_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See the [`exp_series_terms`][Self#method.exp_series_terms] table for
@@ -1371,7 +1390,7 @@
 
             <span class="doccomment">/// Computes the inverse hyperbolic sine using the natural logarithm definition.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_ASINH_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See also [`ln_series_terms`][Self::ln_series_terms].
@@ -1383,7 +1402,7 @@
 
             <span class="doccomment">/// Computes the inverse hyperbolic cosine using the natural logarithm definition.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_ACOSH_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See also [`ln_series_terms`][Self::ln_series_terms].
@@ -1399,7 +1418,7 @@
 
             <span class="doccomment">/// Computes the inverse hyperbolic tangent using the natural logarithm definition.
             ///
-            /// # Formula
+            /// # Formulation
             </span><span class="attr">#[doc = <span class="macro">FORMULA_ATANH_SERIES!</span>()]
             </span><span class="doccomment">///
             /// See also [`ln_series_terms`][Self::ln_series_terms].
@@ -1416,10 +1435,10 @@
         }
     };
 }
-<a class="macro" href="#22-532">impl_float_shared_series!</a>();
+<a class="macro" href="#21-531">impl_float_shared_series!</a>();
 
-<a class="macro" href="../../../code/util/const.rs.html#85-163">crate::CONST!</a> {
-<span class="kw">pub</span>(<span class="kw">crate</span>) TABLE_EXP_SERIES_TERMS = <span class="string">"
+<a class="macro" href="../../../code/util/const.rs.html#85-163">crate::CONST!</a> { <span class="kw">pub</span>(<span class="kw">crate</span>),
+TABLE_EXP_SERIES_TERMS = <span class="string">"
 The following table shows the required number of `terms` needed
 to reach the most precise result for both `f32` and `f64`:
 ```txt
@@ -1437,8 +1456,7 @@ to reach the most precise result for both `f32` and `f64`:
 ± 500.000 →   ---    692
 ± 709.782 →   ---    938  (max for f64 == f64:MAX.ln())
 ```"</span>;
-
-<span class="kw">pub</span>(<span class="kw">crate</span>) TABLE_EXP2_SERIES_TERMS = <span class="string">"
+TABLE_EXP2_SERIES_TERMS = <span class="string">"
 The following table shows the required number of `terms` needed
 to reach the most precise result for both `f32` and `f64`:
 ```txt
@@ -1455,7 +1473,7 @@ to reach the most precise result for both `f32` and `f64`:
 ± 511.0 →    ---    520
 ± 1023.999 → ---    939 (max for f64)
 ```"</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) TABLE_LN_SERIES_TERMS = <span class="string">"
+TABLE_LN_SERIES_TERMS = <span class="string">"
 The following table shows the required number of `terms` needed
 to reach the most precise result for both `f32` and `f64`:
 ```txt
@@ -1476,7 +1494,7 @@ to reach the most precise result for both `f32` and `f64`:
 ± 100000. →  81181 536609
 /// ```
 ```"</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) TABLE_SIN_SERIES_TERMS = <span class="string">"
+TABLE_SIN_SERIES_TERMS = <span class="string">"
 The following table shows the required number of `terms` needed
 to reach the most precise result for both `f32` and `f64`:
 ```txt
@@ -1490,7 +1508,7 @@ to reach the most precise result for both `f32` and `f64`:
 ± 0.900 →      6     10
 ± 0.999 →      6     10
 ```"</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) TABLE_COS_SERIES_TERMS = <span class="string">"
+TABLE_COS_SERIES_TERMS = <span class="string">"
 The following table shows the required number of `terms` needed
 to reach the most precise result for both `f32` and `f64`:
 ```txt
@@ -1504,7 +1522,7 @@ to reach the most precise result for both `f32` and `f64`:
 ± 0.900 →      7     10
 ± 0.999 →      7     11
 ```"</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) TABLE_TAN_SERIES_TERMS = <span class="string">"
+TABLE_TAN_SERIES_TERMS = <span class="string">"
 The following table shows the required number of `terms` needed
 to reach the most precise result for both `f32` and `f64`:
 ```txt
@@ -1518,7 +1536,7 @@ to reach the most precise result for both `f32` and `f64`:
 ± 0.900 →      7     10
 ± 0.999 →      7     11
 ```"</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) TABLE_ASIN_SERIES_TERMS = <span class="string">"
+TABLE_ASIN_SERIES_TERMS = <span class="string">"
 The following table shows the required number of `terms` needed
 to reach the most precise result for both `f32` and `f64`:
 ```txt
@@ -1533,7 +1551,7 @@ to reach the most precise result for both `f32` and `f64`:
 ± 0.990 →    333   1235
 ± 0.999 →   1989  10768
 ```"</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) TABLE_ATAN_SERIES_TERMS = <span class="string">"
+TABLE_ATAN_SERIES_TERMS = <span class="string">"
 The following table shows the required number of `terms` needed
 to reach the most precise result for both `f32` and `f64`:
 ```txt
@@ -1555,7 +1573,7 @@ to reach the most precise result for both `f32` and `f64`:
 </span><span class="kw">impl </span><a href="mod.rs.html#44">Float</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt; {
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>asin_acos_series_terms_f32(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#671">x</a>).<a href="shared.rs.html#482">abs</a>().<span class="number">0</span>;
+        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#669">x</a>).<a href="shared.rs.html#659">abs</a>().<span class="number">0</span>;
         <span class="kw">if </span>abs_a &lt;= <span class="number">0.1 </span>{ <span class="number">5
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">0.3 </span>{ <span class="number">7
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">0.5 </span>{ <span class="number">10
@@ -1567,7 +1585,7 @@ to reach the most precise result for both `f32` and `f64`:
     }
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>atan_series_terms_f32(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#683">x</a>).<a href="shared.rs.html#482">abs</a>().<span class="number">0</span>;
+        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#681">x</a>).<a href="shared.rs.html#659">abs</a>().<span class="number">0</span>;
         <span class="kw">if </span>abs_a &lt;= <span class="number">0.1 </span>{ <span class="number">5
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">0.3 </span>{ <span class="number">7
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">0.5 </span>{ <span class="number">12
@@ -1579,7 +1597,7 @@ to reach the most precise result for both `f32` and `f64`:
     }
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>exp_series_terms_f32(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#695">x</a>).<a href="shared.rs.html#482">abs</a>().<span class="number">0</span>;
+        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#693">x</a>).<a href="shared.rs.html#659">abs</a>().<span class="number">0</span>;
         <span class="kw">if </span>abs_a &lt;= <span class="number">0.001 </span>{ <span class="number">3
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">0.1 </span>{ <span class="number">6
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">1.0 </span>{ <span class="number">11
@@ -1591,7 +1609,7 @@ to reach the most precise result for both `f32` and `f64`:
     }
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>exp2_series_terms_f32(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#707">x</a>).<a href="shared.rs.html#482">abs</a>().<span class="number">0</span>;
+        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#705">x</a>).<a href="shared.rs.html#659">abs</a>().<span class="number">0</span>;
         <span class="kw">if </span>abs_a &lt;= <span class="number">0.3 </span>{ <span class="number">8
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">3.0 </span>{ <span class="number">15
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">7.0 </span>{ <span class="number">22
@@ -1603,9 +1621,9 @@ to reach the most precise result for both `f32` and `f64`:
     }
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>ln_series_terms_f32(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-        <span class="kw">let </span>x = <a href="mod.rs.html#44">Float</a>(<a href="#719">x</a>).<a href="shared.rs.html#482">abs</a>().<span class="number">0</span>;
+        <span class="kw">let </span>x = <a href="mod.rs.html#44">Float</a>(<a href="#717">x</a>).<a href="shared.rs.html#659">abs</a>().<span class="number">0</span>;
         <span class="kw">let </span>x = <span class="kw">if </span>x == <span class="number">0.0 </span>{ <span class="kw">return </span><span class="number">0</span>;
-        } <span class="kw">else if </span>x &lt;= <span class="number">1. </span>{ <span class="number">1. </span>/ <a href="#720">x</a> } <span class="kw">else </span>{ <a href="#720">x</a> };
+        } <span class="kw">else if </span>x &lt;= <span class="number">1. </span>{ <span class="number">1. </span>/ <a href="#718">x</a> } <span class="kw">else </span>{ <a href="#718">x</a> };
 
         <span class="kw">if </span>x &lt;= <span class="number">10. </span>{ <span class="number">32
         </span>} <span class="kw">else if </span>x &lt;= <span class="number">100. </span>{ <span class="number">245
@@ -1630,7 +1648,7 @@ to reach the most precise result for both `f32` and `f64`:
 </span><span class="kw">impl </span><a href="mod.rs.html#44">Float</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; {
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>asin_acos_series_terms_f64(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#746">x</a>).<a href="shared.rs.html#482">abs</a>().<span class="number">0</span>;
+        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#744">x</a>).<a href="shared.rs.html#659">abs</a>().<span class="number">0</span>;
         <span class="kw">if </span>abs_a &lt;= <span class="number">0.1 </span>{ <span class="number">9
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">0.3 </span>{ <span class="number">15
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">0.5 </span>{ <span class="number">24
@@ -1642,7 +1660,7 @@ to reach the most precise result for both `f32` and `f64`:
     }
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>atan_series_terms_f64(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#758">x</a>).<a href="shared.rs.html#482">abs</a>().<span class="number">0</span>;
+        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#756">x</a>).<a href="shared.rs.html#659">abs</a>().<span class="number">0</span>;
         <span class="kw">if </span>abs_a &lt;= <span class="number">0.1 </span>{ <span class="number">9
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">0.3 </span>{ <span class="number">15
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">0.5 </span>{ <span class="number">26
@@ -1654,7 +1672,7 @@ to reach the most precise result for both `f32` and `f64`:
     }
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>exp_series_terms_f64(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#770">x</a>).<a href="shared.rs.html#482">abs</a>().<span class="number">0</span>;
+        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#768">x</a>).<a href="shared.rs.html#659">abs</a>().<span class="number">0</span>;
         <span class="kw">if </span>abs_a &lt;= <span class="number">0.001 </span>{ <span class="number">5
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">0.1 </span>{ <span class="number">10
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">1.0 </span>{ <span class="number">18
@@ -1670,7 +1688,7 @@ to reach the most precise result for both `f32` and `f64`:
     }
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>exp2_series_terms_f64(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#786">x</a>).<a href="shared.rs.html#482">abs</a>().<span class="number">0</span>;
+        <span class="kw">let </span>abs_a = <a href="mod.rs.html#44">Float</a>(<a href="#784">x</a>).<a href="shared.rs.html#659">abs</a>().<span class="number">0</span>;
         <span class="kw">if </span>abs_a &lt;= <span class="number">0.3 </span>{ <span class="number">13
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">3.0 </span>{ <span class="number">25
         </span>} <span class="kw">else if </span>abs_a &lt;= <span class="number">7.0 </span>{ <span class="number">34
@@ -1685,9 +1703,9 @@ to reach the most precise result for both `f32` and `f64`:
     }
     <span class="attr">#[must_use]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>ln_series_terms_f64(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-        <span class="kw">let </span>x = <a href="mod.rs.html#44">Float</a>(<a href="#801">x</a>).<a href="shared.rs.html#482">abs</a>().<span class="number">0</span>;
+        <span class="kw">let </span>x = <a href="mod.rs.html#44">Float</a>(<a href="#799">x</a>).<a href="shared.rs.html#659">abs</a>().<span class="number">0</span>;
         <span class="kw">let </span>x = <span class="kw">if </span>x == <span class="number">0.0 </span>{ <span class="kw">return </span><span class="number">0</span>;
-        } <span class="kw">else if </span>x &lt;= <span class="number">1. </span>{ <span class="number">1. </span>/ <a href="#802">x</a> } <span class="kw">else </span>{ <a href="#802">x</a> };
+        } <span class="kw">else if </span>x &lt;= <span class="number">1. </span>{ <span class="number">1. </span>/ <a href="#800">x</a> } <span class="kw">else </span>{ <a href="#800">x</a> };
 
         <span class="kw">if </span>x &lt;= <span class="number">10. </span>{ <span class="number">80
         </span>} <span class="kw">else if </span>x &lt;= <span class="number">100. </span>{ <span class="number">720
