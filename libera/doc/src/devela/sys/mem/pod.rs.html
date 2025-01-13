@@ -1,23 +1,23 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/pod.rs`."><title>pod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (7c002ff9a 2024-12-25)" data-channel="nightly" data-search-js="search-036cda7a.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
-  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/pod.rs`."><title>pod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (48a426eca 2025-01-12)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
+  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
-  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
+  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
   crossorigin="anonymous"></script>
 
 <!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
   integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
   crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
   integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
   crossorigin="anonymous"></script>
 
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
   integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
   crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
@@ -26,8 +26,8 @@
     renderMathInElement(document.body, {
       delimiters: [
         {left: "$$", right: "$$", display: true},
-        {left: "\\(", right: "\\)", display: false},
         {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
         {left: "\\[", right: "\\]", display: true}
       ],
       // trust: true, // https://katex.org/docs/options
@@ -43,25 +43,25 @@
 </style>
 
 <!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
-  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
+  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
-  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
+  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
   crossorigin="anonymous"></script>
 
 <!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
   integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
   crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
   integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
   crossorigin="anonymous"></script>
 
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
   integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
   crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
@@ -70,8 +70,8 @@
     renderMathInElement(document.body, {
       delimiters: [
         {left: "$$", right: "$$", display: true},
-        {left: "\\(", right: "\\)", display: false},
         {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
         {left: "\\[", right: "\\]", display: true}
       ],
       // trust: true, // https://katex.org/docs/options
@@ -242,7 +242,7 @@
 </span><span class="comment">//
 // See also: &lt;https://docs.rs/bytemuck/latest/bytemuck/trait.Pod.html&gt;
 
-</span><span class="kw">use </span>core::{<a href="../../../../devela/_core/mem/union.MaybeUninit.html">mem::MaybeUninit</a>, <a href="../../../../devela/_core/num/index.html">num</a>::<span class="kw-2">*</span>};
+</span><span class="kw">use </span>core::{<a href="../../../../devela/all/union.MaybeUninit.html">mem::MaybeUninit</a>, <a href="../../../../devela/_core/num/index.html">num</a>::<span class="kw-2">*</span>};
 
 <span class="doccomment">/// Indicates a type is Plain Old Data, and meets specific memory layout guarantees.
 ///
@@ -304,7 +304,7 @@
 /// unsafe impl MemPod for MyStruct {}
 /// ```
 </span><span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_layout"</span>))]
-</span><span class="kw">pub unsafe trait </span><a href="../../../../devela/sys/mem/trait.MemPod.html">MemPod</a>: <a href="../../../../devela/_core/marker/trait.Copy.html">Copy</a> + <span class="lifetime">'static </span>{
+</span><span class="kw">pub unsafe trait </span><a href="../../../../devela/all/trait.MemPod.html">MemPod</a>: <a href="../../../../devela/all/trait.Copy.html">Copy</a> + <span class="lifetime">'static </span>{
     <span class="doccomment">/// Returns a new instance contrcuted from zeroes.
     </span><span class="attr">#[must_use]
     </span><span class="kw">fn </span>zeroed() -&gt; <span class="self">Self </span>{
@@ -320,7 +320,7 @@
         <span class="kw">let </span>size = <a href="../../../../devela/_core/mem/fn.size_of.html">size_of</a>::&lt;<span class="self">Self</span>&gt;();
         <span class="kw">let </span>bytes_to_copy = <a href="../../../../devela/_core/cmp/fn.min.html">core::cmp::min</a>(<a href="#81">bytes</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>(), <a href="#82">size</a>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>new_self = <a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>::&lt;<span class="self">Self</span>&gt;::uninit();
+        <span class="kw">let </span><span class="kw-2">mut </span>new_self = <a href="../../../../devela/all/union.MaybeUninit.html">MaybeUninit</a>::&lt;<span class="self">Self</span>&gt;::uninit();
 
         <span class="comment">// SAFETY: We're only copying valid byte data into the uninitialized memory
         </span><span class="kw">unsafe </span>{
@@ -376,10 +376,10 @@
 </span><a class="macro" href="#126-134">mem_pod!</a>[(), <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i128.html">i128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>];
 
 <span class="kw">unsafe impl</span>&lt;T: <a href="#69-122">MemPod</a>, <span class="kw">const </span>N: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#69-122">MemPod</a> <span class="kw">for </span>[T; <a href="#140">N</a>] {}
-<span class="kw">unsafe impl</span>&lt;T: <a href="#69-122">MemPod</a>&gt; <a href="#69-122">MemPod</a> <span class="kw">for </span><a href="../../../../devela/_core/mem/union.MaybeUninit.html">MaybeUninit</a>&lt;T&gt; {}
-<span class="kw">unsafe impl</span>&lt;T: <a href="#69-122">MemPod</a>&gt; <a href="#69-122">MemPod</a> <span class="kw">for </span><a href="../../../../devela/_core/mem/struct.ManuallyDrop.html">core::mem::ManuallyDrop</a>&lt;T&gt; {}
-<span class="kw">unsafe impl</span>&lt;T: <a href="#69-122">MemPod</a>&gt; <a href="#69-122">MemPod</a> <span class="kw">for </span><a href="../../../../devela/_core/num/struct.Wrapping.html">core::num::Wrapping</a>&lt;T&gt; {}
-<span class="kw">unsafe impl</span>&lt;T: <span class="question-mark">?</span><a href="../../../../devela/_core/marker/trait.Sized.html">Sized</a> + <span class="lifetime">'static</span>&gt; <a href="#69-122">MemPod</a> <span class="kw">for </span><a href="../../../../devela/_core/marker/struct.PhantomData.html">core::marker::PhantomData</a>&lt;T&gt; {}
+<span class="kw">unsafe impl</span>&lt;T: <a href="#69-122">MemPod</a>&gt; <a href="#69-122">MemPod</a> <span class="kw">for </span><a href="../../../../devela/all/union.MaybeUninit.html">MaybeUninit</a>&lt;T&gt; {}
+<span class="kw">unsafe impl</span>&lt;T: <a href="#69-122">MemPod</a>&gt; <a href="#69-122">MemPod</a> <span class="kw">for </span><a href="../../../../devela/all/struct.ManuallyDrop.html">core::mem::ManuallyDrop</a>&lt;T&gt; {}
+<span class="kw">unsafe impl</span>&lt;T: <a href="#69-122">MemPod</a>&gt; <a href="#69-122">MemPod</a> <span class="kw">for </span><a href="../../../../devela/all/struct.Wrapping.html">core::num::Wrapping</a>&lt;T&gt; {}
+<span class="kw">unsafe impl</span>&lt;T: <span class="question-mark">?</span><a href="../../../../devela/all/trait.Sized.html">Sized</a> + <span class="lifetime">'static</span>&gt; <a href="#69-122">MemPod</a> <span class="kw">for </span><a href="../../../../devela/all/struct.PhantomData.html">core::marker::PhantomData</a>&lt;T&gt; {}
 
 <span class="kw">unsafe impl</span>&lt;T: <a href="#69-122">MemPod</a>&gt; <a href="#69-122">MemPod</a> <span class="kw">for </span><a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;T&gt; {}
 <a class="macro" href="#126-134">mem_pod!</a>[option:

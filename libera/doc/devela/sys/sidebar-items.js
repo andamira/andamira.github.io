@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["crate_root","crate_root_string"],"macro":["env_","option_env"],"mod":["arch","io","log","mem","os"],"struct":["Env"]};
+window.SIDEBAR_ITEMS = {"macro":["env_","option_env"],"mod":["arch","io","log","mem","os","path"],"struct":["Env"]};

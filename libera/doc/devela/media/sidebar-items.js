@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AudioError","ColorError","DrawError","FontError","ImageError","MediaError","MidiError"],"mod":["audio","color","draw","font","image","midi"],"struct":["Color","PixelGrid","Pnm"],"trait":["Canvas","ColorBase"],"type":["AudioResult","ColorResult","DrawResult","FontResult","ImageResult","MediaResult","MidiResult"]};
+window.SIDEBAR_ITEMS = {"mod":["audio","color","draw","font","image","midi"]};

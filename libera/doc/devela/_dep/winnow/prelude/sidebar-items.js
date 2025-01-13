@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"trait":["Parser","_"],"type":["IResult","PResult"]};

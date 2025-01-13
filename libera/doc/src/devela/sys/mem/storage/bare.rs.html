@@ -1,23 +1,23 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/storage/bare.rs`."><title>bare.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (7c002ff9a 2024-12-25)" data-channel="nightly" data-search-js="search-036cda7a.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
-  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/storage/bare.rs`."><title>bare.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (48a426eca 2025-01-12)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
+  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
-  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
+  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
   crossorigin="anonymous"></script>
 
 <!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
   integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
   crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
   integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
   crossorigin="anonymous"></script>
 
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
   integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
   crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
@@ -26,8 +26,8 @@
     renderMathInElement(document.body, {
       delimiters: [
         {left: "$$", right: "$$", display: true},
-        {left: "\\(", right: "\\)", display: false},
         {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
         {left: "\\[", right: "\\]", display: true}
       ],
       // trust: true, // https://katex.org/docs/options
@@ -43,25 +43,25 @@
 </style>
 
 <!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
-  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
+  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
-  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
+  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
   crossorigin="anonymous"></script>
 
 <!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
   integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
   crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
   integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
   crossorigin="anonymous"></script>
 
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
   integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
   crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
@@ -70,8 +70,8 @@
     renderMathInElement(document.body, {
       delimiters: [
         {left: "$$", right: "$$", display: true},
-        {left: "\\(", right: "\\)", display: false},
         {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
         {left: "\\[", right: "\\]", display: true}
       ],
       // trust: true, // https://katex.org/docs/options
@@ -405,21 +405,26 @@
 <a href="#316" id="316">316</a>
 <a href="#317" id="317">317</a>
 <a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::mem::storage::bare
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::mem::storage::bare
 //
 </span><span class="doccomment">//! *Bare* storage doesn't affect its contents
 </span><span class="comment">//
 // API based on https://doc.rust-lang.org/alloc/boxed/struct.Box.html
 
 </span><span class="attr">#[cfg(all(doc, feature = <span class="string">"alloc"</span>))]
-</span><span class="kw">use crate</span>::{<a href="../../../../../devela/all/struct.Box.html">Box</a>, <a href="boxed.rs.html#14">Boxed</a>};
+</span><span class="kw">use crate</span>::{<a href="../../../../../devela/all/struct.Box.html">Box</a>, <a href="boxed.rs.html#17">Boxed</a>};
 <span class="kw">use crate</span>::{<a href="../namespace.rs.html#22">Mem</a>, <a href="mod.rs.html#55-69">Storage</a>};
+<span class="attr">#[cfg(feature = <span class="string">"dep_rkyv"</span>)]
+</span><span class="kw">use </span>rkyv::{<a href="../../../../../devela/_dep/rkyv/derive.Archive.html">Archive</a>, <a href="../../../../../devela/_dep/rkyv/derive.Deserialize.html">Deserialize</a>, <a href="../../../../../devela/_dep/rkyv/derive.Serialize.html">Serialize</a>};
 
 <span class="doccomment">/// &lt;span class='stab portability' title='re-exported from rust&amp;#39;s `core`'&gt;`core`&lt;/span&gt;
 /// A zero-sized marker for a [`Storage`] type that wraps its data in a [`BareBox`].
 ///
 /// Equivalent to the [`Boxed`] marker struct which uses a [`Box`] for the underlying storage.
-</span><span class="kw">pub type </span><a href="../../../../../devela/sys/mem/type.Bare.html">Bare</a> = ();
+</span><span class="kw">pub type </span><a href="../../../../../devela/all/type.Bare.html">Bare</a> = ();
 
 <span class="doccomment">/// A no-op pointer type, like a [`Box`] but without affecting how `T` is stored.
 ///
@@ -431,22 +436,23 @@
 /// # use devela::BareBox;
 /// let byte = BareBox::new(0_u8);
 /// ```
-</span><span class="kw">pub struct </span><a href="../../../../../devela/sys/mem/struct.BareBox.html">BareBox</a>&lt;T&gt;(<span class="kw">pub </span>T);
+</span><span class="attr">#[cfg_attr(feature = <span class="string">"dep_rkyv"</span>, derive(Archive, Serialize, Deserialize))]
+</span><span class="kw">pub struct </span><a href="#30">BareBox</a>&lt;T&gt;(<span class="kw">pub </span>T);
 
 <span class="doccomment">/// A zero-sized marker for a storage type that wraps its data in a [`BareBox`].
 ///
 /// This implementation is equivalent to the one for [`Boxed`] which uses [`Box`] for storage.
 </span><span class="attr">#[rustfmt::skip]
-</span><span class="kw">impl </span><a href="mod.rs.html#55-69">Storage</a> <span class="kw">for </span><a href="#15">Bare</a> {
-    <span class="kw">type </span>Stored&lt;T&gt; = <a href="#27">BareBox</a>&lt;T&gt;;
+</span><span class="kw">impl </span><a href="mod.rs.html#55-69">Storage</a> <span class="kw">for </span><a href="#17">Bare</a> {
+    <span class="kw">type </span>Stored&lt;T&gt; = <a href="#30">BareBox</a>&lt;T&gt;;
     <span class="kw">fn </span>name() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> { <span class="string">"BareBox" </span>}
 }
 
 <span class="attr">#[rustfmt::skip]
-</span><span class="kw">impl</span>&lt;T&gt; <a href="#27">BareBox</a>&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T&gt; <a href="#30">BareBox</a>&lt;T&gt; {
     <span class="doccomment">/// Creates a new `BareBox` storage for the given `t`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(t: T) -&gt; <span class="self">Self </span>{ <span class="self">Self</span>(<a href="#42">t</a>) }
+    </span><span class="kw">pub const fn </span>new(t: T) -&gt; <span class="self">Self </span>{ <span class="self">Self</span>(<a href="#45">t</a>) }
 
     <span class="doccomment">/// Returns the inner stored type.
     ///
@@ -458,7 +464,7 @@
     /// assert_eq!(42, inner);
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; T { <a class="self" href="#54">self</a>.<span class="number">0 </span>}
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; T { <a class="self" href="#57">self</a>.<span class="number">0 </span>}
 
     <span class="doccomment">/// Returns a shared reference to the inner stored type, in compile-time.
     ///
@@ -470,7 +476,7 @@
     /// assert_eq!('a', *REF);
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T { <span class="kw-2">&amp;</span><a class="self" href="#66">self</a>.<span class="number">0 </span>}
+    </span><span class="kw">pub const fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T { <span class="kw-2">&amp;</span><a class="self" href="#69">self</a>.<span class="number">0 </span>}
 
     <span class="doccomment">/// Returns an exclusive reference to the inner stored type, in compile-time.
     ///
@@ -486,7 +492,7 @@
     /// assert_eq!('z', *MODIFIED);
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T { <span class="kw-2">&amp;mut </span><a class="self" href="#82">self</a>.<span class="number">0 </span>}
+    </span><span class="kw">pub const fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T { <span class="kw-2">&amp;mut </span><a class="self" href="#85">self</a>.<span class="number">0 </span>}
 
     <span class="doccomment">/// Replaces the stored value with a `new` one, returning the old value.
     ///
@@ -500,7 +506,7 @@
     /// ```
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>new: T) -&gt; T {
-        <a href="../namespace.rs.html#115-117">Mem::swap</a>(<span class="kw-2">&amp;mut </span><a class="self" href="#95">self</a>.<span class="number">0</span>, <span class="kw-2">&amp;mut </span><a href="#95">new</a>); <a href="#95">new</a>
+        <a href="../namespace.rs.html#115-117">Mem::swap</a>(<span class="kw-2">&amp;mut </span><a class="self" href="#98">self</a>.<span class="number">0</span>, <span class="kw-2">&amp;mut </span><a href="#98">new</a>); <a href="#98">new</a>
     }
 
     <span class="doccomment">/// Checks if the stored value is the default.
@@ -512,13 +518,13 @@
     /// assert!(b.is_default());
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>is_default(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> <span class="kw">where </span>T: <a href="../../../../../devela/_core/default/trait.Default.html">Default</a> + <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> {
-        <a class="self" href="#108">self</a>.<span class="number">0 </span>== <a href="../../../../../devela/_core/default/trait.Default.html">T::default</a>()
+    </span><span class="kw">pub fn </span>is_default(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> <span class="kw">where </span>T: <a href="../../../../../devela/code/trait.Default.html">Default</a> + <a href="../../../../../devela/num/trait.PartialEq.html">PartialEq</a> {
+        <a class="self" href="#111">self</a>.<span class="number">0 </span>== <a href="../../../../../devela/code/trait.Default.html">T::default</a>()
     }
 }
 
 <span class="attr">#[rustfmt::skip]
-</span><span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/marker/trait.Copy.html">Copy</a>&gt; <a href="#27">BareBox</a>&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T: <a href="../../../../../devela/all/trait.Copy.html">Copy</a>&gt; <a href="#30">BareBox</a>&lt;T&gt; {
     <span class="doccomment">/// Returns the inner stored type in compile-time.
     ///
     /// Example
@@ -530,7 +536,7 @@
     /// ```
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>into_inner_copy(<span class="self">self</span>) -&gt; T {
-        <a class="self" href="#125">self</a>.<span class="number">0
+        <a class="self" href="#128">self</a>.<span class="number">0
     </span>}
 
     <span class="doccomment">/// Maps the inner value to another type using the provided function.
@@ -542,12 +548,12 @@
     /// let squared = b.map(|x| x * x);
     /// assert_eq!(4, *squared);
     /// ```
-    </span><span class="kw">pub fn </span>map&lt;U: <a href="../../../../../devela/_core/marker/trait.Copy.html">Copy</a>&gt;(<span class="self">self</span>, f: <span class="kw">fn</span>(T) -&gt; U) -&gt; <a href="#27">BareBox</a>&lt;U&gt; {
-        <a href="#27">BareBox</a>(<a href="#138">f</a>(<a class="self" href="#138">self</a>.<span class="number">0</span>))
+    </span><span class="kw">pub fn </span>map&lt;U: <a href="../../../../../devela/all/trait.Copy.html">Copy</a>&gt;(<span class="self">self</span>, f: <span class="kw">fn</span>(T) -&gt; U) -&gt; <a href="#30">BareBox</a>&lt;U&gt; {
+        <a href="#30">BareBox</a>(<a href="#141">f</a>(<a class="self" href="#141">self</a>.<span class="number">0</span>))
     }
 }
 
-<span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/marker/trait.Copy.html">Copy</a>&gt; <a href="#27">BareBox</a>&lt;<a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;T&gt;&gt; {
+<span class="kw">impl</span>&lt;T: <a href="../../../../../devela/all/trait.Copy.html">Copy</a>&gt; <a href="#30">BareBox</a>&lt;<a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;T&gt;&gt; {
     <span class="doccomment">/// Unwraps the inner `Option`, returning the contained value or a default,
     /// in compile time.
     ///
@@ -563,10 +569,10 @@
     /// ```
     </span><span class="attr">#[rustfmt::skip]
     </span><span class="kw">pub const fn </span>unwrap_copy_or(<span class="self">self</span>, default: T) -&gt; T {
-        <span class="kw">match </span><a class="self" href="#158">self</a>.<span class="number">0 </span>{ <span class="prelude-val">Some</span>(val) =&gt; <a href="#159">val</a>, <span class="prelude-val">None </span>=&gt; <a href="#158">default</a> }
+        <span class="kw">match </span><a class="self" href="#161">self</a>.<span class="number">0 </span>{ <span class="prelude-val">Some</span>(val) =&gt; <a href="#162">val</a>, <span class="prelude-val">None </span>=&gt; <a href="#161">default</a> }
     }
 }
-<span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/marker/trait.Copy.html">Copy</a>, E: <a href="../../../../../devela/_core/marker/trait.Copy.html">Copy</a>&gt; <a href="#27">BareBox</a>&lt;<a class="prelude-ty" href="../../../../../devela/_core/result/enum.Result.html">Result</a>&lt;T, E&gt;&gt; {
+<span class="kw">impl</span>&lt;T: <a href="../../../../../devela/all/trait.Copy.html">Copy</a>, E: <a href="../../../../../devela/all/trait.Copy.html">Copy</a>&gt; <a href="#30">BareBox</a>&lt;<a class="prelude-ty" href="../../../../../devela/all/enum.Result.html">Result</a>&lt;T, E&gt;&gt; {
     <span class="doccomment">/// Unwraps the inner `Result`, returning the `Ok` value or a default,
     /// in compile time.
     ///
@@ -583,145 +589,145 @@
     /// ```
     </span><span class="attr">#[rustfmt::skip]
     </span><span class="kw">pub const fn </span>unwrap_copy_or(<span class="self">self</span>, default: T) -&gt; T {
-        <span class="kw">match </span><a class="self" href="#178">self</a>.<span class="number">0 </span>{ <span class="prelude-val">Ok</span>(val) =&gt; <a href="#179">val</a>, <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <a href="#178">default</a> }
+        <span class="kw">match </span><a class="self" href="#181">self</a>.<span class="number">0 </span>{ <span class="prelude-val">Ok</span>(val) =&gt; <a href="#182">val</a>, <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <a href="#181">default</a> }
     }
 }
 
 <span class="kw">mod </span>core_impls {
-    <span class="kw">use crate</span>::{<a href="#27">BareBox</a>, <a href="../../../code/default.rs.html#9-12">ConstDefault</a>};
+    <span class="kw">use crate</span>::{<a href="#30">BareBox</a>, <a href="../../../code/default.rs.html#9-12">ConstDefault</a>};
     <span class="kw">use </span>core::{<a href="../../../../../devela/_core/cmp/index.html">cmp</a>, <a href="../../../../../devela/_core/convert/index.html">convert</a>, <a href="../../../../../devela/_core/fmt/index.html">fmt</a>, <a href="../../../../../devela/_core/hash/index.html">hash</a>, <a href="../../../../../devela/_core/ops/index.html">ops</a>};
 
-    <span class="kw">impl</span>&lt;T&gt; <a href="../../../../../devela/_core/ops/trait.Deref.html">ops::Deref</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T&gt; <a href="../../../../../devela/all/trait.Deref.html">ops::Deref</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
         <span class="kw">type </span>Target = T;
         <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
-            <span class="kw-2">&amp;</span><a class="self" href="#189">self</a>.<span class="number">0
+            <span class="kw-2">&amp;</span><a class="self" href="#192">self</a>.<span class="number">0
         </span>}
     }
-    <span class="kw">impl</span>&lt;T&gt; <a href="../../../../../devela/_core/ops/trait.DerefMut.html">ops::DerefMut</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T&gt; <a href="../../../../../devela/all/trait.DerefMut.html">ops::DerefMut</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
         <span class="attr">#[must_use]
         </span><span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T {
-            <span class="kw-2">&amp;mut </span><a class="self" href="#195">self</a>.<span class="number">0
+            <span class="kw-2">&amp;mut </span><a class="self" href="#198">self</a>.<span class="number">0
         </span>}
     }
 
-    <span class="kw">impl</span>&lt;T&gt; <a href="../../../../../devela/_core/convert/trait.AsRef.html">convert::AsRef</a>&lt;T&gt; <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T&gt; <a href="../../../../../devela/code/trait.AsRef.html">convert::AsRef</a>&lt;T&gt; <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
         <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
-            <span class="kw-2">&amp;</span><a class="self" href="#201">self</a>.<span class="number">0
+            <span class="kw-2">&amp;</span><a class="self" href="#204">self</a>.<span class="number">0
         </span>}
     }
-    <span class="kw">impl</span>&lt;T&gt; <a href="../../../../../devela/_core/convert/trait.AsMut.html">convert::AsMut</a>&lt;T&gt; <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T&gt; <a href="../../../../../devela/code/trait.AsMut.html">convert::AsMut</a>&lt;T&gt; <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
         <span class="attr">#[must_use]
         </span><span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T {
-            <span class="kw-2">&amp;mut </span><a class="self" href="#207">self</a>.<span class="number">0
+            <span class="kw-2">&amp;mut </span><a class="self" href="#210">self</a>.<span class="number">0
         </span>}
     }
 
-    <span class="kw">impl</span>&lt;T&gt; <a href="../../../../../devela/_core/convert/trait.From.html">From</a>&lt;T&gt; <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T&gt; <a href="../../../../../devela/code/trait.From.html">From</a>&lt;T&gt; <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
         <span class="attr">#[must_use]
         </span><span class="kw">fn </span>from(t: T) -&gt; <span class="self">Self </span>{
-            <a href="#27">BareBox</a>(<a href="#214">t</a>)
+            <a href="#30">BareBox</a>(<a href="#217">t</a>)
         }
     }
 
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/clone/trait.Clone.html">Clone</a>&gt; <a href="../../../../../devela/_core/clone/trait.Clone.html">Clone</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/code/trait.Clone.html">Clone</a>&gt; <a href="../../../../../devela/code/trait.Clone.html">Clone</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
         <span class="attr">#[must_use]
         </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-            <a href="#27">BareBox</a>(<a class="self" href="#221">self</a>.<span class="number">0</span>.<a href="../../../../../devela/_core/clone/trait.Clone.html">clone</a>())
+            <a href="#30">BareBox</a>(<a class="self" href="#224">self</a>.<span class="number">0</span>.<a href="../../../../../devela/code/trait.Clone.html">clone</a>())
         }
     }
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/marker/trait.Copy.html">Copy</a>&gt; <a href="../../../../../devela/_core/marker/trait.Copy.html">Copy</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {}
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/all/trait.Copy.html">Copy</a>&gt; <a href="../../../../../devela/all/trait.Copy.html">Copy</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {}
 
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/default/trait.Default.html">Default</a>&gt; <a href="../../../../../devela/_core/default/trait.Default.html">Default</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/code/trait.Default.html">Default</a>&gt; <a href="../../../../../devela/code/trait.Default.html">Default</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
         <span class="attr">#[must_use]
         </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-            <a href="#27">BareBox</a>(<a href="../../../../../devela/_core/default/trait.Default.html">T::default</a>())
+            <a href="#30">BareBox</a>(<a href="../../../../../devela/code/trait.Default.html">T::default</a>())
         }
     }
 
-    <span class="kw">impl</span>&lt;T: <a href="../../../code/default.rs.html#9-12">ConstDefault</a>&gt; <a href="../../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
-        <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="#27">BareBox</a>(T::DEFAULT);
+    <span class="kw">impl</span>&lt;T: <a href="../../../code/default.rs.html#9-12">ConstDefault</a>&gt; <a href="../../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
+        <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="#30">BareBox</a>(T::DEFAULT);
     }
 
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a>&gt; <a href="../../../../../devela/_core/cmp/trait.PartialEq.html">PartialEq</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/num/trait.PartialEq.html">PartialEq</a>&gt; <a href="../../../../../devela/num/trait.PartialEq.html">PartialEq</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
         <span class="attr">#[must_use]
         </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
-            <a class="self" href="#240">self</a>.<span class="number">0</span>.<a href="../../../../../devela/_core/cmp/trait.PartialEq.html">eq</a>(<span class="kw-2">&amp;</span><a href="#240">other</a>.<span class="number">0</span>)
+            <a class="self" href="#243">self</a>.<span class="number">0</span>.<a href="../../../../../devela/num/trait.PartialEq.html">eq</a>(<span class="kw-2">&amp;</span><a href="#243">other</a>.<span class="number">0</span>)
         }
     }
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/cmp/trait.Eq.html">Eq</a>&gt; <a href="../../../../../devela/_core/cmp/trait.Eq.html">Eq</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {}
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/num/trait.Eq.html">Eq</a>&gt; <a href="../../../../../devela/num/trait.Eq.html">Eq</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {}
 
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/cmp/trait.PartialOrd.html">PartialOrd</a>&gt; <a href="../../../../../devela/_core/cmp/trait.PartialOrd.html">PartialOrd</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/num/trait.PartialOrd.html">PartialOrd</a>&gt; <a href="../../../../../devela/num/trait.PartialOrd.html">PartialOrd</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
         <span class="attr">#[must_use]
-        </span><span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<a href="../../../../../devela/_core/cmp/enum.Ordering.html">cmp::Ordering</a>&gt; {
-            <a class="self" href="#248">self</a>.<span class="number">0</span>.<a href="../../../../../devela/_core/cmp/trait.PartialOrd.html">partial_cmp</a>(<span class="kw-2">&amp;</span><a href="#248">other</a>.<span class="number">0</span>)
+        </span><span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<a href="../../../../../devela/num/enum.Ordering.html">cmp::Ordering</a>&gt; {
+            <a class="self" href="#251">self</a>.<span class="number">0</span>.<a href="../../../../../devela/num/trait.PartialOrd.html">partial_cmp</a>(<span class="kw-2">&amp;</span><a href="#251">other</a>.<span class="number">0</span>)
         }
     }
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/cmp/trait.Ord.html">Ord</a>&gt; <a href="../../../../../devela/_core/cmp/trait.Ord.html">Ord</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/num/trait.Ord.html">Ord</a>&gt; <a href="../../../../../devela/num/trait.Ord.html">Ord</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
         <span class="attr">#[must_use]
-        </span><span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <a href="../../../../../devela/_core/cmp/enum.Ordering.html">cmp::Ordering</a> {
-            <a class="self" href="#254">self</a>.<span class="number">0</span>.<a href="../../../../../devela/_core/cmp/trait.Ord.html">cmp</a>(<span class="kw-2">&amp;</span><a href="#254">other</a>.<span class="number">0</span>)
+        </span><span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <a href="../../../../../devela/num/enum.Ordering.html">cmp::Ordering</a> {
+            <a class="self" href="#257">self</a>.<span class="number">0</span>.<a href="../../../../../devela/num/trait.Ord.html">cmp</a>(<span class="kw-2">&amp;</span><a href="#257">other</a>.<span class="number">0</span>)
         }
     }
 
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/fmt/trait.Debug.html">fmt::Debug</a>&gt; <a href="../../../../../devela/_core/fmt/trait.Debug.html">fmt::Debug</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
-        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../../devela/_core/fmt/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
-            <a href="../../../../../devela/_core/fmt/trait.Debug.html">fmt::Debug::fmt</a>(<span class="kw-2">&amp;</span><a class="self" href="#260">self</a>.<span class="number">0</span>, <a href="#260">f</a>)
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/all/trait.Debug.html">fmt::Debug</a>&gt; <a href="../../../../../devela/all/trait.Debug.html">fmt::Debug</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../../devela/all/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
+            <a href="../../../../../devela/all/trait.Debug.html">fmt::Debug::fmt</a>(<span class="kw-2">&amp;</span><a class="self" href="#263">self</a>.<span class="number">0</span>, <a href="#263">f</a>)
         }
     }
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/fmt/trait.Display.html">fmt::Display</a>&gt; <a href="../../../../../devela/_core/fmt/trait.Display.html">fmt::Display</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
-        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../../devela/_core/fmt/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
-            <a href="../../../../../devela/_core/fmt/trait.Display.html">fmt::Display::fmt</a>(<span class="kw-2">&amp;</span><a class="self" href="#265">self</a>.<span class="number">0</span>, <a href="#265">f</a>)
-        }
-    }
-
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/fmt/trait.Pointer.html">fmt::Pointer</a>&gt; <a href="../../../../../devela/_core/fmt/trait.Pointer.html">fmt::Pointer</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
-        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../../devela/_core/fmt/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
-            <a href="../../../../../devela/_core/fmt/trait.Pointer.html">fmt::Pointer::fmt</a>(<span class="kw-2">&amp;</span><a class="self" href="#271">self</a>.<span class="number">0</span>, <a href="#271">f</a>)
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/all/trait.Display.html">fmt::Display</a>&gt; <a href="../../../../../devela/all/trait.Display.html">fmt::Display</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../../devela/all/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
+            <a href="../../../../../devela/all/trait.Display.html">fmt::Display::fmt</a>(<span class="kw-2">&amp;</span><a class="self" href="#268">self</a>.<span class="number">0</span>, <a href="#268">f</a>)
         }
     }
 
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/hash/trait.Hash.html">hash::Hash</a>&gt; <a href="../../../../../devela/_core/hash/trait.Hash.html">hash::Hash</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
-        <span class="kw">fn </span>hash&lt;H: <a href="../../../../../devela/_core/hash/trait.Hasher.html">hash::Hasher</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
-            <a class="self" href="#277">self</a>.<span class="number">0</span>.<a href="../../../../../devela/_core/hash/trait.Hash.html">hash</a>(<a href="#277">state</a>);
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/all/trait.Pointer.html">fmt::Pointer</a>&gt; <a href="../../../../../devela/all/trait.Pointer.html">fmt::Pointer</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../../devela/all/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
+            <a href="../../../../../devela/all/trait.Pointer.html">fmt::Pointer::fmt</a>(<span class="kw-2">&amp;</span><a class="self" href="#274">self</a>.<span class="number">0</span>, <a href="#274">f</a>)
         }
     }
-    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/_core/hash/trait.Hasher.html">hash::Hasher</a>&gt; <a href="../../../../../devela/_core/hash/trait.Hasher.html">hash::Hasher</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {
+
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/all/trait.Hash.html">hash::Hash</a>&gt; <a href="../../../../../devela/all/trait.Hash.html">hash::Hash</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
+        <span class="kw">fn </span>hash&lt;H: <a href="../../../../../devela/all/trait.Hasher.html">hash::Hasher</a>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+            <a class="self" href="#280">self</a>.<span class="number">0</span>.<a href="../../../../../devela/all/trait.Hash.html">hash</a>(<a href="#280">state</a>);
+        }
+    }
+    <span class="kw">impl</span>&lt;T: <a href="../../../../../devela/all/trait.Hasher.html">hash::Hasher</a>&gt; <a href="../../../../../devela/all/trait.Hasher.html">hash::Hasher</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {
         <span class="attr">#[must_use]
         </span><span class="kw">fn </span>finish(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
-            <a class="self" href="#283">self</a>.<span class="number">0</span>.<a href="../../../../../devela/_core/hash/trait.Hasher.html">finish</a>()
+            <a class="self" href="#286">self</a>.<span class="number">0</span>.<a href="../../../../../devela/all/trait.Hasher.html">finish</a>()
         }
         <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) {
-            <a class="self" href="#286">self</a>.<span class="number">0</span>.<a href="../../../../../devela/_core/hash/trait.Hasher.html">write</a>(<a href="#286">bytes</a>);
+            <a class="self" href="#289">self</a>.<span class="number">0</span>.<a href="../../../../../devela/all/trait.Hasher.html">write</a>(<a href="#289">bytes</a>);
         }
     }
 
-    <span class="kw">impl</span>&lt;I: <a href="../../../../../devela/_core/iter/trait.Iterator.html">Iterator</a>&gt; <a href="../../../../../devela/_core/iter/trait.Iterator.html">Iterator</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;I&gt; {
+    <span class="kw">impl</span>&lt;I: <a href="../../../../../devela/all/trait.Iterator.html">Iterator</a>&gt; <a href="../../../../../devela/all/trait.Iterator.html">Iterator</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;I&gt; {
         <span class="kw">type </span>Item = I::Item;
 
         <span class="attr">#[must_use]
         </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;I::Item&gt; {
-            <a class="self" href="#295">self</a>.<span class="number">0</span>.<a href="../../../../../devela/_core/iter/trait.Iterator.html">next</a>()
+            <a class="self" href="#298">self</a>.<span class="number">0</span>.<a href="../../../../../devela/all/trait.Iterator.html">next</a>()
         }
         <span class="attr">#[must_use]
         </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;) {
-            <a class="self" href="#299">self</a>.<span class="number">0</span>.<a href="../../../../../devela/_core/iter/trait.Iterator.html">size_hint</a>()
+            <a class="self" href="#302">self</a>.<span class="number">0</span>.<a href="../../../../../devela/all/trait.Iterator.html">size_hint</a>()
         }
         <span class="attr">#[must_use]
         </span><span class="kw">fn </span>nth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;I::Item&gt; {
-            <a class="self" href="#303">self</a>.<span class="number">0</span>.<a href="../../../../../devela/_core/iter/trait.Iterator.html">nth</a>(<a href="#303">n</a>)
+            <a class="self" href="#306">self</a>.<span class="number">0</span>.<a href="../../../../../devela/all/trait.Iterator.html">nth</a>(<a href="#306">n</a>)
         }
         <span class="attr">#[must_use]
         </span><span class="kw">fn </span>last(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;I::Item&gt; {
-            <a class="self" href="#307">self</a>.<span class="number">0</span>.<a href="../../../../../devela/_core/iter/trait.Iterator.html">last</a>()
+            <a class="self" href="#310">self</a>.<span class="number">0</span>.<a href="../../../../../devela/all/trait.Iterator.html">last</a>()
         }
     }
 
     <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_sync"</span>))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_sync"</span>)))]
-    </span><span class="kw">unsafe impl</span>&lt;T: <a href="../../../../../devela/_core/marker/trait.Send.html">Send</a>&gt; <a href="../../../../../devela/_core/marker/trait.Send.html">Send</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {}
+    </span><span class="kw">unsafe impl</span>&lt;T: <a href="../../../../../devela/all/trait.Send.html">Send</a>&gt; <a href="../../../../../devela/all/trait.Send.html">Send</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {}
 
     <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_sync"</span>))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_sync"</span>)))]
-    </span><span class="kw">unsafe impl</span>&lt;T: <a href="../../../../../devela/_core/marker/trait.Sync.html">Sync</a>&gt; <a href="../../../../../devela/_core/marker/trait.Sync.html">Sync</a> <span class="kw">for </span><a href="#27">BareBox</a>&lt;T&gt; {}
+    </span><span class="kw">unsafe impl</span>&lt;T: <a href="../../../../../devela/all/trait.Sync.html">Sync</a>&gt; <a href="../../../../../devela/all/trait.Sync.html">Sync</a> <span class="kw">for </span><a href="#30">BareBox</a>&lt;T&gt; {}
 }
 </code></pre></div></section></main></body></html>

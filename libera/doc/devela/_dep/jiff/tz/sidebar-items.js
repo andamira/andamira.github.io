@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AmbiguousOffset","Disambiguation","Dst","OffsetConflict"],"fn":["db","offset"],"struct":["AmbiguousTimestamp","AmbiguousZoned","Offset","OffsetArithmetic","TimeZone","TimeZoneDatabase","TimeZoneNameIter"]};
+window.SIDEBAR_ITEMS = {"enum":["AmbiguousOffset","Disambiguation","Dst","OffsetConflict"],"fn":["db","offset"],"struct":["AmbiguousTimestamp","AmbiguousZoned","Offset","OffsetArithmetic","TimeZone","TimeZoneDatabase","TimeZoneFollowingTransitions","TimeZoneNameIter","TimeZonePrecedingTransitions","TimeZoneTransition"]};

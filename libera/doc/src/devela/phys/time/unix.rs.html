@@ -1,23 +1,23 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/phys/time/unix.rs`."><title>unix.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (7c002ff9a 2024-12-25)" data-channel="nightly" data-search-js="search-036cda7a.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
-  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/phys/time/unix.rs`."><title>unix.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (48a426eca 2025-01-12)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
+  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
-  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
+  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
   crossorigin="anonymous"></script>
 
 <!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
   integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
   crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
   integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
   crossorigin="anonymous"></script>
 
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
   integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
   crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
@@ -26,8 +26,8 @@
     renderMathInElement(document.body, {
       delimiters: [
         {left: "$$", right: "$$", display: true},
-        {left: "\\(", right: "\\)", display: false},
         {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
         {left: "\\[", right: "\\]", display: true}
       ],
       // trust: true, // https://katex.org/docs/options
@@ -43,25 +43,25 @@
 </style>
 
 <!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
-  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
+  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
-  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
+  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
   crossorigin="anonymous"></script>
 
 <!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
   integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
   crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
   integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
   crossorigin="anonymous"></script>
 
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
   integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
   crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
@@ -70,8 +70,8 @@
     renderMathInElement(document.body, {
       delimiters: [
         {left: "$$", right: "$$", display: true},
-        {left: "\\(", right: "\\)", display: false},
         {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
         {left: "\\[", right: "\\]", display: true}
       ],
       // trust: true, // https://katex.org/docs/options
@@ -477,8 +477,7 @@
 <a href="#388" id="388">388</a>
 <a href="#389" id="389">389</a>
 <a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
-<a href="#392" id="392">392</a></pre></div><pre class="rust"><code><span class="comment">// devela::phys::time::unix
+<a href="#391" id="391">391</a></pre></div><pre class="rust"><code><span class="comment">// devela::phys::time::unix
 //
 // # LINKS
 // - https://en.wikipedia.org/wiki/Unix_time
@@ -490,15 +489,15 @@
 </span><span class="comment">//
 
 </span><span class="kw">use crate</span>::{
-    <a href="calendar/mod.rs.html#19-23">is_leap_year</a>, <a href="../../../../devela/_core/fmt/derive.Debug.html">Debug</a>, <a href="../../../../devela/_core/fmt/trait.Display.html">Display</a>, <a href="../../text/fmt/reexports.rs.html#95">FmtResult</a>, <a href="../../../../devela/_core/fmt/struct.Formatter.html">Formatter</a>, <a href="calendar/month.rs.html#14-27">Month</a>, <a href="split.rs.html#42-61">TimeSplit</a>, <a href="split.rs.html#74">TimeSplitYearSec</a>,
-    <a href="../../../../devela/_core/num/struct.TryFromIntError.html">TryFromIntError</a>,
+    <a href="calendar/mod.rs.html#19-23">is_leap_year</a>, <a href="../../../../devela/all/derive.Debug.html">Debug</a>, <a href="../../../../devela/all/trait.Display.html">Display</a>, <a href="../../text/fmt/reexports.rs.html#95">FmtResult</a>, <a href="../../../../devela/all/struct.Formatter.html">Formatter</a>, <a href="calendar/month.rs.html#14-27">Month</a>, <a href="split.rs.html#18-37">TimeSplit</a>, <a href="split.rs.html#50">TimeSplitYearSec</a>,
+    <a href="../../../../devela/all/struct.TryFromIntError.html">TryFromIntError</a>,
 };
 
 <span class="doccomment">/// 64-bit Unix time, supporting negative values.
 ///
 /// Stores the number of seconds relative to the Unix Epoch (`1970-01-01 00:00:00 UTC`).
 </span><span class="attr">#[derive(Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
-</span><span class="kw">pub struct </span><a href="../../../../devela/phys/time/struct.UnixTimeI64.html">UnixTimeI64</a> {
+</span><span class="kw">pub struct </span><a href="../../../../devela/phys/struct.UnixTimeI64.html">UnixTimeI64</a> {
     <span class="doccomment">/// The number of seconds relative the Unix Epoch.
     </span><span class="kw">pub </span>seconds: <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>,
 }
@@ -509,7 +508,7 @@
 ///
 /// It can represent time from `1970-01-01_00:00:00` to `2106-02-07_06:28:15`.
 </span><span class="attr">#[derive(Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
-</span><span class="kw">pub struct </span><a href="../../../../devela/phys/time/struct.UnixTimeU32.html">UnixTimeU32</a> {
+</span><span class="kw">pub struct </span><a href="../../../../devela/phys/struct.UnixTimeU32.html">UnixTimeU32</a> {
     <span class="doccomment">/// The number of seconds since the Unix Epoch.
     </span><span class="kw">pub </span>seconds: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
 }
@@ -549,7 +548,7 @@
     ///     UnixTimeI64::new(-1).split().to_tuple_y_s().unwrap()];
     /// ```
     </span><span class="comment">// 72b
-    </span><span class="kw">pub const fn </span>split(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="split.rs.html#74">TimeSplitYearSec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; {
+    </span><span class="kw">pub const fn </span>split(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="split.rs.html#50">TimeSplitYearSec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; {
         <span class="kw">let </span>seconds_per_minute: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> = <span class="number">60</span>;
         <span class="kw">let </span>minutes_per_hour: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> = <span class="number">60</span>;
         <span class="kw">let </span>hours_per_day: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> = <span class="number">24</span>;
@@ -597,7 +596,7 @@
         <span class="kw">let </span>second = <a href="#78">seconds_left</a> % <a href="#73">seconds_per_minute</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>;
 
         <span class="kw">if </span><span class="self">self</span>.seconds &gt;= <span class="number">0 </span>{
-            <a href="split.rs.html#146-148">TimeSplit::new_year_sec</a>(
+            <a href="split.rs.html#122-124">TimeSplit::new_year_sec</a>(
                 <a href="#79">year</a>,
                 <a href="#97">month</a>.<a href="calendar/month.rs.html#76-78">number</a>(),
                 <a href="#108">day</a>,
@@ -606,7 +605,7 @@
                 <a href="#117">second</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
             )
         } <span class="kw">else </span>{
-            <a href="split.rs.html#146-148">TimeSplit::new_year_sec</a>(
+            <a href="split.rs.html#122-124">TimeSplit::new_year_sec</a>(
                 <a href="#79">year</a>,
                 <span class="number">13 </span>- <a href="#97">month</a>.<a href="calendar/month.rs.html#76-78">number</a>(),
                 <a href="calendar/month.rs.html#26">Month::December</a>.<a href="calendar/month.rs.html#59-61">previous_nth</a>(<a href="#97">month</a>.<a href="calendar/month.rs.html#81-83">index</a>()).<a href="calendar/month.rs.html#36-51">len</a>(<a href="#80">leap</a>) - <a href="#108">day</a> + <span class="number">1</span>,
@@ -623,12 +622,12 @@
     <span class="comment">// Returns the number of seconds since `1970-01-01 00:00:00 UTC`.
     </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">fn </span>unix_time_64() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a> {
-        <span class="kw">use </span><a href="../../../../devela/all/struct.SystemTime.html">std::time::SystemTime</a>;
+        <span class="kw">use </span><a href="../../../../devela/phys/struct.SystemTime.html">std::time::SystemTime</a>;
         <a href="https://doc.rust-lang.org/nightly/std/time/struct.SystemTime.html#method.now">SystemTime::now</a>()
             .<a href="https://doc.rust-lang.org/nightly/std/time/struct.SystemTime.html#method.duration_since">duration_since</a>(SystemTime::UNIX_EPOCH)
             .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>()
             .<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>()
-            .<a href="../../../../devela/_core/cmp/trait.Ord.html">min</a>(i64::MAX <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>
+            .<a href="../../../../devela/num/trait.Ord.html">min</a>(i64::MAX <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>
     }
 
     <span class="comment">// // Returns the number of seconds since 1970-01-01 00:00:00 UTC.
@@ -676,7 +675,7 @@
     /// assert_eq![(2038, 1, 19, 3, 14, 7),
     ///     UnixTimeU32::new(i32::MAX as u32).split().to_tuple_y_s().unwrap()];
     /// ```
-    </span><span class="kw">pub const fn </span>split(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="split.rs.html#74">TimeSplitYearSec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; {
+    </span><span class="kw">pub const fn </span>split(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="split.rs.html#50">TimeSplitYearSec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; {
         <span class="kw">let </span>seconds_per_minute: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> = <span class="number">60</span>;
         <span class="kw">let </span>minutes_per_hour: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> = <span class="number">60</span>;
         <span class="kw">let </span>hours_per_day: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> = <span class="number">24</span>;
@@ -713,7 +712,7 @@
         <span class="kw">let </span>minute = <a href="#205">seconds_left</a> / <a href="#200">seconds_per_minute</a>;
         <span class="kw">let </span>second = <a href="#205">seconds_left</a> % <a href="#200">seconds_per_minute</a>;
 
-        <a href="split.rs.html#146-148">TimeSplit::new_year_sec</a>(
+        <a href="split.rs.html#122-124">TimeSplit::new_year_sec</a>(
             <a href="#206">year</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>,
             <a href="#218">month</a>.<a href="calendar/month.rs.html#76-78">number</a>(),
             <a href="#227">day</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
@@ -731,12 +730,12 @@
     // Because of `u32` this will only work until `06:28:15 UTC on 07 February 2106`.
     </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">fn </span>unix_time_32() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-        <span class="kw">use </span><a href="../../../../devela/all/struct.SystemTime.html">std::time::SystemTime</a>;
+        <span class="kw">use </span><a href="../../../../devela/phys/struct.SystemTime.html">std::time::SystemTime</a>;
         <a href="https://doc.rust-lang.org/nightly/std/time/struct.SystemTime.html#method.now">SystemTime::now</a>()
             .<a href="https://doc.rust-lang.org/nightly/std/time/struct.SystemTime.html#method.duration_since">duration_since</a>(SystemTime::UNIX_EPOCH)
             .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>()
             .<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>()
-            .<a href="../../../../devela/_core/cmp/trait.Ord.html">min</a>(u32::MAX <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>
+            .<a href="../../../../devela/num/trait.Ord.html">min</a>(u32::MAX <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>
     }
 
     <span class="comment">// // Returns the number of seconds since 1970-01-01 00:00:00 UTC.
@@ -749,57 +748,57 @@
     // }
 </span>}
 
-<span class="kw">impl </span><a href="../../../../devela/_core/fmt/trait.Display.html">Display</a> <span class="kw">for </span><a href="#21-24">UnixTimeI64</a> {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/_core/fmt/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
-        <span class="kw">let </span><a href="split.rs.html#42-61">TimeSplit</a> { y, mo, d, h, m, s, .. } = <a class="self" href="#273">self</a>.<a href="#72-138">split</a>();
-        <a class="macro" href="../../../../devela/_core/macro.write.html">write!</a>[<a href="#273">f</a>, <span class="string">"{y:04}-{mo:02}-{d:02}_{h:02}:{m:02}:{s:02}"</span>]
+<span class="kw">impl </span><a href="../../../../devela/all/trait.Display.html">Display</a> <span class="kw">for </span><a href="#21-24">UnixTimeI64</a> {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
+        <span class="kw">let </span><a href="split.rs.html#18-37">TimeSplit</a> { y, mo, d, h, m, s, .. } = <a class="self" href="#273">self</a>.<a href="#72-138">split</a>();
+        <a class="macro" href="../../../../devela/all/macro.write.html">write!</a>[<a href="#273">f</a>, <span class="string">"{y:04}-{mo:02}-{d:02}_{h:02}:{m:02}:{s:02}"</span>]
     }
 }
-<span class="kw">impl </span><a href="../../../../devela/_core/fmt/trait.Debug.html">Debug</a> <span class="kw">for </span><a href="#21-24">UnixTimeI64</a> {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/_core/fmt/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
-        <span class="kw">let </span><a href="split.rs.html#42-61">TimeSplit</a> { y, mo, d, h, m, s, .. } = <a class="self" href="#279">self</a>.<a href="#72-138">split</a>();
-        <a class="macro" href="../../../../devela/_core/macro.write.html">write!</a>[<a href="#279">f</a>, <span class="string">"UnixTimeI64 {{ {y:04}-{mo:02}-{d:02}_{h:02}:{m:02}:{s:02} }}"</span>]
-    }
-}
-
-<span class="kw">impl </span><a href="../../../../devela/_core/fmt/trait.Display.html">Display</a> <span class="kw">for </span><a href="#32-35">UnixTimeU32</a> {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/_core/fmt/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
-        <span class="kw">let </span><a href="split.rs.html#42-61">TimeSplit</a> { y, mo, d, h, m, s, .. } = <a class="self" href="#286">self</a>.<a href="#199-244">split</a>();
-        <a class="macro" href="../../../../devela/_core/macro.write.html">write!</a>[<a href="#286">f</a>, <span class="string">"{y:04}-{mo:02}-{d:02}_{h:02}:{m:02}:{s:02}"</span>]
+<span class="kw">impl </span><a href="../../../../devela/all/trait.Debug.html">Debug</a> <span class="kw">for </span><a href="#21-24">UnixTimeI64</a> {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
+        <span class="kw">let </span><a href="split.rs.html#18-37">TimeSplit</a> { y, mo, d, h, m, s, .. } = <a class="self" href="#279">self</a>.<a href="#72-138">split</a>();
+        <a class="macro" href="../../../../devela/all/macro.write.html">write!</a>[<a href="#279">f</a>, <span class="string">"UnixTimeI64 {{ {y:04}-{mo:02}-{d:02}_{h:02}:{m:02}:{s:02} }}"</span>]
     }
 }
 
-<span class="kw">impl </span><a href="../../../../devela/_core/fmt/trait.Debug.html">Debug</a> <span class="kw">for </span><a href="#32-35">UnixTimeU32</a> {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/_core/fmt/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
-        <span class="kw">let </span><a href="split.rs.html#42-61">TimeSplit</a> { y, mo, d, h, m, s, .. } = <a class="self" href="#293">self</a>.<a href="#199-244">split</a>();
-        <a class="macro" href="../../../../devela/_core/macro.write.html">write!</a>[<a href="#293">f</a>, <span class="string">"UnixTimeU32 {{ {y:04}-{mo:02}-{d:02}_{h:02}:{m:02}:{s:02} }}"</span>]
+<span class="kw">impl </span><a href="../../../../devela/all/trait.Display.html">Display</a> <span class="kw">for </span><a href="#32-35">UnixTimeU32</a> {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
+        <span class="kw">let </span><a href="split.rs.html#18-37">TimeSplit</a> { y, mo, d, h, m, s, .. } = <a class="self" href="#286">self</a>.<a href="#199-244">split</a>();
+        <a class="macro" href="../../../../devela/all/macro.write.html">write!</a>[<a href="#286">f</a>, <span class="string">"{y:04}-{mo:02}-{d:02}_{h:02}:{m:02}:{s:02}"</span>]
     }
 }
 
-<span class="kw">impl </span><a href="../../../../devela/_core/convert/trait.From.html">From</a>&lt;<a href="#32-35">UnixTimeU32</a>&gt; <span class="kw">for </span><a href="#21-24">UnixTimeI64</a> {
+<span class="kw">impl </span><a href="../../../../devela/all/trait.Debug.html">Debug</a> <span class="kw">for </span><a href="#32-35">UnixTimeU32</a> {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
+        <span class="kw">let </span><a href="split.rs.html#18-37">TimeSplit</a> { y, mo, d, h, m, s, .. } = <a class="self" href="#293">self</a>.<a href="#199-244">split</a>();
+        <a class="macro" href="../../../../devela/all/macro.write.html">write!</a>[<a href="#293">f</a>, <span class="string">"UnixTimeU32 {{ {y:04}-{mo:02}-{d:02}_{h:02}:{m:02}:{s:02} }}"</span>]
+    }
+}
+
+<span class="kw">impl </span><a href="../../../../devela/code/trait.From.html">From</a>&lt;<a href="#32-35">UnixTimeU32</a>&gt; <span class="kw">for </span><a href="#21-24">UnixTimeI64</a> {
     <span class="kw">fn </span>from(ut: <a href="#32-35">UnixTimeU32</a>) -&gt; <a href="#21-24">UnixTimeI64</a> {
-        <a href="#21-24">UnixTimeI64</a> { seconds: <a href="#300">ut</a>.seconds.<a href="../../../../devela/_core/convert/trait.Into.html">into</a>() }
+        <a href="#21-24">UnixTimeI64</a> { seconds: <a href="#300">ut</a>.seconds.<a href="../../../../devela/code/trait.Into.html">into</a>() }
     }
 }
 
-<span class="kw">impl </span><a href="../../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<a href="#21-24">UnixTimeI64</a>&gt; <span class="kw">for </span><a href="#32-35">UnixTimeU32</a> {
-    <span class="kw">type </span>Error = <a href="../../../../devela/_core/num/struct.TryFromIntError.html">TryFromIntError</a>;
+<span class="kw">impl </span><a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<a href="#21-24">UnixTimeI64</a>&gt; <span class="kw">for </span><a href="#32-35">UnixTimeU32</a> {
+    <span class="kw">type </span>Error = <a href="../../../../devela/all/struct.TryFromIntError.html">TryFromIntError</a>;
 
-    <span class="kw">fn </span>try_from(ut: <a href="#21-24">UnixTimeI64</a>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<a href="#32-35">UnixTimeU32</a>, <span class="self">Self</span>::Error&gt; {
-        <span class="prelude-val">Ok</span>(<a href="#32-35">UnixTimeU32</a> { seconds: <a href="../../../../devela/_core/convert/trait.TryFrom.html">u32::try_from</a>(<a href="#308">ut</a>.seconds)<span class="question-mark">? </span>})
+    <span class="kw">fn </span>try_from(ut: <a href="#21-24">UnixTimeI64</a>) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<a href="#32-35">UnixTimeU32</a>, <span class="self">Self</span>::Error&gt; {
+        <span class="prelude-val">Ok</span>(<a href="#32-35">UnixTimeU32</a> { seconds: <a href="../../../../devela/code/trait.TryFrom.html">u32::try_from</a>(<a href="#308">ut</a>.seconds)<span class="question-mark">? </span>})
     }
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">mod </span>std_impls {
     <span class="attr">#[cfg(feature = <span class="string">"cast"</span>)]
-    </span><span class="kw">use crate</span>::{<a href="../../num/primitive/namespace.rs.html#7">Cast</a>, <a href="error.rs.html#15-24">TimeError</a>, <a href="#32-35">UnixTimeU32</a>};
-    <span class="kw">use crate</span>::{<a href="../../../../devela/all/struct.SystemTime.html">SystemTime</a>, <a href="../../../../devela/all/struct.SystemTimeError.html">SystemTimeError</a>, <a href="#21-24">UnixTimeI64</a>};
+    </span><span class="kw">use crate</span>::{<a href="../../num/primitive/namespace.rs.html#7">Cast</a>, <a href="../../data/error.rs.html#33-38">DataOverflow</a>, <a href="#32-35">UnixTimeU32</a>};
+    <span class="kw">use crate</span>::{<a href="../../../../devela/phys/struct.SystemTime.html">SystemTime</a>, <a href="error.rs.html#13-21">SystemTimeError</a>, <a href="#21-24">UnixTimeI64</a>};
 
-    <span class="kw">impl </span><a href="../../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<a href="../../../../devela/all/struct.SystemTime.html">SystemTime</a>&gt; <span class="kw">for </span><a href="#21-24">UnixTimeI64</a> {
-        <span class="kw">type </span>Error = <a href="../../../../devela/all/struct.SystemTimeError.html">SystemTimeError</a>;
+    <span class="kw">impl </span><a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<a href="../../../../devela/phys/struct.SystemTime.html">SystemTime</a>&gt; <span class="kw">for </span><a href="#21-24">UnixTimeI64</a> {
+        <span class="kw">type </span>Error = <a href="error.rs.html#13-21">SystemTimeError</a>;
 
-        <span class="kw">fn </span>try_from(time: <a href="../../../../devela/all/struct.SystemTime.html">SystemTime</a>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">fn </span>try_from(time: <a href="../../../../devela/phys/struct.SystemTime.html">SystemTime</a>) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
             <span class="kw">let </span>duration = <a href="#322">time</a>.<a href="https://doc.rust-lang.org/nightly/std/time/struct.SystemTime.html#method.duration_since">duration_since</a>(SystemTime::UNIX_EPOCH)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<a href="#21-24">UnixTimeI64</a> {
                 seconds: <a href="#323">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>() <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>, <span class="comment">// Assuming the range is acceptable for i64
@@ -807,17 +806,16 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">"cast"</span>)]
-    #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"cast"</span>)))]
-    </span><span class="kw">impl </span><a href="../../../../devela/_core/convert/trait.TryFrom.html">TryFrom</a>&lt;<a href="../../../../devela/all/struct.SystemTime.html">SystemTime</a>&gt; <span class="kw">for </span><a href="#32-35">UnixTimeU32</a> {
-        <span class="kw">type </span>Error = <a href="error.rs.html#15-24">TimeError</a>;
+    <span class="attr">#[cfg(all(feature = <span class="string">"cast"</span>, feature = <span class="string">"error"</span>))]
+    #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(all(feature = <span class="string">"cast"</span>, feature = <span class="string">"error"</span>))))]
+    </span><span class="kw">impl </span>TryFrom&lt;SystemTime&gt; <span class="kw">for </span>UnixTimeU32 {
+        <span class="kw">type </span>Error = <span class="kw">crate</span>::TimeError;
 
-        <span class="kw">fn </span>try_from(time: <a href="../../../../devela/all/struct.SystemTime.html">SystemTime</a>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/result/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-            <span class="kw">let </span>since = <a href="#335">time</a>.<a href="https://doc.rust-lang.org/nightly/std/time/struct.SystemTime.html#method.duration_since">duration_since</a>(SystemTime::UNIX_EPOCH)<span class="question-mark">?</span>;
-            <span class="kw">let </span>seconds = <a href="../../../../devela/_core/convert/trait.TryFrom.html">u32::try_from</a>(<a href="#336">since</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>()).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|<span class="kw">_</span>| {
-                <a href="error.rs.html#23">TimeError::OutOfBounds</a>(<a href="../../num/primitive/namespace.rs.html#7">Cast</a>(<a href="#336">since</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>()).<a href="../../num/primitive/cast.rs.html#481">checked_cast_to_usize</a>().<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.ok">ok</a>())
-            })<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<a href="#32-35">UnixTimeU32</a> { <a href="#337">seconds</a> })
+        <span class="kw">fn </span>try_from(time: SystemTime) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+            <span class="kw">let </span>since = time.duration_since(SystemTime::UNIX_EPOCH)<span class="question-mark">?</span>;
+            <span class="kw">let </span>seconds = u32::try_from(since.as_secs())
+                .map_err(|<span class="kw">_</span>| DataOverflow(Cast(since.as_secs()).checked_cast_to_usize().ok()))<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(UnixTimeU32 { seconds })
         }
     }
 
@@ -852,8 +850,8 @@
         }
     };
 }
-<a class="macro" href="#364-374">impl_from_prim!</a>[<a href="#21-24">UnixTimeI64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>];
-<a class="macro" href="#364-374">impl_from_prim!</a>[<a href="#32-35">UnixTimeU32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>];
+<a class="macro" href="#363-373">impl_from_prim!</a>[<a href="#21-24">UnixTimeI64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>];
+<a class="macro" href="#363-373">impl_from_prim!</a>[<a href="#32-35">UnixTimeU32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>];
 
 <span class="comment">// Implements TryFrom&lt;primitive&gt; for UnixTime*
 </span><span class="macro">macro_rules!</span> impl_try_from_prim {
@@ -867,7 +865,7 @@
         }
     };
 }
-<a class="macro" href="#379-389">impl_try_from_prim!</a>[<a href="#21-24">UnixTimeI64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i128.html">i128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>];
+<a class="macro" href="#378-388">impl_try_from_prim!</a>[<a href="#21-24">UnixTimeI64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i128.html">i128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>];
 <span class="attr">#[rustfmt::skip]
-</span><a class="macro" href="#379-389">impl_try_from_prim!</a>[<a href="#32-35">UnixTimeU32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i128.html">i128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>];
+</span><a class="macro" href="#378-388">impl_try_from_prim!</a>[<a href="#32-35">UnixTimeU32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i128.html">i128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>];
 </code></pre></div></section></main></body></html>

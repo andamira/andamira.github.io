@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["munge","munge_with_path"],"struct":["Borrow","Move"],"trait":["Destructure","Restructure"]};

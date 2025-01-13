@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["DateTimeParser","DateTimePrinter","SpanParser","SpanPrinter"]};
+window.SIDEBAR_ITEMS = {"enum":["PiecesOffset","TimeZoneAnnotationKind"],"struct":["DateTimeParser","DateTimePrinter","Pieces","PiecesNumericOffset","SpanParser","SpanPrinter","TimeZoneAnnotation","TimeZoneAnnotationName"]};

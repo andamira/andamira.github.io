@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["DecoderError","Mp4Type"],"struct":["Decoder","LoopedDecoder"]};
+window.SIDEBAR_ITEMS = {"enum":["DecoderError","Mp4Type"],"mod":["symphonia"],"struct":["Decoder","LoopedDecoder"]};

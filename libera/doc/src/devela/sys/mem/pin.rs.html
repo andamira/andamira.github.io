@@ -1,23 +1,23 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/pin.rs`."><title>pin.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (7c002ff9a 2024-12-25)" data-channel="nightly" data-search-js="search-036cda7a.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
-  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/pin.rs`."><title>pin.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (48a426eca 2025-01-12)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
+  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
-  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
+  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
   crossorigin="anonymous"></script>
 
 <!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
   integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
   crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
   integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
   crossorigin="anonymous"></script>
 
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
   integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
   crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
@@ -26,8 +26,8 @@
     renderMathInElement(document.body, {
       delimiters: [
         {left: "$$", right: "$$", display: true},
-        {left: "\\(", right: "\\)", display: false},
         {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
         {left: "\\[", right: "\\]", display: true}
       ],
       // trust: true, // https://katex.org/docs/options
@@ -43,25 +43,25 @@
 </style>
 
 <!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
-  integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u"
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
+  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
-  integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
+  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
   crossorigin="anonymous"></script>
 
 <!-- # plugins -->
 <!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/mhchem.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
   integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
   crossorigin="anonymous"></script>
 <!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/copy-tex.min.js"
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
   integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
   crossorigin="anonymous"></script>
 
 <!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
   integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
   crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
@@ -70,8 +70,8 @@
     renderMathInElement(document.body, {
       delimiters: [
         {left: "$$", right: "$$", display: true},
-        {left: "\\(", right: "\\)", display: false},
         {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
         {left: "\\[", right: "\\]", display: true}
       ],
       // trust: true, // https://katex.org/docs/options
@@ -221,19 +221,19 @@
 </span><span class="doccomment">//!
 </span><span class="comment">//
 
-</span><span class="kw">use </span><a href="../../../../devela/_core/pin/struct.Pin.html"><span class="kw">crate</span>::Pin</a>;
+</span><span class="kw">use </span><a href="../../../../devela/all/struct.Pin.html"><span class="kw">crate</span>::Pin</a>;
 
 <span class="doccomment">/// A wrapper for structurally pinned data.
 ///
 /// Up to 8 generics can be supplied for 8 structurally pinned fields.
 </span><span class="attr">#[rustfmt::skip]
-</span><span class="kw">pub struct </span><a href="../../../../devela/sys/mem/struct.Pinned.html">Pinned</a>&lt;A, B = (), C = (), D = (), E = (), F = (), G = (), H = ()&gt; {
+</span><span class="kw">pub struct </span><a href="../../../../devela/all/struct.Pinned.html">Pinned</a>&lt;A, B = (), C = (), D = (), E = (), F = (), G = (), H = ()&gt; {
     a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H
 }
 
 <span class="attr">#[rustfmt::skip]
 </span><span class="kw">mod </span>impls {
-    <span class="kw">use super</span>::{<a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>, <a href="#12-14">Pinned</a>};
+    <span class="kw">use super</span>::{<a href="../../../../devela/all/struct.Pin.html">Pin</a>, <a href="#12-14">Pinned</a>};
 
     <span class="kw">impl</span>&lt;A&gt; <a href="#12-14">Pinned</a>&lt;A&gt; {
         <span class="doccomment">/// Create a new `Pinned` with a single field
@@ -305,42 +305,42 @@
     <span class="comment">// Getters
     </span><span class="kw">impl</span>&lt;A, B, C, D, E, F, G, H&gt; <a href="#12-14">Pinned</a>&lt;A, B, C, D, E, F, G, H&gt; {
         <span class="doccomment">/// Get a `Pin&lt;&amp;mut A&gt;`
-        </span><span class="kw">pub fn </span>a(<span class="self">self</span>: <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>A&gt; {
+        </span><span class="kw">pub fn </span>a(<span class="self">self</span>: <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>A&gt; {
             <span class="comment">// SAFETY: This is okay because `a` is pinned when `self` is.
             </span><span class="kw">unsafe </span>{ <a class="self" href="#90">self</a>.<a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.map_unchecked_mut">map_unchecked_mut</a>(|this| <span class="kw-2">&amp;mut </span><a href="#92">this</a>.a) }
         }
         <span class="doccomment">/// Get a `Pin&lt;&amp;mut B&gt;`
-        </span><span class="kw">pub fn </span>b(<span class="self">self</span>: <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>B&gt; {
+        </span><span class="kw">pub fn </span>b(<span class="self">self</span>: <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>B&gt; {
             <span class="comment">// SAFETY: This is okay because `b` is pinned when `self` is.
             </span><span class="kw">unsafe </span>{ <a class="self" href="#95">self</a>.<a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.map_unchecked_mut">map_unchecked_mut</a>(|this| <span class="kw-2">&amp;mut </span><a href="#97">this</a>.b) }
         }
         <span class="doccomment">/// Get a `Pin&lt;&amp;mut C&gt;`
-        </span><span class="kw">pub fn </span>c(<span class="self">self</span>: <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>C&gt; {
+        </span><span class="kw">pub fn </span>c(<span class="self">self</span>: <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>C&gt; {
             <span class="comment">// SAFETY: This is okay because `c` is pinned when `self` is.
             </span><span class="kw">unsafe </span>{ <a class="self" href="#100">self</a>.<a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.map_unchecked_mut">map_unchecked_mut</a>(|this| <span class="kw-2">&amp;mut </span><a href="#102">this</a>.c) }
         }
         <span class="doccomment">/// Get a `Pin&lt;&amp;mut D&gt;`
-        </span><span class="kw">pub fn </span>d(<span class="self">self</span>: <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>D&gt; {
+        </span><span class="kw">pub fn </span>d(<span class="self">self</span>: <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>D&gt; {
             <span class="comment">// SAFETY: This is okay because `d` is pinned when `self` is.
             </span><span class="kw">unsafe </span>{ <a class="self" href="#105">self</a>.<a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.map_unchecked_mut">map_unchecked_mut</a>(|this| <span class="kw-2">&amp;mut </span><a href="#107">this</a>.d) }
         }
         <span class="doccomment">/// Get a `Pin&lt;&amp;mut E&gt;`
-        </span><span class="kw">pub fn </span>e(<span class="self">self</span>: <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>E&gt; {
+        </span><span class="kw">pub fn </span>e(<span class="self">self</span>: <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>E&gt; {
             <span class="comment">// SAFETY: This is okay because `e` is pinned when `self` is.
             </span><span class="kw">unsafe </span>{ <a class="self" href="#110">self</a>.<a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.map_unchecked_mut">map_unchecked_mut</a>(|this| <span class="kw-2">&amp;mut </span><a href="#112">this</a>.e) }
         }
         <span class="doccomment">/// Get a `Pin&lt;&amp;mut F&gt;`
-        </span><span class="kw">pub fn </span>f(<span class="self">self</span>: <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>F&gt; {
+        </span><span class="kw">pub fn </span>f(<span class="self">self</span>: <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>F&gt; {
             <span class="comment">// SAFETY: This is okay because `f` is pinned when `self` is.
             </span><span class="kw">unsafe </span>{ <a class="self" href="#115">self</a>.<a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.map_unchecked_mut">map_unchecked_mut</a>(|this| <span class="kw-2">&amp;mut </span><a href="#117">this</a>.f) }
         }
         <span class="doccomment">/// Get a `Pin&lt;&amp;mut G&gt;`
-        </span><span class="kw">pub fn </span>g(<span class="self">self</span>: <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>G&gt; {
+        </span><span class="kw">pub fn </span>g(<span class="self">self</span>: <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>G&gt; {
             <span class="comment">// SAFETY: This is okay because `g` is pinned when `self` is.
             </span><span class="kw">unsafe </span>{ <a class="self" href="#120">self</a>.<a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.map_unchecked_mut">map_unchecked_mut</a>(|this| <span class="kw-2">&amp;mut </span><a href="#122">this</a>.g) }
         }
         <span class="doccomment">/// Get a `Pin&lt;&amp;mut H&gt;`
-        </span><span class="kw">pub fn </span>h(<span class="self">self</span>: <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/_core/pin/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>H&gt; {
+        </span><span class="kw">pub fn </span>h(<span class="self">self</span>: <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <a href="../../../../devela/all/struct.Pin.html">Pin</a>&lt;<span class="kw-2">&amp;mut </span>H&gt; {
             <span class="comment">// SAFETY: This is okay because `h` is pinned when `self` is.
             </span><span class="kw">unsafe </span>{ <a class="self" href="#125">self</a>.<a href="https://doc.rust-lang.org/nightly/core/pin/struct.Pin.html#method.map_unchecked_mut">map_unchecked_mut</a>(|this| <span class="kw-2">&amp;mut </span><a href="#127">this</a>.h) }
         }

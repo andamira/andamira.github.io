@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["unpeek"],"mod":["ascii","binary","combinator","error","prelude","stream","token"],"struct":["BStr","Bytes","LocatingSlice","Partial","Stateful"],"trait":["Parser"],"type":["IResult","Located","PResult","Str"]};
