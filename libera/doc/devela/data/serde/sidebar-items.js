@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CompressionMode","EncodingMode"]};
+window.SIDEBAR_ITEMS = {"enum":["CompressionMode","EncodingMode"],"fn":["deserialize","serialize"],"struct":["SerializeSequence"]};

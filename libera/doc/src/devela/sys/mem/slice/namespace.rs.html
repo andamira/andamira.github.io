@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/slice/namespace.rs`."><title>namespace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (48a426eca 2025-01-12)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/slice/namespace.rs`."><title>namespace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
   integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
@@ -787,7 +787,20 @@
 <a href="#698" id="698">698</a>
 <a href="#699" id="699">699</a>
 <a href="#700" id="700">700</a>
-<a href="#701" id="701">701</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::mem::slice::wrapper
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::mem::slice::wrapper
 //
 </span><span class="doccomment">//! `Slice` namespace.
 </span><span class="comment">//
@@ -796,12 +809,13 @@
 // - saturating subslicing.
 // - first_chunk_padded
 
-</span><span class="kw">use </span><a href="../../../num/cmp/compare.rs.html#38"><span class="kw">crate</span>::Compare</a>;
+</span><span class="kw">use </span><a href="../../../num/cmp/compare.rs.html#39"><span class="kw">crate</span>::Compare</a>;
 <span class="kw">use </span>core::slice::{<a href="../../../../../devela/_core/slice/fn.from_mut.html">from_mut</a>, <a href="../../../../../devela/_core/slice/fn.from_ref.html">from_ref</a>};
 <span class="attr">#[allow(unused_imports, reason = <span class="string">"unsafe feature-gated"</span>)]
 </span><span class="kw">use </span>core::slice::{<a href="../../../../../devela/_core/slice/fn.from_raw_parts.html">from_raw_parts</a>, <a href="../../../../../devela/_core/slice/fn.from_raw_parts_mut.html">from_raw_parts_mut</a>};
 
-<span class="doccomment">/// Slice-related operations, most of them *const*.
+<span class="attr">#[doc = <span class="macro">crate::TAG_NAMESPACE!</span>()]
+</span><span class="doccomment">/// Slice-related operations, most of them *const*.
 ///
 /// It is designed as a utility namespace and does not hold or wrap data itself.
 /// Instead, it operates on slices provided directly as arguments to its static methods.
@@ -815,13 +829,13 @@
 </span><span class="kw">pub struct </span><a href="../../../../../devela/all/struct.Slice.html">Slice</a>&lt;T&gt;(<a href="../../../../../devela/all/struct.PhantomData.html"><span class="kw">crate</span>::PhantomData</a>&lt;T&gt;);
 
 <span class="doccomment">/// # `core::slice` namespaced methods
-</span><span class="kw">impl</span>&lt;T&gt; <a href="#26">Slice</a>&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T&gt; <a href="#27">Slice</a>&lt;T&gt; {
     <span class="doccomment">/// Converts a reference to `T` into a slice of length 1 (without copying).
     ///
     /// See `core::slice::`[`from_ref`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_ref(s: <span class="kw-2">&amp;</span>T) -&gt; <span class="kw-2">&amp;</span>[T] {
-        <a href="../../../../../devela/_core/slice/fn.from_ref.html">from_ref</a>(<a href="#34">s</a>)
+        <a href="../../../../../devela/_core/slice/fn.from_ref.html">from_ref</a>(<a href="#35">s</a>)
     }
 
     <span class="doccomment">/// Converts a reference to `T` into a slice of length 1 (without copying).
@@ -829,7 +843,7 @@
     /// See `core::slice::`[`from_mut`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_mut(s: <span class="kw-2">&amp;mut </span>T) -&gt; <span class="kw-2">&amp;mut </span>[T] {
-        <a href="../../../../../devela/_core/slice/fn.from_mut.html">from_mut</a>(<a href="#42">s</a>)
+        <a href="../../../../../devela/_core/slice/fn.from_mut.html">from_mut</a>(<a href="#43">s</a>)
     }
 
     <span class="doccomment">/// Forms a shared slice from a pointer and a length.
@@ -838,11 +852,11 @@
     /// See `core::slice::`[`from_raw_parts`]
     ///
     /// See also `Ptr::`[`slice_from_raw_parts`][crate::Ptr::slice_from_raw_parts].
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_slice"</span>)))]
-    #[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_slice"</span>))]
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(unsafe··)))]
+    #[cfg(all(not(feature = <span class="string">"safe_mem"</span>), unsafe··))]
     </span><span class="kw">pub const unsafe fn </span>from_raw_parts&lt;<span class="lifetime">'a</span>&gt;(data: <span class="kw-2">*const </span>T, len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T] {
         <span class="comment">// SAFETY: Caller must uphold the safety contract.
-        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_core/slice/fn.from_raw_parts.html">from_raw_parts</a>(<a href="#54">data</a>, <a href="#54">len</a>) }
+        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_core/slice/fn.from_raw_parts.html">from_raw_parts</a>(<a href="#55">data</a>, <a href="#55">len</a>) }
     }
 
     <span class="doccomment">/// Forms an exclusive slice from a pointer and a length.
@@ -851,16 +865,16 @@
     /// See `core::slice::`[`from_raw_parts_mut`].
     ///
     /// See also `Ptr::`[`slice_from_raw_parts_mut`][crate::Ptr::slice_from_raw_parts_mut].
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_slice"</span>)))]
-    #[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_slice"</span>))]
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(unsafe··)))]
+    #[cfg(all(not(feature = <span class="string">"safe_mem"</span>), unsafe··))]
     </span><span class="kw">pub const unsafe fn </span>from_raw_parts_mut&lt;<span class="lifetime">'a</span>&gt;(data: <span class="kw-2">*mut </span>T, len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[T] {
         <span class="comment">// SAFETY: Caller must uphold the safety contract.
-        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_core/slice/fn.from_raw_parts_mut.html">from_raw_parts_mut</a>(<a href="#67">data</a>, <a href="#67">len</a>) }
+        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_core/slice/fn.from_raw_parts_mut.html">from_raw_parts_mut</a>(<a href="#68">data</a>, <a href="#68">len</a>) }
     }
 }
 
 <span class="doccomment">/// # Methods for shared subslicing using index-based splitting.
-</span><span class="kw">impl</span>&lt;T&gt; <a href="#26">Slice</a>&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T&gt; <a href="#27">Slice</a>&lt;T&gt; {
     <span class="comment">/* panicking */
 
     </span><span class="doccomment">/// Returns a subslice up to the given `end` index.
@@ -871,7 +885,7 @@
     /// Panics if `end` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>range_to(slice: <span class="kw-2">&amp;</span>[T], end: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span>[T] {
-        <a href="#84">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#84">end</a>).<span class="number">0
+        <a href="#85">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#85">end</a>).<span class="number">0
     </span>}
     <span class="doccomment">/// Returns a subslice starting from the given `start` index.
     ///
@@ -881,7 +895,7 @@
     /// Panics if `start` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>range_from(slice: <span class="kw-2">&amp;</span>[T], start: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span>[T] {
-        <a href="#94">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#94">start</a>).<span class="number">1
+        <a href="#95">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#95">start</a>).<span class="number">1
     </span>}
     <span class="doccomment">/// Returns a subslice from `start` (inclusive) to `end` (exclusive).
     ///
@@ -891,7 +905,7 @@
     /// Panics if `start` &gt; len or `end` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>range(slice: <span class="kw-2">&amp;</span>[T], start: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, end: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span>[T] {
-        <a href="#104">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#104">start</a>).<span class="number">1</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#104">end</a> - <a href="#104">start</a>).<span class="number">0
+        <a href="#105">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#105">start</a>).<span class="number">1</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#105">end</a> - <a href="#105">start</a>).<span class="number">0
     </span>}
 
     <span class="doccomment">/// Returns the first `n` elements of the slice.
@@ -902,7 +916,7 @@
     /// Panics if `n` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_first(slice: <span class="kw-2">&amp;</span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span>[T] {
-        <a href="#115">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#115">n</a>).<span class="number">0
+        <a href="#116">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#116">n</a>).<span class="number">0
     </span>}
     <span class="doccomment">/// Returns the last `n` elements of the slice.
     ///
@@ -912,7 +926,7 @@
     /// Panics if `n` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_last(slice: <span class="kw-2">&amp;</span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span>[T] {
-        <a href="#125">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#125">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - <a href="#125">n</a>).<span class="number">1
+        <a href="#126">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#126">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - <a href="#126">n</a>).<span class="number">1
     </span>}
     <span class="doccomment">/// Returns the slice omitting the last `n` elements.
     ///
@@ -922,7 +936,7 @@
     /// Panics if `n` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_omit_last(slice: <span class="kw-2">&amp;</span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span>[T] {
-        <a href="#135">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#135">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - <a href="#135">n</a>).<span class="number">0
+        <a href="#136">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#136">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - <a href="#136">n</a>).<span class="number">0
     </span>}
 
     <span class="comment">/* Checked */
@@ -934,9 +948,9 @@
     /// Returns `None` if `end` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>range_to_checked(slice: <span class="kw-2">&amp;</span>[T], end: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span>[T]&gt; {
-        <span class="kw">match </span><a href="#147">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_checked">split_at_checked</a>(<a href="#147">end</a>) {
-            <span class="prelude-val">Some</span>((subslice, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<a href="#149">subslice</a>),
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+        <span class="kw">match </span><a href="#148">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_checked">split_at_checked</a>(<a href="#148">end</a>) {
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>((subslice, <span class="kw">_</span>)) =&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<a href="#150">subslice</a>),
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a> </a>=&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">None</a>,
         }
     }
     <span class="doccomment">/// Returns a subslice starting from the given `start` index.
@@ -946,9 +960,9 @@
     /// Returns `None` if `start` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>range_from_checked(slice: <span class="kw-2">&amp;</span>[T], start: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span>[T]&gt; {
-        <span class="kw">match </span><a href="#159">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_checked">split_at_checked</a>(<a href="#159">start</a>) {
-            <span class="prelude-val">Some</span>((<span class="kw">_</span>, subslice)) =&gt; <span class="prelude-val">Some</span>(<a href="#161">subslice</a>),
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+        <span class="kw">match </span><a href="#160">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_checked">split_at_checked</a>(<a href="#160">start</a>) {
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>((<span class="kw">_</span>, subslice)) =&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<a href="#162">subslice</a>),
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a> </a>=&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">None</a>,
         }
     }
     <span class="doccomment">/// Returns a subslice from `start` (inclusive) to `end` (exclusive).
@@ -966,10 +980,10 @@
             </span><span class="kw">return </span><span class="prelude-val">Some</span>(slice.split_at(start).<span class="number">1</span>.split_at(end - start).<span class="number">0</span>);
             <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_slice"</span>))]
             </span><span class="comment">// SAFETY: `start` and `end` are checked to be within bounds and valid
-            </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <a href="#174">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_unchecked">split_at_unchecked</a>(<a href="#174">start</a>).<span class="number">1</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_unchecked">split_at_unchecked</a>(<a href="#174">end</a> - <a href="#174">start</a>).<span class="number">0 </span>})
+            </span><a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<span class="kw">unsafe </span>{ <a href="#175">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_unchecked">split_at_unchecked</a>(<a href="#175">start</a>).<span class="number">1</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_unchecked">split_at_unchecked</a>(<a href="#175">end</a> - <a href="#175">start</a>).<span class="number">0 </span>})
         } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>}
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a>
+        </a>}
     }
 
     <span class="doccomment">/// Returns the first `n` elements of the slice.
@@ -979,9 +993,9 @@
     /// Returns `None` if `n` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_first_checked(slice: <span class="kw-2">&amp;</span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span>[T]&gt; {
-        <span class="kw">match </span><a href="#192">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_checked">split_at_checked</a>(<a href="#192">n</a>) {
-            <span class="prelude-val">Some</span>((subslice, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<a href="#194">subslice</a>),
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+        <span class="kw">match </span><a href="#193">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_checked">split_at_checked</a>(<a href="#193">n</a>) {
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>((subslice, <span class="kw">_</span>)) =&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<a href="#195">subslice</a>),
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a> </a>=&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">None</a>,
         }
     }
     <span class="doccomment">/// Returns the last `n` elements of the slice.
@@ -994,15 +1008,15 @@
     /// This method makes use of of the `unsafe_slice` feature is enabled.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_last_checked(slice: <span class="kw-2">&amp;</span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span>[T]&gt; {
-        <span class="kw">match </span><a href="#207">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<a href="#207">n</a>) {
-            <span class="prelude-val">Some</span>(index) =&gt; {
+        <span class="kw">match </span><a href="#208">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<a href="#208">n</a>) {
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(index) =&gt; {
                 <span class="attr">#[cfg(any(feature = <span class="string">"safe_mem"</span>, not(feature = <span class="string">"unsafe_slice"</span>)))]
                 </span><span class="kw">return </span><span class="prelude-val">Some</span>(slice.split_at(index).<span class="number">1</span>);
                 <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_slice"</span>))]
                 </span><span class="comment">// SAFETY: `n` is checked to be within bounds and valid
-                </span><span class="kw">return </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <a href="#207">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_unchecked">split_at_unchecked</a>(<a href="#209">index</a>).<span class="number">1 </span>});
+                </span><span class="kw">return </span><a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<span class="kw">unsafe </span>{ <a href="#208">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_unchecked">split_at_unchecked</a>(<a href="#210">index</a>).<span class="number">1 </span>});
             }
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a> </a>=&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">None</a>,
         }
     }
     <span class="doccomment">/// Returns the slice omitting the last `n` elements.
@@ -1015,21 +1029,21 @@
     /// This method makes use of of the `unsafe_slice` feature is enabled.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_omit_last_checked(slice: <span class="kw-2">&amp;</span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span>[T]&gt; {
-        <span class="kw">match </span><a href="#228">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<a href="#228">n</a>) {
-            <span class="prelude-val">Some</span>(index) =&gt; {
+        <span class="kw">match </span><a href="#229">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<a href="#229">n</a>) {
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(index) =&gt; {
                 <span class="attr">#[cfg(any(feature = <span class="string">"safe_mem"</span>, not(feature = <span class="string">"unsafe_slice"</span>)))]
                 </span><span class="kw">return </span><span class="prelude-val">Some</span>(slice.split_at(index).<span class="number">0</span>);
                 <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_slice"</span>))]
                 </span><span class="comment">// SAFETY: `n` is checked to be within bounds and valid
-                </span><span class="kw">return </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <a href="#228">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_unchecked">split_at_unchecked</a>(<a href="#230">index</a>).<span class="number">0 </span>});
+                </span><span class="kw">return </span><a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<span class="kw">unsafe </span>{ <a href="#229">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_unchecked">split_at_unchecked</a>(<a href="#231">index</a>).<span class="number">0 </span>});
             }
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a> </a>=&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">None</a>,
         }
     }
 }
 
 <span class="doccomment">/// # Methods for exclusive subslicing using index-based splitting.
-</span><span class="kw">impl</span>&lt;T&gt; <a href="#26">Slice</a>&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T&gt; <a href="#27">Slice</a>&lt;T&gt; {
     <span class="comment">/* panicking */
 
     </span><span class="doccomment">/// Returns an exclusive subslice up to the given `end` index.
@@ -1040,7 +1054,7 @@
     /// Panics if `end` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>range_to_mut(slice: <span class="kw-2">&amp;mut </span>[T], end: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;mut </span>[T] {
-        <a href="#253">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#253">end</a>).<span class="number">0
+        <a href="#254">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#254">end</a>).<span class="number">0
     </span>}
     <span class="doccomment">/// Returns an exclusive subslice starting from the given `start` index.
     ///
@@ -1050,7 +1064,7 @@
     /// Panics if `start` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>range_from_mut(slice: <span class="kw-2">&amp;mut </span>[T], start: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;mut </span>[T] {
-        <a href="#263">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#263">start</a>).<span class="number">1
+        <a href="#264">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#264">start</a>).<span class="number">1
     </span>}
     <span class="doccomment">/// Returns an exclusive subslice from `start` (inclusive) to `end` (exclusive).
     ///
@@ -1060,7 +1074,7 @@
     /// Panics if `start` &gt; `slice.len()` or `end` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>range_mut(slice: <span class="kw-2">&amp;mut </span>[T], start: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, end: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;mut </span>[T] {
-        <a href="#273">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#273">start</a>).<span class="number">1</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#273">end</a> - <a href="#273">start</a>).<span class="number">0
+        <a href="#274">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#274">start</a>).<span class="number">1</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#274">end</a> - <a href="#274">start</a>).<span class="number">0
     </span>}
 
     <span class="doccomment">/// Returns the first `n` elements of the exclusive slice.
@@ -1071,7 +1085,7 @@
     /// Panics if `n` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_first_mut(slice: <span class="kw-2">&amp;mut </span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;mut </span>[T] {
-        <a href="#284">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#284">n</a>).<span class="number">0
+        <a href="#285">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#285">n</a>).<span class="number">0
     </span>}
     <span class="doccomment">/// Returns the last `n` elements of the exclusive slice.
     ///
@@ -1081,7 +1095,7 @@
     /// Panics if `n` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_last_mut(slice: <span class="kw-2">&amp;mut </span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;mut </span>[T] {
-        <a href="#294">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#294">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - <a href="#294">n</a>).<span class="number">1
+        <a href="#295">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#295">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - <a href="#295">n</a>).<span class="number">1
     </span>}
     <span class="doccomment">/// Returns the exclusive slice omitting the last `n` elements.
     ///
@@ -1091,7 +1105,7 @@
     /// Panics if `n` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_omit_last_mut(slice: <span class="kw-2">&amp;mut </span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;mut </span>[T] {
-        <a href="#304">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#304">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - <a href="#304">n</a>).<span class="number">0
+        <a href="#305">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#305">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() - <a href="#305">n</a>).<span class="number">0
     </span>}
 
     <span class="comment">/* Checked */
@@ -1103,9 +1117,9 @@
     /// Returns `None` if `end` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>range_to_mut_checked(slice: <span class="kw-2">&amp;mut </span>[T], end: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;mut </span>[T]&gt; {
-        <span class="kw">match </span><a href="#316">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_checked">split_at_mut_checked</a>(<a href="#316">end</a>) {
-            <span class="prelude-val">Some</span>((subslice, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<a href="#318">subslice</a>),
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+        <span class="kw">match </span><a href="#317">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_checked">split_at_mut_checked</a>(<a href="#317">end</a>) {
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>((subslice, <span class="kw">_</span>)) =&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<a href="#319">subslice</a>),
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a> </a>=&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">None</a>,
         }
     }
     <span class="doccomment">/// Returns a subslice starting from the given `start` index.
@@ -1115,9 +1129,9 @@
     /// Returns `None` if `start` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>range_from_mut_checked(slice: <span class="kw-2">&amp;mut </span>[T], start: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;mut </span>[T]&gt; {
-        <span class="kw">match </span><a href="#328">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_checked">split_at_mut_checked</a>(<a href="#328">start</a>) {
-            <span class="prelude-val">Some</span>((<span class="kw">_</span>, subslice)) =&gt; <span class="prelude-val">Some</span>(<a href="#330">subslice</a>),
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+        <span class="kw">match </span><a href="#329">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_checked">split_at_mut_checked</a>(<a href="#329">start</a>) {
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>((<span class="kw">_</span>, subslice)) =&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<a href="#331">subslice</a>),
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a> </a>=&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">None</a>,
         }
     }
     <span class="doccomment">/// Returns a subslice from `start` (inclusive) to `end` (exclusive).
@@ -1135,12 +1149,12 @@
             </span><span class="kw">return </span><span class="prelude-val">Some</span>(slice.split_at_mut(start).<span class="number">1</span>.split_at_mut(end - start).<span class="number">0</span>);
             <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_slice"</span>))]
             </span><span class="comment">// SAFETY: `start` and `end` are checked to be within bounds and valid
-            </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{
-                <a href="#343">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_unchecked">split_at_mut_unchecked</a>(<a href="#343">start</a>).<span class="number">1</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_unchecked">split_at_mut_unchecked</a>(<a href="#343">end</a> - <a href="#343">start</a>).<span class="number">0
+            </span><a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<span class="kw">unsafe </span>{
+                <a href="#344">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_unchecked">split_at_mut_unchecked</a>(<a href="#344">start</a>).<span class="number">1</span>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_unchecked">split_at_mut_unchecked</a>(<a href="#344">end</a> - <a href="#344">start</a>).<span class="number">0
             </span>})
         } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>}
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a>
+        </a>}
     }
 
     <span class="doccomment">/// Returns the first `n` elements of the slice.
@@ -1150,9 +1164,9 @@
     /// Returns `None` if `n` &gt; `slice.len()`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_first_mut_checked(slice: <span class="kw-2">&amp;mut </span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;mut </span>[T]&gt; {
-        <span class="kw">match </span><a href="#363">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_checked">split_at_mut_checked</a>(<a href="#363">n</a>) {
-            <span class="prelude-val">Some</span>((subslice, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<a href="#365">subslice</a>),
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+        <span class="kw">match </span><a href="#364">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_checked">split_at_mut_checked</a>(<a href="#364">n</a>) {
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>((subslice, <span class="kw">_</span>)) =&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<a href="#366">subslice</a>),
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a> </a>=&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">None</a>,
         }
     }
     <span class="doccomment">/// Returns the last `n` elements of the slice.
@@ -1165,15 +1179,15 @@
     /// This method makes use of of the `unsafe_slice` feature is enabled.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_last_mut_checked(slice: <span class="kw-2">&amp;mut </span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;mut </span>[T]&gt; {
-        <span class="kw">match </span><a href="#378">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<a href="#378">n</a>) {
-            <span class="prelude-val">Some</span>(index) =&gt; {
+        <span class="kw">match </span><a href="#379">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<a href="#379">n</a>) {
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(index) =&gt; {
                 <span class="attr">#[cfg(any(feature = <span class="string">"safe_mem"</span>, not(feature = <span class="string">"unsafe_slice"</span>)))]
                 </span><span class="kw">return </span><span class="prelude-val">Some</span>(slice.split_at_mut(index).<span class="number">1</span>);
                 <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_slice"</span>))]
                 </span><span class="comment">// SAFETY: `n` is checked to be within bounds and valid
-                </span><span class="kw">return </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <a href="#378">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_unchecked">split_at_mut_unchecked</a>(<a href="#380">index</a>).<span class="number">1 </span>});
+                </span><span class="kw">return </span><a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<span class="kw">unsafe </span>{ <a href="#379">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_unchecked">split_at_mut_unchecked</a>(<a href="#381">index</a>).<span class="number">1 </span>});
             }
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a> </a>=&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">None</a>,
         }
     }
     <span class="doccomment">/// Returns the slice omitting the last `n` elements.
@@ -1186,21 +1200,21 @@
     /// This method makes use of of the `unsafe_slice` feature is enabled.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>take_omit_last_mut_checked(slice: <span class="kw-2">&amp;mut </span>[T], n: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;mut </span>[T]&gt; {
-        <span class="kw">match </span><a href="#399">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<a href="#399">n</a>) {
-            <span class="prelude-val">Some</span>(index) =&gt; {
+        <span class="kw">match </span><a href="#400">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_sub">checked_sub</a>(<a href="#400">n</a>) {
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(index) =&gt; {
                 <span class="attr">#[cfg(any(feature = <span class="string">"safe_mem"</span>, not(feature = <span class="string">"unsafe_slice"</span>)))]
                 </span><span class="kw">return </span><span class="prelude-val">Some</span>(slice.split_at_mut(index).<span class="number">0</span>);
                 <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_slice"</span>))]
                 </span><span class="comment">// SAFETY: `n` is checked to be within bounds and valid
-                </span><span class="kw">return </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <a href="#399">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_unchecked">split_at_mut_unchecked</a>(<a href="#401">index</a>).<span class="number">0 </span>});
+                </span><span class="kw">return </span><a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<span class="kw">unsafe </span>{ <a href="#400">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut_unchecked">split_at_mut_unchecked</a>(<a href="#402">index</a>).<span class="number">0 </span>});
             }
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a> </a>=&gt; <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">None</a>,
         }
     }
 }
 
 <span class="doccomment">/// # Methods for splitting.
-</span><span class="kw">impl</span>&lt;T&gt; <a href="#26">Slice</a>&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T&gt; <a href="#27">Slice</a>&lt;T&gt; {
     <span class="comment">/* left split */
 
     </span><span class="doccomment">/// Returns the leftmost sub-`slice` with the given maximum `len`.
@@ -1216,9 +1230,9 @@
     /// assert_eq!(Slice::lsplit(&amp;v, 10), &amp;[1, 2, 3, 4, 5, 6]);
     /// ```
     </span><span class="kw">pub const fn </span>lsplit(slice: <span class="kw-2">&amp;</span>[T], len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span>[T] {
-        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#38">Compare</a>(<a href="#429">len</a>).<a href="../../../num/cmp/compare.rs.html#349">clamp</a>(<span class="number">0</span>, <a href="#429">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
-        <span class="kw">let </span>(left, <span class="kw">_</span>) = <a href="#429">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#430">end_idx</a>);
-        <a href="#431">left</a>
+        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#39">Compare</a>(<a href="#430">len</a>).<a href="../../../num/cmp/compare.rs.html#350">clamp</a>(<span class="number">0</span>, <a href="#430">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
+        <span class="kw">let </span>(left, <span class="kw">_</span>) = <a href="#430">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#431">end_idx</a>);
+        <a href="#432">left</a>
     }
 
     <span class="doccomment">/// Returns the leftmost exclusive sub-`slice` with the given maximum `len`.
@@ -1235,9 +1249,9 @@
     /// ```
     /// See also [`Slice::lsplit_mut`].
     </span><span class="kw">pub const fn </span>lsplit_mut(slice: <span class="kw-2">&amp;mut </span>[T], len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;mut </span>[T] {
-        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#38">Compare</a>(<a href="#448">len</a>).<a href="../../../num/cmp/compare.rs.html#349">clamp</a>(<span class="number">0</span>, <a href="#448">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
-        <span class="kw">let </span>(left, <span class="kw">_</span>) = <a href="#448">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#449">end_idx</a>);
-        <a href="#450">left</a>
+        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#39">Compare</a>(<a href="#449">len</a>).<a href="../../../num/cmp/compare.rs.html#350">clamp</a>(<span class="number">0</span>, <a href="#449">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
+        <span class="kw">let </span>(left, <span class="kw">_</span>) = <a href="#449">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#450">end_idx</a>);
+        <a href="#451">left</a>
     }
 
     <span class="comment">/* right split */
@@ -1256,9 +1270,9 @@
     /// ```
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>rsplit(slice: <span class="kw-2">&amp;</span>[T], len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span>[T] {
-        <span class="kw">let </span>start_idx = <a href="#469">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#469">len</a>);
-        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#469">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#470">start_idx</a>);
-        <a href="#471">right</a>
+        <span class="kw">let </span>start_idx = <a href="#470">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#470">len</a>);
+        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#470">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#471">start_idx</a>);
+        <a href="#472">right</a>
     }
 
     <span class="doccomment">/// Returns the rightmost mutable sub-`slice` with the given maximum `len`.
@@ -1276,9 +1290,9 @@
     /// See also [`Slice::lsplit_mut`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>rsplit_mut(slice: <span class="kw-2">&amp;mut </span>[T], len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;mut </span>[T] {
-        <span class="kw">let </span>start_idx = <a href="#489">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#489">len</a>);
-        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#489">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#490">start_idx</a>);
-        <a href="#491">right</a>
+        <span class="kw">let </span>start_idx = <a href="#490">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#490">len</a>);
+        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#490">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#491">start_idx</a>);
+        <a href="#492">right</a>
     }
 
     <span class="comment">/* middle split left biased */
@@ -1305,13 +1319,13 @@
     /// See also [`Slice::msplit_right`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>msplit_left(slice: <span class="kw-2">&amp;</span>[T], len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span>[T] {
-        <span class="kw">let </span>mid_idx = <a href="#518">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / <span class="number">2</span>;
-        <span class="kw">let </span>half_len = <a href="#518">len</a> / <span class="number">2</span>;
-        <span class="kw">let </span>start_idx = <a href="#519">mid_idx</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#520">half_len</a> + (<a href="#518">len</a> % <span class="number">2</span>));
-        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#38">Compare</a>(<a href="#519">mid_idx</a> + <a href="#520">half_len</a>).<a href="../../../num/cmp/compare.rs.html#349">min</a>(<a href="#518">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
-        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#518">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#521">start_idx</a>);
-        <span class="kw">let </span>(middle, <span class="kw">_</span>) = <a href="#523">right</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#522">end_idx</a> - <a href="#521">start_idx</a>);
-        <a href="#524">middle</a>
+        <span class="kw">let </span>mid_idx = <a href="#519">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / <span class="number">2</span>;
+        <span class="kw">let </span>half_len = <a href="#519">len</a> / <span class="number">2</span>;
+        <span class="kw">let </span>start_idx = <a href="#520">mid_idx</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#521">half_len</a> + (<a href="#519">len</a> % <span class="number">2</span>));
+        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#39">Compare</a>(<a href="#520">mid_idx</a> + <a href="#521">half_len</a>).<a href="../../../num/cmp/compare.rs.html#350">min</a>(<a href="#519">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
+        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#519">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#522">start_idx</a>);
+        <span class="kw">let </span>(middle, <span class="kw">_</span>) = <a href="#524">right</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#523">end_idx</a> - <a href="#522">start_idx</a>);
+        <a href="#525">middle</a>
     }
 
     <span class="doccomment">/// Returns the middle exclusive sub-`slice` with the given maximum `len` and a
@@ -1337,13 +1351,13 @@
     /// See also [`Slice::msplit_right_mut`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>msplit_left_mut(slice: <span class="kw-2">&amp;mut </span>[T], len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;mut </span>[T] {
-        <span class="kw">let </span>mid_idx = <a href="#550">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / <span class="number">2</span>;
-        <span class="kw">let </span>half_len = <a href="#550">len</a> / <span class="number">2</span>;
-        <span class="kw">let </span>start_idx = <a href="#551">mid_idx</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#552">half_len</a> + (<a href="#550">len</a> % <span class="number">2</span>));
-        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#38">Compare</a>(<a href="#551">mid_idx</a> + <a href="#552">half_len</a>).<a href="../../../num/cmp/compare.rs.html#349">min</a>(<a href="#550">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
-        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#550">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#553">start_idx</a>);
-        <span class="kw">let </span>(middle, <span class="kw">_</span>) = <a href="#555">right</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#554">end_idx</a> - <a href="#553">start_idx</a>);
-        <a href="#556">middle</a>
+        <span class="kw">let </span>mid_idx = <a href="#551">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / <span class="number">2</span>;
+        <span class="kw">let </span>half_len = <a href="#551">len</a> / <span class="number">2</span>;
+        <span class="kw">let </span>start_idx = <a href="#552">mid_idx</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#553">half_len</a> + (<a href="#551">len</a> % <span class="number">2</span>));
+        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#39">Compare</a>(<a href="#552">mid_idx</a> + <a href="#553">half_len</a>).<a href="../../../num/cmp/compare.rs.html#350">min</a>(<a href="#551">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
+        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#551">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#554">start_idx</a>);
+        <span class="kw">let </span>(middle, <span class="kw">_</span>) = <a href="#556">right</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#555">end_idx</a> - <a href="#554">start_idx</a>);
+        <a href="#557">middle</a>
     }
 
     <span class="comment">/* middle split right biased */
@@ -1370,13 +1384,13 @@
     /// See also [`Slice::msplit_left`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>msplit_right(slice: <span class="kw-2">&amp;</span>[T], len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;</span>[T] {
-        <span class="kw">let </span>mid_idx = <a href="#583">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / <span class="number">2</span>;
-        <span class="kw">let </span>half_len = <a href="#583">len</a> / <span class="number">2</span>;
-        <span class="kw">let </span>start_idx = <a href="#584">mid_idx</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#585">half_len</a>);
-        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#38">Compare</a>(<a href="#584">mid_idx</a> + <a href="#585">half_len</a> + (<a href="#583">len</a> % <span class="number">2</span>)).<a href="../../../num/cmp/compare.rs.html#349">min</a>(<a href="#583">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
-        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#583">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#586">start_idx</a>);
-        <span class="kw">let </span>(middle, <span class="kw">_</span>) = <a href="#588">right</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#587">end_idx</a> - <a href="#586">start_idx</a>);
-        <a href="#589">middle</a>
+        <span class="kw">let </span>mid_idx = <a href="#584">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / <span class="number">2</span>;
+        <span class="kw">let </span>half_len = <a href="#584">len</a> / <span class="number">2</span>;
+        <span class="kw">let </span>start_idx = <a href="#585">mid_idx</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#586">half_len</a>);
+        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#39">Compare</a>(<a href="#585">mid_idx</a> + <a href="#586">half_len</a> + (<a href="#584">len</a> % <span class="number">2</span>)).<a href="../../../num/cmp/compare.rs.html#350">min</a>(<a href="#584">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
+        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#584">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#587">start_idx</a>);
+        <span class="kw">let </span>(middle, <span class="kw">_</span>) = <a href="#589">right</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#588">end_idx</a> - <a href="#587">start_idx</a>);
+        <a href="#590">middle</a>
     }
 
     <span class="doccomment">/// Returns the middle exclusive sub-`slice` with the given maximum `len` and a
@@ -1401,18 +1415,30 @@
     /// See also [`Slice::msplit_left_mut`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>msplit_right_mut(slice: <span class="kw-2">&amp;mut </span>[T], len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">&amp;mut </span>[T] {
-        <span class="kw">let </span>mid_idx = <a href="#614">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / <span class="number">2</span>;
-        <span class="kw">let </span>half_len = <a href="#614">len</a> / <span class="number">2</span>;
-        <span class="kw">let </span>start_idx = <a href="#615">mid_idx</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#616">half_len</a>);
-        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#38">Compare</a>(<a href="#615">mid_idx</a> + <a href="#616">half_len</a> + (<a href="#614">len</a> % <span class="number">2</span>)).<a href="../../../num/cmp/compare.rs.html#349">min</a>(<a href="#614">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
-        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#614">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#617">start_idx</a>);
-        <span class="kw">let </span>(middle, <span class="kw">_</span>) = <a href="#619">right</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#618">end_idx</a> - <a href="#617">start_idx</a>);
-        <a href="#620">middle</a>
+        <span class="kw">let </span>mid_idx = <a href="#615">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>() / <span class="number">2</span>;
+        <span class="kw">let </span>half_len = <a href="#615">len</a> / <span class="number">2</span>;
+        <span class="kw">let </span>start_idx = <a href="#616">mid_idx</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.saturating_sub">saturating_sub</a>(<a href="#617">half_len</a>);
+        <span class="kw">let </span>end_idx = <a href="../../../num/cmp/compare.rs.html#39">Compare</a>(<a href="#616">mid_idx</a> + <a href="#617">half_len</a> + (<a href="#615">len</a> % <span class="number">2</span>)).<a href="../../../num/cmp/compare.rs.html#350">min</a>(<a href="#615">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>());
+        <span class="kw">let </span>(<span class="kw">_</span>, right) = <a href="#615">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#618">start_idx</a>);
+        <span class="kw">let </span>(middle, <span class="kw">_</span>) = <a href="#620">right</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#619">end_idx</a> - <a href="#618">start_idx</a>);
+        <a href="#621">middle</a>
     }
 }
 
 <span class="doccomment">/// # Methods for slices of bytes.
-</span><span class="kw">impl </span><a href="#26">Slice</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; {
+</span><span class="comment">// TODO: add
+// https://doc.rust-lang.org/stable/std/primitive.slice.html#impl-%5Bu8%5D
+//
+// - is_ascii, trim_ascii?
+</span><span class="kw">impl </span><a href="#27">Slice</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; {
+    <span class="doccomment">///
+    </span><span class="kw">pub const fn </span>const_copy&lt;<span class="kw">const </span>N: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;(src: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#633">N</a>], dst: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#633">N</a>]) {
+        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+        <span class="kw">while </span>i &lt; N {
+            dst[i] = src[i];
+            i += <span class="number">1</span>;
+        }
+    }
     <span class="doccomment">/// Returns a subslice without the given leading `byte`s.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>trim_leading_bytes(slice: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], byte: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] {
@@ -1420,7 +1446,7 @@
         <span class="kw">while </span>start &lt; slice.len() &amp;&amp; slice[start] == byte {
             start += <span class="number">1</span>;
         }
-        <a href="#629">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#630">start</a>).<span class="number">1 </span><span class="comment">// == &amp;slice[start..]
+        <a href="#642">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#643">start</a>).<span class="number">1 </span><span class="comment">// == &amp;slice[start..]
     </span>}
 
     <span class="doccomment">/// Replaces the `old` leading byte with a `new` byte.
@@ -1462,16 +1488,16 @@
         }
     };
 }
-<a class="macro" href="#648-675">impl_prim!</a>();
+<a class="macro" href="#661-688">impl_prim!</a>();
 
-<span class="kw">impl </span><a href="#26">Slice</a>&lt;<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
+<span class="kw">impl </span><a href="#27">Slice</a>&lt;<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
     <span class="doccomment">/// Checks the equality of two string slices in compile-time.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>eq(a: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, b: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
-        <a href="#26">Slice</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;::eq(<a href="#681">a</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>(), <a href="#681">b</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>())
+        <a href="#27">Slice</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;::eq(<a href="#694">a</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>(), <a href="#694">b</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>())
     }
 }
-<span class="kw">impl </span><a href="#26">Slice</a>&lt;<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>]&gt; {
+<span class="kw">impl </span><a href="#27">Slice</a>&lt;<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>]&gt; {
     <span class="doccomment">/// Checks the equality of two slices of string slices in compile-time.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>eq(a: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>], b: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {

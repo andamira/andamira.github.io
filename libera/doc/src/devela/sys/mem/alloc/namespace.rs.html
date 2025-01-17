@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/alloc/namespace.rs`."><title>namespace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (48a426eca 2025-01-12)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/alloc/namespace.rs`."><title>namespace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
   integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
@@ -157,7 +157,12 @@
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::mem::alloc::namespace
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::mem::alloc::namespace
 //
 </span><span class="doccomment">//! Defines the [`Alloc`] namespace.
 </span><span class="comment">//
@@ -165,11 +170,12 @@
 </span><span class="attr">#[allow(unused_imports, reason = <span class="string">"unsafe feature-gated"</span>)]
 #[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use crate</span>::{
-    <a href="../../../../../devela/all/struct.Layout.html">Layout</a>,
+    <a href="../../../../../devela/all/struct.MemLayout.html">MemLayout</a>,
     _dep::_alloc::alloc::{<a href="../../../../../devela/_dep/_alloc/alloc/fn.alloc.html">alloc</a>, <a href="../../../../../devela/_dep/_alloc/alloc/fn.alloc_zeroed.html">alloc_zeroed</a>, <a href="../../../../../devela/_dep/_alloc/alloc/fn.dealloc.html">dealloc</a>, <a href="../../../../../devela/_dep/_alloc/alloc/fn.handle_alloc_error.html">handle_alloc_error</a>, <a href="../../../../../devela/_dep/_alloc/alloc/fn.realloc.html">realloc</a>},
 };
 
-<span class="doccomment">/// Memory-allocation-related operations.
+<span class="attr">#[doc = <span class="macro">crate::TAG_NAMESPACE!</span>()]
+</span><span class="doccomment">/// Memory-allocation-related operations.
 ///
 /// See also: [`Mem`][crate::Mem], [`ExtMem`][crate::ExtMem],
 /// [`Ptr`][crate::Ptr], [`Slice`][crate::Slice].
@@ -177,55 +183,59 @@
 
 <span class="attr">#[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"alloc"</span>)))]
 #[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">impl </span><a href="#17">Alloc</a> {
+</span><span class="kw">impl </span><a href="#18">Alloc</a> {
     <span class="doccomment">/// Signals a memory allocation error.
     ///
     /// # Safety
     /// See `std::alloc::`[`handle_alloc_error`].
-    </span><span class="kw">pub fn </span>handle_alloc_error(layout: <a href="../../../../../devela/all/struct.Layout.html">Layout</a>) -&gt; ! {
-        <a href="../../../../../devela/_dep/_alloc/alloc/fn.handle_alloc_error.html">handle_alloc_error</a>(<a href="#26">layout</a>)
+    </span><span class="kw">pub fn </span>handle_alloc_error(layout: <a href="../../../../../devela/all/struct.MemLayout.html">MemLayout</a>) -&gt; ! {
+        <a href="../../../../../devela/_dep/_alloc/alloc/fn.handle_alloc_error.html">handle_alloc_error</a>(<a href="#27">layout</a>)
     }
 }
 
-<span class="attr">#[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_layout"</span>)))]
-#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_layout"</span>))]
+<span class="doccomment">/// # Unsafe methods
+///
+/// ## Features
+/// They depend on enabling any `unsafe*` feature, and not enabling `safe_mem`.
+</span><span class="attr">#[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(unsafe··)))]
+#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), unsafe··))]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"alloc"</span>)))]
 #[cfg(feature = <span class="string">"alloc"</span>)]
 #[rustfmt::skip]
-</span><span class="kw">impl </span><a href="#17">Alloc</a> {
+</span><span class="kw">impl </span><a href="#18">Alloc</a> {
     <span class="doccomment">/// Allocates memory with the global allocator.
     ///
     /// # Safety
     /// See `std::alloc::`[`alloc`].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub unsafe fn </span>alloc(layout: <a href="../../../../../devela/all/struct.Layout.html">Layout</a>) -&gt; <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+    </span><span class="kw">pub unsafe fn </span>alloc(layout: <a href="../../../../../devela/all/struct.MemLayout.html">MemLayout</a>) -&gt; <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
         <span class="comment">// SAFETY: Caller must uphold the safety contract.
-        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_dep/_alloc/alloc/fn.alloc.html">alloc</a>(<a href="#42">layout</a>) }
+        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_dep/_alloc/alloc/fn.alloc.html">alloc</a>(<a href="#47">layout</a>) }
     }
     <span class="doccomment">/// Allocates zero-initialized memory with the global allocator.
     ///
     /// # Safety
     /// See `std::alloc::`[`alloc_zeroed`].
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub unsafe fn </span>alloc_zeroed(layout: <a href="../../../../../devela/all/struct.Layout.html">Layout</a>) -&gt; <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+    </span><span class="kw">pub unsafe fn </span>alloc_zeroed(layout: <a href="../../../../../devela/all/struct.MemLayout.html">MemLayout</a>) -&gt; <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
         <span class="comment">// SAFETY: Caller must uphold the safety contract.
-        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_dep/_alloc/alloc/fn.alloc_zeroed.html">alloc_zeroed</a>(<a href="#51">layout</a>) }
+        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_dep/_alloc/alloc/fn.alloc_zeroed.html">alloc_zeroed</a>(<a href="#56">layout</a>) }
     }
     <span class="doccomment">/// Deallocates memory with the global allocator.
     ///
     /// # Safety
     /// See `std::alloc::`[`dealloc`].
-    </span><span class="kw">pub unsafe fn </span>dealloc(ptr: <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, layout: <a href="../../../../../devela/all/struct.Layout.html">Layout</a>) {
+    </span><span class="kw">pub unsafe fn </span>dealloc(ptr: <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, layout: <a href="../../../../../devela/all/struct.MemLayout.html">MemLayout</a>) {
         <span class="comment">// SAFETY: Caller must uphold the safety contract.
-        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_dep/_alloc/alloc/fn.dealloc.html">dealloc</a>(<a href="#59">ptr</a>, <a href="#59">layout</a>) }
+        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_dep/_alloc/alloc/fn.dealloc.html">dealloc</a>(<a href="#64">ptr</a>, <a href="#64">layout</a>) }
     }
     <span class="doccomment">/// Reallocates memory with the global allocator.
     ///
     /// # Safety
     /// See `std::alloc::`[`realloc`].
-    </span><span class="kw">pub unsafe fn </span>realloc(ptr: <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, layout: <a href="../../../../../devela/all/struct.Layout.html">Layout</a>, new_size: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+    </span><span class="kw">pub unsafe fn </span>realloc(ptr: <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, layout: <a href="../../../../../devela/all/struct.MemLayout.html">MemLayout</a>, new_size: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
         <span class="comment">// SAFETY: Caller must uphold the safety contract.
-        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_dep/_alloc/alloc/fn.realloc.html">realloc</a>(<a href="#67">ptr</a>, <a href="#67">layout</a>, <a href="#67">new_size</a>) }
+        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_dep/_alloc/alloc/fn.realloc.html">realloc</a>(<a href="#72">ptr</a>, <a href="#72">layout</a>, <a href="#72">new_size</a>) }
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/code/util/error.rs`."><title>error.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (48a426eca 2025-01-12)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/code/util/error.rs`."><title>error.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
   integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
@@ -394,22 +394,76 @@
 <a href="#305" id="305">305</a>
 <a href="#306" id="306">306</a>
 <a href="#307" id="307">307</a>
-<a href="#308" id="308">308</a></pre></div><pre class="rust"><code><span class="comment">// devela::code::util::error
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a></pre></div><pre class="rust"><code><span class="comment">// devela::code::util::error
 //
 </span><span class="doccomment">//! Defines [`impl_error!`]
 </span><span class="comment">//
+// MAYBE
+// - add handy constructors (tuples, fields...)
+// - add better docs for arguments.
 
 </span><span class="doccomment">/// Helper to define individual and composite error types.
 ///
 /// It also helps implementing `From` and `TryFrom` between them.
 </span><span class="comment">//
 // NOTES:
-// - alternative sections for tuple-struct and field-struct variants are indicated.
-// - it uses the trick `$(;$($_a:lifetime)?` for the optional semicolon terminator,
-//   the never expected lifetime allows to include the non-identifier `;` later on.
+// - alternative sections for tuple-struct and field-struct variants are indicated in the margin.
+// - we are employing the trick `$(;$($_a:lifetime)?` for the optional semicolon terminator,
+//   where the never expected lifetime allows to refer to the non-identifier `;` later on.
 </span><span class="macro">macro_rules!</span> impl_error {
     (
     <span class="comment">// Defines a standalone error tuple-struct with elements.
+    //
+    // # Args
+    // $attributes:   attributes for the const &amp; struct declarations, and its implementations.
+    // $struct_name:  the name of the individual error struct.
+    // $struct_vis:   its visibility.
+    //
+    //  $e_vis
+    //  $e_ty:
+    //
+    //  $f_attr
+    //  $f_vis
+    //  $f_name
+    //  $f_ty
+    //
+    // $DOC_NAME
+    // $doc_str
+    //
     </span>individual:
         $(<span class="attr">#[<span class="macro-nonterminal">$attributes</span>:meta]</span>)*
         <span class="macro-nonterminal">$struct_vis</span>:vis <span class="kw">struct </span><span class="macro-nonterminal">$struct_name</span>:ident
@@ -427,8 +481,8 @@
         #[doc = <span class="macro-nonterminal">$</span><span class="macro">DOC_NAME!</span>()]
         #[<span class="macro-nonterminal">derive</span>(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
         </span><span class="macro-nonterminal">$struct_vis </span><span class="kw">struct </span><span class="macro-nonterminal">$struct_name
-            </span>$(( $(<span class="macro-nonterminal">$e_vis $e_ty</span>),+ ) )<span class="question-mark">? </span>$(; $(<span class="macro-nonterminal">$_a</span>)<span class="question-mark">?</span>)<span class="question-mark">?       </span><span class="comment">// tuple-struct↓
-        </span>$({ $( $(<span class="attr">#[<span class="macro-nonterminal">$f_attr</span>]</span>)* <span class="macro-nonterminal">$f_vis $f_name</span>: <span class="macro-nonterminal">$f_ty</span>),+ })<span class="question-mark">? </span><span class="comment">// field-struct↑
+            </span>$(( $(<span class="macro-nonterminal">$e_vis $e_ty</span>),+ ) )<span class="question-mark">? </span>$(; $(<span class="macro-nonterminal">$_a</span>)<span class="question-mark">?</span>)<span class="question-mark">?                              </span><span class="comment">// tuple-struct↓
+        </span>$({ $( $(<span class="attr">#[<span class="macro-nonterminal">$f_attr</span>]</span>)* <span class="macro-nonterminal">$f_vis $f_name</span>: <span class="macro-nonterminal">$f_ty</span>),+ })<span class="question-mark">?                        </span><span class="comment">// field-struct↑
 
         </span>$(<span class="attr">#[<span class="macro-nonterminal">$attributes</span>]</span>)*
         <span class="kw">impl </span><span class="macro-nonterminal">$crate::Display </span><span class="kw">for </span><span class="macro-nonterminal">$struct_name </span>{
@@ -455,11 +509,11 @@
             $(<span class="attr">#[<span class="macro-nonterminal">$variant_attr</span>:meta]</span>)*
             <span class="macro-nonterminal">$DOC_VARIANT</span>:ident:
             <span class="macro-nonterminal">$variant_name</span>:ident
-                $(( $(<span class="macro-nonterminal">$e_name</span>:ident| <span class="macro-nonterminal">$e_numb</span>:literal: <span class="macro-nonterminal">$e_ty</span>:ty),+ ))<span class="question-mark">?       </span><span class="comment">// tuple-struct↓
-                </span>$({ $($(<span class="attr">#[<span class="macro-nonterminal">$f_attr</span>:meta]</span>)* <span class="macro-nonterminal">$f_name</span>:ident: <span class="macro-nonterminal">$f_ty</span>:ty),+ })<span class="question-mark">?    </span><span class="comment">// field-struct↑
+                $(( $(<span class="macro-nonterminal">$e_name</span>:ident| <span class="macro-nonterminal">$e_numb</span>:literal: <span class="macro-nonterminal">$e_ty</span>:ty),+ ))<span class="question-mark">?             </span><span class="comment">// tuple-struct↓
+                </span>$({ $($(<span class="attr">#[<span class="macro-nonterminal">$f_attr</span>:meta]</span>)* <span class="macro-nonterminal">$f_name</span>:ident: <span class="macro-nonterminal">$f_ty</span>:ty),+ })<span class="question-mark">?          </span><span class="comment">// field-struct↑
                 </span>=&gt; <span class="macro-nonterminal">$individual_error_name</span>:ident
-                    $(( $(<span class="macro-nonterminal">$e_display_expr</span>:expr),+ ))<span class="question-mark">?                       </span><span class="comment">// tuple-struct↓
-                    </span>$({ $(<span class="macro-nonterminal">$f_display_name</span>:ident: <span class="macro-nonterminal">$f_display_exp</span>:expr),+ })<span class="question-mark">? </span><span class="comment">// field-struct↑
+                    $(( $(<span class="macro-nonterminal">$e_display_expr</span>:expr),+ ))<span class="question-mark">?                             </span><span class="comment">// tuple-struct↓
+                    </span>$({ $(<span class="macro-nonterminal">$f_display_name</span>:ident: <span class="macro-nonterminal">$f_display_exp</span>:expr),+ })<span class="question-mark">?       </span><span class="comment">// field-struct↑
         </span>),+ $(,)<span class="question-mark">? </span>}
     ) =&gt; {
         <span class="attr">#[doc = <span class="macro">crate::TAG_ERROR_COMPOSITE!</span>()]
@@ -469,8 +523,8 @@
             $(<span class="attr">#[<span class="macro-nonterminal">$variant_attr</span>]</span>)*
             <span class="attr">#[doc = <span class="macro-nonterminal">$</span><span class="macro">DOC_VARIANT!</span>()]
             </span><span class="macro-nonterminal">$variant_name
-                </span>$(( $(<span class="macro-nonterminal">$e_ty</span>),+ ))<span class="question-mark">?                         </span><span class="comment">// tuple-struct↓
-                </span>$({ $($(<span class="attr">#[<span class="macro-nonterminal">$f_attr</span>]</span>)* <span class="macro-nonterminal">$f_name</span>: <span class="macro-nonterminal">$f_ty</span>),+ })<span class="question-mark">? </span><span class="comment">// field-struct↑
+                </span>$(( $(<span class="macro-nonterminal">$e_ty</span>),+ ))<span class="question-mark">?                                                </span><span class="comment">// tuple-struct↓
+                </span>$({ $($(<span class="attr">#[<span class="macro-nonterminal">$f_attr</span>]</span>)* <span class="macro-nonterminal">$f_name</span>: <span class="macro-nonterminal">$f_ty</span>),+ })<span class="question-mark">?                        </span><span class="comment">// field-struct↑
         </span>),+ }
 
         <span class="comment">// implements Error, ExtError &amp; Display:
@@ -485,12 +539,12 @@
                 <span class="kw">match </span><span class="self">self </span>{ $(
                     $(<span class="attr">#[<span class="macro-nonterminal">$variant_attr</span>]</span>)*
                     <span class="macro-nonterminal">$composite_error_name</span>::<span class="macro-nonterminal">$variant_name
-                    </span>$(( $(<span class="macro-nonterminal">$e_name</span>),+ ))<span class="question-mark">? </span><span class="comment">// tuple-struct↓
-                    </span>$({ $(<span class="macro-nonterminal">$f_name</span>),+ })<span class="question-mark">? </span><span class="comment">// field-struct↑
+                    </span>$(( $(<span class="macro-nonterminal">$e_name</span>),+ ))<span class="question-mark">?                                          </span><span class="comment">// tuple-struct↓
+                    </span>$({ $(<span class="macro-nonterminal">$f_name</span>),+ })<span class="question-mark">?                                          </span><span class="comment">// field-struct↑
                     </span>=&gt;
                         <span class="macro-nonterminal">$crate::Display::fmt</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$individual_error_name
-                            </span>$(( $(<span class="macro-nonterminal">$e_display_expr</span>),+ ))<span class="question-mark">?                </span><span class="comment">// tuple-struct↓
-                            </span>$({ $(<span class="macro-nonterminal">$f_display_name</span>: <span class="macro-nonterminal">$f_display_exp</span>),+})<span class="question-mark">? </span><span class="comment">// field-struct↑
+                            </span>$(( $(<span class="macro-nonterminal">$e_display_expr</span>),+ ))<span class="question-mark">?                          </span><span class="comment">// tuple-struct↓
+                            </span>$({ $(<span class="macro-nonterminal">$f_display_name</span>: <span class="macro-nonterminal">$f_display_exp</span>),+})<span class="question-mark">?           </span><span class="comment">// field-struct↑
                         </span>, <span class="macro-nonterminal">$fmt</span>),
                 )+ }
             }
@@ -501,8 +555,8 @@
             $(<span class="attr">#[<span class="macro-nonterminal">$variant_attr</span>]</span>)*
             <span class="macro-nonterminal">$</span><span class="macro">crate::impl_error!</span> { <span class="macro-nonterminal">from</span>(_f): <span class="macro-nonterminal">$individual_error_name</span>, <span class="kw">for</span>: <span class="macro-nonterminal">$composite_error_name
                 </span>=&gt; <span class="macro-nonterminal">$variant_name
-                </span>$(( $(<span class="macro-nonterminal">$e_name</span>, <span class="macro-nonterminal">$</span><span class="macro">crate::field_of!</span>[<span class="macro-nonterminal">_f</span>, <span class="macro-nonterminal">$e_numb</span>] ),+ ))<span class="question-mark">? </span><span class="comment">// tuple-struct↓
-                </span>$({ $(<span class="macro-nonterminal">$f_name</span>, <span class="macro-nonterminal">$</span><span class="macro">crate::field_of!</span>[<span class="macro-nonterminal">_f</span>, <span class="macro-nonterminal">$f_name</span>] ),+ })<span class="question-mark">? </span><span class="comment">// field-struct↑
+                </span>$(( $(<span class="macro-nonterminal">$e_name</span>, <span class="macro-nonterminal">$</span><span class="macro">crate::field_of!</span>[<span class="macro-nonterminal">_f</span>, <span class="macro-nonterminal">$e_numb</span>] ),+ ))<span class="question-mark">?             </span><span class="comment">// tuple-struct↓
+                </span>$({ $(<span class="macro-nonterminal">$f_name</span>, <span class="macro-nonterminal">$</span><span class="macro">crate::field_of!</span>[<span class="macro-nonterminal">_f</span>, <span class="macro-nonterminal">$f_name</span>] ),+ })<span class="question-mark">?             </span><span class="comment">// field-struct↑
             </span>}
         )+
     };
@@ -511,9 +565,23 @@
     // as well as implementing `TryFrom` in reverse.
     </span>from(<span class="macro-nonterminal">$fn_arg</span>:ident): <span class="macro-nonterminal">$from_individual</span>:ident, <span class="kw">for</span>: <span class="macro-nonterminal">$for_composite</span>:ident
     =&gt; <span class="macro-nonterminal">$variant_name</span>:ident
-        $(( $(<span class="macro-nonterminal">$e_name</span>:ident, <span class="macro-nonterminal">$e_expr</span>:expr),+ ))<span class="question-mark">?  </span><span class="comment">// tuple-struct↓
-        </span>$({ $(<span class="macro-nonterminal">$f_name</span>:ident,  <span class="macro-nonterminal">$f_expr</span>:expr),+ })<span class="question-mark">? </span><span class="comment">// field-struct↑
+        $(( $(<span class="macro-nonterminal">$e_name</span>:ident, <span class="macro-nonterminal">$e_expr</span>:expr),+ ))<span class="question-mark">?                                  </span><span class="comment">// tuple-struct↓
+        </span>$({ $(<span class="macro-nonterminal">$f_name</span>:ident,  <span class="macro-nonterminal">$f_expr</span>:expr),+ })<span class="question-mark">?                                 </span><span class="comment">// field-struct↑
     </span>$(,)<span class="question-mark">? </span>) =&gt; {
+        <span class="macro-nonterminal">$</span><span class="macro">crate::paste!</span> {
+            <span class="kw">impl </span><span class="macro-nonterminal">$for_composite </span>{
+                <span class="attr">#[doc = <span class="string">"*const* version of `From&lt;" </span><span class="macro-nonterminal">$from_individual </span><span class="string">"&gt; for " </span><span class="macro-nonterminal">$for_composite </span><span class="string">"`."</span>]
+                #[allow(dead_code, reason = <span class="string">"seldomly used"</span>)]
+                </span><span class="comment">// EXPERIMENTAL:IMPROVE make sure to only make it const if the type allows it
+                </span><span class="kw">pub const fn </span>[&lt;from_ <span class="macro-nonterminal">$from_individual</span>:snake:lower&gt;](<span class="macro-nonterminal">$fn_arg</span>: <span class="macro-nonterminal">$from_individual</span>)
+                -&gt; <span class="macro-nonterminal">$for_composite </span>{
+                    <span class="macro-nonterminal">$for_composite</span>::<span class="macro-nonterminal">$variant_name
+                        </span>$(( $(<span class="macro-nonterminal">$e_expr</span>),+ ))<span class="question-mark">?                                      </span><span class="comment">// tuple-struct↓
+                        </span>$({ $(<span class="macro-nonterminal">$f_name</span>: <span class="macro-nonterminal">$f_expr</span>),+ })<span class="question-mark">?                             </span><span class="comment">// field-struct↑
+                </span>}
+            }
+        }
+
         <span class="comment">/* (example)
         impl From&lt;NotEnoughElements&gt; for DataNotEnough {
             fn from (_f: NotEnoughElements) -&gt; DataNotEnough {
@@ -523,8 +591,8 @@
         </span><span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$from_individual</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$for_composite </span>{
             <span class="kw">fn </span>from(<span class="macro-nonterminal">$fn_arg</span>: <span class="macro-nonterminal">$from_individual</span>) -&gt; <span class="macro-nonterminal">$for_composite </span>{
                 <span class="macro-nonterminal">$for_composite</span>::<span class="macro-nonterminal">$variant_name
-                    </span>$(( $(<span class="macro-nonterminal">$e_expr</span>),+ ))<span class="question-mark">?          </span><span class="comment">// tuple-struct↓
-                    </span>$({ $(<span class="macro-nonterminal">$f_name</span>: <span class="macro-nonterminal">$f_expr</span>),+ })<span class="question-mark">? </span><span class="comment">// field-struct↑
+                    </span>$(( $(<span class="macro-nonterminal">$e_expr</span>),+ ))<span class="question-mark">?                                          </span><span class="comment">// tuple-struct↓
+                    </span>$({ $(<span class="macro-nonterminal">$f_name</span>: <span class="macro-nonterminal">$f_expr</span>),+ })<span class="question-mark">?                                 </span><span class="comment">// field-struct↑
             </span>}
         }
         <span class="comment">/* (example)
@@ -542,11 +610,11 @@
             <span class="kw">fn </span>try_from(<span class="macro-nonterminal">$fn_arg</span>: <span class="macro-nonterminal">$for_composite</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="macro-nonterminal">$from_individual</span>, <span class="self">Self</span>::Error&gt; {
                 <span class="kw">match </span><span class="macro-nonterminal">$fn_arg </span>{
                     <span class="macro-nonterminal">$for_composite</span>::<span class="macro-nonterminal">$variant_name
-                        </span>$(( $(<span class="macro-nonterminal">$e_name</span>),+ ))<span class="question-mark">?                    </span><span class="comment">// tuple-struct↓
-                        </span>$({ $(<span class="macro-nonterminal">$f_name</span>),+ })<span class="question-mark">?                    </span><span class="comment">// field-struct↑
+                        </span>$(( $(<span class="macro-nonterminal">$e_name</span>),+ ))<span class="question-mark">?                                      </span><span class="comment">// tuple-struct↓
+                        </span>$({ $(<span class="macro-nonterminal">$f_name</span>),+ })<span class="question-mark">?                                      </span><span class="comment">// field-struct↑
                         </span>=&gt; <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$from_individual
-                            </span>$(( $(<span class="macro-nonterminal">$e_name</span>),+ ))<span class="question-mark">?                </span><span class="comment">// tuple-struct↓
-                            </span>$({ $(<span class="macro-nonterminal">$f_name</span>),+ })<span class="question-mark">?                </span><span class="comment">// field-struct↑
+                            </span>$(( $(<span class="macro-nonterminal">$e_name</span>),+ ))<span class="question-mark">?                                  </span><span class="comment">// tuple-struct↓
+                            </span>$({ $(<span class="macro-nonterminal">$f_name</span>),+ })<span class="question-mark">?                                  </span><span class="comment">// field-struct↑
                         </span>),
                         <span class="attr">#[allow(unreachable_patterns)]
                         </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="kw">crate</span>::FailedErrorConversion)
@@ -560,21 +628,21 @@
     // E.g. from(f): DataNotEnough for: DataError
     </span>composite: from(<span class="macro-nonterminal">$fn_arg</span>:ident): <span class="macro-nonterminal">$from_subset</span>:ident, <span class="kw">for</span>: <span class="macro-nonterminal">$for_superset</span>:ident { $(
         <span class="macro-nonterminal">$from_variant</span>:ident
-            $(( $(<span class="macro-nonterminal">$from_elem</span>:ident),+ ))<span class="question-mark">?         </span><span class="comment">// tuple-struct↓
-            </span>$({ $(<span class="macro-nonterminal">$from_field</span>:ident),+ })<span class="question-mark">?        </span><span class="comment">// field-struct↑
+            $(( $(<span class="macro-nonterminal">$from_elem</span>:ident),+ ))<span class="question-mark">?                                         </span><span class="comment">// tuple-struct↓
+            </span>$({ $(<span class="macro-nonterminal">$from_field</span>:ident),+ })<span class="question-mark">?                                        </span><span class="comment">// field-struct↑
                 </span>=&gt; <span class="macro-nonterminal">$for_variant</span>:ident
-                    $(( $(<span class="macro-nonterminal">$for_elem</span>:ident),+ ))<span class="question-mark">?  </span><span class="comment">// tuple-struct↓
-                    </span>$({ $(<span class="macro-nonterminal">$for_field</span>:ident),+ })<span class="question-mark">? </span><span class="comment">// field-struct↑
+                    $(( $(<span class="macro-nonterminal">$for_elem</span>:ident),+ ))<span class="question-mark">?                                  </span><span class="comment">// tuple-struct↓
+                    </span>$({ $(<span class="macro-nonterminal">$for_field</span>:ident),+ })<span class="question-mark">?                                 </span><span class="comment">// field-struct↑
     </span>),+ $(,)<span class="question-mark">? </span>}
     ) =&gt; {
         <span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$from_subset</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$for_superset </span>{
             <span class="kw">fn </span>from(<span class="macro-nonterminal">$fn_arg</span>: <span class="macro-nonterminal">$from_subset</span>) -&gt; <span class="macro-nonterminal">$for_superset </span>{ <span class="kw">match </span><span class="macro-nonterminal">$fn_arg </span>{ $(
                 <span class="macro-nonterminal">$from_subset</span>::<span class="macro-nonterminal">$from_variant
-                    </span>$(( $(<span class="macro-nonterminal">$from_elem</span>),+ ))<span class="question-mark">?              </span><span class="comment">// tuple-struct↓
-                    </span>$({ $(<span class="macro-nonterminal">$from_field</span>),+ })<span class="question-mark">?             </span><span class="comment">// field-struct↑
+                    </span>$(( $(<span class="macro-nonterminal">$from_elem</span>),+ ))<span class="question-mark">?                                       </span><span class="comment">// tuple-struct↓
+                    </span>$({ $(<span class="macro-nonterminal">$from_field</span>),+ })<span class="question-mark">?                                      </span><span class="comment">// field-struct↑
                     </span>=&gt; <span class="macro-nonterminal">$for_superset</span>::<span class="macro-nonterminal">$for_variant
-                        </span>$(( $(<span class="macro-nonterminal">$for_elem</span>),+ ))<span class="question-mark">?           </span><span class="comment">// tuple-struct↓
-                        </span>$({ $(<span class="macro-nonterminal">$for_field</span>),+ })<span class="question-mark">?          </span><span class="comment">// field-struct↑
+                        </span>$(( $(<span class="macro-nonterminal">$for_elem</span>),+ ))<span class="question-mark">?                                    </span><span class="comment">// tuple-struct↓
+                        </span>$({ $(<span class="macro-nonterminal">$for_field</span>),+ })<span class="question-mark">?                                   </span><span class="comment">// field-struct↑
             </span>),+ } }
         }
         <span class="kw">impl </span>TryFrom&lt;<span class="macro-nonterminal">$for_superset</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$from_subset </span>{
@@ -582,11 +650,11 @@
             <span class="kw">fn </span>try_from(<span class="macro-nonterminal">$fn_arg</span>: <span class="macro-nonterminal">$for_superset</span>)
                 -&gt; <span class="prelude-ty">Result</span>&lt;<span class="macro-nonterminal">$from_subset</span>, <span class="kw">crate</span>::FailedErrorConversion&gt; { <span class="kw">match </span><span class="macro-nonterminal">$fn_arg </span>{ $(
                     <span class="macro-nonterminal">$for_superset</span>::<span class="macro-nonterminal">$for_variant
-                        </span>$(( $(<span class="macro-nonterminal">$for_elem</span>),+ ))<span class="question-mark">?           </span><span class="comment">// tuple-struct↓
-                        </span>$({ $(<span class="macro-nonterminal">$for_field</span>),+ })<span class="question-mark">?          </span><span class="comment">// field-struct↑
+                        </span>$(( $(<span class="macro-nonterminal">$for_elem</span>),+ ))<span class="question-mark">?                                    </span><span class="comment">// tuple-struct↓
+                        </span>$({ $(<span class="macro-nonterminal">$for_field</span>),+ })<span class="question-mark">?                                   </span><span class="comment">// field-struct↑
                             </span>=&gt; <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$from_subset</span>::<span class="macro-nonterminal">$from_variant
-                                </span>$(( $(<span class="macro-nonterminal">$from_elem</span>),+ ))<span class="question-mark">?  </span><span class="comment">// tuple-struct↓
-                                </span>$({ $(<span class="macro-nonterminal">$from_field</span>),+ })<span class="question-mark">? </span><span class="comment">// field-struct↑
+                                </span>$(( $(<span class="macro-nonterminal">$from_elem</span>),+ ))<span class="question-mark">?                           </span><span class="comment">// tuple-struct↓
+                                </span>$({ $(<span class="macro-nonterminal">$from_field</span>),+ })<span class="question-mark">?                          </span><span class="comment">// field-struct↑
                     </span>),)+
                     <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="kw">crate</span>::FailedErrorConversion)
                 }
@@ -594,7 +662,7 @@
         }
     };
 }
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><a href="#14-200">impl_error</a>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><a href="#17-234">impl_error</a>;
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {

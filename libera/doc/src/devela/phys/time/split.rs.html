@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/phys/time/split.rs`."><title>split.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (48a426eca 2025-01-12)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/phys/time/split.rs`."><title>split.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
   integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
@@ -523,10 +523,58 @@
 <a href="#434" id="434">434</a>
 <a href="#435" id="435">435</a>
 <a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a></pre></div><pre class="rust"><code><span class="comment">// devela::phys::time::split
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a></pre></div><pre class="rust"><code><span class="comment">// devela::phys::time::split
 //
 </span><span class="doccomment">//! Splitting and decomposing time.
 </span><span class="comment">//
+// IDEAS
+// - … enum Granularity? Seconds, Millis, Nanos?
+// - less types (now 6) and integrate using () more commonly?
+//   - will have to CHECK for downsides and UNDERSTAND DESIGNS
+//
+// TODO
+// - normalize fn
+//
+// - differentiate between normalized saturated and overflowing
+//   e.g. u64,u8,u8 vs u8,u8,u8
+//
+// - [ ] methods to construct duration from? to_duration
+// - generic conversion to standard form?
+//   (avoiding monomorphization by nesting non-inline fn into?)
+//
+// - conversion from/to strings
+//
+// - Address scenarios where ms, µs, or ns could sum to more than a second?
+//
+// - support addition, subtraction, scaling.
+//
+// - is_past | future | is_equal
+//
+// - [ ] impl Display (or custom formatter)
 
 </span><span class="kw">use crate</span>::{<a href="../../../../devela/phys/struct.Duration.html">Duration</a>, <a href="../../code/any/ext.rs.html#23-196">ExtAny</a>, <a href="../../../../devela/_core/fmt/index.html">_core::fmt</a>};
 
@@ -564,170 +612,170 @@
 <span class="comment">/* aliases */
 
 </span><span class="doccomment">/// A time split from years to nanoseconds, normalized *(192b size, 152b payload)*.
-</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitNorm.html">TimeSplitNorm</a> = <a href="#18-37">TimeSplit</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitNorm.html">TimeSplitNorm</a> = <a href="#42-61">TimeSplit</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;;
 
 <span class="doccomment">/// A time split from years to days.
-</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitYearDay.html">TimeSplitYearDay</a>&lt;Y, MO, D&gt; = <a href="#18-37">TimeSplit</a>&lt;Y, MO, D, (), (), (), (), (), ()&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitYearDay.html">TimeSplitYearDay</a>&lt;Y, MO, D&gt; = <a href="#42-61">TimeSplit</a>&lt;Y, MO, D, (), (), (), (), (), ()&gt;;
 <span class="doccomment">/// A time split from years to days, normalized *(128b size, 80b payload)*.
-</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitYearDayNorm.html">TimeSplitYearDayNorm</a> = <a href="#18-37">TimeSplit</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, (), (), (), (), (), ()&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitYearDayNorm.html">TimeSplitYearDayNorm</a> = <a href="#42-61">TimeSplit</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, (), (), (), (), (), ()&gt;;
 
 <span class="doccomment">/// A time split from years to seconds.
-</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitYearSec.html">TimeSplitYearSec</a>&lt;Y, MO, D, H, M, S&gt; = <a href="#18-37">TimeSplit</a>&lt;Y, MO, D, H, M, S, (), (), ()&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitYearSec.html">TimeSplitYearSec</a>&lt;Y, MO, D, H, M, S&gt; = <a href="#42-61">TimeSplit</a>&lt;Y, MO, D, H, M, S, (), (), ()&gt;;
 <span class="doccomment">/// A time split from years to seconds, normalized *(128b size, 104b payload)*.
-</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitYearSecNorm.html">TimeSplitYearSecNorm</a> = <a href="#18-37">TimeSplit</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, (), (), ()&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitYearSecNorm.html">TimeSplitYearSecNorm</a> = <a href="#42-61">TimeSplit</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, (), (), ()&gt;;
 
 <span class="doccomment">/// A time split from hours to seconds.
-</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitHourSec.html">TimeSplitHourSec</a>&lt;H, M, S&gt; = <a href="#18-37">TimeSplit</a>&lt;(), (), (), H, M, S, (), (), ()&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitHourSec.html">TimeSplitHourSec</a>&lt;H, M, S&gt; = <a href="#42-61">TimeSplit</a>&lt;(), (), (), H, M, S, (), (), ()&gt;;
 <span class="doccomment">/// A time split from hours to seconds, normalized *(128b size, 80b payload)*.
-</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitHourSecNorm.html">TimeSplitHourSecNorm</a> = <a href="#18-37">TimeSplit</a>&lt;(), (), (), <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, (), (), ()&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitHourSecNorm.html">TimeSplitHourSecNorm</a> = <a href="#42-61">TimeSplit</a>&lt;(), (), (), <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, (), (), ()&gt;;
 
 <span class="doccomment">/// A time split from hours to nanoseconds.
-</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitHourNano.html">TimeSplitHourNano</a>&lt;H, M, S, MS, US, NS&gt; = <a href="#18-37">TimeSplit</a>&lt;(), (), (), H, M, S, MS, US, NS&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitHourNano.html">TimeSplitHourNano</a>&lt;H, M, S, MS, US, NS&gt; = <a href="#42-61">TimeSplit</a>&lt;(), (), (), H, M, S, MS, US, NS&gt;;
 <span class="doccomment">/// A time split from hours to seconds, normalized *(128b size &amp; payload)*.
-</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitHourNanoNorm.html">TimeSplitHourNanoNorm</a> = <a href="#18-37">TimeSplit</a>&lt;(), (), (), <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitHourNanoNorm.html">TimeSplitHourNanoNorm</a> = <a href="#42-61">TimeSplit</a>&lt;(), (), (), <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;;
 
 <span class="doccomment">/// A time split from milliseconds to nanoseconds.
-</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitMilliNano.html">TimeSplitMilliNano</a>&lt;MS, US, NS&gt; = <a href="#18-37">TimeSplit</a>&lt;(), (), (), (), (), (), MS, US, NS&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitMilliNano.html">TimeSplitMilliNano</a>&lt;MS, US, NS&gt; = <a href="#42-61">TimeSplit</a>&lt;(), (), (), (), (), (), MS, US, NS&gt;;
 <span class="doccomment">/// A time split from milliseconds to nanoseconds, normalized *(48b size &amp; payload)*.
-</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitMilliNanoNorm.html">TimeSplitMilliNanoNorm</a> = <a href="#18-37">TimeSplit</a>&lt;(), (), (), (), (), (), <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;;
+</span><span class="kw">pub type </span><a href="../../../../devela/phys/type.TimeSplitMilliNanoNorm.html">TimeSplitMilliNanoNorm</a> = <a href="#42-61">TimeSplit</a>&lt;(), (), (), (), (), (), <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;;
 
 <span class="comment">/* constructors */
 
-</span><span class="kw">impl</span>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; <a href="#18-37">TimeSplit</a>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; {
+</span><span class="kw">impl</span>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; <a href="#42-61">TimeSplit</a>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; {
     <span class="doccomment">/// Returns a new [`TimeSplit`].
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub const fn </span>new(y: Y, mo: MO, d: D, h: H, m: M, s: S, ms: MS, us: US, ns: NS) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ <a href="#74">y</a>, <a href="#74">mo</a>, <a href="#74">d</a>, <a href="#74">h</a>, <a href="#74">m</a>, <a href="#74">s</a>, <a href="#74">ms</a>, <a href="#74">us</a>, <a href="#74">ns</a> }
+        <span class="self">Self </span>{ <a href="#98">y</a>, <a href="#98">mo</a>, <a href="#98">d</a>, <a href="#98">h</a>, <a href="#98">m</a>, <a href="#98">s</a>, <a href="#98">ms</a>, <a href="#98">us</a>, <a href="#98">ns</a> }
     }
 }
-<span class="kw">impl </span><a href="#42">TimeSplitNorm</a> {
+<span class="kw">impl </span><a href="#66">TimeSplitNorm</a> {
     <span class="doccomment">/// Converts a `Duration` into a full [`TimeSplit`].
     ///
     /// It assumes non-leap years and 30-day months for simplicity in calendar calculations.
     </span><span class="kw">pub const fn </span>from_duration(duration: <a href="../../../../devela/phys/struct.Duration.html">Duration</a>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>secs = <a href="#82">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>();
-        <span class="kw">let </span>total_days = <a href="#83">secs</a> / <span class="number">86400</span>;
-        <span class="kw">let </span>y = <a href="#84">total_days</a> / <span class="number">365</span>;
-        <span class="kw">let </span>days_remaining = <a href="#84">total_days</a> % <span class="number">365</span>;
-        <span class="kw">let </span>mo = (<a href="#86">days_remaining</a> / <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>d = (<a href="#86">days_remaining</a> % <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>h = ((<a href="#83">secs</a> % <span class="number">86400</span>) / <span class="number">3600</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>m = ((<a href="#83">secs</a> % <span class="number">3600</span>) / <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>s = (<a href="#83">secs</a> % <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>nanos = <a href="#82">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.subsec_nanos">subsec_nanos</a>();
-        <span class="kw">let </span>ms = (<a href="#92">nanos</a> / <span class="number">1_000_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
-        <span class="kw">let </span>us = ((<a href="#92">nanos</a> % <span class="number">1_000_000</span>) / <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
-        <span class="kw">let </span>ns = (<a href="#92">nanos</a> % <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
-        <a href="#18-37">TimeSplit</a> { <a href="#85">y</a>, <a href="#87">mo</a>, <a href="#88">d</a>, <a href="#89">h</a>, <a href="#90">m</a>, <a href="#91">s</a>, <a href="#93">ms</a>, <a href="#94">us</a>, <a href="#95">ns</a> }
+        <span class="kw">let </span>secs = <a href="#106">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>();
+        <span class="kw">let </span>total_days = <a href="#107">secs</a> / <span class="number">86400</span>;
+        <span class="kw">let </span>y = <a href="#108">total_days</a> / <span class="number">365</span>;
+        <span class="kw">let </span>days_remaining = <a href="#108">total_days</a> % <span class="number">365</span>;
+        <span class="kw">let </span>mo = (<a href="#110">days_remaining</a> / <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>d = (<a href="#110">days_remaining</a> % <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>h = ((<a href="#107">secs</a> % <span class="number">86400</span>) / <span class="number">3600</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>m = ((<a href="#107">secs</a> % <span class="number">3600</span>) / <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>s = (<a href="#107">secs</a> % <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>nanos = <a href="#106">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.subsec_nanos">subsec_nanos</a>();
+        <span class="kw">let </span>ms = (<a href="#116">nanos</a> / <span class="number">1_000_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
+        <span class="kw">let </span>us = ((<a href="#116">nanos</a> % <span class="number">1_000_000</span>) / <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
+        <span class="kw">let </span>ns = (<a href="#116">nanos</a> % <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
+        <a href="#42-61">TimeSplit</a> { <a href="#109">y</a>, <a href="#111">mo</a>, <a href="#112">d</a>, <a href="#113">h</a>, <a href="#114">m</a>, <a href="#115">s</a>, <a href="#117">ms</a>, <a href="#118">us</a>, <a href="#119">ns</a> }
     }
 }
 
-<span class="kw">impl</span>&lt;Y, MO, D&gt; <a href="#45">TimeSplitYearDay</a>&lt;Y, MO, D&gt; {
+<span class="kw">impl</span>&lt;Y, MO, D&gt; <a href="#69">TimeSplitYearDay</a>&lt;Y, MO, D&gt; {
     <span class="doccomment">/// Returns a new [`TimeSplitYearDay`].
     </span><span class="kw">pub const fn </span>new_year_day(y: Y, mo: MO, d: D) -&gt; <span class="self">Self </span>{
-        <a href="#74-76"><span class="self">Self</span>::new</a>(<a href="#102">y</a>, <a href="#102">mo</a>, <a href="#102">d</a>, (), (), (), (), (), ())
+        <a href="#98-100"><span class="self">Self</span>::new</a>(<a href="#126">y</a>, <a href="#126">mo</a>, <a href="#126">d</a>, (), (), (), (), (), ())
     }
 }
-<span class="kw">impl </span><a href="#47">TimeSplitYearDayNorm</a> {
+<span class="kw">impl </span><a href="#71">TimeSplitYearDayNorm</a> {
     <span class="doccomment">/// Converts a `Duration` into a [`TimeSplitYearDay`].
     ///
     /// This method assumes 365 days per year and 30 days per month for simplicity.
     </span><span class="kw">pub const fn </span>from_duration(duration: <a href="../../../../devela/phys/struct.Duration.html">Duration</a>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>days = <a href="#110">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>() / <span class="number">86400</span>;
-        <span class="kw">let </span>y = <a href="#111">days</a> / <span class="number">365</span>;
-        <span class="kw">let </span>days_rem = <a href="#111">days</a> % <span class="number">365</span>;
-        <span class="kw">let </span>mo = (<a href="#113">days_rem</a> / <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>d = (<a href="#113">days_rem</a> % <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <a href="#102-104"><span class="self">Self</span>::new_year_day</a>(<a href="#112">y</a>, <a href="#114">mo</a>, <a href="#115">d</a>)
+        <span class="kw">let </span>days = <a href="#134">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>() / <span class="number">86400</span>;
+        <span class="kw">let </span>y = <a href="#135">days</a> / <span class="number">365</span>;
+        <span class="kw">let </span>days_rem = <a href="#135">days</a> % <span class="number">365</span>;
+        <span class="kw">let </span>mo = (<a href="#137">days_rem</a> / <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>d = (<a href="#137">days_rem</a> % <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <a href="#126-128"><span class="self">Self</span>::new_year_day</a>(<a href="#136">y</a>, <a href="#138">mo</a>, <a href="#139">d</a>)
     }
 }
 
-<span class="kw">impl</span>&lt;Y, MO, D, H, M, S&gt; <a href="#50">TimeSplitYearSec</a>&lt;Y, MO, D, H, M, S&gt; {
+<span class="kw">impl</span>&lt;Y, MO, D, H, M, S&gt; <a href="#74">TimeSplitYearSec</a>&lt;Y, MO, D, H, M, S&gt; {
     <span class="doccomment">/// Returns a new [`TimeSplitYearSec`].
     </span><span class="kw">pub const fn </span>new_year_sec(y: Y, mo: MO, d: D, h: H, m: M, s: S) -&gt; <span class="self">Self </span>{
-        <a href="#74-76"><span class="self">Self</span>::new</a>(<a href="#122">y</a>, <a href="#122">mo</a>, <a href="#122">d</a>, <a href="#122">h</a>, <a href="#122">m</a>, <a href="#122">s</a>, (), (), ())
+        <a href="#98-100"><span class="self">Self</span>::new</a>(<a href="#146">y</a>, <a href="#146">mo</a>, <a href="#146">d</a>, <a href="#146">h</a>, <a href="#146">m</a>, <a href="#146">s</a>, (), (), ())
     }
 }
-<span class="kw">impl </span><a href="#52">TimeSplitYearSecNorm</a> {
+<span class="kw">impl </span><a href="#76">TimeSplitYearSecNorm</a> {
     <span class="doccomment">/// Converts a `Duration` into a [`TimeSplitYearSec`].
     ///
     /// It assumes non-leap years and 30-day months for simplicity in calendar calculations.
     </span><span class="kw">pub const fn </span>from_duration(duration: <a href="../../../../devela/phys/struct.Duration.html">Duration</a>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>secs = <a href="#130">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>();
-        <span class="kw">let </span>total_days = <a href="#131">secs</a> / <span class="number">86400</span>;
-        <span class="kw">let </span>y = <a href="#132">total_days</a> / <span class="number">365</span>;
-        <span class="kw">let </span>days_remaining = <a href="#132">total_days</a> % <span class="number">365</span>;
-        <span class="kw">let </span>mo = (<a href="#134">days_remaining</a> / <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>d = (<a href="#134">days_remaining</a> % <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>h = ((<a href="#131">secs</a> % <span class="number">86400</span>) / <span class="number">3600</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>m = ((<a href="#131">secs</a> % <span class="number">3600</span>) / <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>s = (<a href="#131">secs</a> % <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <a href="#122-124"><span class="self">Self</span>::new_year_sec</a>(<a href="#133">y</a>, <a href="#135">mo</a>, <a href="#136">d</a>, <a href="#137">h</a>, <a href="#138">m</a>, <a href="#139">s</a>)
+        <span class="kw">let </span>secs = <a href="#154">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>();
+        <span class="kw">let </span>total_days = <a href="#155">secs</a> / <span class="number">86400</span>;
+        <span class="kw">let </span>y = <a href="#156">total_days</a> / <span class="number">365</span>;
+        <span class="kw">let </span>days_remaining = <a href="#156">total_days</a> % <span class="number">365</span>;
+        <span class="kw">let </span>mo = (<a href="#158">days_remaining</a> / <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>d = (<a href="#158">days_remaining</a> % <span class="number">30</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>h = ((<a href="#155">secs</a> % <span class="number">86400</span>) / <span class="number">3600</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>m = ((<a href="#155">secs</a> % <span class="number">3600</span>) / <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>s = (<a href="#155">secs</a> % <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <a href="#146-148"><span class="self">Self</span>::new_year_sec</a>(<a href="#157">y</a>, <a href="#159">mo</a>, <a href="#160">d</a>, <a href="#161">h</a>, <a href="#162">m</a>, <a href="#163">s</a>)
     }
 }
 
-<span class="kw">impl</span>&lt;H, M, S&gt; <a href="#55">TimeSplitHourSec</a>&lt;H, M, S&gt; {
+<span class="kw">impl</span>&lt;H, M, S&gt; <a href="#79">TimeSplitHourSec</a>&lt;H, M, S&gt; {
     <span class="doccomment">/// Returns a new [`TimeSplitHourSec`].
     </span><span class="kw">pub const fn </span>new_hour_sec(h: H, m: M, s: S) -&gt; <span class="self">Self </span>{
-        <a href="#74-76"><span class="self">Self</span>::new</a>((), (), (), <a href="#146">h</a>, <a href="#146">m</a>, <a href="#146">s</a>, (), (), ())
+        <a href="#98-100"><span class="self">Self</span>::new</a>((), (), (), <a href="#170">h</a>, <a href="#170">m</a>, <a href="#170">s</a>, (), (), ())
     }
 }
-<span class="kw">impl </span><a href="#57">TimeSplitHourSecNorm</a> {
+<span class="kw">impl </span><a href="#81">TimeSplitHourSecNorm</a> {
     <span class="doccomment">/// Converts a `Duration` into a [`TimeSplitHourSec`].
     ///
     /// Excess days or longer periods are converted into additional hours.
     </span><span class="kw">pub const fn </span>from_duration(duration: <a href="../../../../devela/phys/struct.Duration.html">Duration</a>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>secs = <a href="#154">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>();
-        <span class="kw">let </span>h = <a href="#155">secs</a> / <span class="number">3600</span>;
-        <span class="kw">let </span>m = ((<a href="#155">secs</a> % <span class="number">3600</span>) / <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>s = (<a href="#155">secs</a> % <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <a href="#146-148"><span class="self">Self</span>::new_hour_sec</a>(<a href="#156">h</a>, <a href="#157">m</a>, <a href="#158">s</a>)
+        <span class="kw">let </span>secs = <a href="#178">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>();
+        <span class="kw">let </span>h = <a href="#179">secs</a> / <span class="number">3600</span>;
+        <span class="kw">let </span>m = ((<a href="#179">secs</a> % <span class="number">3600</span>) / <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>s = (<a href="#179">secs</a> % <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <a href="#170-172"><span class="self">Self</span>::new_hour_sec</a>(<a href="#180">h</a>, <a href="#181">m</a>, <a href="#182">s</a>)
     }
 }
 
-<span class="kw">impl</span>&lt;MS, US, NS&gt; <a href="#65">TimeSplitMilliNano</a>&lt;MS, US, NS&gt; {
+<span class="kw">impl</span>&lt;MS, US, NS&gt; <a href="#89">TimeSplitMilliNano</a>&lt;MS, US, NS&gt; {
     <span class="doccomment">/// Returns a new [`TimeSplitMilliNano`].
     </span><span class="kw">pub const fn </span>new_milli_nano(ms: MS, us: US, ns: NS) -&gt; <span class="self">Self </span>{
-        <a href="#74-76"><span class="self">Self</span>::new</a>((), (), (), (), (), (), <a href="#165">ms</a>, <a href="#165">us</a>, <a href="#165">ns</a>)
+        <a href="#98-100"><span class="self">Self</span>::new</a>((), (), (), (), (), (), <a href="#189">ms</a>, <a href="#189">us</a>, <a href="#189">ns</a>)
     }
 }
-<span class="kw">impl </span><a href="#67">TimeSplitMilliNanoNorm</a> {
+<span class="kw">impl </span><a href="#91">TimeSplitMilliNanoNorm</a> {
     <span class="doccomment">/// Converts a `Duration`'s sub-second component into a compact time split representation.
     ///
     /// Extracts and segments the nanosecond portion of a `Duration`
     /// into milliseconds, microseconds, and nanoseconds.
     </span><span class="kw">pub const fn </span>from_duration(duration: <a href="../../../../devela/phys/struct.Duration.html">Duration</a>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>nanos = <a href="#174">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.subsec_nanos">subsec_nanos</a>();
-        <span class="kw">let </span>ms = (<a href="#175">nanos</a> / <span class="number">1_000_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
-        <span class="kw">let </span>us = ((<a href="#175">nanos</a> % <span class="number">1_000_000</span>) / <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
-        <span class="kw">let </span>ns = (<a href="#175">nanos</a> % <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
-        <a href="#165-167"><span class="self">Self</span>::new_milli_nano</a>(<a href="#176">ms</a>, <a href="#177">us</a>, <a href="#178">ns</a>)
+        <span class="kw">let </span>nanos = <a href="#198">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.subsec_nanos">subsec_nanos</a>();
+        <span class="kw">let </span>ms = (<a href="#199">nanos</a> / <span class="number">1_000_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
+        <span class="kw">let </span>us = ((<a href="#199">nanos</a> % <span class="number">1_000_000</span>) / <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
+        <span class="kw">let </span>ns = (<a href="#199">nanos</a> % <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
+        <a href="#189-191"><span class="self">Self</span>::new_milli_nano</a>(<a href="#200">ms</a>, <a href="#201">us</a>, <a href="#202">ns</a>)
     }
 }
 
-<span class="kw">impl</span>&lt;H, M, S, MS, US, NS&gt; <a href="#60">TimeSplitHourNano</a>&lt;H, M, S, MS, US, NS&gt; {
+<span class="kw">impl</span>&lt;H, M, S, MS, US, NS&gt; <a href="#84">TimeSplitHourNano</a>&lt;H, M, S, MS, US, NS&gt; {
     <span class="doccomment">/// Returns a new `TimeSplitHourNano`.
     </span><span class="kw">pub const fn </span>new_hour_nano(h: H, m: M, s: S, ms: MS, us: US, ns: NS) -&gt; <span class="self">Self </span>{
-        <a href="#74-76"><span class="self">Self</span>::new</a>((), (), (), <a href="#185">h</a>, <a href="#185">m</a>, <a href="#185">s</a>, <a href="#185">ms</a>, <a href="#185">us</a>, <a href="#185">ns</a>)
+        <a href="#98-100"><span class="self">Self</span>::new</a>((), (), (), <a href="#209">h</a>, <a href="#209">m</a>, <a href="#209">s</a>, <a href="#209">ms</a>, <a href="#209">us</a>, <a href="#209">ns</a>)
     }
 }
-<span class="kw">impl </span><a href="#60">TimeSplitHourNano</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt; {
+<span class="kw">impl </span><a href="#84">TimeSplitHourNano</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt; {
     <span class="doccomment">/// Converts a `Duration` into a time split representation from Hours down to nanoseconds.
     </span><span class="kw">pub const fn </span>from_duration(duration: <a href="../../../../devela/phys/struct.Duration.html">Duration</a>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>secs = <a href="#191">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>();
-        <span class="kw">let </span>h = (<a href="#192">secs</a> % <span class="number">86400</span>) / <span class="number">3600</span>;
-        <span class="kw">let </span>m = ((<a href="#192">secs</a> % <span class="number">3600</span>) / <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>s = (<a href="#192">secs</a> % <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
-        <span class="kw">let </span>nanos = <a href="#191">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.subsec_nanos">subsec_nanos</a>();
-        <span class="kw">let </span>ms = (<a href="#196">nanos</a> / <span class="number">1_000_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
-        <span class="kw">let </span>us = ((<a href="#196">nanos</a> % <span class="number">1_000_000</span>) / <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
-        <span class="kw">let </span>ns = (<a href="#196">nanos</a> % <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
-        <a href="#185-187"><span class="self">Self</span>::new_hour_nano</a>(<a href="#193">h</a>, <a href="#194">m</a>, <a href="#195">s</a>, <a href="#197">ms</a>, <a href="#198">us</a>, <a href="#199">ns</a>)
+        <span class="kw">let </span>secs = <a href="#215">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.as_secs">as_secs</a>();
+        <span class="kw">let </span>h = (<a href="#216">secs</a> % <span class="number">86400</span>) / <span class="number">3600</span>;
+        <span class="kw">let </span>m = ((<a href="#216">secs</a> % <span class="number">3600</span>) / <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>s = (<a href="#216">secs</a> % <span class="number">60</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+        <span class="kw">let </span>nanos = <a href="#215">duration</a>.<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.subsec_nanos">subsec_nanos</a>();
+        <span class="kw">let </span>ms = (<a href="#220">nanos</a> / <span class="number">1_000_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
+        <span class="kw">let </span>us = ((<a href="#220">nanos</a> % <span class="number">1_000_000</span>) / <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
+        <span class="kw">let </span>ns = (<a href="#220">nanos</a> % <span class="number">1_000</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>;
+        <a href="#209-211"><span class="self">Self</span>::new_hour_nano</a>(<a href="#217">h</a>, <a href="#218">m</a>, <a href="#219">s</a>, <a href="#221">ms</a>, <a href="#222">us</a>, <a href="#223">ns</a>)
     }
 }
 
 <span class="doccomment">/// # Structural introspection
-</span><span class="kw">impl</span>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; <a href="#18-37">TimeSplit</a>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; {
+</span><span class="kw">impl</span>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; <a href="#42-61">TimeSplit</a>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; {
     <span class="doccomment">/// Indicates whether the [`y`][Self::y] field is enabled.
     </span><span class="kw">pub const </span>Y: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> = <a href="../../../../devela/_core/mem/fn.size_of.html">size_of</a>::&lt;Y&gt;() != <span class="number">0</span>;
     <span class="doccomment">/// Indicates whether the [`mo`][Self::mo] field is enabled.
@@ -780,7 +828,7 @@
 
 <span class="doccomment">/// # Instance introspection
 </span><span class="attr">#[rustfmt::skip]
-</span><span class="kw">impl</span>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; <a href="#18-37">TimeSplit</a>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; {
+</span><span class="kw">impl</span>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; <a href="#42-61">TimeSplit</a>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; {
     <span class="doccomment">/// Indicates whether the [`y`][Self::y] field is enabled.
     </span><span class="kw">pub const fn </span>has_y(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <span class="self">Self</span>::Y }
     <span class="doccomment">/// Indicates whether the [`mo`][Self::mo] field is enabled.
@@ -831,88 +879,88 @@
 
 <span class="attr">#[rustfmt::skip]
 #[allow(clippy::if_then_some_else_none)]
-</span><span class="kw">impl</span>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; <a href="#18-37">TimeSplit</a>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; {
+</span><span class="kw">impl</span>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; <a href="#42-61">TimeSplit</a>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; {
     <span class="doccomment">/// Returns a (9) tuple with all the elements.
     </span><span class="kw">pub fn </span>as_tuple(<span class="self">self</span>) -&gt; (Y, MO, D, H, M, S, MS, US, NS) {
-        (<a class="self" href="#311">self</a>.y, <a class="self" href="#311">self</a>.mo, <a class="self" href="#311">self</a>.d, <a class="self" href="#311">self</a>.h, <a class="self" href="#311">self</a>.m, <a class="self" href="#311">self</a>.s, <a class="self" href="#311">self</a>.ms, <a class="self" href="#311">self</a>.us, <a class="self" href="#311">self</a>.ns)
+        (<a class="self" href="#335">self</a>.y, <a class="self" href="#335">self</a>.mo, <a class="self" href="#335">self</a>.d, <a class="self" href="#335">self</a>.h, <a class="self" href="#335">self</a>.m, <a class="self" href="#335">self</a>.s, <a class="self" href="#335">self</a>.ms, <a class="self" href="#335">self</a>.us, <a class="self" href="#335">self</a>.ns)
     }
     <span class="doccomment">/// Returns a (9) tuple with all the elements.
     </span><span class="kw">pub const fn </span>to_tuple(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (Y, MO, D, H, M, S, MS, US, NS)
         <span class="kw">where </span>Y: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, MO: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, D: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, H: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, M: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, S: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, MS: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, US: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, NS: <a href="../../../../devela/all/trait.Copy.html">Copy</a> {
-        (<a class="self" href="#315">self</a>.y, <a class="self" href="#315">self</a>.mo, <a class="self" href="#315">self</a>.d, <a class="self" href="#315">self</a>.h, <a class="self" href="#315">self</a>.m, <a class="self" href="#315">self</a>.s, <a class="self" href="#315">self</a>.ms, <a class="self" href="#315">self</a>.us, <a class="self" href="#315">self</a>.ns)
+        (<a class="self" href="#339">self</a>.y, <a class="self" href="#339">self</a>.mo, <a class="self" href="#339">self</a>.d, <a class="self" href="#339">self</a>.h, <a class="self" href="#339">self</a>.m, <a class="self" href="#339">self</a>.s, <a class="self" href="#339">self</a>.ms, <a class="self" href="#339">self</a>.us, <a class="self" href="#339">self</a>.ns)
     }
 
     <span class="doccomment">/// Returns a (3) tuple if the 3 fields from [`y`][Self::y] to [`d`][Self::d] are enabled.
     </span><span class="kw">pub fn </span>as_tuple_y_d(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(Y, MO, D)&gt; {
-        <span class="kw">if </span><span class="self">self</span>.has_y_d() { <span class="prelude-val">Some</span>((<a class="self" href="#321">self</a>.y, <a class="self" href="#321">self</a>.mo, <a class="self" href="#321">self</a>.d)) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+        <span class="kw">if </span><span class="self">self</span>.has_y_d() { <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#345">self</a>.y, <a class="self" href="#345">self</a>.mo, <a class="self" href="#345">self</a>.d)) } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
     <span class="doccomment">/// Returns a (3) tuple if the 3 fields from [`y`][Self::y] to [`d`][Self::d] are enabled.
     </span><span class="kw">pub const fn </span>to_tuple_y_d(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(Y, MO, D)&gt;
         <span class="kw">where </span>Y: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, MO: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, D: <a href="../../../../devela/all/trait.Copy.html">Copy</a> {
-        <span class="kw">if </span><span class="self">self</span>.has_y_d() { <span class="prelude-val">Some</span>((<a class="self" href="#325">self</a>.y, <a class="self" href="#325">self</a>.mo, <a class="self" href="#325">self</a>.d)) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+        <span class="kw">if </span><span class="self">self</span>.has_y_d() { <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#349">self</a>.y, <a class="self" href="#349">self</a>.mo, <a class="self" href="#349">self</a>.d)) } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
 
     <span class="doccomment">/// Returns a (3) tuple if the 3 fields from [`h`][Self::h] to [`s`][Self::s] are enabled.
     </span><span class="kw">pub fn </span>as_tuple_h_s(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(H, M, S)&gt; {
-        <span class="kw">if </span><span class="self">self</span>.has_h_s() { <span class="prelude-val">Some</span>((<a class="self" href="#331">self</a>.h, <a class="self" href="#331">self</a>.m, <a class="self" href="#331">self</a>.s)) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+        <span class="kw">if </span><span class="self">self</span>.has_h_s() { <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#355">self</a>.h, <a class="self" href="#355">self</a>.m, <a class="self" href="#355">self</a>.s)) } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
     <span class="doccomment">/// Returns a (3) tuple if the 3 fields from [`h`][Self::h] to [`s`][Self::s] are enabled.
     </span><span class="kw">pub const fn </span>to_tuple_h_s(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(H, M, S)&gt;
         <span class="kw">where </span>H: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, M: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, S: <a href="../../../../devela/all/trait.Copy.html">Copy</a> {
-        <span class="kw">if </span><span class="self">self</span>.has_h_s() { <span class="prelude-val">Some</span>((<a class="self" href="#335">self</a>.h, <a class="self" href="#335">self</a>.m, <a class="self" href="#335">self</a>.s)) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+        <span class="kw">if </span><span class="self">self</span>.has_h_s() { <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#359">self</a>.h, <a class="self" href="#359">self</a>.m, <a class="self" href="#359">self</a>.s)) } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
 
     <span class="doccomment">/// Returns a (3) tuple if the 3 fields from [`ms`][Self::ms] to [`ns`][Self::ns] are enabled.
     </span><span class="kw">pub fn </span>as_tuple_ms_ns(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(MS, US, NS)&gt; {
-        <span class="kw">if </span><span class="self">self</span>.has_ms_ns() { <span class="prelude-val">Some</span>((<a class="self" href="#341">self</a>.ms, <a class="self" href="#341">self</a>.us, <a class="self" href="#341">self</a>.ns)) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+        <span class="kw">if </span><span class="self">self</span>.has_ms_ns() { <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#365">self</a>.ms, <a class="self" href="#365">self</a>.us, <a class="self" href="#365">self</a>.ns)) } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
     <span class="doccomment">/// Returns a (3) tuple if the 3 fields from [`ms`][Self::ms] to [`ns`][Self::ns] are enabled.
     </span><span class="kw">pub const fn </span>to_tuple_ms_ns(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(MS, US, NS)&gt;
         <span class="kw">where </span>MS: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, US: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, NS: <a href="../../../../devela/all/trait.Copy.html">Copy</a> {
-        <span class="kw">if </span><span class="self">self</span>.has_ms_ns() { <span class="prelude-val">Some</span>((<a class="self" href="#345">self</a>.ms, <a class="self" href="#345">self</a>.us, <a class="self" href="#345">self</a>.ns)) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+        <span class="kw">if </span><span class="self">self</span>.has_ms_ns() { <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#369">self</a>.ms, <a class="self" href="#369">self</a>.us, <a class="self" href="#369">self</a>.ns)) } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
 
     <span class="doccomment">/// Returns a (6) tuple if the 6 fields from [`y`][Self::y] to [`s`][Self::s] are enabled.
     </span><span class="kw">pub fn </span>as_tuple_y_s(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(Y, MO, D, H, M, S)&gt; {
-        <span class="kw">if </span><span class="self">self</span>.has_y_s() { <span class="prelude-val">Some</span>((<a class="self" href="#351">self</a>.y, <a class="self" href="#351">self</a>.mo, <a class="self" href="#351">self</a>.d, <a class="self" href="#351">self</a>.h, <a class="self" href="#351">self</a>.m, <a class="self" href="#351">self</a>.s)) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+        <span class="kw">if </span><span class="self">self</span>.has_y_s() { <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#375">self</a>.y, <a class="self" href="#375">self</a>.mo, <a class="self" href="#375">self</a>.d, <a class="self" href="#375">self</a>.h, <a class="self" href="#375">self</a>.m, <a class="self" href="#375">self</a>.s)) } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
     <span class="doccomment">/// Returns a (6) tuple if the 6 fields from [`y`][Self::y] to [`s`][Self::s] are enabled.
     </span><span class="kw">pub const fn </span>to_tuple_y_s(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(Y, MO, D, H, M, S)&gt;
         <span class="kw">where </span>Y: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, MO: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, D: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, H: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, M: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, S: <a href="../../../../devela/all/trait.Copy.html">Copy</a> {
-        <span class="kw">if </span><span class="self">self</span>.has_y_s() { <span class="prelude-val">Some</span>((<a class="self" href="#355">self</a>.y, <a class="self" href="#355">self</a>.mo, <a class="self" href="#355">self</a>.d, <a class="self" href="#355">self</a>.h, <a class="self" href="#355">self</a>.m, <a class="self" href="#355">self</a>.s)) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+        <span class="kw">if </span><span class="self">self</span>.has_y_s() { <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#379">self</a>.y, <a class="self" href="#379">self</a>.mo, <a class="self" href="#379">self</a>.d, <a class="self" href="#379">self</a>.h, <a class="self" href="#379">self</a>.m, <a class="self" href="#379">self</a>.s)) } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
 
     <span class="doccomment">/// Returns a (6) tuple if the 6 fields from [`h`][Self::h] to [`ns`][Self::ns] are enabled.
     </span><span class="kw">pub fn </span>as_tuple_h_ns(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(H, M, S, MS, US, NS)&gt; {
-        <span class="kw">if </span><span class="self">self</span>.has_h_ns() { <span class="prelude-val">Some</span>((<a class="self" href="#361">self</a>.h, <a class="self" href="#361">self</a>.m, <a class="self" href="#361">self</a>.s, <a class="self" href="#361">self</a>.ms, <a class="self" href="#361">self</a>.us, <a class="self" href="#361">self</a>.ns))
-        } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+        <span class="kw">if </span><span class="self">self</span>.has_h_ns() { <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#385">self</a>.h, <a class="self" href="#385">self</a>.m, <a class="self" href="#385">self</a>.s, <a class="self" href="#385">self</a>.ms, <a class="self" href="#385">self</a>.us, <a class="self" href="#385">self</a>.ns))
+        } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
     <span class="doccomment">/// Returns a (6) tuple if the 6 fields from [`h`][Self::h] to [`ns`][Self::ns] are enabled.
     </span><span class="kw">pub const fn </span>to_tuple_h_ns(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(H, M, S, MS, US, NS)&gt;
         <span class="kw">where </span>H: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, M: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, S: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, MS: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, US: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, NS: <a href="../../../../devela/all/trait.Copy.html">Copy</a> {
-        <span class="kw">if </span><span class="self">self</span>.has_h_ns() { <span class="prelude-val">Some</span>((<a class="self" href="#366">self</a>.h, <a class="self" href="#366">self</a>.m, <a class="self" href="#366">self</a>.s, <a class="self" href="#366">self</a>.ms, <a class="self" href="#366">self</a>.us, <a class="self" href="#366">self</a>.ns))
-        } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+        <span class="kw">if </span><span class="self">self</span>.has_h_ns() { <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#390">self</a>.h, <a class="self" href="#390">self</a>.m, <a class="self" href="#390">self</a>.s, <a class="self" href="#390">self</a>.ms, <a class="self" href="#390">self</a>.us, <a class="self" href="#390">self</a>.ns))
+        } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
 
     <span class="doccomment">/// Returns a (9) tuple if the 9 fields from [`y`][Self::y] to [`ns`][Self::ns] are enabled.
     </span><span class="attr">#[allow(clippy::type_complexity)]
     </span><span class="kw">pub fn </span>as_tuple_y_ns(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(Y, MO, D, H, M, S, MS, US, NS)&gt; {
         <span class="kw">if </span><span class="self">self</span>.has_y_ns() {
-            <span class="prelude-val">Some</span>((<a class="self" href="#374">self</a>.y, <a class="self" href="#374">self</a>.mo, <a class="self" href="#374">self</a>.d, <a class="self" href="#374">self</a>.h, <a class="self" href="#374">self</a>.m, <a class="self" href="#374">self</a>.s, <a class="self" href="#374">self</a>.ms, <a class="self" href="#374">self</a>.us, <a class="self" href="#374">self</a>.ns))
-        } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+            <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#398">self</a>.y, <a class="self" href="#398">self</a>.mo, <a class="self" href="#398">self</a>.d, <a class="self" href="#398">self</a>.h, <a class="self" href="#398">self</a>.m, <a class="self" href="#398">self</a>.s, <a class="self" href="#398">self</a>.ms, <a class="self" href="#398">self</a>.us, <a class="self" href="#398">self</a>.ns))
+        } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
     <span class="doccomment">/// Returns a (9) tuple if the 9 fields from [`y`][Self::y] to [`ns`][Self::ns] are enabled.
     </span><span class="attr">#[allow(clippy::type_complexity)]
     </span><span class="kw">pub const fn </span>to_tuple_y_ns(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;(Y, MO, D, H, M, S, MS, US, NS)&gt;
         <span class="kw">where </span>Y: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, MO: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, D: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, H: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, M: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, S: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, MS: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, US: <a href="../../../../devela/all/trait.Copy.html">Copy</a>, NS: <a href="../../../../devela/all/trait.Copy.html">Copy</a> {
         <span class="kw">if </span><span class="self">self</span>.has_y_ns() {
-            <span class="prelude-val">Some</span>((<a class="self" href="#381">self</a>.y, <a class="self" href="#381">self</a>.mo, <a class="self" href="#381">self</a>.d, <a class="self" href="#381">self</a>.h, <a class="self" href="#381">self</a>.m, <a class="self" href="#381">self</a>.s, <a class="self" href="#381">self</a>.ms, <a class="self" href="#381">self</a>.us, <a class="self" href="#381">self</a>.ns))
-        } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+            <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>((<a class="self" href="#405">self</a>.y, <a class="self" href="#405">self</a>.mo, <a class="self" href="#405">self</a>.d, <a class="self" href="#405">self</a>.h, <a class="self" href="#405">self</a>.m, <a class="self" href="#405">self</a>.s, <a class="self" href="#405">self</a>.ms, <a class="self" href="#405">self</a>.us, <a class="self" href="#405">self</a>.ns))
+        } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     }
 }
 
 <span class="attr">#[rustfmt::skip]
-</span><span class="kw">impl</span>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; <a href="../../../../devela/all/trait.Debug.html">fmt::Debug</a> <span class="kw">for </span><a href="#18-37">TimeSplit</a>&lt;Y, MO, D, H, M, S, MS, US, NS&gt;
+</span><span class="kw">impl</span>&lt;Y, MO, D, H, M, S, MS, US, NS&gt; <a href="../../../../devela/all/trait.Debug.html">fmt::Debug</a> <span class="kw">for </span><a href="#42-61">TimeSplit</a>&lt;Y, MO, D, H, M, S, MS, US, NS&gt;
 <span class="kw">where
     </span>Y: <span class="lifetime">'static </span>+ <a href="../../../../devela/all/trait.Debug.html">fmt::Debug</a>, MO: <span class="lifetime">'static </span>+ <a href="../../../../devela/all/trait.Debug.html">fmt::Debug</a>, D: <span class="lifetime">'static </span>+ <a href="../../../../devela/all/trait.Debug.html">fmt::Debug</a>,
     H: <span class="lifetime">'static </span>+ <a href="../../../../devela/all/trait.Debug.html">fmt::Debug</a>, M: <span class="lifetime">'static </span>+ <a href="../../../../devela/all/trait.Debug.html">fmt::Debug</a>, S: <span class="lifetime">'static </span>+ <a href="../../../../devela/all/trait.Debug.html">fmt::Debug</a>,
@@ -920,17 +968,17 @@
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
         <span class="kw">let </span>notime = ().<a href="../../code/any/ext.rs.html#49">type_of</a>();
-        <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = <a href="#396">f</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.debug_struct">debug_struct</a>(<span class="string">"TimeSplit"</span>);
-        <span class="kw">if </span>Y::type_id() != notime { <a href="#398">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"y"</span>, <span class="kw-2">&amp;</span><a class="self" href="#396">self</a>.mo); }
-        <span class="kw">if </span>MO::type_id() != notime { <a href="#398">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"mo"</span>, <span class="kw-2">&amp;</span><a class="self" href="#396">self</a>.mo); }
-        <span class="kw">if </span>D::type_id() != notime { <a href="#398">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"d"</span>, <span class="kw-2">&amp;</span><a class="self" href="#396">self</a>.d); }
-        <span class="kw">if </span>H::type_id() != notime { <a href="#398">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"h"</span>, <span class="kw-2">&amp;</span><a class="self" href="#396">self</a>.h); }
-        <span class="kw">if </span>M::type_id() != notime { <a href="#398">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"m"</span>, <span class="kw-2">&amp;</span><a class="self" href="#396">self</a>.m); }
-        <span class="kw">if </span>S::type_id() != notime { <a href="#398">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"s"</span>, <span class="kw-2">&amp;</span><a class="self" href="#396">self</a>.s); }
-        <span class="kw">if </span>MS::type_id() != notime { <a href="#398">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"ms"</span>, <span class="kw-2">&amp;</span><a class="self" href="#396">self</a>.ms); }
-        <span class="kw">if </span>US::type_id() != notime { <a href="#398">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"us"</span>, <span class="kw-2">&amp;</span><a class="self" href="#396">self</a>.us); }
-        <span class="kw">if </span>NS::type_id() != notime { <a href="#398">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"ns"</span>, <span class="kw-2">&amp;</span><a class="self" href="#396">self</a>.ns); }
-        <a href="#398">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.finish">finish</a>()
+        <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = <a href="#420">f</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.debug_struct">debug_struct</a>(<span class="string">"TimeSplit"</span>);
+        <span class="kw">if </span>Y::type_id() != notime { <a href="#422">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"y"</span>, <span class="kw-2">&amp;</span><a class="self" href="#420">self</a>.mo); }
+        <span class="kw">if </span>MO::type_id() != notime { <a href="#422">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"mo"</span>, <span class="kw-2">&amp;</span><a class="self" href="#420">self</a>.mo); }
+        <span class="kw">if </span>D::type_id() != notime { <a href="#422">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"d"</span>, <span class="kw-2">&amp;</span><a class="self" href="#420">self</a>.d); }
+        <span class="kw">if </span>H::type_id() != notime { <a href="#422">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"h"</span>, <span class="kw-2">&amp;</span><a class="self" href="#420">self</a>.h); }
+        <span class="kw">if </span>M::type_id() != notime { <a href="#422">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"m"</span>, <span class="kw-2">&amp;</span><a class="self" href="#420">self</a>.m); }
+        <span class="kw">if </span>S::type_id() != notime { <a href="#422">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"s"</span>, <span class="kw-2">&amp;</span><a class="self" href="#420">self</a>.s); }
+        <span class="kw">if </span>MS::type_id() != notime { <a href="#422">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"ms"</span>, <span class="kw-2">&amp;</span><a class="self" href="#420">self</a>.ms); }
+        <span class="kw">if </span>US::type_id() != notime { <a href="#422">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"us"</span>, <span class="kw-2">&amp;</span><a class="self" href="#420">self</a>.us); }
+        <span class="kw">if </span>NS::type_id() != notime { <a href="#422">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"ns"</span>, <span class="kw-2">&amp;</span><a class="self" href="#420">self</a>.ns); }
+        <a href="#422">debug_struct</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.finish">finish</a>()
     }
 }
 

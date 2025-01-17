@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (48a426eca 2025-01-12)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
   integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
@@ -148,13 +148,24 @@
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::mem
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a></pre></div><pre class="rust"><code><span class="comment">// devela::sys::mem
 //
 </span><span class="doccomment">//! Memory management.
 </span><span class="attr">#![doc = <span class="macro">crate::doc_!</span>(modules: <span class="kw">crate</span>::sys; mem: cell)]
 #![doc = <span class="macro">crate::doc_!</span>(newline)]
 </span><span class="doccomment">//!
 </span><span class="attr">#![doc = <span class="macro">crate::doc_!</span>(extends: alloc, borrow, boxed, cell, mem, pin, ptr, rc, slice)]
+#![cfg_attr(
+    any(not(feature = <span class="string">"bit"</span>)),
+    doc = <span class="string">"## Features\nTo compile the missing items, enable the `bit` feature."
+</span>)]
 </span><span class="comment">//
 // safety
 </span><span class="attr">#![cfg_attr(feature = <span class="string">"safe_mem"</span>, forbid(unsafe_code))]
@@ -164,14 +175,15 @@
 <span class="kw">mod </span><a href="cache_align.rs.html#13-209">cache_align</a>;
 <span class="kw">mod </span><a href="cswap.rs.html#3-31">cswap</a>;
 <span class="kw">mod </span><a href="ext.rs.html#3-121">ext</a>;
-<span class="kw">mod </span><a href="namespace.rs.html#3-237">namespace</a>;
+<span class="kw">mod </span><a href="namespace.rs.html#3-241">namespace</a>;
 <span class="kw">mod </span><a href="ptr/mod.rs.html#3-32">ptr</a>;
 <span class="kw">mod </span><a href="reexports.rs.html#3-96">reexports</a>;
 <span class="kw">mod </span><a href="size/mod.rs.html#3-32">size</a>;
 <span class="kw">mod </span><a href="slice/mod.rs.html#3-25">slice</a>;
 <span class="kw">mod </span><a href="storage/mod.rs.html#3-69">storage</a>;
+<span class="comment">// mod borrow; // WIP
 
-<span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_ptr"</span>))]
+</span><span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_ptr"</span>))]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_ptr"</span>)))]
 </span><span class="kw">mod </span><a href="pin.rs.html#3-130">pin</a>;
 <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_layout"</span>))]
@@ -182,20 +194,21 @@
 
 <span class="macro">crate::items!</span> { <span class="comment">// structural access: _mods, _pub_mods, _hidden, _all, _always
     </span><span class="attr">#[allow(unused)]
-    </span><span class="kw">pub use </span>{<a href="#39-48">_mods</a>::<span class="kw-2">*</span>, <a href="#52-54">_hidden</a>::<span class="kw-2">*</span>};
-    <span class="attr">#[allow(unused)] #[doc(hidden)] #[doc(no_inline)]
-    </span><span class="kw">pub use </span>{<a href="#59-61">_always</a>::<span class="kw-2">*</span>, <a href="#49-51">_pub_mods</a>::<span class="kw-2">*</span>};
+    </span><span class="kw">pub use </span>{<a href="#44-54">_mods</a>::<span class="kw-2">*</span>, <a href="#58-60">_hidden</a>::<span class="kw-2">*</span>};
+    <span class="attr">#[allow(unused)] #[doc(hidden, no_inline)]
+    </span><span class="kw">pub use </span>{<a href="#65-68">_always</a>::<span class="kw-2">*</span>, <a href="#55-57">_pub_mods</a>::<span class="kw-2">*</span>};
 
     <span class="kw">mod </span>_mods {
         <span class="kw">pub use super</span>::{
-            <a href="#12">aligned</a>::<span class="kw-2">*</span>, <a href="alloc/mod.rs.html#16-19">alloc::_all</a>::<span class="kw-2">*</span>, <a href="#14">cache_align</a>::<span class="kw-2">*</span>, <a href="#15">cswap</a>::<span class="kw-2">*</span>, <a href="#16">ext</a>::<span class="kw-2">*</span>, <a href="#17">namespace</a>::<span class="kw-2">*</span>,
-            <a href="ptr/mod.rs.html#25-28">ptr::_all</a>::<span class="kw-2">*</span>, <a href="#19">reexports</a>::<span class="kw-2">*</span>, <a href="size/mod.rs.html#28-31">size::_all</a>::<span class="kw-2">*</span>, <a href="slice/mod.rs.html#21-24">slice::_all</a>::<span class="kw-2">*</span>, <a href="#22">storage</a>::<span class="kw-2">*</span>,
+            <a href="#16">aligned</a>::<span class="kw-2">*</span>, <a href="alloc/mod.rs.html#16-19">alloc::_all</a>::<span class="kw-2">*</span>, <a href="#18">cache_align</a>::<span class="kw-2">*</span>, <a href="#19">cswap</a>::<span class="kw-2">*</span>, <a href="#20">ext</a>::<span class="kw-2">*</span>, <a href="#21">namespace</a>::<span class="kw-2">*</span>,
+            <a href="ptr/mod.rs.html#25-28">ptr::_all</a>::<span class="kw-2">*</span>, <a href="#23">reexports</a>::<span class="kw-2">*</span>, <a href="size/mod.rs.html#28-31">size::_all</a>::<span class="kw-2">*</span>, <a href="slice/mod.rs.html#21-24">slice::_all</a>::<span class="kw-2">*</span>, <a href="#26">storage</a>::<span class="kw-2">*</span>,
         };
         <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_ptr"</span>))]
         </span><span class="kw">pub use </span><a href="pin.rs.html#12-14"><span class="kw">super</span>::pin::Pinned</a>;
         <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_mem"</span>), feature = <span class="string">"unsafe_layout"</span>))]
         </span><span class="kw">pub use </span><a href="pod.rs.html#69-122"><span class="kw">super</span>::pod::MemPod</a>;
-    }
+        <span class="comment">// pub use super::borrow::*; // WIP
+    </span>}
     <span class="kw">mod </span>_pub_mods {
         <span class="kw">pub use </span><a href="cell/mod.rs.html#20-23"><span class="kw">super</span>::cell::_all</a>::<span class="kw-2">*</span>;
     }
@@ -204,10 +217,11 @@
     }
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>_all {
         <span class="attr">#[doc(inline)]
-        </span><span class="kw">pub use super</span>::{<a href="#39-48">_mods</a>::<span class="kw-2">*</span>, <a href="#49-51">_pub_mods</a>::<span class="kw-2">*</span>};
+        </span><span class="kw">pub use super</span>::{<a href="#44-54">_mods</a>::<span class="kw-2">*</span>, <a href="#55-57">_pub_mods</a>::<span class="kw-2">*</span>};
     }
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>_always { <span class="attr">#![allow(unused)]
-        </span><span class="kw">pub use super</span>::{<a href="cell/mod.rs.html#24-26">cell::_always</a>::<span class="kw-2">*</span>, <a href="ptr/mod.rs.html#29-31">ptr::_always</a>::<span class="kw-2">*</span>, <a href="#19">reexports</a>::<span class="kw-2">*</span>};
-    }
+        </span><span class="kw">pub use super</span>::{<a href="cell/mod.rs.html#24-26">cell::_always</a>::<span class="kw-2">*</span>, <a href="ptr/mod.rs.html#29-31">ptr::_always</a>::<span class="kw-2">*</span>, <a href="#23">reexports</a>::<span class="kw-2">*</span>};
+        <span class="comment">// pub use super::borrow::*; // WIP
+    </span>}
 }
 </code></pre></div></section></main></body></html>

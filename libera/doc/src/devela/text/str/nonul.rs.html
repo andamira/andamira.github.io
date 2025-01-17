@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/str/nonul.rs`."><title>nonul.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (48a426eca 2025-01-12)" data-channel="nightly" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/str/nonul.rs`."><title>nonul.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
   integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
   crossorigin="anonymous">
@@ -682,24 +682,25 @@
 // TOC
 // - definitions
 // - trait impls
+//
+// MAYBE new_unchecked
 
 </span><span class="attr">#[allow(unused, reason = <span class="string">"±unsafe"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::_core::str::{<a href="../../../../devela/_core/str/fn.from_utf8.html">from_utf8</a>, <a href="../../../../devela/_core/str/fn.from_utf8_unchecked.html">from_utf8_unchecked</a>};
 <span class="kw">use crate</span>::{
-    <a href="../../code/util/cfor.rs.html#117-184">cfor</a>, <a href="../../code/util/iif.rs.html#60-89">iif</a>, <a href="../mod.rs.html#14">text::char</a>::<span class="kw-2">*</span>, <a href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap</a>, <a href="../../code/default.rs.html#9-12">ConstDefault</a>, <a href="../../../../devela/all/trait.Deref.html">Deref</a>, <a href="../error.rs.html#51-65">InvalidText</a>, <a href="../../../../devela/text/struct.IterChars.html">IterChars</a>, <a href="../../code/result/mismatch.rs.html#16-25">Mismatch</a>,
+    <a href="../../code/util/cfor.rs.html#117-184">cfor</a>, <a href="../../code/util/iif.rs.html#60-89">iif</a>, <a href="../mod.rs.html#14">text::char</a>::<span class="kw-2">*</span>, <a href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap</a>, <a href="../../code/default.rs.html#9-12">ConstDefault</a>, <a href="../../../../devela/all/trait.Deref.html">Deref</a>, <a href="../error.rs.html#51-65">InvalidText</a>, <a href="../../../../devela/text/struct.IterChars.html">IterChars</a>, <a href="../../code/result/mismatch.rs.html#17-26">Mismatch</a>,
     <a href="../../data/error.rs.html#60-63">MismatchedCapacity</a>, <a href="../../data/error.rs.html#99-105">NotEnoughElements</a>, <a href="../../../../devela/_core/fmt/index.html">_core::fmt</a>,
 };
 
 <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">use crate</span>::{<a href="../../../../devela/lang/struct.CString.html">CString</a>, <a href="../../../../devela/all/trait.ToString.html">ToString</a>};
+</span><span class="kw">use crate</span>::{<a href="../../../../devela/all/struct.CString.html">CString</a>, <a href="../../../../devela/all/trait.ToString.html">ToString</a>};
 
 <span class="comment">/* definitions */
 
 </span><span class="doccomment">/// The nul character.
 </span><span class="kw">const </span>NUL_CHAR: <a href="../char/reexports.rs.html#20">char</a> = <span class="string">'\0'</span>;
 
-<span class="doccomment">/// A UTF-8-encoded string, backed by an array with [`u8::MAX`] bytes of capacity.
-/// Can't contain nul chars.
+<span class="doccomment">/// A UTF-8 string with up to [`u8::MAX`] bytes, excluding nul chars
 ///
 /// Internally, the first 0 byte in the array indicates the end of the string.
 ///
@@ -736,19 +737,19 @@
 </span><span class="attr">#[must_use]
 #[derive(Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 </span><span class="kw">pub struct </span><a href="../../../../devela/all/struct.StringNonul.html">StringNonul</a>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
-    arr: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#61">CAP</a>],
+    arr: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#62">CAP</a>],
 }
 
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#61-63">StringNonul</a>&lt;<a href="#65">CAP</a>&gt; {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#62-64">StringNonul</a>&lt;<a href="#66">CAP</a>&gt; {
     <span class="doccomment">/// Creates a new empty `StringNonul`.
     ///
     /// # Errors
     /// Returns [`MismatchedCapacity`] if `CAP` &gt; [`u8::MAX`].
     </span><span class="kw">pub const fn </span>new() -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="../../data/error.rs.html#60-63">MismatchedCapacity</a>&gt; {
         <span class="kw">if </span>CAP &lt;= u8::MAX <span class="kw">as </span>usize {
-            <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ arr: [<span class="number">0</span>; <a href="#65">CAP</a>] })
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<span class="self">Self </span>{ arr: [<span class="number">0</span>; <a href="#66">CAP</a>] })
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<a href="../../data/error.rs.html#67-69">MismatchedCapacity::closed</a>(<span class="number">0</span>, u8::MAX <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="#65">CAP</a>))
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../../data/error.rs.html#67-69">MismatchedCapacity::closed</a>(<span class="number">0</span>, u8::MAX <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="#66">CAP</a>))
         }
     }
 
@@ -756,11 +757,11 @@
 
     </span><span class="doccomment">/// Returns the total capacity in bytes.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>capacity() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { <a href="#65">CAP</a> }
+    </span><span class="kw">pub const fn </span>capacity() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { <a href="#66">CAP</a> }
 
     <span class="doccomment">/// Returns the remaining capacity.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>remaining_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { <a href="#65">CAP</a> - <a class="self" href="#86">self</a>.<a href="#105-112">len</a>() }
+    </span><span class="kw">pub const fn </span>remaining_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { <a href="#66">CAP</a> - <a class="self" href="#87">self</a>.<a href="#106-113">len</a>() }
 
     <span class="doccomment">/// Returns the current length.
     ///
@@ -785,16 +786,16 @@
             <span class="macro">iif!</span>[<span class="self">self</span>.arr[position] == <span class="number">0</span>; <span class="kw">break</span>];
             position += <span class="number">1</span>;
         }
-        <a href="#106">position</a>
+        <a href="#107">position</a>
     }
 
     <span class="doccomment">/// Returns `true` if the current length is 0.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <a class="self" href="#116">self</a>.<a href="#105-112">len</a>() == <span class="number">0 </span>}
+    </span><span class="kw">pub const fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <a class="self" href="#117">self</a>.<a href="#106-113">len</a>() == <span class="number">0 </span>}
 
     <span class="doccomment">/// Returns `true` if the current remaining capacity is 0.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <a class="self" href="#120">self</a>.<a href="#105-112">len</a>() == <a href="#65">CAP</a> }
+    </span><span class="kw">pub const fn </span>is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <a class="self" href="#121">self</a>.<a href="#106-113">len</a>() == <a href="#66">CAP</a> }
 
     <span class="comment">/* deconstruct */
 
@@ -802,20 +803,20 @@
     ///
     /// The array contains all the bytes, including those outside the current length.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>into_array(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#65">CAP</a>] { <a class="self" href="#128">self</a>.arr }
+    </span><span class="kw">pub const fn </span>into_array(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#66">CAP</a>] { <a class="self" href="#129">self</a>.arr }
 
     <span class="doccomment">/// Returns a copy of the inner array with the full contents.
     ///
     /// The array contains all the bytes, including those outside the current length.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>as_array(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#65">CAP</a>] { <a class="self" href="#134">self</a>.arr }
+    </span><span class="kw">pub const fn </span>as_array(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#66">CAP</a>] { <a class="self" href="#135">self</a>.arr }
 
     <span class="doccomment">/// Returns a byte slice of the inner string slice.
     ///
     /// # Features
     /// Makes use of the `unsafe_slice` feature if enabled.
     </span><span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] { <a class="self" href="#141">self</a>.arr.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a class="self" href="#141">self</a>.<a href="#105-112">len</a>()).<span class="number">0 </span>}
+    </span><span class="kw">pub const fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] { <a class="self" href="#142">self</a>.arr.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a class="self" href="#142">self</a>.<a href="#106-113">len</a>()).<span class="number">0 </span>}
 
     <span class="doccomment">/// Returns a mutable byte slice of the inner string slice.
     ///
@@ -828,9 +829,9 @@
     #[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_slice"</span>))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_slice"</span>)))]
     </span><span class="kw">pub unsafe fn </span>as_bytes_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] {
-        <span class="kw">let </span>len = <a class="self" href="#153">self</a>.<a href="#105-112">len</a>();
+        <span class="kw">let </span>len = <a class="self" href="#154">self</a>.<a href="#106-113">len</a>();
         <span class="comment">// SAFETY: caller must ensure safety
-        </span><span class="kw">unsafe </span>{ <a class="self" href="#153">self</a>.arr.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.get_unchecked_mut">get_unchecked_mut</a>(<span class="number">0</span>..<a href="#154">len</a>) }
+        </span><span class="kw">unsafe </span>{ <a class="self" href="#154">self</a>.arr.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.get_unchecked_mut">get_unchecked_mut</a>(<span class="number">0</span>..<a href="#155">len</a>) }
     }
 
     <span class="doccomment">/// Returns the inner string slice.
@@ -843,7 +844,7 @@
 
         <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_slice"</span>))]
         </span><span class="comment">// SAFETY: we ensure to contain only valid UTF-8
-        </span><span class="kw">unsafe </span>{ <a href="../../../../devela/_core/str/fn.from_utf8_unchecked.html">from_utf8_unchecked</a>(<a class="self" href="#163">self</a>.<a href="#141">as_bytes</a>()) }
+        </span><span class="kw">unsafe </span>{ <a href="../../../../devela/_core/str/fn.from_utf8_unchecked.html">from_utf8_unchecked</a>(<a class="self" href="#164">self</a>.<a href="#142">as_bytes</a>()) }
     }
 
     <span class="doccomment">/// Returns the mutable inner string slice.
@@ -857,36 +858,36 @@
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_slice"</span>)))]
     </span><span class="kw">pub unsafe fn </span>as_mut_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> {
         <span class="comment">// SAFETY: caller must ensure safety
-        </span><span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>(<a class="self" href="#181">self</a>.<a href="#153-157">as_bytes_mut</a>() <span class="kw">as </span><span class="kw-2">*mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] <span class="kw">as </span><span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) }
+        </span><span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>(<a class="self" href="#182">self</a>.<a href="#154-158">as_bytes_mut</a>() <span class="kw">as </span><span class="kw-2">*mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] <span class="kw">as </span><span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) }
     }
 
     <span class="doccomment">/// Returns an iterator over the `chars` of this grapheme cluster.
     </span><span class="kw">pub fn </span>chars(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="../../../../devela/text/struct.IterChars.html">IterChars</a> {
-        <a class="self" href="#187">self</a>.<a href="#163-170">as_str</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.chars">chars</a>()
+        <a class="self" href="#188">self</a>.<a href="#164-171">as_str</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.chars">chars</a>()
     }
 
     <span class="doccomment">/// Returns a new allocated C-compatible, nul-terminanted string.
     </span><span class="attr">#[must_use]
     #[cfg(feature = <span class="string">"alloc"</span>)]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"alloc"</span>)))]
-    </span><span class="kw">pub fn </span>to_cstring(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="../../../../devela/lang/struct.CString.html">CString</a> {
-        <a href="https://doc.rust-lang.org/nightly/alloc/ffi/c_str/struct.CString.html#method.new">CString::new</a>(<a class="self" href="#195">self</a>.<a href="../../../../devela/all/trait.ToString.html">to_string</a>()).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>()
+    </span><span class="kw">pub fn </span>to_cstring(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="../../../../devela/all/struct.CString.html">CString</a> {
+        <a href="https://doc.rust-lang.org/nightly/alloc/ffi/c_str/struct.CString.html#method.new">CString::new</a>(<a class="self" href="#196">self</a>.<a href="../../../../devela/all/trait.ToString.html">to_string</a>()).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>()
     }
 
     <span class="comment">/* operations */
 
     </span><span class="doccomment">/// Sets the length to 0, by resetting all bytes to 0.
     </span><span class="attr">#[rustfmt::skip]
-    </span><span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) { <a class="self" href="#203">self</a>.arr = [<span class="number">0</span>; <a href="#65">CAP</a>]; }
+    </span><span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) { <a class="self" href="#204">self</a>.arr = [<span class="number">0</span>; <a href="#66">CAP</a>]; }
 
     <span class="doccomment">/// Removes the last character and returns it, or `None` if
     /// the string is empty.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<a href="../char/reexports.rs.html#20">char</a>&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_empty() {
-            <span class="prelude-val">None
-        </span>} <span class="kw">else </span>{
-            <span class="prelude-val">Some</span>(<a class="self" href="#208">self</a>.<a href="#233-244">pop_unchecked</a>())
+            <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html"><a href="../../../../devela/_core/option/enum.Option.html">None</a>
+        </a>} <span class="kw">else </span>{
+            <a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>(<a class="self" href="#209">self</a>.<a href="#234-245">pop_unchecked</a>())
         }
     }
 
@@ -896,9 +897,9 @@
     /// Returns [`NotEnoughElements`] if the string is empty.
     </span><span class="kw">pub fn </span>try_pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<a href="../char/reexports.rs.html#20">char</a>, <a href="../../data/error.rs.html#99-105">NotEnoughElements</a>&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_empty() {
-            <span class="prelude-val">Err</span>(<a href="../../data/error.rs.html#99-105">NotEnoughElements</a>(<span class="prelude-val">Some</span>(<span class="number">1</span>)))
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../../data/error.rs.html#99-105">NotEnoughElements</a>(<a class="prelude-val" href="../../../../devela/_core/option/enum.Option.html">Some</a>(<span class="number">1</span>)))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(<a class="self" href="#220">self</a>.<a href="#233-244">pop_unchecked</a>())
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a class="self" href="#221">self</a>.<a href="#234-245">pop_unchecked</a>())
         }
     }
 
@@ -908,16 +909,16 @@
     /// Panics if the string is empty.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>pop_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="../char/reexports.rs.html#20">char</a> {
-        <span class="kw">let </span>len = <a class="self" href="#233">self</a>.<a href="#105-112">len</a>();
-        <span class="kw">let </span><span class="kw-2">mut </span>idx_last_char = <a href="#234">len</a> - <span class="number">1</span>;
+        <span class="kw">let </span>len = <a class="self" href="#234">self</a>.<a href="#106-113">len</a>();
+        <span class="kw">let </span><span class="kw-2">mut </span>idx_last_char = <a href="#235">len</a> - <span class="number">1</span>;
         <span class="kw">while </span>idx_last_char &gt; <span class="number">0 </span>&amp;&amp; !<span class="self">self</span>.as_str().is_char_boundary(idx_last_char) {
             idx_last_char -= <span class="number">1</span>;
         }
-        <span class="kw">let </span>last_char = <a class="self" href="#233">self</a>.<a href="#163-170">as_str</a>()[<a href="#235">idx_last_char</a>..<a href="#234">len</a>].<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.chars">chars</a>().<a href="../../../../devela/all/trait.Iterator.html">next</a>().<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.unwrap">unwrap</a>();
+        <span class="kw">let </span>last_char = <a class="self" href="#234">self</a>.<a href="#164-171">as_str</a>()[<a href="#236">idx_last_char</a>..<a href="#235">len</a>].<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.chars">chars</a>().<a href="../../../../devela/all/trait.Iterator.html">next</a>().<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.unwrap">unwrap</a>();
         <span class="kw">for </span>i <span class="kw">in </span>idx_last_char..len {
             <span class="self">self</span>.arr[i] = <span class="number">0</span>;
         }
-        <a href="#239">last_char</a>
+        <a href="#240">last_char</a>
     }
 
     <span class="doccomment">/// Appends to the end of the string the given `character`.
@@ -927,14 +928,14 @@
     /// It will return 0 bytes if the given `character` doesn't fit in
     /// the remaining capacity, or if it is the nul character.
     </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, character: <a href="../char/reexports.rs.html#20">char</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
-        <span class="kw">let </span>char_len = <a href="#252">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>();
+        <span class="kw">let </span>char_len = <a href="#253">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>();
 
         <span class="kw">if </span>character != NUL_CHAR &amp;&amp; <span class="self">self</span>.remaining_capacity() &gt;= char_len {
-            <span class="kw">let </span>len = <a class="self" href="#252">self</a>.<a href="#105-112">len</a>();
-            <span class="kw">let </span>new_len = <a href="#256">len</a> + <a href="#253">char_len</a>;
+            <span class="kw">let </span>len = <a class="self" href="#253">self</a>.<a href="#106-113">len</a>();
+            <span class="kw">let </span>new_len = <a href="#257">len</a> + <a href="#254">char_len</a>;
 
-            <span class="kw">let _ </span>= <a href="#252">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.encode_utf8">encode_utf8</a>(<span class="kw-2">&amp;mut </span><a class="self" href="#252">self</a>.arr[<a href="#256">len</a>..<a href="#257">new_len</a>]);
-            <a href="#253">char_len</a>
+            <span class="kw">let _ </span>= <a href="#253">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.encode_utf8">encode_utf8</a>(<span class="kw-2">&amp;mut </span><a class="self" href="#253">self</a>.arr[<a href="#257">len</a>..<a href="#258">new_len</a>]);
+            <a href="#254">char_len</a>
         } <span class="kw">else </span>{
             <span class="number">0
         </span>}
@@ -947,21 +948,21 @@
     /// Trying to push a nul character does nothing and returns 0 bytes.
     ///
     /// # Errors
-    /// Returns [`NotEnoughCapacity`]
+    /// Returns [`MismatchedCapacity`]
     /// if the capacity is not enough to hold the given character.
     </span><span class="kw">pub fn </span>try_push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, character: <a href="../char/reexports.rs.html#20">char</a>) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="../../data/error.rs.html#60-63">MismatchedCapacity</a>&gt; {
-        <span class="kw">let </span>char_len = <a href="#275">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>();
+        <span class="kw">let </span>char_len = <a href="#276">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>();
 
         <span class="kw">if </span>character == NUL_CHAR {
-            <span class="prelude-val">Ok</span>(<span class="number">0</span>)
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<span class="number">0</span>)
         } <span class="kw">else if </span><span class="self">self</span>.remaining_capacity() &gt;= char_len {
-            <span class="kw">let </span>len = <a class="self" href="#275">self</a>.<a href="#105-112">len</a>();
-            <span class="kw">let </span>new_len = <a href="#281">len</a> + <a href="#276">char_len</a>;
+            <span class="kw">let </span>len = <a class="self" href="#276">self</a>.<a href="#106-113">len</a>();
+            <span class="kw">let </span>new_len = <a href="#282">len</a> + <a href="#277">char_len</a>;
 
-            <span class="kw">let _ </span>= <a href="#275">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.encode_utf8">encode_utf8</a>(<span class="kw-2">&amp;mut </span><a class="self" href="#275">self</a>.arr[<a href="#281">len</a>..<a href="#282">new_len</a>]);
-            <span class="prelude-val">Ok</span>(<a href="#276">char_len</a>)
+            <span class="kw">let _ </span>= <a href="#276">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.encode_utf8">encode_utf8</a>(<span class="kw-2">&amp;mut </span><a class="self" href="#276">self</a>.arr[<a href="#282">len</a>..<a href="#283">new_len</a>]);
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a href="#277">char_len</a>)
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<a href="../../data/error.rs.html#67-69">MismatchedCapacity::closed</a>(<span class="number">0</span>, <a class="self" href="#275">self</a>.<a href="#105-112">len</a>() + <a href="#275">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>(), <a href="#65">CAP</a>))
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../../data/error.rs.html#67-69">MismatchedCapacity::closed</a>(<span class="number">0</span>, <a class="self" href="#276">self</a>.<a href="#106-113">len</a>() + <a href="#276">character</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>(), <a href="#66">CAP</a>))
         }
     }
 
@@ -972,7 +973,7 @@
     /// Returns the number of bytes written, which will be 0
     /// if not even the first non-nul character can fit.
     </span><span class="kw">pub fn </span>push_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
-        <span class="kw">let </span><span class="kw-2">mut </span>rem_cap = <a class="self" href="#297">self</a>.<a href="#86">remaining_capacity</a>();
+        <span class="kw">let </span><span class="kw-2">mut </span>rem_cap = <a class="self" href="#298">self</a>.<a href="#87">remaining_capacity</a>();
         <span class="kw">let </span><span class="kw-2">mut </span>bytes_written = <span class="number">0</span>;
 
         <span class="kw">for </span>character <span class="kw">in </span>string.chars() {
@@ -988,7 +989,7 @@
                 }
             }
         }
-        <a href="#299">bytes_written</a>
+        <a href="#300">bytes_written</a>
     }
 
     <span class="doccomment">/// Tries to append to the end the fitting characters from the given `string`
@@ -999,14 +1000,14 @@
     /// Returns the number of bytes written.
     ///
     /// # Errors
-    /// Returns [`NotEnoughCapacity`] if the capacity is not enough
+    /// Returns [`MismatchedCapacity`] if the capacity is not enough
     /// to hold even the first non-nul character.
     </span><span class="kw">pub fn </span>try_push_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="../../data/error.rs.html#60-63">MismatchedCapacity</a>&gt; {
-        <span class="kw">let </span>first_char_len = <a href="#327">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.chars">chars</a>().<a href="../../../../devela/all/trait.Iterator.html">find</a>(|<span class="kw-2">&amp;</span>c| <a href="#328">c</a> != <a href="#22">NUL_CHAR</a>).<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map_or">map_or</a>(<span class="number">0</span>, |c| <a href="#328">c</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>());
+        <span class="kw">let </span>first_char_len = <a href="#328">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.chars">chars</a>().<a href="../../../../devela/all/trait.Iterator.html">find</a>(|<span class="kw-2">&amp;</span>c| <a href="#329">c</a> != <a href="#24">NUL_CHAR</a>).<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.map_or">map_or</a>(<span class="number">0</span>, |c| <a href="#329">c</a>.<a href="https://doc.rust-lang.org/nightly/core/char/foreigntype.methods.html#method.len_utf8">len_utf8</a>());
         <span class="kw">if </span><span class="self">self</span>.remaining_capacity() &lt; first_char_len {
-            <span class="prelude-val">Err</span>(<a href="../../data/error.rs.html#67-69">MismatchedCapacity::closed</a>(<span class="number">0</span>, <a class="self" href="#327">self</a>.<a href="#105-112">len</a>() + <a href="#328">first_char_len</a>, <a href="#65">CAP</a>))
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../../data/error.rs.html#67-69">MismatchedCapacity::closed</a>(<span class="number">0</span>, <a class="self" href="#328">self</a>.<a href="#106-113">len</a>() + <a href="#329">first_char_len</a>, <a href="#66">CAP</a>))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(<a class="self" href="#327">self</a>.<a href="#297-315">push_str</a>(<a href="#327">string</a>))
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a class="self" href="#328">self</a>.<a href="#298-316">push_str</a>(<a href="#328">string</a>))
         }
     }
 
@@ -1017,13 +1018,13 @@
     /// Nul characters will not be taken into account.
     ///
     /// # Errors
-    /// Returns [`NotEnoughCapacity`] if the slice wont completely fit.
+    /// Returns [`MismatchedCapacity`] if the slice wont completely fit.
     </span><span class="kw">pub fn </span>try_push_str_complete(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="../../data/error.rs.html#60-63">MismatchedCapacity</a>&gt; {
-        <span class="kw">let </span>non_nul_len = <a href="#344">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>().<a href="../../../../devela/all/trait.Iterator.html">filter</a>(|x| <span class="kw-2">**</span><a href="#345">x</a> != <span class="number">0</span>).<a href="../../../../devela/all/trait.Iterator.html">count</a>();
+        <span class="kw">let </span>non_nul_len = <a href="#345">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>().<a href="../../../../devela/all/trait.Iterator.html">filter</a>(|x| <span class="kw-2">**</span><a href="#346">x</a> != <span class="number">0</span>).<a href="../../../../devela/all/trait.Iterator.html">count</a>();
         <span class="kw">if </span><span class="self">self</span>.remaining_capacity() &gt;= non_nul_len {
-            <span class="prelude-val">Ok</span>(<a class="self" href="#344">self</a>.<a href="#297-315">push_str</a>(<a href="#344">string</a>))
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a class="self" href="#345">self</a>.<a href="#298-316">push_str</a>(<a href="#345">string</a>))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<a href="../../data/error.rs.html#67-69">MismatchedCapacity::closed</a>(<span class="number">0</span>, <a class="self" href="#344">self</a>.<a href="#105-112">len</a>() + <a href="#344">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.len">len</a>(), <a href="#65">CAP</a>))
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../../data/error.rs.html#67-69">MismatchedCapacity::closed</a>(<span class="number">0</span>, <a class="self" href="#345">self</a>.<a href="#106-113">len</a>() + <a href="#345">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.len">len</a>(), <a href="#66">CAP</a>))
         }
     }
 
@@ -1035,8 +1036,7 @@
     ///
     /// # Errors
     /// Returns [`MismatchedCapacity`] if `CAP` &gt; [`u8::MAX`],
-    /// or [`NotEnoughCapacity`] if `!c.is_nul()`
-    /// and `CAP` &lt; `c.`[`len_utf8()`][Char::len_utf8].
+    /// or  if `!c.is_nul()` and `CAP` &lt; `c.`[`len_utf8()`][Char::len_utf8].
     ///
     /// Will always succeed if `CAP` &gt;= 4.
     </span><span class="attr">#[rustfmt::skip]
@@ -1044,15 +1044,15 @@
         <span class="kw">let </span><span class="kw-2">mut </span>new = <a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::new()];
 
         <span class="kw">if </span>c <span class="kw">as </span>u32 != <span class="number">0 </span>{
-            <span class="kw">let </span>bytes = <a href="../char/namespace.rs.html#83-118">Char::to_utf8_bytes</a>(<a href="#366">c</a>);
-            <span class="kw">let </span>len = <a href="../char/namespace.rs.html#62-66">Char::utf8_4bytes_len</a>(<a href="#370">bytes</a>);
+            <span class="kw">let </span>bytes = <a href="../char/namespace.rs.html#84-119">Char::to_utf8_bytes</a>(<a href="#366">c</a>);
+            <span class="kw">let </span>len = <a href="../char/namespace.rs.html#63-67">Char::utf8_4bytes_len</a>(<a href="#370">bytes</a>);
 
             <a href="#367">new</a>.arr[<span class="number">0</span>] = <a href="#370">bytes</a>[<span class="number">0</span>];
             <span class="kw">if </span>len &gt; <span class="number">1 </span>{ <a href="#367">new</a>.arr[<span class="number">1</span>] = <a href="#370">bytes</a>[<span class="number">1</span>]; }
             <span class="kw">if </span>len &gt; <span class="number">2 </span>{ <a href="#367">new</a>.arr[<span class="number">2</span>] = <a href="#370">bytes</a>[<span class="number">2</span>]; }
             <span class="kw">if </span>len &gt; <span class="number">3 </span>{ <a href="#367">new</a>.arr[<span class="number">3</span>] = <a href="#370">bytes</a>[<span class="number">3</span>]; }
         }
-        <span class="prelude-val">Ok</span>(<a href="#367">new</a>)
+        <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a href="#367">new</a>)
     }
 
     <span class="doccomment">/// Creates a new `StringNonul` from a `char7`.
@@ -1061,7 +1061,7 @@
     ///
     /// # Errors
     /// Returns [`MismatchedCapacity`] if `CAP` &gt; [`u8::MAX`],
-    /// or [`NotEnoughCapacity`] if `!c.is_nul()` and `CAP` &lt; 1.
+    /// or if `!c.is_nul()` and `CAP` &lt; 1.
     ///
     /// Will always succeed if `CAP` &gt;= 1.
     </span><span class="attr">#[cfg(feature = <span class="string">"_char7"</span>)]
@@ -1071,7 +1071,7 @@
         <span class="kw">if </span>!c.is_nul() {
             <a href="#393">new</a>.arr[<span class="number">0</span>] = <a href="#392">c</a>.<a href="../char/impls/c7.rs.html#136-140">to_utf8_bytes</a>()[<span class="number">0</span>];
         }
-        <span class="prelude-val">Ok</span>(<a href="#393">new</a>)
+        <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a href="#393">new</a>)
     }
 
     <span class="doccomment">/// Creates a new `StringNonul` from a `char8`.
@@ -1090,12 +1090,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>new = <a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::new()];
         <span class="kw">if </span>!c.is_nul() {
             <span class="kw">let </span>bytes = <a href="#412">c</a>.<a href="../char/impls/c8.rs.html#130-146">to_utf8_bytes</a>();
-            <span class="kw">let </span>len = <a href="../char/namespace.rs.html#47-49">Char::utf8_2bytes_len</a>(<a href="#415">bytes</a>);
+            <span class="kw">let </span>len = <a href="../char/namespace.rs.html#48-50">Char::utf8_2bytes_len</a>(<a href="#415">bytes</a>);
 
             <a href="#413">new</a>.arr[<span class="number">0</span>] = <a href="#415">bytes</a>[<span class="number">0</span>];
             <span class="kw">if </span>len &gt; <span class="number">1 </span>{ <a href="#413">new</a>.arr[<span class="number">1</span>] = <a href="#415">bytes</a>[<span class="number">1</span>]; }
         }
-        <span class="prelude-val">Ok</span>(<a href="#413">new</a>)
+        <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a href="#413">new</a>)
     }
 
     <span class="doccomment">/// Creates a new `StringNonul` from a `char16`.
@@ -1114,13 +1114,13 @@
         <span class="kw">let </span><span class="kw-2">mut </span>new = <a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::new()];
         <span class="kw">if </span>!c.is_nul() {
             <span class="kw">let </span>bytes = <a href="#436">c</a>.<a href="../char/impls/c16.rs.html#157-182">to_utf8_bytes</a>();
-            <span class="kw">let </span>len = <a href="../char/namespace.rs.html#54-57">Char::utf8_3bytes_len</a>(<a href="#439">bytes</a>);
+            <span class="kw">let </span>len = <a href="../char/namespace.rs.html#55-58">Char::utf8_3bytes_len</a>(<a href="#439">bytes</a>);
 
             <a href="#437">new</a>.arr[<span class="number">0</span>] = <a href="#439">bytes</a>[<span class="number">0</span>];
             <span class="kw">if </span>len &gt; <span class="number">1 </span>{ <a href="#437">new</a>.arr[<span class="number">1</span>] = <a href="#439">bytes</a>[<span class="number">1</span>]; }
             <span class="kw">if </span>len &gt; <span class="number">2 </span>{ <a href="#437">new</a>.arr[<span class="number">2</span>] = <a href="#439">bytes</a>[<span class="number">2</span>]; }
         }
-        <span class="prelude-val">Ok</span>(<a href="#437">new</a>)
+        <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a href="#437">new</a>)
     }
 
     <span class="comment">/* from bytes */
@@ -1130,15 +1130,15 @@
     /// # Errors
     /// Returns [`InvalidText::InvalidUtf8`] if the bytes are not valid UTF-8,
     /// and [`InvalidText::Char`] if the bytes contains a NUL character.
-    </span><span class="kw">pub const fn </span>from_bytes(bytes: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#65">CAP</a>]) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="../error.rs.html#51-65">InvalidText</a>&gt; {
+    </span><span class="kw">pub const fn </span>from_bytes(bytes: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#66">CAP</a>]) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="../error.rs.html#51-65">InvalidText</a>&gt; {
         <span class="kw">match </span><a href="../../../../devela/_core/str/fn.from_utf8.html">from_utf8</a>(<span class="kw-2">&amp;</span><a href="#456">bytes</a>) {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<span class="kw">_</span>) =&gt; {
                 <a class="macro" href="../../code/util/cfor.rs.html#117-184">cfor!</a>[index <span class="kw">in </span><span class="number">0</span>..CAP =&gt; {
                     <span class="macro">iif!</span>[bytes[index] == <span class="number">0</span>; <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidText::Char(<span class="string">'\0'</span>))];
                 }];
-                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ arr: <a href="#456">bytes</a> })
+                <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<span class="self">Self </span>{ arr: <a href="#456">bytes</a> })
             }
-            <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(<a href="../error.rs.html#71-74">InvalidText::from_utf8_error</a>(<a href="#464">e</a>)),
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(e) =&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#71-74">InvalidText::from_utf8_error</a>(<a href="#464">e</a>)),
         }
     }
 
@@ -1151,23 +1151,23 @@
     /// Use of a `str` whose contents are not valid UTF-8 is undefined behavior.
     </span><span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
     #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"unsafe_str"</span>)))]
-    </span><span class="kw">pub const unsafe fn </span>from_bytes_unchecked(bytes: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#65">CAP</a>]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const unsafe fn </span>from_bytes_unchecked(bytes: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a href="#66">CAP</a>]) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ arr: <a href="#477">bytes</a> }
     }
 }
 
 <span class="comment">/* traits implementations */
 
-</span><span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/code/trait.Default.html">Default</a> <span class="kw">for </span><a href="#61-63">StringNonul</a>&lt;<a href="#484">CAP</a>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/code/trait.Default.html">Default</a> <span class="kw">for </span><a href="#62-64">StringNonul</a>&lt;<a href="#484">CAP</a>&gt; {
     <span class="doccomment">/// Returns an empty string.
     ///
     /// # Panics
     /// Panics if `CAP &gt; [`u8::MAX`]`.
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <a href="#70-76"><span class="self">Self</span>::new</a>().<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>()
+        <a href="#71-77"><span class="self">Self</span>::new</a>().<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.unwrap">unwrap</a>()
     }
 }
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#61-63">StringNonul</a>&lt;<a href="#493">CAP</a>&gt; {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#62-64">StringNonul</a>&lt;<a href="#493">CAP</a>&gt; {
     <span class="doccomment">/// Returns an empty string.
     ///
     /// # Panics
@@ -1175,43 +1175,43 @@
     </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a class="macro" href="../../code/result/opt_res/unwrap.rs.html#11-235">unwrap!</a>[ok <span class="self">Self</span>::new()];
 }
 
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/all/trait.Display.html">fmt::Display</a> <span class="kw">for </span><a href="#61-63">StringNonul</a>&lt;<a href="#501">CAP</a>&gt; {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/all/trait.Display.html">fmt::Display</a> <span class="kw">for </span><a href="#62-64">StringNonul</a>&lt;<a href="#501">CAP</a>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
         <a class="macro" href="../../../../devela/all/macro.write.html">write!</a>(<a href="#502">f</a>, <span class="string">"{}"</span>, <span class="self">self</span>.as_str())
     }
 }
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/all/trait.Debug.html">fmt::Debug</a> <span class="kw">for </span><a href="#61-63">StringNonul</a>&lt;<a href="#506">CAP</a>&gt; {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/all/trait.Debug.html">fmt::Debug</a> <span class="kw">for </span><a href="#62-64">StringNonul</a>&lt;<a href="#506">CAP</a>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">fmt::Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
         <a class="macro" href="../../../../devela/all/macro.write.html">write!</a>(<a href="#507">f</a>, <span class="string">"{:?}"</span>, <span class="self">self</span>.as_str())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/num/trait.PartialEq.html">PartialEq</a>&lt;<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; <span class="kw">for </span><a href="#61-63">StringNonul</a>&lt;<a href="#512">CAP</a>&gt; {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/num/trait.PartialEq.html">PartialEq</a>&lt;<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; <span class="kw">for </span><a href="#62-64">StringNonul</a>&lt;<a href="#512">CAP</a>&gt; {
     <span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, slice: &amp;&amp;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <a class="self" href="#514">self</a>.<a href="#163-170">as_str</a>() == <span class="kw-2">*</span><a href="#514">slice</a> }
+    </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, slice: &amp;&amp;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <a class="self" href="#514">self</a>.<a href="#164-171">as_str</a>() == <span class="kw-2">*</span><a href="#514">slice</a> }
 }
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/num/trait.PartialEq.html">PartialEq</a>&lt;<a href="#61-63">StringNonul</a>&lt;<a href="#516">CAP</a>&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/num/trait.PartialEq.html">PartialEq</a>&lt;<a href="#62-64">StringNonul</a>&lt;<a href="#516">CAP</a>&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> {
     <span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, string: <span class="kw-2">&amp;</span><a href="#61-63">StringNonul</a>&lt;<a href="#516">CAP</a>&gt;) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <span class="kw-2">*</span><span class="self"><a href="#518">self</a> </span>== <a href="#518">string</a>.<a href="#163-170">as_str</a>() }
+    </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, string: <span class="kw-2">&amp;</span><a href="#62-64">StringNonul</a>&lt;<a href="#516">CAP</a>&gt;) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <span class="kw-2">*</span><span class="self"><a href="#518">self</a> </span>== <a href="#518">string</a>.<a href="#164-171">as_str</a>() }
 }
 
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/all/trait.Deref.html">Deref</a> <span class="kw">for </span><a href="#61-63">StringNonul</a>&lt;<a href="#521">CAP</a>&gt; {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/all/trait.Deref.html">Deref</a> <span class="kw">for </span><a href="#62-64">StringNonul</a>&lt;<a href="#521">CAP</a>&gt; {
     <span class="kw">type </span>Target = <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>;
     <span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target { <a class="self" href="#524">self</a>.<a href="#163-170">as_str</a>() }
+    </span><span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target { <a class="self" href="#524">self</a>.<a href="#164-171">as_str</a>() }
 }
 
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/code/trait.AsRef.html">AsRef</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; <span class="kw">for </span><a href="#61-63">StringNonul</a>&lt;<a href="#527">CAP</a>&gt; {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/code/trait.AsRef.html">AsRef</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; <span class="kw">for </span><a href="#62-64">StringNonul</a>&lt;<a href="#527">CAP</a>&gt; {
     <span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> { <a class="self" href="#529">self</a>.<a href="#163-170">as_str</a>() }
+    </span><span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> { <a class="self" href="#529">self</a>.<a href="#164-171">as_str</a>() }
 }
 
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/code/trait.AsRef.html">AsRef</a>&lt;[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; <span class="kw">for </span><a href="#61-63">StringNonul</a>&lt;<a href="#532">CAP</a>&gt; {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/code/trait.AsRef.html">AsRef</a>&lt;[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; <span class="kw">for </span><a href="#62-64">StringNonul</a>&lt;<a href="#532">CAP</a>&gt; {
     <span class="attr">#[must_use] #[rustfmt::skip]
-    </span><span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] { <a class="self" href="#534">self</a>.<a href="#141">as_bytes</a>() }
+    </span><span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] { <a class="self" href="#534">self</a>.<a href="#142">as_bytes</a>() }
 }
 
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; <span class="kw">for </span><a href="#61-63">StringNonul</a>&lt;<a href="#537">CAP</a>&gt; {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; <span class="kw">for </span><a href="#62-64">StringNonul</a>&lt;<a href="#537">CAP</a>&gt; {
     <span class="kw">type </span>Error = <a href="../../data/error.rs.html#60-63">MismatchedCapacity</a>;
 
     <span class="doccomment">/// Tries to create a new `StringNonul` from the given string slice.
@@ -1221,17 +1221,17 @@
     </span><span class="kw">fn </span>try_from(string: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="../../data/error.rs.html#60-63">MismatchedCapacity</a>&gt; {
         <span class="kw">let </span>non_nul_len = <a href="#544">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.iter">iter</a>().<a href="../../../../devela/all/trait.Iterator.html">filter</a>(|x| <span class="kw-2">**</span><a href="#545">x</a> != <span class="number">0</span>).<a href="../../../../devela/all/trait.Iterator.html">count</a>();
         <span class="kw">if </span>CAP &lt; non_nul_len {
-            <span class="prelude-val">Err</span>(<a href="../../data/error.rs.html#72-74">MismatchedCapacity::closed_open</a>(<span class="number">0</span>, <a href="#545">non_nul_len</a>, <a href="#537">CAP</a>))
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../../data/error.rs.html#72-74">MismatchedCapacity::closed_open</a>(<span class="number">0</span>, <a href="#545">non_nul_len</a>, <a href="#537">CAP</a>))
         } <span class="kw">else </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>new_string = <a href="#70-76"><span class="self">Self</span>::new</a>()<span class="question-mark">?</span>;
-            <span class="kw">let </span>copied_bytes = <a href="#549">new_string</a>.<a href="#297-315">push_str</a>(<a href="#544">string</a>);
+            <span class="kw">let </span><span class="kw-2">mut </span>new_string = <a href="#71-77"><span class="self">Self</span>::new</a>()<span class="question-mark">?</span>;
+            <span class="kw">let </span>copied_bytes = <a href="#549">new_string</a>.<a href="#298-316">push_str</a>(<a href="#544">string</a>);
             <a class="macro" href="../../../../devela/all/macro.debug_assert_eq.html">debug_assert_eq!</a>[non_nul_len, copied_bytes];
-            <span class="prelude-val">Ok</span>(<a href="#549">new_string</a>)
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a href="#549">new_string</a>)
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; <span class="kw">for </span><a href="#61-63">StringNonul</a>&lt;<a href="#557">CAP</a>&gt; {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; <span class="kw">for </span><a href="#62-64">StringNonul</a>&lt;<a href="#557">CAP</a>&gt; {
     <span class="kw">type </span>Error = <a href="../error.rs.html#51-65">InvalidText</a>;
 
     <span class="doccomment">/// Tries to create a new `StringNonul` from the given slice of `bytes`.
@@ -1244,11 +1244,11 @@
     </span><span class="kw">fn </span>try_from(bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<span class="self">Self</span>, <a href="../error.rs.html#51-65">InvalidText</a>&gt; {
         <span class="kw">if </span>bytes.len() &gt;= CAP {
             <span class="attr">#[rustfmt::skip]
-            </span><span class="kw">return </span><span class="prelude-val">Err</span>(<a href="../error.rs.html#51-65">InvalidText::Capacity</a>(
-                <a href="../../code/result/mismatch.rs.html#72-74">Mismatch::in_closed_interval</a>(<span class="number">0</span>, <a href="#567">bytes</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>(), <a href="#557">CAP</a>, <span class="string">""</span>)));
+            </span><span class="kw">return </span><a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#51-65">InvalidText::Capacity</a>(
+                <a href="../../code/result/mismatch.rs.html#73-75">Mismatch::in_closed_interval</a>(<span class="number">0</span>, <a href="#567">bytes</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>(), <a href="#557">CAP</a>, <span class="string">""</span>)));
         }
         <span class="kw">match </span><a href="../../../../devela/_core/str/fn.from_utf8.html">from_utf8</a>(<a href="#567">bytes</a>) {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<span class="kw">_</span>) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>arr = [<span class="number">0</span>; <a href="#557">CAP</a>];
                 <span class="kw">let </span><span class="kw-2">mut </span>idx = <span class="number">0</span>;
 
@@ -1258,9 +1258,9 @@
                         idx += <span class="number">1</span>;
                     }
                 }
-                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ <a href="#575">arr</a> })
+                <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<span class="self">Self </span>{ <a href="#575">arr</a> })
             }
-            <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(<a href="../error.rs.html#71-74">InvalidText::from_utf8_error</a>(<a href="#586">e</a>)),
+            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(e) =&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#71-74">InvalidText::from_utf8_error</a>(<a href="#586">e</a>)),
         }
     }
 }
