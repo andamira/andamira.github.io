@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["PathComponent","PathPrefix"],"fn":["crate_root","crate_root_string"],"struct":["IterPath","IterPathAncestors","IterPathComponents","Path","PathBuf","PathDisplay","PathPrefixComponent","PathStripPrefixError"],"trait":["ExtPath"]};
+window.SIDEBAR_ITEMS = {"enum":["PathComponent","PathPrefix"],"fn":["crate_root","crate_root_string","manifest_dir","manifest_path"],"struct":["IterPath","IterPathAncestors","IterPathComponents","Path","PathBuf","PathDisplay","PathPrefixComponent","PathStripPrefixError"],"trait":["ExtPath"]};

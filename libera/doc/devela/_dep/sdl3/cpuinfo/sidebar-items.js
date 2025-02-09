@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["CACHELINESIZE"],"fn":["cpu_cache_line_size","has_alti_vec","has_arm_simd","has_avx","has_avx2","has_avx512f","has_lasx","has_lsx","has_mmx","has_neon","has_sse","has_sse2","has_sse3","has_sse41","has_sse42","num_logical_cpu_cores","simd_alignment","system_ram"]};

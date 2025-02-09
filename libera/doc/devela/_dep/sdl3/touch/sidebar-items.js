@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["num_touch_devices","num_touch_fingers"],"struct":["TouchId"],"type":["Finger"]};

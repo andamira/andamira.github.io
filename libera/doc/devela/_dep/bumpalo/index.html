@@ -1,92 +1,208 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`bumpalo` A fast bump allocation arena for Rust."><title>devela::_dep::bumpalo - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../crates.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`bumpalo` A fast bump allocation arena for Rust."><title>devela::_dep::bumpalo - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../crates.js"></script><script defer src="../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-<!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-</head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#bumpalo" title="`bumpalo`"><code>bumpalo</code></a><ul><li><a href="#bump-allocation" title="Bump Allocation">Bump Allocation</a></li><li><a href="#deallocation-en-masse-but-no-drop" title="Deallocation en Masse, but no `Drop`">Deallocation en Masse, but no <code>Drop</code></a></li><li><a href="#what-happens-when-the-memory-chunk-is-full" title="What happens when the memory chunk is full?">What happens when the memory chunk is full?</a></li><li><a href="#example" title="Example">Example</a></li><li><a href="#collections" title="Collections">Collections</a></li><li><a href="#bumpaloboxedbox" title="`bumpalo::boxed::Box`"><code>bumpalo::boxed::Box</code></a></li><li><a href="#no_std-support" title="`#![no_std]` Support"><code>#![no_std]</code> Support</a></li><li><a href="#std-support" title="`std` Support"><code>std</code> Support</a></li><li><a href="#thread-support" title="Thread support">Thread support</a></li><li><a href="#nightly-rust-allocator_api-support" title="Nightly Rust `allocator_api` Support">Nightly Rust <code>allocator_api</code> Support</a></li><li><a href="#using-the-allocator-api-on-stable-rust" title="Using the `Allocator` API on Stable Rust">Using the <code>Allocator</code> API on Stable Rust</a></li><li><a href="#minimum-supported-rust-version-msrv" title="Minimum Supported Rust Version (MSRV)">Minimum Supported Rust Version (MSRV)</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a></span><h1>Crate <span>bumpalo</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_bumpalo</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='re-exported `bumpalo`'><code>bumpalo</code></span>
+</head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#bumpalo" title="`bumpalo`"><code>bumpalo</code></a><ul><li><a href="#bump-allocation" title="Bump Allocation">Bump Allocation</a></li><li><a href="#deallocation-en-masse-but-no-drop" title="Deallocation en Masse, but no `Drop`">Deallocation en Masse, but no <code>Drop</code></a></li><li><a href="#what-happens-when-the-memory-chunk-is-full" title="What happens when the memory chunk is full?">What happens when the memory chunk is full?</a></li><li><a href="#example" title="Example">Example</a></li><li><a href="#collections" title="Collections">Collections</a></li><li><a href="#bumpaloboxedbox" title="`bumpalo::boxed::Box`"><code>bumpalo::boxed::Box</code></a></li><li><a href="#no_std-support" title="`#![no_std]` Support"><code>#![no_std]</code> Support</a></li><li><a href="#std-support" title="`std` Support"><code>std</code> Support</a></li><li><a href="#thread-support" title="Thread support">Thread support</a></li><li><a href="#nightly-rust-allocator_api-support" title="Nightly Rust `allocator_api` Support">Nightly Rust <code>allocator_api</code> Support</a></li><li><a href="#using-the-allocator-api-on-stable-rust" title="Using the `Allocator` API on Stable Rust">Using the <code>Allocator</code> API on Stable Rust</a></li><li><a href="#minimum-supported-rust-version-msrv" title="Minimum Supported Rust Version (MSRV)">Minimum Supported Rust Version (MSRV)</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a></div><h1>Crate <span>bumpalo</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_bumpalo</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='re-exported `bumpalo`'><code>bumpalo</code></span>
 A fast bump allocation arena for Rust.</p>
 <hr />
 <h2 id="bumpalo"><a class="doc-anchor" href="#bumpalo">§</a><code>bumpalo</code></h2>
@@ -283,13 +399,13 @@ the unstable nightly<code>Allocator</code> API on stable Rust. This means that
 <code>bumpalo::Bump</code> will be usable with any collection that is generic over
 <code>allocator_api2::Allocator</code>.</p>
 <h4 id="minimum-supported-rust-version-msrv"><a class="doc-anchor" href="#minimum-supported-rust-version-msrv">§</a>Minimum Supported Rust Version (MSRV)</h4>
-<p>This crate is guaranteed to compile on stable Rust <strong>1.73</strong> and up. It might
+<p>This crate is guaranteed to compile on stable Rust <strong>1.71.1</strong> and up. It might
 compile with older versions but that may change in any new patch release.</p>
 <p>We reserve the right to increment the MSRV on minor releases, however we will
 strive to only do it deliberately and for good reasons.</p>
-</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="boxed/index.html" title="mod devela::_dep::bumpalo::boxed">boxed</a></div><div class="desc docblock-short">A pointer type for bump allocation.</div></li><li><div class="item-name"><a class="mod" href="collections/index.html" title="mod devela::_dep::bumpalo::collections">collections</a></div><div class="desc docblock-short">Collection types that allocate inside a <a href="../struct.Bump.html"><code>Bump</code></a> arena.</div></li><li><div class="item-name"><a class="mod" href="core_alloc/index.html" title="mod devela::_dep::bumpalo::core_alloc">core_<wbr>alloc</a></div><div class="desc docblock-short">The Rust core allocation and collections library</div></li></ul><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="macro" href="macro.format.html" title="macro devela::_dep::bumpalo::format">format</a></div><div class="desc docblock-short">Like the <a href="https://doc.rust-lang.org/std/macro.format.html"><code>format!</code></a> macro, but for creating <a href="collections/string/struct.String.html"><code>bumpalo::collections::String</code></a>s.</div></li><li><div class="item-name"><a class="macro" href="macro.vec.html" title="macro devela::_dep::bumpalo::vec">vec</a></div><div class="desc docblock-short">Creates a <a href="collections/vec/struct.Vec.html"><code>Vec</code></a> containing the arguments.</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.AllocErr.html" title="struct devela::_dep::bumpalo::AllocErr">Alloc<wbr>Err</a></div><div class="desc docblock-short">The <code>AllocErr</code> error indicates an allocation failure
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="boxed/index.html" title="mod devela::_dep::bumpalo::boxed">boxed</a></dt><dd>A pointer type for bump allocation.</dd><dt><a class="mod" href="collections/index.html" title="mod devela::_dep::bumpalo::collections">collections</a></dt><dd>Collection types that allocate inside a <a href="../struct.Bump.html"><code>Bump</code></a> arena.</dd><dt><a class="mod" href="core_alloc/index.html" title="mod devela::_dep::bumpalo::core_alloc">core_<wbr>alloc</a></dt><dd>The Rust core allocation and collections library</dd></dl><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.format.html" title="macro devela::_dep::bumpalo::format">format</a></dt><dd>Like the <a href="https://doc.rust-lang.org/std/macro.format.html"><code>format!</code></a> macro, but for creating <a href="collections/string/struct.String.html"><code>bumpalo::collections::String</code></a>s.</dd><dt><a class="macro" href="macro.vec.html" title="macro devela::_dep::bumpalo::vec">vec</a></dt><dd>Creates a <a href="collections/vec/struct.Vec.html"><code>Vec</code></a> containing the arguments.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AllocErr.html" title="struct devela::_dep::bumpalo::AllocErr">Alloc<wbr>Err</a></dt><dd>The <code>AllocErr</code> error indicates an allocation failure
 that may be due to resource exhaustion or to
 something wrong when combining the given input arguments with this
-allocator.</div></li><li><div class="item-name"><a class="struct" href="struct.Bump.html" title="struct devela::_dep::bumpalo::Bump">Bump</a></div><div class="desc docblock-short">An arena to bump allocate into.</div></li><li><div class="item-name"><a class="struct" href="struct.ChunkIter.html" title="struct devela::_dep::bumpalo::ChunkIter">Chunk<wbr>Iter</a></div><div class="desc docblock-short">An iterator over each chunk of allocated memory that
-an arena has bump allocated into.</div></li><li><div class="item-name"><a class="struct" href="struct.ChunkRawIter.html" title="struct devela::_dep::bumpalo::ChunkRawIter">Chunk<wbr>RawIter</a></div><div class="desc docblock-short">An iterator over raw pointers to chunks of allocated memory that this
-arena has bump allocated into.</div></li></ul><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.AllocOrInitError.html" title="enum devela::_dep::bumpalo::AllocOrInitError">Alloc<wbr>OrInit<wbr>Error</a></div><div class="desc docblock-short">An error returned from <a href="struct.Bump.html#method.try_alloc_try_with" title="method devela::_dep::bumpalo::Bump::try_alloc_try_with"><code>Bump::try_alloc_try_with</code></a>.</div></li></ul></section></div></main></body></html>
+allocator.</dd><dt><a class="struct" href="struct.Bump.html" title="struct devela::_dep::bumpalo::Bump">Bump</a></dt><dd>An arena to bump allocate into.</dd><dt><a class="struct" href="struct.ChunkIter.html" title="struct devela::_dep::bumpalo::ChunkIter">Chunk<wbr>Iter</a></dt><dd>An iterator over each chunk of allocated memory that
+an arena has bump allocated into.</dd><dt><a class="struct" href="struct.ChunkRawIter.html" title="struct devela::_dep::bumpalo::ChunkRawIter">Chunk<wbr>RawIter</a></dt><dd>An iterator over raw pointers to chunks of allocated memory that this
+arena has bump allocated into.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.AllocOrInitError.html" title="enum devela::_dep::bumpalo::AllocOrInitError">Alloc<wbr>OrInit<wbr>Error</a></dt><dd>An error returned from <a href="struct.Bump.html#method.try_alloc_try_with" title="method devela::_dep::bumpalo::Bump::try_alloc_try_with"><code>Bump::try_alloc_try_with</code></a>.</dd></dl></section></div></main></body></html>

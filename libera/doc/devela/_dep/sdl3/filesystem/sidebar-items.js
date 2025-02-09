@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FileSystemError","PrefPathError"],"fn":["copy_file","create_directory","enumerate_directory","get_base_path","get_path_info","get_pref_path","get_user_folder","glob_directory","remove_path","rename_path"],"struct":["EnumerationResult","Folder","GlobFlags","GlobResults","GlobResultsIter","PathInfo","PathType"],"type":["EnumerateCallback"]};

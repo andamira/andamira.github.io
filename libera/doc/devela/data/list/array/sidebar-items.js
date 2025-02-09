@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["VecChunk"],"fn":["array_from_fn","array_from_mut","array_from_ref"],"macro":["array_init","vec_"],"struct":["ArchivedArray","ArchivedArray2d","Array","Array2d","Array2dResolver","ArrayFmt","ArrayIntoIter","ArrayResolver","ArrayUninit","Vec","Vec2d"],"trait":["DataArray","ExtArray","ExtVec"]};

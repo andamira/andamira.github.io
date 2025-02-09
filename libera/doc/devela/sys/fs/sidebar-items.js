@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["DirBuilder","DirEntry","File","FileMetadata","FileOpenOptions","FilePermissions","FileTimes","FileType","FsPath","IterDirRead"]};

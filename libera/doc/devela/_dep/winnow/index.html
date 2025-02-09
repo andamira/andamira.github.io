@@ -1,92 +1,208 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`winnow` A byte-oriented, zero-copy, parser combinators library."><title>devela::_dep::winnow - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../crates.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`winnow` A byte-oriented, zero-copy, parser combinators library."><title>devela::_dep::winnow - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../crates.js"></script><script defer src="../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-<!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-</head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#aspirations" title="Aspirations">Aspirations</a></li><li><a href="#example" title="Example">Example</a></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a></span><h1>Crate <span>winnow</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_winnow</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='re-exported `winnow`'><code>winnow</code></span>
+</head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#aspirations" title="Aspirations">Aspirations</a></li><li><a href="#example" title="Example">Example</a></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a></div><h1>Crate <span>winnow</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_winnow</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='re-exported `winnow`'><code>winnow</code></span>
 A byte-oriented, zero-copy, parser combinators library.</p>
 <hr />
 <blockquote>
@@ -99,7 +215,7 @@ A byte-oriented, zero-copy, parser combinators library.</p>
 <li>[Tutorial][_tutorial::chapter_0]</li>
 <li>[Special Topics][_topic]</li>
 <li><a href="https://github.com/winnow-rs/winnow/discussions">Discussions</a></li>
-<li><a href="https://github.com/winnow-rs/winnow/blob/v0.6.24/CHANGELOG.md">CHANGELOG</a> (includes major version migration
+<li><a href="https://github.com/winnow-rs/winnow/blob/v0.7.1/CHANGELOG.md">CHANGELOG</a> (includes major version migration
 guides)</li>
 </ul>
 <h3 id="aspirations"><a class="doc-anchor" href="#aspirations">§</a>Aspirations</h3>
@@ -132,6 +248,7 @@ separate lexing and parsing phases</li>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>winnow::combinator::seq;
 <span class="kw">use </span>winnow::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>winnow::token::take_while;
+<span class="kw">use </span>winnow::Result;
 
 <span class="attr">#[derive(Debug, Eq, PartialEq)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Color {
@@ -149,7 +266,7 @@ separate lexing and parsing phases</li>
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>hex_color(input: <span class="kw-2">&amp;mut &amp;</span>str) -&gt; PResult&lt;Color&gt; {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>hex_color(input: <span class="kw-2">&amp;mut &amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Color&gt; {
     <span class="macro">seq!</span>(Color {
         <span class="kw">_</span>: <span class="string">'#'</span>,
         red: hex_primary,
@@ -159,11 +276,10 @@ separate lexing and parsing phases</li>
     .parse_next(input)
 }
 
-<span class="kw">fn </span>hex_primary(input: <span class="kw-2">&amp;mut &amp;</span>str) -&gt; PResult&lt;u8&gt; {
+<span class="kw">fn </span>hex_primary(input: <span class="kw-2">&amp;mut &amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;u8&gt; {
     take_while(<span class="number">2</span>, |c: char| c.is_ascii_hexdigit())
         .try_map(|input| u8::from_str_radix(input, <span class="number">16</span>))
         .parse_next(input)
 }</code></pre></div>
 <p>See also the [Tutorial][_tutorial::chapter_0] and [Special Topics][_topic]</p>
-</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="ascii/index.html" title="mod devela::_dep::winnow::ascii">ascii</a></div><div class="desc docblock-short">Character specific parsers and combinators</div></li><li><div class="item-name"><a class="mod" href="binary/index.html" title="mod devela::_dep::winnow::binary">binary</a></div><div class="desc docblock-short">Parsers recognizing numbers</div></li><li><div class="item-name"><a class="mod" href="combinator/index.html" title="mod devela::_dep::winnow::combinator">combinator</a></div><div class="desc docblock-short">List of parsers and combinators</div></li><li><div class="item-name"><a class="mod" href="error/index.html" title="mod devela::_dep::winnow::error">error</a></div><div class="desc docblock-short">Error management</div></li><li><div class="item-name"><a class="mod" href="prelude/index.html" title="mod devela::_dep::winnow::prelude">prelude</a></div><div class="desc docblock-short">Core concepts available for glob import</div></li><li><div class="item-name"><a class="mod" href="stream/index.html" title="mod devela::_dep::winnow::stream">stream</a></div><div class="desc docblock-short">Stream capability for combinators to parse</div></li><li><div class="item-name"><a class="mod" href="token/index.html" title="mod devela::_dep::winnow::token">token</a></div><div class="desc docblock-short">Parsers extracting tokens from the stream</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.BStr.html" title="struct devela::_dep::winnow::BStr">BStr</a></div><div class="desc docblock-short">Improved <code>Debug</code> experience for <code>&amp;[u8]</code> UTF-8-ish streams</div></li><li><div class="item-name"><a class="struct" href="struct.Bytes.html" title="struct devela::_dep::winnow::Bytes">Bytes</a></div><div class="desc docblock-short">Improved <code>Debug</code> experience for <code>&amp;[u8]</code> byte streams</div></li><li><div class="item-name"><a class="struct" href="struct.LocatingSlice.html" title="struct devela::_dep::winnow::LocatingSlice">Locating<wbr>Slice</a></div><div class="desc docblock-short">Allow collecting the span of a parsed token within a slice</div></li><li><div class="item-name"><a class="struct" href="struct.Partial.html" title="struct devela::_dep::winnow::Partial">Partial</a></div><div class="desc docblock-short">Mark the input as a partial buffer for streaming input.</div></li><li><div class="item-name"><a class="struct" href="struct.Stateful.html" title="struct devela::_dep::winnow::Stateful">Stateful</a></div><div class="desc docblock-short">Thread global state through your parsers</div></li></ul><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="trait" href="trait.Parser.html" title="trait devela::_dep::winnow::Parser">Parser</a></div><div class="desc docblock-short">Core trait for parsing</div></li></ul><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="fn" href="fn.unpeek.html" title="fn devela::_dep::winnow::unpeek">unpeek</a><wbr><span class="stab deprecated" title="">Deprecated</span></div><div class="desc docblock-short">Deprecated</div></li></ul><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="type" href="type.IResult.html" title="type devela::_dep::winnow::IResult">IResult</a></div><div class="desc docblock-short">For use with <a href="trait.Parser.html#method.parse_peek" title="method devela::_dep::winnow::Parser::parse_peek"><code>Parser::parse_peek</code></a> which allows the input stream to be threaded through a
-parser.</div></li><li><div class="item-name"><a class="type" href="type.Located.html" title="type devela::_dep::winnow::Located">Located</a><wbr><span class="stab deprecated" title="">Deprecated</span></div><div class="desc docblock-short">Deprecated, replaced with <a href="struct.LocatingSlice.html" title="struct devela::_dep::winnow::LocatingSlice"><code>LocatingSlice</code></a></div></li><li><div class="item-name"><a class="type" href="type.PResult.html" title="type devela::_dep::winnow::PResult">PResult</a></div><div class="desc docblock-short">For use with <a href="trait.Parser.html#tymethod.parse_next" title="method devela::_dep::winnow::Parser::parse_next"><code>Parser::parse_next</code></a></div></li><li><div class="item-name"><a class="type" href="type.Str.html" title="type devela::_dep::winnow::Str">Str</a></div><div class="desc docblock-short">UTF-8 Stream</div></li></ul></section></div></main></body></html>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="ascii/index.html" title="mod devela::_dep::winnow::ascii">ascii</a></dt><dd>Character specific parsers and combinators</dd><dt><a class="mod" href="binary/index.html" title="mod devela::_dep::winnow::binary">binary</a></dt><dd>Parsers recognizing numbers</dd><dt><a class="mod" href="combinator/index.html" title="mod devela::_dep::winnow::combinator">combinator</a></dt><dd>List of parsers and combinators</dd><dt><a class="mod" href="error/index.html" title="mod devela::_dep::winnow::error">error</a></dt><dd>Error management</dd><dt><a class="mod" href="prelude/index.html" title="mod devela::_dep::winnow::prelude">prelude</a></dt><dd>Core concepts available for glob import</dd><dt><a class="mod" href="stream/index.html" title="mod devela::_dep::winnow::stream">stream</a></dt><dd>Stream capability for combinators to parse</dd><dt><a class="mod" href="token/index.html" title="mod devela::_dep::winnow::token">token</a></dt><dd>Parsers extracting tokens from the stream</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.BStr.html" title="struct devela::_dep::winnow::BStr">BStr</a></dt><dd>Improved <code>Debug</code> experience for <code>&amp;[u8]</code> UTF-8-ish streams</dd><dt><a class="struct" href="struct.Bytes.html" title="struct devela::_dep::winnow::Bytes">Bytes</a></dt><dd>Improved <code>Debug</code> experience for <code>&amp;[u8]</code> byte streams</dd><dt><a class="struct" href="struct.LocatingSlice.html" title="struct devela::_dep::winnow::LocatingSlice">Locating<wbr>Slice</a></dt><dd>Allow collecting the span of a parsed token within a slice</dd><dt><a class="struct" href="struct.Partial.html" title="struct devela::_dep::winnow::Partial">Partial</a></dt><dd>Mark the input as a partial buffer for streaming input.</dd><dt><a class="struct" href="struct.Stateful.html" title="struct devela::_dep::winnow::Stateful">Stateful</a></dt><dd>Thread global state through your parsers</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.ModalParser.html" title="trait devela::_dep::winnow::ModalParser">Modal<wbr>Parser</a></dt><dd>Trait alias for <a href="trait.Parser.html" title="trait devela::_dep::winnow::Parser"><code>Parser</code></a> to be used with <a href="type.ModalResult.html" title="type devela::_dep::winnow::ModalResult"><code>ModalResult</code></a></dd><dt><a class="trait" href="trait.Parser.html" title="trait devela::_dep::winnow::Parser">Parser</a></dt><dd>Core trait for parsing</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.ModalResult.html" title="type devela::_dep::winnow::ModalResult">Modal<wbr>Result</a></dt><dd><a href="error/enum.ErrMode.html" title="enum devela::_dep::winnow::error::ErrMode">Modal error reporting</a> for <a href="trait.Parser.html#tymethod.parse_next" title="method devela::_dep::winnow::Parser::parse_next"><code>Parser::parse_next</code></a></dd><dt><a class="type" href="type.Result.html" title="type devela::_dep::winnow::Result">Result</a></dt><dd>By default, the error type (<code>E</code>) is <a href="error/struct.ContextError.html" title="struct devela::_dep::winnow::error::ContextError"><code>ContextError</code></a>.</dd><dt><a class="type" href="type.Str.html" title="type devela::_dep::winnow::Str">Str</a></dt><dd>UTF-8 Stream</dd></dl></section></div></main></body></html>

@@ -1,90 +1,206 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/rand/xabc.rs`."><title>xabc.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/rand/xabc.rs`."><title>xabc.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-<!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
-
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
 
 </head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/num/rand/</div>xabc.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
@@ -273,7 +389,10 @@
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a></pre></div><pre class="rust"><code><span class="comment">// devela::num::rand::xabc
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a></pre></div><pre class="rust"><code><span class="comment">// devela::num::rand::xabc
 //
 </span><span class="doccomment">//!
 </span><span class="comment">//
@@ -315,7 +434,8 @@
 /// *EternityForest* in [Electro-Tech-Online.com][link].
 ///
 /// [link]: https://www.electro-tech-online.com/threads/ultra-fast-pseudorandom-number-generator-for-8-bit.124249/
-</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+</span><span class="attr">#[must_use]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span><a href="../../../../devela/all/struct.Xabc.html">Xabc</a> {
     a: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
     b: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
@@ -323,140 +443,142 @@
     x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
 }
 
-<span class="kw">impl </span><a href="../../../../devela/code/trait.Default.html">Default</a> <span class="kw">for </span><a href="#44-49">Xabc</a> {
+<span class="doccomment">/// Creates a new PRNG initialized with the default fixed seed.
+</span><span class="kw">impl </span><a href="../../../../devela/code/trait.Default.html">Default</a> <span class="kw">for </span><a href="#45-50">Xabc</a> {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::DEFAULT
     }
 }
-<span class="kw">impl </span><a href="../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#44-49">Xabc</a> {
-    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="#68-77"><span class="self">Self</span>::new</a>(<span class="self">Self</span>::DEFAULT_SEED);
+<span class="doccomment">/// Creates a new PRNG initialized with the default fixed seed.
+</span><span class="kw">impl </span><a href="../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#45-50">Xabc</a> {
+    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="#70-79"><span class="self">Self</span>::new</a>(<span class="self">Self</span>::DEFAULT_SEED);
 }
 
 <span class="comment">// private associated items
-</span><span class="kw">impl </span><a href="#44-49">Xabc</a> {
+</span><span class="kw">impl </span><a href="#45-50">Xabc</a> {
     <span class="kw">const </span>DEFAULT_SEED: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">3</span>] = [<span class="number">0xDE</span>, <span class="number">0xFA</span>, <span class="number">0x17</span>];
 }
 
-<span class="kw">impl </span><a href="#44-49">Xabc</a> {
+<span class="kw">impl </span><a href="#45-50">Xabc</a> {
     <span class="doccomment">/// Returns a seeded `Xabc` generator from the given 3 × 8-bit seeds.
-    </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>new(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">3</span>]) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>a = <a href="#68">seeds</a>[<span class="number">0</span>];
-        <span class="kw">let </span>b = <a href="#68">seeds</a>[<span class="number">1</span>];
-        <span class="kw">let </span>c = <a href="#68">seeds</a>[<span class="number">2</span>];
+        <span class="kw">let </span>a = <a href="#70">seeds</a>[<span class="number">0</span>];
+        <span class="kw">let </span>b = <a href="#70">seeds</a>[<span class="number">1</span>];
+        <span class="kw">let </span>c = <a href="#70">seeds</a>[<span class="number">2</span>];
         <span class="kw">let </span>x = <span class="number">1</span>;
-        <span class="kw">let </span>a = <a href="#69">a</a> ^ <a href="#71">c</a> ^ <a href="#72">x</a>;
-        <span class="kw">let </span>b = <a href="#70">b</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#73">a</a>);
-        <span class="kw">let </span>c = <a href="#71">c</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#74">b</a> &gt;&gt; <span class="number">1</span>) ^ <a href="#73">a</a>;
-        <span class="self">Self </span>{ <a href="#73">a</a>, <a href="#74">b</a>, <a href="#75">c</a>, <a href="#72">x</a> }
+        <span class="kw">let </span>a = <a href="#71">a</a> ^ <a href="#73">c</a> ^ <a href="#74">x</a>;
+        <span class="kw">let </span>b = <a href="#72">b</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#75">a</a>);
+        <span class="kw">let </span>c = <a href="#73">c</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#76">b</a> &gt;&gt; <span class="number">1</span>) ^ <a href="#75">a</a>;
+        <span class="self">Self </span>{ <a href="#75">a</a>, <a href="#76">b</a>, <a href="#77">c</a>, <a href="#74">x</a> }
     }
 
     <span class="doccomment">/// Reseeds the generator from the given 3 × 8-bit seeds.
     </span><span class="kw">pub fn </span>reseed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">3</span>]) {
         <span class="comment">// XOR new entropy into key state
-        </span><a class="self" href="#80">self</a>.a ^= <a href="#80">seeds</a>[<span class="number">0</span>];
-        <a class="self" href="#80">self</a>.b ^= <a href="#80">seeds</a>[<span class="number">1</span>];
-        <a class="self" href="#80">self</a>.c ^= <a href="#80">seeds</a>[<span class="number">2</span>];
+        </span><a class="self" href="#82">self</a>.a ^= <a href="#82">seeds</a>[<span class="number">0</span>];
+        <a class="self" href="#82">self</a>.b ^= <a href="#82">seeds</a>[<span class="number">1</span>];
+        <a class="self" href="#82">self</a>.c ^= <a href="#82">seeds</a>[<span class="number">2</span>];
 
-        <a class="self" href="#80">self</a>.x += <span class="number">1</span>;
-        <a class="self" href="#80">self</a>.a = <a class="self" href="#80">self</a>.a ^ <a class="self" href="#80">self</a>.c ^ <a class="self" href="#80">self</a>.x;
-        <a class="self" href="#80">self</a>.b = <a class="self" href="#80">self</a>.b.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#80">self</a>.a);
-        <a class="self" href="#80">self</a>.c = <a class="self" href="#80">self</a>.c.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#80">self</a>.b &gt;&gt; <span class="number">1</span>) ^ <a class="self" href="#80">self</a>.a;
+        <a class="self" href="#82">self</a>.x += <span class="number">1</span>;
+        <a class="self" href="#82">self</a>.a = <a class="self" href="#82">self</a>.a ^ <a class="self" href="#82">self</a>.c ^ <a class="self" href="#82">self</a>.x;
+        <a class="self" href="#82">self</a>.b = <a class="self" href="#82">self</a>.b.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#82">self</a>.a);
+        <a class="self" href="#82">self</a>.c = <a class="self" href="#82">self</a>.c.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#82">self</a>.b &gt;&gt; <span class="number">1</span>) ^ <a class="self" href="#82">self</a>.a;
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="doccomment">/// Returns the PRNG's inner state as a raw snapshot.
+    </span><span class="kw">pub const fn </span>inner_state(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">4</span>] {
+        [<a class="self" href="#96">self</a>.a, <a class="self" href="#96">self</a>.b, <a class="self" href="#96">self</a>.c, <a class="self" href="#96">self</a>.x]
+    }
+    <span class="doccomment">/// Restores the PRNG from the given state.
+    </span><span class="kw">pub const fn </span>from_state(state: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">4</span>]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ a: <a href="#100">state</a>[<span class="number">0</span>], b: <a href="#100">state</a>[<span class="number">1</span>], c: <a href="#100">state</a>[<span class="number">2</span>], x: <a href="#100">state</a>[<span class="number">3</span>] }
     }
 
     <span class="doccomment">/// Returns the current random `u8`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>current_u8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
-        <a class="self" href="#94">self</a>.c
+        <a class="self" href="#106">self</a>.c
     }
-
-    <span class="doccomment">/// Returns the next random `u8`.
+    <span class="doccomment">/// Advances the state and returns the next random `u8`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>next_u8(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
         <span class="comment">// x is incremented every round and is not affected by any other variable
-        </span><a class="self" href="#100">self</a>.x = <a class="self" href="#100">self</a>.x.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<span class="number">1</span>);
+        </span><a class="self" href="#111">self</a>.x = <a class="self" href="#111">self</a>.x.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<span class="number">1</span>);
         <span class="comment">// note the mix of addition and XOR
-        </span><a class="self" href="#100">self</a>.a = <a class="self" href="#100">self</a>.a ^ <a class="self" href="#100">self</a>.c ^ <a class="self" href="#100">self</a>.x;
+        </span><a class="self" href="#111">self</a>.a = <a class="self" href="#111">self</a>.a ^ <a class="self" href="#111">self</a>.c ^ <a class="self" href="#111">self</a>.x;
         <span class="comment">// And the use of very few instructions
-        </span><a class="self" href="#100">self</a>.b = <a class="self" href="#100">self</a>.b.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#100">self</a>.a);
+        </span><a class="self" href="#111">self</a>.b = <a class="self" href="#111">self</a>.b.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#111">self</a>.a);
         <span class="comment">// the right shift is to ensure that high-order bits from b can affect
         // low order bits of other variables
-        </span><a class="self" href="#100">self</a>.c = <a class="self" href="#100">self</a>.c.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#100">self</a>.b &gt;&gt; <span class="number">1</span>) ^ <a class="self" href="#100">self</a>.a;
-        <a class="self" href="#100">self</a>.c
+        </span><a class="self" href="#111">self</a>.c = <a class="self" href="#111">self</a>.c.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a class="self" href="#111">self</a>.b &gt;&gt; <span class="number">1</span>) ^ <a class="self" href="#111">self</a>.a;
+        <a class="self" href="#111">self</a>.c
     }
 
     <span class="doccomment">/// Returns a copy of the next new random state.
-    </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>next_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>[<span class="kw-2">mut </span>a, <span class="kw-2">mut </span>b, <span class="kw-2">mut </span>c, <span class="kw-2">mut </span>x] = [<a class="self" href="#115">self</a>.a, <a class="self" href="#115">self</a>.b, <a class="self" href="#115">self</a>.c, <a class="self" href="#115">self</a>.x];
-        <a href="#116">x</a> += <span class="number">1</span>;
-        <a href="#116">a</a> = <a href="#116">a</a> ^ <a href="#116">c</a> ^ <a href="#116">x</a>;
-        <a href="#116">b</a> = <a href="#116">b</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#116">a</a>);
-        <a href="#116">c</a> = <a href="#116">c</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#116">b</a> &gt;&gt; <span class="number">1</span>) ^ <a href="#116">a</a>;
-        <span class="self">Self </span>{ <a href="#116">a</a>, <a href="#116">b</a>, <a href="#116">c</a>, <a href="#116">x</a> }
+    </span><span class="kw">pub const fn </span>peek_next_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>[<span class="kw-2">mut </span>a, <span class="kw-2">mut </span>b, <span class="kw-2">mut </span>c, <span class="kw-2">mut </span>x] = [<a class="self" href="#125">self</a>.a, <a class="self" href="#125">self</a>.b, <a class="self" href="#125">self</a>.c, <a class="self" href="#125">self</a>.x];
+        <a href="#126">x</a> += <span class="number">1</span>;
+        <a href="#126">a</a> = <a href="#126">a</a> ^ <a href="#126">c</a> ^ <a href="#126">x</a>;
+        <a href="#126">b</a> = <a href="#126">b</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#126">a</a>);
+        <a href="#126">c</a> = <a href="#126">c</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.wrapping_add">wrapping_add</a>(<a href="#126">b</a> &gt;&gt; <span class="number">1</span>) ^ <a href="#126">a</a>;
+        <span class="self">Self </span>{ <a href="#126">a</a>, <a href="#126">b</a>, <a href="#126">c</a>, <a href="#126">x</a> }
     }
 
     <span class="doccomment">/// Returns both the next random state and the `u8` value.
     </span><span class="kw">pub const fn </span>own_next_u8(<span class="self">self</span>) -&gt; <a href="../../code/result/own/mod.rs.html#111-117">Own</a>&lt;<span class="self">Self</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; {
-        <span class="kw">let </span>s = <a class="self" href="#125">self</a>.<a href="#115-122">next_state</a>();
-        <span class="kw">let </span>v = <a href="#126">s</a>.<a href="#94-96">current_u8</a>();
-        <a href="../../code/result/own/general.rs.html#21-23">Own::new</a>(<a href="#126">s</a>, <a href="#127">v</a>)
+        <span class="kw">let </span>s = <a class="self" href="#135">self</a>.<a href="#125-132">peek_next_state</a>();
+        <span class="kw">let </span>v = <a href="#136">s</a>.<a href="#106-108">current_u8</a>();
+        <a href="../../code/result/own/general.rs.html#21-23">Own::new</a>(<a href="#136">s</a>, <a href="#137">v</a>)
     }
 }
 
 <span class="doccomment">/// # Extra constructors
-</span><span class="kw">impl </span><a href="#44-49">Xabc</a> {
+</span><span class="kw">impl </span><a href="#45-50">Xabc</a> {
     <span class="doccomment">/// Returns a seeded `Xabc` generator from the given 3 × 8-bit seeds.
     ///
     /// This is an alias of [`new`][Self#method.new].
     </span><span class="kw">pub const fn </span>new3_u8(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">3</span>]) -&gt; <span class="self">Self </span>{
-        <a href="#68-77"><span class="self">Self</span>::new</a>(<a href="#137">seeds</a>)
+        <a href="#70-79"><span class="self">Self</span>::new</a>(<a href="#147">seeds</a>)
     }
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"dep_rand_core"</span>)]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"dep_rand_core"</span>)))]
 </span><span class="kw">mod </span>impl_rand {
-    <span class="kw">use </span><a href="#44-49"><span class="kw">super</span>::Xabc</a>;
-    <span class="kw">use </span><span class="kw">crate</span>::_dep::rand_core::{<a href="../../../../devela/_dep/rand_core/struct.Error.html">Error</a>, <a href="../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a>, <a href="../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a>};
+    <span class="kw">use </span><a href="#45-50"><span class="kw">super</span>::Xabc</a>;
+    <span class="kw">use </span><span class="kw">crate</span>::_dep::rand_core::{<a href="../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a>, <a href="../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a>};
 
-    <span class="kw">impl </span><a href="../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a> <span class="kw">for </span><a href="#44-49">Xabc</a> {
+    <span class="kw">impl </span><a href="../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a> <span class="kw">for </span><a href="#45-50">Xabc</a> {
         <span class="doccomment">/// Returns the next 4 × random `u8` combined as a single `u32`.
         </span><span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-            <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_le_bytes">u32::from_le_bytes</a>([<a class="self" href="#150">self</a>.<a href="#100-111">next_u8</a>(), <a class="self" href="#150">self</a>.<a href="#100-111">next_u8</a>(), <a class="self" href="#150">self</a>.<a href="#100-111">next_u8</a>(), <a class="self" href="#150">self</a>.<a href="#100-111">next_u8</a>()])
+            <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_le_bytes">u32::from_le_bytes</a>([<a class="self" href="#160">self</a>.<a href="#111-122">next_u8</a>(), <a class="self" href="#160">self</a>.<a href="#111-122">next_u8</a>(), <a class="self" href="#160">self</a>.<a href="#111-122">next_u8</a>(), <a class="self" href="#160">self</a>.<a href="#111-122">next_u8</a>()])
         }
-
         <span class="doccomment">/// Returns the next 8 × random `u8` combined as a single `u64`.
         </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
             <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_le_bytes">u64::from_le_bytes</a>([
-                <a class="self" href="#155">self</a>.<a href="#100-111">next_u8</a>(),
-                <a class="self" href="#155">self</a>.<a href="#100-111">next_u8</a>(),
-                <a class="self" href="#155">self</a>.<a href="#100-111">next_u8</a>(),
-                <a class="self" href="#155">self</a>.<a href="#100-111">next_u8</a>(),
-                <a class="self" href="#155">self</a>.<a href="#100-111">next_u8</a>(),
-                <a class="self" href="#155">self</a>.<a href="#100-111">next_u8</a>(),
-                <a class="self" href="#155">self</a>.<a href="#100-111">next_u8</a>(),
-                <a class="self" href="#155">self</a>.<a href="#100-111">next_u8</a>(),
+                <a class="self" href="#164">self</a>.<a href="#111-122">next_u8</a>(),
+                <a class="self" href="#164">self</a>.<a href="#111-122">next_u8</a>(),
+                <a class="self" href="#164">self</a>.<a href="#111-122">next_u8</a>(),
+                <a class="self" href="#164">self</a>.<a href="#111-122">next_u8</a>(),
+                <a class="self" href="#164">self</a>.<a href="#111-122">next_u8</a>(),
+                <a class="self" href="#164">self</a>.<a href="#111-122">next_u8</a>(),
+                <a class="self" href="#164">self</a>.<a href="#111-122">next_u8</a>(),
+                <a class="self" href="#164">self</a>.<a href="#111-122">next_u8</a>(),
             ])
         }
-
         <span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) {
             <span class="kw">for </span>byte <span class="kw">in </span>dest {
                 <span class="kw-2">*</span>byte = <span class="self">self</span>.next_u8();
             }
         }
-
-        <span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;(), <a href="../../../../devela/_dep/rand_core/struct.Error.html">Error</a>&gt; {
-            <a class="self" href="#174">self</a>.<a href="../../../../devela/_dep/rand_core/trait.RngCore.html">fill_bytes</a>(<a href="#174">dest</a>);
-            <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(())
-        }
     }
 
-    <span class="kw">impl </span><a href="../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a> <span class="kw">for </span><a href="#44-49">Xabc</a> {
+    <span class="kw">impl </span><a href="../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a> <span class="kw">for </span><a href="#45-50">Xabc</a> {
         <span class="kw">type </span>Seed = [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">3</span>];
 
         <span class="kw">fn </span>from_seed(seed: <span class="self">Self</span>::Seed) -&gt; <span class="self">Self </span>{
-            <a href="#68-77"><span class="self">Self</span>::new</a>(<a href="#183">seed</a>)
+            <a href="#70-79"><span class="self">Self</span>::new</a>(<a href="#186">seed</a>)
         }
     }
 }

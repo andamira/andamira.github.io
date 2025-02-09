@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["SDL_ClearClipboardData","SDL_GetClipboardData","SDL_GetClipboardMimeTypes","SDL_GetClipboardText","SDL_GetPrimarySelectionText","SDL_HasClipboardData","SDL_HasClipboardText","SDL_HasPrimarySelectionText","SDL_SetClipboardData","SDL_SetClipboardText","SDL_SetPrimarySelectionText"],"type":["SDL_ClipboardCleanupCallback","SDL_ClipboardDataCallback"]};

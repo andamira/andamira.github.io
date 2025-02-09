@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AudioError"],"type":["AudioResult"]};
+window.SIDEBAR_ITEMS = {"enum":["AudioError"],"struct":["DrumFrame8"],"type":["AudioResult"]};

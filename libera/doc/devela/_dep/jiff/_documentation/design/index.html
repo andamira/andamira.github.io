@@ -1,92 +1,208 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The API design rationale for Jiff"><title>devela::_dep::jiff::_documentation::design - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The API design rationale for Jiff"><title>devela::_dep::jiff::_documentation::design - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../../../static.files/storage-3a5871a4.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-<!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module design</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#the-api-design-rationale-for-jiff" title="The API design rationale for Jiff">The API design rationale for Jiff</a><ul><li><a href="#why-name-the-library-jiff" title="Why name the library “jiff”?">Why name the library “jiff”?</a></li><li><a href="#why-build-another-datetime-library" title="Why build another datetime library?">Why build another datetime library?</a></li><li><a href="#why-not-contribute-to-an-existing-library-instead-of-building-a-new-one" title="Why not contribute to an existing library instead of building a new one?">Why not contribute to an existing library instead of building a new one?</a></li><li><a href="#are-there-any-published-alternative-perspectives-on-rust-datetime-libraries" title="Are there any published alternative perspectives on Rust datetime libraries?">Are there any published alternative perspectives on Rust datetime libraries?</a></li><li><a href="#why-are-there-two-duration-types" title="Why are there two duration types?">Why are there two duration types?</a></li><li><a href="#why-isnt-there-a-timezone-trait" title="Why isn’t there a `TimeZone` trait?">Why isn’t there a <code>TimeZone</code> trait?</a></li><li><a href="#why-doesnt-timezone-implement-copy" title="Why doesn’t `TimeZone` implement `Copy`?">Why doesn’t <code>TimeZone</code> implement <code>Copy</code>?</a></li><li><a href="#why-isnt-there-a-systemzoned-type-or-a-offsetzoned-type" title="Why isn’t there a `SystemZoned` type? Or a `OffsetZoned` type?">Why isn’t there a <code>SystemZoned</code> type? Or a <code>OffsetZoned</code> type?</a></li><li><a href="#why-doesnt-jiff-support-leap-seconds" title="Why doesn’t Jiff support leap seconds?">Why doesn’t Jiff support leap seconds?</a></li><li><a href="#why-isnt-there-any-integration-with-stdtimeduration" title="Why isn’t there any integration with `std::time::Duration`?">Why isn’t there any integration with <code>std::time::Duration</code>?</a></li><li><a href="#what-are-the-zonedifference-and-zonedround-types-for" title="What are the `ZoneDifference` and `ZonedRound` types for?">What are the <code>ZoneDifference</code> and <code>ZonedRound</code> types for?</a></li><li><a href="#why-isnt-timestamp-called-instant" title="Why isn’t `Timestamp` called `Instant`?">Why isn’t <code>Timestamp</code> called <code>Instant</code>?</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep::<wbr>jiff::<wbr>_<wbr>documentation</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../../../../index.html">devela</a>::<wbr><a href="../../../index.html">_dep</a>::<wbr><a href="../../index.html">jiff</a>::<wbr><a href="../index.html">_documentation</a></span><h1>Module <span>design</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate features <code>dep_jiff</code> and <code>alloc</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="the-api-design-rationale-for-jiff"><a class="doc-anchor" href="#the-api-design-rationale-for-jiff">§</a>The API design rationale for Jiff</h2>
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module design</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#the-api-design-rationale-for-jiff" title="The API design rationale for Jiff">The API design rationale for Jiff</a><ul><li><a href="#why-name-the-library-jiff" title="Why name the library “jiff”?">Why name the library “jiff”?</a></li><li><a href="#why-build-another-datetime-library" title="Why build another datetime library?">Why build another datetime library?</a></li><li><a href="#why-not-contribute-to-an-existing-library-instead-of-building-a-new-one" title="Why not contribute to an existing library instead of building a new one?">Why not contribute to an existing library instead of building a new one?</a></li><li><a href="#are-there-any-published-alternative-perspectives-on-rust-datetime-libraries" title="Are there any published alternative perspectives on Rust datetime libraries?">Are there any published alternative perspectives on Rust datetime libraries?</a></li><li><a href="#why-are-there-two-duration-types" title="Why are there two duration types?">Why are there two duration types?</a></li><li><a href="#why-isnt-there-a-timezone-trait" title="Why isn’t there a `TimeZone` trait?">Why isn’t there a <code>TimeZone</code> trait?</a></li><li><a href="#why-doesnt-timezone-implement-copy" title="Why doesn’t `TimeZone` implement `Copy`?">Why doesn’t <code>TimeZone</code> implement <code>Copy</code>?</a></li><li><a href="#why-isnt-there-a-systemzoned-type-or-a-offsetzoned-type" title="Why isn’t there a `SystemZoned` type? Or a `OffsetZoned` type?">Why isn’t there a <code>SystemZoned</code> type? Or a <code>OffsetZoned</code> type?</a></li><li><a href="#why-doesnt-jiff-support-leap-seconds" title="Why doesn’t Jiff support leap seconds?">Why doesn’t Jiff support leap seconds?</a></li><li><a href="#why-isnt-there-any-integration-with-stdtimeduration" title="Why isn’t there any integration with `std::time::Duration`?">Why isn’t there any integration with <code>std::time::Duration</code>?</a></li><li><a href="#what-are-the-zonedifference-and-zonedround-types-for" title="What are the `ZoneDifference` and `ZonedRound` types for?">What are the <code>ZoneDifference</code> and <code>ZonedRound</code> types for?</a></li><li><a href="#why-isnt-timestamp-called-instant" title="Why isn’t `Timestamp` called `Instant`?">Why isn’t <code>Timestamp</code> called <code>Instant</code>?</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep::<wbr>jiff::<wbr>_<wbr>documentation</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../index.html">devela</a>::<wbr><a href="../../../index.html">_dep</a>::<wbr><a href="../../index.html">jiff</a>::<wbr><a href="../index.html">_documentation</a></div><h1>Module <span>design</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate features <code>dep_jiff</code> and <code>alloc</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="the-api-design-rationale-for-jiff"><a class="doc-anchor" href="#the-api-design-rationale-for-jiff">§</a>The API design rationale for Jiff</h2>
 <p>This document discusses some of the design decisions that led to Jiff’s API.
 The purpose of writing this document is to help folks understand <em>why</em> Jiff’s
 API is the way it is, above and beyond “Jiff did it this way to match
@@ -335,12 +451,12 @@ as <code>2024-04-01</code> and <code>2024-05-01</code>, even though the number o
 
     <span class="comment">// When computing durations between `Date` values,
     // the spans default to days.
-    </span><span class="macro">assert_eq!</span>(date1.until(date2)<span class="question-mark">?</span>, <span class="number">31</span>.days());
-    <span class="macro">assert_eq!</span>(date2.until(date3)<span class="question-mark">?</span>, <span class="number">30</span>.days());
+    </span><span class="macro">assert_eq!</span>(date1.until(date2)<span class="question-mark">?</span>, <span class="number">31</span>.days().fieldwise());
+    <span class="macro">assert_eq!</span>(date2.until(date3)<span class="question-mark">?</span>, <span class="number">30</span>.days().fieldwise());
 
     <span class="comment">// But we can request bigger units!
-    </span><span class="macro">assert_eq!</span>(date1.until((Unit::Month, date2))<span class="question-mark">?</span>, <span class="number">1</span>.month());
-    <span class="macro">assert_eq!</span>(date2.until((Unit::Month, date3))<span class="question-mark">?</span>, <span class="number">1</span>.month());
+    </span><span class="macro">assert_eq!</span>(date1.until((Unit::Month, date2))<span class="question-mark">?</span>, <span class="number">1</span>.month().fieldwise());
+    <span class="macro">assert_eq!</span>(date2.until((Unit::Month, date3))<span class="question-mark">?</span>, <span class="number">1</span>.month().fieldwise());
 
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
@@ -509,28 +625,31 @@ respectively. For example, this:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>jiff::{civil::date, ToSpan};
 
-<span class="kw">let </span>zdt1 = date(<span class="number">2024</span>, <span class="number">7</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">23</span>, <span class="number">0</span>).intz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
-<span class="kw">let </span>zdt2 = date(<span class="number">2024</span>, <span class="number">8</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">59</span>, <span class="number">0</span>).intz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
-<span class="macro">assert_eq!</span>(zdt1.until(<span class="kw-2">&amp;</span>zdt2)<span class="question-mark">?</span>, <span class="number">744</span>.hours().seconds(<span class="number">36</span>));
+<span class="kw">let </span>zdt1 = date(<span class="number">2024</span>, <span class="number">7</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">23</span>, <span class="number">0</span>).in_tz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>zdt2 = date(<span class="number">2024</span>, <span class="number">8</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">59</span>, <span class="number">0</span>).in_tz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
+<span class="macro">assert_eq!</span>(zdt1.until(<span class="kw-2">&amp;</span>zdt2)<span class="question-mark">?</span>, <span class="number">744</span>.hours().seconds(<span class="number">36</span>).fieldwise());
 </code></pre></div>
 <p>Is equivalent to:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>jiff::{civil::date, ToSpan, ZonedDifference};
 
-<span class="kw">let </span>zdt1 = date(<span class="number">2024</span>, <span class="number">7</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">23</span>, <span class="number">0</span>).intz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
-<span class="kw">let </span>zdt2 = date(<span class="number">2024</span>, <span class="number">8</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">59</span>, <span class="number">0</span>).intz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
-<span class="macro">assert_eq!</span>(zdt1.until(ZonedDifference::new(<span class="kw-2">&amp;</span>zdt2))<span class="question-mark">?</span>, <span class="number">744</span>.hours().seconds(<span class="number">36</span>));
+<span class="kw">let </span>zdt1 = date(<span class="number">2024</span>, <span class="number">7</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">23</span>, <span class="number">0</span>).in_tz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>zdt2 = date(<span class="number">2024</span>, <span class="number">8</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">59</span>, <span class="number">0</span>).in_tz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
+<span class="macro">assert_eq!</span>(
+  zdt1.until(ZonedDifference::new(<span class="kw-2">&amp;</span>zdt2))<span class="question-mark">?</span>,
+  <span class="number">744</span>.hours().seconds(<span class="number">36</span>).fieldwise(),
+);
 </code></pre></div>
 <p>The point of this is that <code>ZonedDifference</code> permits specifying additional
 configuration. For example, rounding the span returned:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>jiff::{civil::date, ToSpan, Unit, ZonedDifference};
 
-<span class="kw">let </span>zdt1 = date(<span class="number">2024</span>, <span class="number">7</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">23</span>, <span class="number">0</span>).intz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
-<span class="kw">let </span>zdt2 = date(<span class="number">2024</span>, <span class="number">8</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">59</span>, <span class="number">0</span>).intz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>zdt1 = date(<span class="number">2024</span>, <span class="number">7</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">23</span>, <span class="number">0</span>).in_tz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>zdt2 = date(<span class="number">2024</span>, <span class="number">8</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">59</span>, <span class="number">0</span>).in_tz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
 <span class="macro">assert_eq!</span>(
     zdt1.until(ZonedDifference::new(<span class="kw-2">&amp;</span>zdt2).smallest(Unit::Minute))<span class="question-mark">?</span>,
-    <span class="number">744</span>.hours(),
+    <span class="number">744</span>.hours().fieldwise(),
 );
 </code></pre></div>
 <p>By using a dedicated type to represent the parameters, we can enable ergonomic
@@ -545,19 +664,19 @@ instead of this:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>jiff::{civil::date, ToSpan, Unit, ZonedDifference};
 
-<span class="kw">let </span>zdt1 = date(<span class="number">2024</span>, <span class="number">7</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">23</span>, <span class="number">0</span>).intz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
-<span class="kw">let </span>zdt2 = date(<span class="number">2024</span>, <span class="number">8</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">59</span>, <span class="number">0</span>).intz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>zdt1 = date(<span class="number">2024</span>, <span class="number">7</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">23</span>, <span class="number">0</span>).in_tz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>zdt2 = date(<span class="number">2024</span>, <span class="number">8</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">59</span>, <span class="number">0</span>).in_tz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
 <span class="kw">let </span>diff = ZonedDifference::new(<span class="kw-2">&amp;</span>zdt2)
     .largest(Unit::Month)
     .smallest(Unit::Minute);
-<span class="macro">assert_eq!</span>(zdt1.until(diff)<span class="question-mark">?</span>, <span class="number">1</span>.month());
+<span class="macro">assert_eq!</span>(zdt1.until(diff)<span class="question-mark">?</span>, <span class="number">1</span>.month().fieldwise());
 </code></pre></div>
 <p>One would need to do this:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>jiff::{civil::date, RoundMode, SpanRound, ToSpan, Unit};
 
-<span class="kw">let </span>zdt1 = date(<span class="number">2024</span>, <span class="number">7</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">23</span>, <span class="number">0</span>).intz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
-<span class="kw">let </span>zdt2 = date(<span class="number">2024</span>, <span class="number">8</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">59</span>, <span class="number">0</span>).intz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>zdt1 = date(<span class="number">2024</span>, <span class="number">7</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">23</span>, <span class="number">0</span>).in_tz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>zdt2 = date(<span class="number">2024</span>, <span class="number">8</span>, <span class="number">16</span>).at(<span class="number">22</span>, <span class="number">3</span>, <span class="number">59</span>, <span class="number">0</span>).in_tz(<span class="string">"America/New_York"</span>)<span class="question-mark">?</span>;
 <span class="kw">let </span>span = zdt1.until(<span class="kw-2">&amp;</span>zdt2)<span class="question-mark">?</span>;
 <span class="kw">let </span>rounded = span.round(
     SpanRound::new()
@@ -566,7 +685,7 @@ instead of this:</p>
         .relative(<span class="kw-2">&amp;</span>zdt1)
         .mode(RoundMode::Trunc),
 )<span class="question-mark">?</span>;
-<span class="macro">assert_eq!</span>(rounded, <span class="number">1</span>.month());
+<span class="macro">assert_eq!</span>(rounded, <span class="number">1</span>.month().fieldwise());
 </code></pre></div>
 <p>This is somewhat fiddly and easy to get wrong. Moreover, the <code>Zoned::until</code>
 API, when rounding is enabled, will automatically use <code>RoundMode::Trunc</code>, since

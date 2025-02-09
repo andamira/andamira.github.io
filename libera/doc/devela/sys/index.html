@@ -1,115 +1,213 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="System interfaces and hardware abstractions. sys::{arch, io, log, mem, os, path} "><title>devela::sys - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="System interfaces and hardware abstractions. sys::{arch, env, io, log, mem, net, os, path} "><title>devela::sys - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-<!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module sys</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate devela</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">devela</a></span><h1>Module <span>sys</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/sys/mod.rs.html#3-62">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>System interfaces and hardware abstractions.
-<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::sys">sys</a>::{<a href="arch/index.html" title="mod devela::sys::arch">arch</a>, <a href="io/index.html" title="mod devela::sys::io">io</a>, <a href="log/index.html" title="mod devela::sys::log">log</a>, <a href="mem/index.html" title="mod devela::sys::mem">mem</a>, <a href="os/index.html" title="mod devela::sys::os">os</a>, <a href="path/index.html" title="mod devela::sys::path">path</a>}</span>
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module sys</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate devela</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a></div><h1>Module <span>sys</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/sys/mod.rs.html#3-67">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>System interfaces and hardware abstractions.
+<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::sys">sys</a>::{<a href="arch/index.html" title="mod devela::sys::arch">arch</a>, <a href="env/index.html" title="mod devela::sys::env">env</a>, <a href="io/index.html" title="mod devela::sys::io">io</a>, <a href="log/index.html" title="mod devela::sys::log">log</a>, <a href="mem/index.html" title="mod devela::sys::mem">mem</a>, <a href="net/index.html" title="mod devela::sys::net">net</a>, <a href="os/index.html" title="mod devela::sys::os">os</a>, <a href="path/index.html" title="mod devela::sys::path">path</a>}</span>
 <br/><br style='display:block;content:"";margin-top:10px;' /></p>
 <p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../_dep/_std/alloc/index.html" title="mod devela::_dep::_std::alloc">alloc</a>, <a href="../_dep/_std/arch/index.html" title="mod devela::_dep::_std::arch">arch</a>, <a href="../_dep/_alloc/borrow/index.html" title="mod devela::_dep::_alloc::borrow">borrow</a>, <a href="../_dep/_alloc/boxed/index.html" title="mod devela::_dep::_alloc::boxed">boxed</a>, <a href="../_core/cell/index.html" title="mod devela::_core::cell">cell</a>, <a href="../_dep/_std/env/index.html" title="mod devela::_dep::_std::env">env</a>, <a href="../_dep/_std/fs/index.html" title="mod devela::_dep::_std::fs">fs</a>, <a href="../_core/mem/index.html" title="mod devela::_core::mem">mem</a>, <a href="../_dep/_std/io/index.html" title="mod devela::_dep::_std::io">io</a>, <a href="../_dep/_std/net/index.html" title="mod devela::_dep::_std::net">net</a>, <a href="../_dep/_std/os/index.html" title="mod devela::_dep::_std::os">os</a>, <a href="../_dep/_std/path/index.html" title="mod devela::_dep::_std::path">path</a>, <a href="../_core/pin/index.html" title="mod devela::_core::pin">pin</a>, <a href="../_core/ptr/index.html" title="mod devela::_core::ptr">ptr</a>, <a href="../_dep/_alloc/rc/index.html" title="mod devela::_dep::_alloc::rc">rc</a>, <a href="../_dep/_alloc/slice/index.html" title="mod devela::_dep::_alloc::slice">slice</a>, <a href="../_dep/_std/simd/index.html" title="mod devela::_dep::_std::simd">simd</a>}</span><hr/></p>
-</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="arch/index.html" title="mod devela::sys::arch">arch</a></div><div class="desc docblock-short">Architecture-specific intrinsics.</div></li><li><div class="item-name"><a class="mod" href="io/index.html" title="mod devela::sys::io">io</a></div><div class="desc docblock-short">I/O functionality.</div></li><li><div class="item-name"><a class="mod" href="log/index.html" title="mod devela::sys::log">log</a></div><div class="desc docblock-short">Logging functionality.</div></li><li><div class="item-name"><a class="mod" href="mem/index.html" title="mod devela::sys::mem">mem</a></div><div class="desc docblock-short">Memory management.
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="arch/index.html" title="mod devela::sys::arch">arch</a></dt><dd>Architecture-specific intrinsics.</dd><dt><a class="mod" href="env/index.html" title="mod devela::sys::env">env</a></dt><dd>Inspection and manipulation of the process’s environment.</dd><dt><a class="mod" href="fs/index.html" title="mod devela::sys::fs">fs</a></dt><dd>Paths.</dd><dt><a class="mod" href="io/index.html" title="mod devela::sys::io">io</a></dt><dd>I/O functionality.</dd><dt><a class="mod" href="log/index.html" title="mod devela::sys::log">log</a></dt><dd>Logging functionality.</dd><dt><a class="mod" href="mem/index.html" title="mod devela::sys::mem">mem</a></dt><dd>Memory management.
 <br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="mem/index.html" title="mod devela::sys::mem">mem</a>::{<a href="mem/cell/index.html" title="mod devela::sys::mem::cell">cell</a>}</span>
-<br/><br style='display:block;content:"";margin-top:10px;' /></div></li><li><div class="item-name"><a class="mod" href="os/index.html" title="mod devela::sys::os">os</a></div><div class="desc docblock-short">OS-specific.
+<br/><br style='display:block;content:"";margin-top:10px;' /></dd><dt><a class="mod" href="net/index.html" title="mod devela::sys::net">net</a></dt><dd>Networking functionality.</dd><dt><a class="mod" href="os/index.html" title="mod devela::sys::os">os</a></dt><dd>OS-specific.
 <br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="os/index.html" title="mod devela::sys::os">os</a>::{<a href="os/linux/index.html" title="mod devela::sys::os::linux">linux</a>}</span>
-<br/><br style='display:block;content:"";margin-top:10px;' /></div></li><li><div class="item-name"><a class="mod" href="path/index.html" title="mod devela::sys::path">path</a></div><div class="desc docblock-short">Paths.</div></li></ul><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="macro" href="macro.env_.html" title="macro devela::sys::env_">env_</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-Inspects an environment variable at compile time.</div></li><li><div class="item-name"><a class="macro" href="macro.option_env.html" title="macro devela::sys::option_env">option_<wbr>env</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-Optionally inspects an environment variable at compile time.</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Env.html" title="struct devela::sys::Env">Env</a></div><div class="desc docblock-short"><span class='stab portability' title='Namespaced functionality'>🌐</span>
-A namespaced wrapper for <code>std::env</code> functions and constants.</div></li><li><div class="item-name"><a class="struct" href="struct.IterArgs.html" title="struct devela::sys::IterArgs">Iter<wbr>Args</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></div><div class="desc docblock-short"><span class='stab portability' title='Iterator-related item'>🔄</span>
-<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
-Iterates over the arguments of a process, yielding them as <a href="../all/struct.String.html" title="struct devela::all::String"><code>String</code></a>s.</div></li><li><div class="item-name"><a class="struct" href="struct.IterArgsOs.html" title="struct devela::sys::IterArgsOs">Iter<wbr>Args<wbr>Os</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></div><div class="desc docblock-short"><span class='stab portability' title='Iterator-related item'>🔄</span>
-<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
-Iterates over the arguments of a process, yielding them as
-<a href="../all/struct.OsString.html" title="struct devela::all::OsString"><code>OsString</code></a>s.</div></li><li><div class="item-name"><a class="struct" href="struct.IterSplitPaths.html" title="struct devela::sys::IterSplitPaths">Iter<wbr>Split<wbr>Paths</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></div><div class="desc docblock-short"><span class='stab portability' title='Iterator-related item'>🔄</span>
-<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
-An iterator that splits an environment variable into paths.</div></li><li><div class="item-name"><a class="struct" href="struct.IterVars.html" title="struct devela::sys::IterVars">Iter<wbr>Vars</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></div><div class="desc docblock-short"><span class='stab portability' title='Iterator-related item'>🔄</span>
-<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
-An iterator over a snapshot of the environment variables of this process.</div></li><li><div class="item-name"><a class="struct" href="struct.IterVarsOs.html" title="struct devela::sys::IterVarsOs">Iter<wbr>Vars<wbr>Os</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></div><div class="desc docblock-short"><span class='stab portability' title='Iterator-related item'>🔄</span>
-<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
-An iterator over a snapshot of the environment variables of this process.</div></li><li><div class="item-name"><a class="struct" href="struct.JoinPathsError.html" title="struct devela::sys::JoinPathsError">Join<wbr>Paths<wbr>Error</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></div><div class="desc docblock-short"><span class='stab portability' title='Individual error type'>🚩</span>
-<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
-Returned from <a href="struct.Env.html#method.join_paths" title="struct devela::sys::Env">Env::join_paths</a>.</div></li></ul><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.VarError.html" title="enum devela::sys::VarError">VarError</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></div><div class="desc docblock-short"><span class='stab portability' title='Individual error type'>🚩</span>
-<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
-Returned from <a href="struct.Env.html#method.var" title="struct devela::sys::Env"><code>Env::var</code></a>.</div></li></ul></section></div></main></body></html>
+<br/><br style='display:block;content:"";margin-top:10px;' /></dd><dt><a class="mod" href="path/index.html" title="mod devela::sys::path">path</a></dt><dd>Paths.</dd></dl></section></div></main></body></html>

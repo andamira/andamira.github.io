@@ -1,90 +1,206 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/env/namespace.rs`."><title>namespace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/env/namespace.rs`."><title>namespace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-<!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
-
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
 
 </head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/sys/env/</div>namespace.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
@@ -644,8 +760,8 @@
 <span class="attr">#[allow(deprecated, reason = <span class="string">"home_dir"</span>)] </span><span class="comment">// TEMP WAIT 1.85
 </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use crate</span>::{
-    <a href="../../../../devela/all/type.IoResult.html">IoResult</a>, <a href="../../../../devela/sys/struct.IterArgs.html">IterArgs</a>, <a href="../../../../devela/sys/struct.IterArgsOs.html">IterArgsOs</a>, <a href="../../../../devela/sys/struct.IterSplitPaths.html">IterSplitPaths</a>, <a href="../../../../devela/sys/struct.IterVars.html">IterVars</a>, <a href="../../../../devela/sys/struct.IterVarsOs.html">IterVarsOs</a>, <a href="../../../../devela/sys/struct.JoinPathsError.html">JoinPathsError</a>, <a href="../../../../devela/all/struct.OsStr.html">OsStr</a>,
-    <a href="../../../../devela/all/struct.OsString.html">OsString</a>, <a href="../../../../devela/all/struct.Path.html">Path</a>, <a href="../../../../devela/all/struct.PathBuf.html">PathBuf</a>, <a href="../../../../devela/sys/enum.VarError.html">VarError</a>,
+    <a href="../../../../devela/all/type.IoResult.html">IoResult</a>, <a href="../../../../devela/all/struct.IterArgs.html">IterArgs</a>, <a href="../../../../devela/all/struct.IterArgsOs.html">IterArgsOs</a>, <a href="../../../../devela/all/struct.IterSplitPaths.html">IterSplitPaths</a>, <a href="../../../../devela/all/struct.IterVars.html">IterVars</a>, <a href="../../../../devela/all/struct.IterVarsOs.html">IterVarsOs</a>, <a href="../../../../devela/all/struct.JoinPathsError.html">JoinPathsError</a>, <a href="../../../../devela/all/struct.OsStr.html">OsStr</a>,
+    <a href="../../../../devela/all/struct.OsString.html">OsString</a>, <a href="../../../../devela/all/struct.Path.html">Path</a>, <a href="../../../../devela/all/struct.PathBuf.html">PathBuf</a>, <a href="../../../../devela/all/enum.VarError.html">VarError</a>,
     _dep::_std::env::{
         <a href="../../../../devela/_dep/_std/env/fn.args.html">args</a>, <a href="../../../../devela/_dep/_std/env/fn.args_os.html">args_os</a>, <a href="../../../../devela/_dep/_std/env/fn.current_dir.html">current_dir</a>, <a href="../../../../devela/_dep/_std/env/fn.current_exe.html">current_exe</a>, <a href="../../../../devela/_dep/_std/env/fn.home_dir.html">home_dir</a>, <a href="../../../../devela/_dep/_std/env/fn.join_paths.html">join_paths</a>, <a href="../../../../devela/_dep/_std/env/fn.set_current_dir.html">set_current_dir</a>,
         <a href="../../../../devela/_dep/_std/env/fn.split_paths.html">split_paths</a>, <a href="../../../../devela/_dep/_std/env/fn.temp_dir.html">temp_dir</a>, <a href="../../../../devela/_dep/_std/env/fn.var.html">var</a>, <a href="../../../../devela/_dep/_std/env/fn.var_os.html">var_os</a>, <a href="../../../../devela/_dep/_std/env/fn.vars.html">vars</a>, <a href="../../../../devela/_dep/_std/env/fn.vars_os.html">vars_os</a>,
@@ -654,7 +770,7 @@
 
 <span class="attr">#[doc = <span class="macro">crate::TAG_NAMESPACE!</span>()]
 </span><span class="doccomment">/// A namespaced wrapper for `std::env` functions and constants.
-</span><span class="kw">pub struct </span><a href="../../../../devela/sys/struct.Env.html">Env</a>;
+</span><span class="kw">pub struct </span><a href="../../../../devela/all/struct.Env.html">Env</a>;
 
 <span class="doccomment">/// # Constants
 </span><span class="comment">/*
@@ -1046,12 +1162,12 @@ s/\([a-z0-9_.]\+\)/target_arch = "\1",/
     <span class="doccomment">/// Returns the arguments that this program was started with.
     ///
     /// See [args].
-    </span><span class="kw">pub fn </span>args() -&gt; <a href="../../../../devela/sys/struct.IterArgs.html">IterArgs</a> {
+    </span><span class="kw">pub fn </span>args() -&gt; <a href="../../../../devela/all/struct.IterArgs.html">IterArgs</a> {
         <a href="../../../../devela/_dep/_std/env/fn.args.html">args</a>()
     }
 
     <span class="doccomment">/// See [args_os].
-    </span><span class="kw">pub fn </span>args_os() -&gt; <a href="../../../../devela/sys/struct.IterArgsOs.html">IterArgsOs</a> {
+    </span><span class="kw">pub fn </span>args_os() -&gt; <a href="../../../../devela/all/struct.IterArgsOs.html">IterArgsOs</a> {
         <a href="../../../../devela/_dep/_std/env/fn.args_os.html">args_os</a>()
     }
 }
@@ -1063,7 +1179,7 @@ s/\([a-z0-9_.]\+\)/target_arch = "\1",/
     <span class="doccomment">/// Fetches the environment variable key from the current process.
     ///
     /// See [var].
-    </span><span class="kw">pub fn </span>var&lt;K: <a href="../../../../devela/code/trait.AsRef.html">AsRef</a>&lt;<a href="../../../../devela/all/struct.OsStr.html">OsStr</a>&gt;&gt;(key: K) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<a href="../../../../devela/all/struct.String.html">String</a>, <a href="../../../../devela/sys/enum.VarError.html">VarError</a>&gt; {
+    </span><span class="kw">pub fn </span>var&lt;K: <a href="../../../../devela/code/trait.AsRef.html">AsRef</a>&lt;<a href="../../../../devela/all/struct.OsStr.html">OsStr</a>&gt;&gt;(key: K) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<a href="../../../../devela/all/struct.String.html">String</a>, <a href="../../../../devela/all/enum.VarError.html">VarError</a>&gt; {
         <a href="../../../../devela/_dep/_std/env/fn.var.html">var</a>(<a href="#435">key</a>)
     }
 
@@ -1071,7 +1187,7 @@ s/\([a-z0-9_.]\+\)/target_arch = "\1",/
     /// for all the environment variables of the current process.
     ///
     /// See [vars].
-    </span><span class="kw">pub fn </span>vars() -&gt; <a href="../../../../devela/sys/struct.IterVars.html">IterVars</a> {
+    </span><span class="kw">pub fn </span>vars() -&gt; <a href="../../../../devela/all/struct.IterVars.html">IterVars</a> {
         <a href="../../../../devela/_dep/_std/env/fn.vars.html">vars</a>()
     }
 
@@ -1086,7 +1202,7 @@ s/\([a-z0-9_.]\+\)/target_arch = "\1",/
     /// for all the environment variables of the current process.
     ///
     /// See [vars_os].
-    </span><span class="kw">pub fn </span>vars_os() -&gt; <a href="../../../../devela/sys/struct.IterVarsOs.html">IterVarsOs</a> {
+    </span><span class="kw">pub fn </span>vars_os() -&gt; <a href="../../../../devela/all/struct.IterVarsOs.html">IterVarsOs</a> {
         <a href="../../../../devela/_dep/_std/env/fn.vars_os.html">vars_os</a>()
     }
 
@@ -1157,7 +1273,7 @@ s/\([a-z0-9_.]\+\)/target_arch = "\1",/
     <span class="doccomment">/// Joins a collection of [Path]s appropriately for the `PATH` environment variable.
     ///
     /// See [join_paths].
-    </span><span class="kw">pub fn </span>join_paths&lt;I, T&gt;(paths: I) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<a href="../../../../devela/all/struct.OsString.html">OsString</a>, <a href="../../../../devela/sys/struct.JoinPathsError.html">JoinPathsError</a>&gt;
+    </span><span class="kw">pub fn </span>join_paths&lt;I, T&gt;(paths: I) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<a href="../../../../devela/all/struct.OsString.html">OsString</a>, <a href="../../../../devela/all/struct.JoinPathsError.html">JoinPathsError</a>&gt;
     <span class="kw">where
         </span>I: <a href="../../../../devela/all/trait.IteratorInto.html">IntoIterator</a>&lt;Item = T&gt;,
         T: <a href="../../../../devela/code/trait.AsRef.html">AsRef</a>&lt;<a href="../../../../devela/all/struct.OsStr.html">OsStr</a>&gt;,
@@ -1168,7 +1284,7 @@ s/\([a-z0-9_.]\+\)/target_arch = "\1",/
     <span class="doccomment">/// Parses input according to platform conventions for the `PATH` environment variable.
     ///
     /// See [split_paths].
-    </span><span class="kw">pub fn </span>split_paths&lt;T: <a href="../../../../devela/code/trait.AsRef.html">AsRef</a>&lt;<a href="../../../../devela/all/struct.OsStr.html">OsStr</a>&gt; + <span class="question-mark">?</span><a href="../../../../devela/all/trait.Sized.html">Sized</a>&gt;(unparsed: <span class="kw-2">&amp;</span>T) -&gt; <a href="../../../../devela/sys/struct.IterSplitPaths.html">IterSplitPaths</a>&lt;<span class="lifetime">'_</span>&gt; {
+    </span><span class="kw">pub fn </span>split_paths&lt;T: <a href="../../../../devela/code/trait.AsRef.html">AsRef</a>&lt;<a href="../../../../devela/all/struct.OsStr.html">OsStr</a>&gt; + <span class="question-mark">?</span><a href="../../../../devela/all/trait.Sized.html">Sized</a>&gt;(unparsed: <span class="kw-2">&amp;</span>T) -&gt; <a href="../../../../devela/all/struct.IterSplitPaths.html">IterSplitPaths</a>&lt;<span class="lifetime">'_</span>&gt; {
         <a href="../../../../devela/_dep/_std/env/fn.split_paths.html">split_paths</a>(<a href="#540">unparsed</a>)
     }
 }

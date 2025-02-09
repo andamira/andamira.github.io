@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["FontError"],"type":["FontResult"]};
+window.SIDEBAR_ITEMS = {"constant":["FONT_3_3","FONT_3_5","FONT_5_6"],"enum":["FontError"],"struct":["BitmapFont"],"type":["FontResult"]};

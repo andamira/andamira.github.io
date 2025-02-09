@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DialogError"],"fn":["show_open_file_dialog","show_open_folder_dialog","show_save_file_dialog"],"struct":["DialogFileFilter"],"type":["DialogCallback"]};

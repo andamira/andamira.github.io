@@ -1,90 +1,206 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/primitive/join.rs`."><title>join.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/primitive/join.rs`."><title>join.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-<!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
-
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
 
 </head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/num/primitive/</div>join.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
@@ -403,7 +519,7 @@
 // - trait implementation
 // - wrapper implementations
 
-</span><span class="kw">use crate</span>::{<a href="../../code/util/paste.rs.html#69-73">paste</a>, <a href="namespace.rs.html#8">Cast</a>};
+</span><span class="kw">use crate</span>::{<a href="../../code/util/paste.rs.html#69-73">paste</a>, <a href="namespace.rs.html#12">Cast</a>};
 
 <span class="doccomment">/// Offers methods to construct a primitive from an array or slice of smaller primitives.
 ///
@@ -483,7 +599,7 @@
 
 </span><span class="attr">#[rustfmt::skip]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"join"</span>)))]
-</span><span class="kw">impl </span><a href="namespace.rs.html#8">Cast</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt; {
+</span><span class="kw">impl </span><a href="namespace.rs.html#12">Cast</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt; {
     <span class="doccomment">/// Constructs a `u16` from an array of `[u8; 2]` in big-endian order.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_u8_be(v: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">2</span>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> { <a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_be_bytes">u16::from_be_bytes</a>(<a href="#93">v</a>) }
@@ -499,7 +615,7 @@
 
 <span class="attr">#[rustfmt::skip]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"join"</span>)))]
-</span><span class="kw">impl </span><a href="namespace.rs.html#8">Cast</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; {
+</span><span class="kw">impl </span><a href="namespace.rs.html#12">Cast</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; {
     <span class="doccomment">/// Constructs a `u32` from an array of `[u16; 2]` in big-endian order.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_u16_be(v: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>; <span class="number">2</span>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
@@ -516,9 +632,9 @@
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_u16_ne(v: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>; <span class="number">2</span>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
         <span class="kw">if </span><a class="macro" href="../../../../devela/all/macro.cfg.html">cfg!</a>(target_endian = <span class="string">"big"</span>) {
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u16_be(<a href="#121">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u16_be(<a href="#121">v</a>)
         } <span class="kw">else </span>{
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u16_le(<a href="#121">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u16_le(<a href="#121">v</a>)
         }
     }
 
@@ -537,7 +653,7 @@
 
 <span class="attr">#[rustfmt::skip]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"join"</span>)))]
-</span><span class="kw">impl </span><a href="namespace.rs.html#8">Cast</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt; {
+</span><span class="kw">impl </span><a href="namespace.rs.html#12">Cast</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt; {
     <span class="doccomment">/// Constructs a `u64` from an array of `[u32; 2]` in big-endian order.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_u32_be(v: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>; <span class="number">2</span>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
@@ -554,9 +670,9 @@
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_u32_ne(v: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>; <span class="number">2</span>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
         <span class="kw">if </span><a class="macro" href="../../../../devela/all/macro.cfg.html">cfg!</a>(target_endian = <span class="string">"big"</span>) {
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u32_be(<a href="#159">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u32_be(<a href="#159">v</a>)
         } <span class="kw">else </span>{
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u32_le(<a href="#159">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u32_le(<a href="#159">v</a>)
         }
     }
 
@@ -582,9 +698,9 @@
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_u16_ne(v: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>; <span class="number">4</span>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
         <span class="kw">if </span><a class="macro" href="../../../../devela/all/macro.cfg.html">cfg!</a>(target_endian = <span class="string">"big"</span>) {
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u16_be(<a href="#187">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u16_be(<a href="#187">v</a>)
         } <span class="kw">else </span>{
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u16_le(<a href="#187">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u16_le(<a href="#187">v</a>)
         }
     }
 
@@ -603,7 +719,7 @@
 
 <span class="attr">#[rustfmt::skip]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(feature = <span class="string">"join"</span>)))]
-</span><span class="kw">impl </span><a href="namespace.rs.html#8">Cast</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt; {
+</span><span class="kw">impl </span><a href="namespace.rs.html#12">Cast</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt; {
     <span class="doccomment">/// Constructs a `u128` from an array of `[u64; 2]` in big-endian order.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_u64_be(v: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">2</span>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a> {
@@ -620,9 +736,9 @@
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_u64_ne(v: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">2</span>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a> {
         <span class="kw">if </span><a class="macro" href="../../../../devela/all/macro.cfg.html">cfg!</a>(target_endian = <span class="string">"big"</span>) {
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u64_be(<a href="#225">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u64_be(<a href="#225">v</a>)
         } <span class="kw">else </span>{
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u64_le(<a href="#225">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u64_le(<a href="#225">v</a>)
         }
     }
 
@@ -648,9 +764,9 @@
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_u32_ne(v: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>; <span class="number">4</span>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a> {
         <span class="kw">if </span><a class="macro" href="../../../../devela/all/macro.cfg.html">cfg!</a>(target_endian = <span class="string">"big"</span>) {
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u32_be(<a href="#253">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u32_be(<a href="#253">v</a>)
         } <span class="kw">else </span>{
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u32_le(<a href="#253">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u32_le(<a href="#253">v</a>)
         }
     }
 
@@ -684,9 +800,9 @@
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>from_u16_ne(v: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>; <span class="number">8</span>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a> {
         <span class="kw">if </span><a class="macro" href="../../../../devela/all/macro.cfg.html">cfg!</a>(target_endian = <span class="string">"big"</span>) {
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u16_be(<a href="#289">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u16_be(<a href="#289">v</a>)
         } <span class="kw">else </span>{
-            <a href="namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u16_le(<a href="#289">v</a>)
+            <a href="namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt;::from_u16_le(<a href="#289">v</a>)
         }
     }
 

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["SDL_CACHELINE_SIZE"],"fn":["SDL_GetCPUCacheLineSize","SDL_GetNumLogicalCPUCores","SDL_GetSIMDAlignment","SDL_GetSystemRAM","SDL_HasARMSIMD","SDL_HasAVX","SDL_HasAVX2","SDL_HasAVX512F","SDL_HasAltiVec","SDL_HasLASX","SDL_HasLSX","SDL_HasMMX","SDL_HasNEON","SDL_HasSSE","SDL_HasSSE2","SDL_HasSSE3","SDL_HasSSE41","SDL_HasSSE42"]};

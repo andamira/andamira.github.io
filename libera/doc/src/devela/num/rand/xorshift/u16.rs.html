@@ -1,90 +1,206 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/rand/xorshift/u16.rs`."><title>u16.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/rand/xorshift/u16.rs`."><title>u16.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-<!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
-
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
 
 </head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/num/rand/xorshift/</div>u16.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
@@ -253,52 +369,91 @@
 <a href="#164" id="164">164</a>
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a></pre></div><pre class="rust"><code><span class="comment">// devela::num::rand::xorshift::u16
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a></pre></div><pre class="rust"><code><span class="comment">// devela::num::rand::xorshift::u16
 //
-</span><span class="doccomment">//! 16-bit versions of XorShift generators.
+</span><span class="doccomment">//! 16-bit version of XorShift.
 </span><span class="comment">//
 
-</span><span class="kw">use crate</span>::{<a href="../../../code/default.rs.html#9-12">ConstDefault</a>, <a href="../../../code/result/own/mod.rs.html#111-117">Own</a>};
+</span><span class="kw">use crate</span>::{<a href="mod.rs.html#96-110">xorshift_basis</a>, <a href="../../../code/default.rs.html#9-12">ConstDefault</a>, <a href="../../../code/result/own/mod.rs.html#111-117">Own</a>};
 
 <span class="doccomment">/// The `XorShift16` &lt;abbr title="Pseudo-Random Number Generator"&gt;PRNG&lt;/abbr&gt;.
 ///
 /// It has a 16-bit state and generates 16-bit numbers.
 ///
-/// This is John Metcalf's 16-bit (7, 8, 9) version of George Marsaglia's
+/// This is [John Metcalf's 16-bit] (7, 9, 8) version of George Marsaglia's
 /// original [`XorShift32`][super::XorShift32].
+///
+/// [John Metcalf's 16-bit]: https://github.com/impomatic/xorshift798
 </span><span class="attr">#[must_use]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-</span><span class="kw">pub struct </span><a href="../../../../../devela/all/struct.XorShift16.html">XorShift16</a>(<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>);
+</span><span class="kw">pub struct </span><a href="../../../../../devela/all/struct.XorShift16.html">XorShift16</a>&lt;
+    <span class="kw">const </span>BASIS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">0</span>,
+    <span class="kw">const </span>A: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">7</span>,
+    <span class="kw">const </span>B: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">9</span>,
+    <span class="kw">const </span>C: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">8</span>,
+&gt;(<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>);
 
-<span class="kw">impl </span><a href="../../../../../devela/code/trait.Default.html">Default</a> <span class="kw">for </span><a href="#16">XorShift16</a> {
+<span class="doccomment">/// Creates a new PRNG initialized with the default fixed seed.
+</span><span class="kw">impl </span><a href="../../../../../devela/code/trait.Default.html">Default</a> <span class="kw">for </span><a href="#18-23">XorShift16</a> {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::DEFAULT
     }
 }
-<span class="kw">impl </span><a href="../../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#16">XorShift16</a> {
-    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="#53-56"><span class="self">Self</span>::new_unchecked</a>(<span class="self">Self</span>::DEFAULT_SEED);
+<span class="doccomment">/// Creates a new PRNG initialized with the default fixed seed.
+</span><span class="kw">impl </span><a href="../../../code/default.rs.html#9-12">ConstDefault</a> <span class="kw">for </span><a href="#18-23">XorShift16</a> {
+    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="#63-66"><span class="self">Self</span>::new_unchecked</a>(<span class="self">Self</span>::DEFAULT_SEED);
 }
 
 <span class="comment">// private associated items
-</span><span class="kw">impl </span><a href="#16">XorShift16</a> {
+</span><span class="kw">impl</span>&lt;<span class="kw">const </span>BASIS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>A: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>B: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>C: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;
+    <a href="#18-23">XorShift16</a>&lt;<a href="#37">BASIS</a>, <a href="#37">A</a>, <a href="#37">B</a>, <a href="#37">C</a>&gt;
+{
     <span class="kw">const </span>DEFAULT_SEED: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> = <span class="number">0xDEFA</span>;
 
-    <span class="attr">#[cold] #[rustfmt::skip]
-    </span><span class="kw">const fn </span>cold_path_result() -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; { <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html"><a href="../../../../../devela/_core/option/enum.Option.html">None</a> </a>}
     <span class="attr">#[cold] #[allow(dead_code)] #[rustfmt::skip]
-    </span><span class="kw">const fn </span>cold_path_default() -&gt; <span class="self">Self </span>{ <a href="#53-56"><span class="self">Self</span>::new_unchecked</a>(<span class="self">Self</span>::DEFAULT_SEED) }
+    </span><span class="kw">const fn </span>cold_path_default() -&gt; <span class="self">Self </span>{ <a href="#63-66"><span class="self">Self</span>::new_unchecked</a>(<span class="self">Self</span>::DEFAULT_SEED) }
 }
 
-<span class="kw">impl </span><a href="#16">XorShift16</a> {
+<span class="kw">impl</span>&lt;<span class="kw">const </span>BASIS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>A: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>B: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>C: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;
+    <a href="#18-23">XorShift16</a>&lt;<a href="#46">BASIS</a>, <a href="#46">A</a>, <a href="#46">B</a>, <a href="#46">C</a>&gt;
+{
     <span class="doccomment">/// Returns a seeded `XorShift16` generator from the given 16-bit seed.
     ///
-    /// Returns `None` if seed == `0`.
-    </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+    /// If the seed is `0`, the default seed is used instead.
+    </span><span class="kw">pub const fn </span>new(seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span>seed == <span class="number">0 </span>{
-            <a href="#32"><span class="self">Self</span>::cold_path_result</a>()
+            <a href="#43"><span class="self">Self</span>::cold_path_default</a>()
         } <span class="kw">else </span>{
-            <a class="prelude-val" href="../../../../../devela/_core/option/enum.Option.html">Some</a>(<span class="self">Self</span>(<a href="#42">seed</a>))
+            <span class="self">Self</span>(<a href="#52">seed</a>)
         }
     }
 
@@ -307,80 +462,89 @@
     /// The seed must not be `0`, otherwise every result will also be `0`.
     </span><span class="kw">pub const fn </span>new_unchecked(seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <span class="self">Self </span>{
         <a class="macro" href="../../../../../devela/all/macro.debug_assert.html">debug_assert!</a>[seed != <span class="number">0</span>, <span class="string">"Seed must be non-zero"</span>];
-        <span class="self">Self</span>(<a href="#53">seed</a>)
+        <span class="self">Self</span>(<a href="#63">seed</a>)
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="doccomment">/// Returns the PRNG's inner state as a raw snapshot.
+    </span><span class="kw">pub const fn </span>inner_state(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> {
+        <a class="self" href="#70">self</a>.<span class="number">0
+    </span>}
+    <span class="doccomment">/// Restores the PRNG from the given state.
+    </span><span class="kw">pub const fn </span>from_state(state: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(<a href="#74">state</a>)
     }
 
     <span class="doccomment">/// Returns the current random `u16`.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>current_u16(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> {
-        <a class="self" href="#60">self</a>.<span class="number">0
+        <a class="self" href="#80">self</a>.<span class="number">0
     </span>}
 
     <span class="doccomment">/// Returns the next random `u16`.
     ///
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>next_u16(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> {
-        <span class="kw">let </span><span class="kw-2">mut </span>x = <a class="self" href="#67">self</a>.<span class="number">0</span>;
-        <a href="#68">x</a> ^= <a href="#68">x</a> &lt;&lt; <span class="number">7</span>;
-        <a href="#68">x</a> ^= <a href="#68">x</a> &gt;&gt; <span class="number">9</span>;
-        <a href="#68">x</a> ^= <a href="#68">x</a> &lt;&lt; <span class="number">8</span>;
-        <a class="self" href="#67">self</a>.<span class="number">0 </span>= <a href="#68">x</a>;
-        <a href="#68">x</a>
+        <span class="kw">let </span><span class="kw-2">mut </span>x = <a class="self" href="#87">self</a>.<span class="number">0</span>;
+        <a class="macro" href="mod.rs.html#96-110">xorshift_basis!</a>(x, BASIS, (A, B, C));
+        <a class="self" href="#87">self</a>.<span class="number">0 </span>= <a href="#88">x</a>;
+        <a href="#88">x</a>
     }
 
     <span class="doccomment">/// Returns a copy of the next new random state.
-    </span><span class="kw">pub const fn </span>next_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>x = <a class="self" href="#77">self</a>.<span class="number">0</span>;
-        <a href="#78">x</a> ^= <a href="#78">x</a> &lt;&lt; <span class="number">7</span>;
-        <a href="#78">x</a> ^= <a href="#78">x</a> &gt;&gt; <span class="number">9</span>;
-        <a href="#78">x</a> ^= <a href="#78">x</a> &lt;&lt; <span class="number">8</span>;
-        <span class="self">Self</span>(<a href="#78">x</a>)
+    </span><span class="kw">pub const fn </span>peek_next_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>x = <a class="self" href="#95">self</a>.<span class="number">0</span>;
+        <a class="macro" href="mod.rs.html#96-110">xorshift_basis!</a>(x, BASIS, (A, B, C));
+        <span class="self">Self</span>(<a href="#96">x</a>)
     }
 
     <span class="doccomment">/// Returns both the next random state and the `u16` value.
     </span><span class="kw">pub const fn </span>own_next_u16(<span class="self">self</span>) -&gt; <a href="../../../code/result/own/mod.rs.html#111-117">Own</a>&lt;<span class="self">Self</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt; {
-        <span class="kw">let </span>s = <a class="self" href="#86">self</a>.<a href="#77-83">next_state</a>();
-        <span class="kw">let </span>v = <a href="#87">s</a>.<a href="#60-62">current_u16</a>();
-        <a href="../../../code/result/own/general.rs.html#21-23">Own::new</a>(<a href="#87">s</a>, <a href="#88">v</a>)
+        <span class="kw">let </span>s = <a class="self" href="#102">self</a>.<a href="#95-99">peek_next_state</a>();
+        <span class="kw">let </span>v = <a href="#103">s</a>.<a href="#80-82">current_u16</a>();
+        <a href="../../../code/result/own/general.rs.html#21-23">Own::new</a>(<a href="#103">s</a>, <a href="#104">v</a>)
     }
 }
 
 <span class="doccomment">/// # Extra constructors
-</span><span class="kw">impl </span><a href="#16">XorShift16</a> {
+</span><span class="kw">impl</span>&lt;<span class="kw">const </span>BASIS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>A: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>B: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>C: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;
+    <a href="#18-23">XorShift16</a>&lt;<a href="#110">BASIS</a>, <a href="#110">A</a>, <a href="#110">B</a>, <a href="#110">C</a>&gt;
+{
     <span class="doccomment">/// Returns a seeded `XorShift16` generator from the given 16-bit seed.
     ///
     /// This is an alias of [`new`][Self#method.new].
-    </span><span class="kw">pub const fn </span>new1_u16(seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
-        <a href="#42-48"><span class="self">Self</span>::new</a>(<a href="#98">seed</a>)
+    </span><span class="kw">pub const fn </span>new1_u16(seed: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <span class="self">Self </span>{
+        <a href="#52-58"><span class="self">Self</span>::new</a>(<a href="#116">seed</a>)
     }
 
     <span class="doccomment">/// Returns a seeded `XorShift16` generator from the given 2 × 8-bit seeds.
     ///
     /// The seeds will be joined in little endian order.
-    </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new2_u8(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">2</span>]) -&gt; <a class="prelude-ty" href="../../../../../devela/_core/option/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
-        <a href="#42-48"><span class="self">Self</span>::new</a>(<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_le_bytes">u16::from_le_bytes</a>(<a href="#106">seeds</a>))
+    </span><span class="kw">pub const fn </span>new2_u8(seeds: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">2</span>]) -&gt; <span class="self">Self </span>{
+        <a href="#52-58"><span class="self">Self</span>::new</a>(<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_le_bytes">u16::from_le_bytes</a>(<a href="#123">seeds</a>))
     }
 }
 
 <span class="attr">#[cfg(all(feature = <span class="string">"dep_rand_core"</span>, feature = <span class="string">"join"</span>))]
 #[cfg_attr(feature = <span class="string">"nightly_doc"</span>, doc(cfg(all(feature = <span class="string">"dep_rand_core"</span>, feature = <span class="string">"join"</span>))))]
 </span><span class="kw">mod </span>impl_rand {
-    <span class="kw">use </span><span class="kw">crate</span>::_dep::rand_core::{<a href="../../../../../devela/_dep/rand_core/struct.Error.html">Error</a>, <a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a>, <a href="../../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a>};
-    <span class="kw">use crate</span>::{<a href="../../primitive/namespace.rs.html#8">Cast</a>, <a href="#16">XorShift16</a>};
+    <span class="kw">use </span><span class="kw">crate</span>::_dep::rand_core::{<a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a>, <a href="../../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a>};
+    <span class="kw">use crate</span>::{<a href="../../primitive/namespace.rs.html#12">Cast</a>, <a href="#18-23">XorShift16</a>};
 
-    <span class="kw">impl </span><a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a> <span class="kw">for </span><a href="#16">XorShift16</a> {
+    <span class="kw">impl</span>&lt;<span class="kw">const </span>BASIS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>A: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>B: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>C: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a>
+        <span class="kw">for </span><a href="#18-23">XorShift16</a>&lt;<a href="#134">BASIS</a>, <a href="#134">A</a>, <a href="#134">B</a>, <a href="#134">C</a>&gt;
+    {
         <span class="doccomment">/// Returns the next 2 × random `u16` combined as a single `u32`.
         </span><span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
-            <a href="../../primitive/namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u16_le([<a class="self" href="#119">self</a>.<a href="#67-74">next_u16</a>(), <a class="self" href="#119">self</a>.<a href="#67-74">next_u16</a>()])
+            <a href="../../primitive/namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;::from_u16_le([<a class="self" href="#138">self</a>.<a href="#87-92">next_u16</a>(), <a class="self" href="#138">self</a>.<a href="#87-92">next_u16</a>()])
         }
         <span class="doccomment">/// Returns the next 4 × random `u16` combined as a single `u64`.
         </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
-            <a href="../../primitive/namespace.rs.html#8">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u16_le([
-                <a class="self" href="#123">self</a>.<a href="#67-74">next_u16</a>(),
-                <a class="self" href="#123">self</a>.<a href="#67-74">next_u16</a>(),
-                <a class="self" href="#123">self</a>.<a href="#67-74">next_u16</a>(),
-                <a class="self" href="#123">self</a>.<a href="#67-74">next_u16</a>(),
+            <a href="../../primitive/namespace.rs.html#12">Cast</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;::from_u16_le([
+                <a class="self" href="#142">self</a>.<a href="#87-92">next_u16</a>(),
+                <a class="self" href="#142">self</a>.<a href="#87-92">next_u16</a>(),
+                <a class="self" href="#142">self</a>.<a href="#87-92">next_u16</a>(),
+                <a class="self" href="#142">self</a>.<a href="#87-92">next_u16</a>(),
             ])
         }
         <span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) {
@@ -400,24 +564,34 @@
                 }
             }
         }
-        <span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../devela/all/enum.Result.html">Result</a>&lt;(), <a href="../../../../../devela/_dep/rand_core/struct.Error.html">Error</a>&gt; {
-            <a class="self" href="#148">self</a>.<a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">fill_bytes</a>(<a href="#148">dest</a>);
-            <a class="prelude-val" href="../../../../../devela/all/enum.Result.html">Ok</a>(())
-        }
     }
 
-    <span class="kw">impl </span><a href="../../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a> <span class="kw">for </span><a href="#16">XorShift16</a> {
+    <span class="kw">impl</span>&lt;<span class="kw">const </span>BASIS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>A: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>B: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>C: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a>
+        <span class="kw">for </span><a href="#18-23">XorShift16</a>&lt;<a href="#169">BASIS</a>, <a href="#169">A</a>, <a href="#169">B</a>, <a href="#169">C</a>&gt;
+    {
         <span class="kw">type </span>Seed = [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">2</span>];
 
         <span class="doccomment">/// When seeded with zero this implementation uses the default seed
         /// value as the cold path.
         </span><span class="kw">fn </span>from_seed(seed: <span class="self">Self</span>::Seed) -&gt; <span class="self">Self </span>{
             <span class="kw">if </span>seed == [<span class="number">0</span>; <span class="number">2</span>] {
-                <a href="#34"><span class="self">Self</span>::cold_path_default</a>()
+                <a href="#43"><span class="self">Self</span>::cold_path_default</a>()
             } <span class="kw">else </span>{
-                <a href="#53-56"><span class="self">Self</span>::new_unchecked</a>(<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_le_bytes">u16::from_le_bytes</a>(<a href="#159">seed</a>))
+                <a href="#63-66"><span class="self">Self</span>::new_unchecked</a>(<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.from_le_bytes">u16::from_le_bytes</a>(<a href="#176">seed</a>))
             }
         }
     }
 }
+
+<span class="doccomment">/// 4 × good triplets for 16-bit xorshift. (243 Bytes)
+///
+/// There are 60 shift triplets with the maximum period 2^16-1. 4 triplets pass
+/// a series of lightweight randomness tests including randomly plotting various
+/// n × n matrices using the high bits, low bits, reversed bits, etc. These are:
+</span><span class="attr">#[doc(hidden)]
+#[rustfmt::skip]
+#[allow(dead_code)]
+</span><span class="kw">pub const </span>XOROSHIFT_16_TRIPLETS: [(<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>); <span class="number">4</span>] = [
+    (<span class="number">6</span>, <span class="number">7</span>, <span class="number">13</span>), (<span class="number">7</span>, <span class="number">9</span>, <span class="number">8</span>), (<span class="number">7</span>, <span class="number">9</span>, <span class="number">13</span>), (<span class="number">9</span>, <span class="number">7</span>, <span class="number">13</span>)
+];
 </code></pre></div></section></main></body></html>

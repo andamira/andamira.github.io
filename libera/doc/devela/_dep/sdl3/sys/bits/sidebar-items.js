@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["SDL_HasExactlyOneBitSet32","SDL_MostSignificantBitIndex32"]};

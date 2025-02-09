@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["layout"],"struct":["Font","FontSettings","LineMetrics","Metrics","OutlineBounds"],"type":["FontResult"]};

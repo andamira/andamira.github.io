@@ -1,92 +1,208 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Rustc internal tooling for hand-writing MIR."><title>devela::_dep::bytemuck::__core::intrinsics::mir - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../static.files/storage-59e33391.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Rustc internal tooling for hand-writing MIR."><title>devela::_dep::bytemuck::__core::intrinsics::mir - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../../../../static.files/storage-3a5871a4.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-<!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module mir</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li><li><a href="#syntax" title="Syntax">Syntax</a><ul><li><a href="#locals" title="Locals">Locals</a></li><li><a href="#places" title="Places">Places</a></li><li><a href="#operands" title="Operands">Operands</a></li><li><a href="#statements" title="Statements">Statements</a></li><li><a href="#rvalues" title="Rvalues">Rvalues</a></li><li><a href="#terminators" title="Terminators">Terminators</a></li><li><a href="#debuginfo" title="Debuginfo">Debuginfo</a></li></ul></li></ul><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep::<wbr>bytemuck::<wbr>__<wbr>core::<wbr>intrinsics</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../../../../../index.html">devela</a>::<wbr><a href="../../../../index.html">_dep</a>::<wbr><a href="../../../index.html">bytemuck</a>::<wbr><a href="../../index.html">__core</a>::<wbr><a href="../index.html">intrinsics</a></span><h1>Module <span>mir</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/mod.rs.html#72">Source</a> </span></div><span class="item-info"><div class="stab unstable"><span class="emoji">🔬</span><span>This is a nightly-only experimental API. (<code>custom_mir</code>)</span></div><div class="stab portability">Available on <strong>crate feature <code>dep_bytemuck</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Rustc internal tooling for hand-writing MIR.</p>
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module mir</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li><li><a href="#syntax" title="Syntax">Syntax</a><ul><li><a href="#locals" title="Locals">Locals</a></li><li><a href="#places" title="Places">Places</a></li><li><a href="#operands" title="Operands">Operands</a></li><li><a href="#statements" title="Statements">Statements</a></li><li><a href="#rvalues" title="Rvalues">Rvalues</a></li><li><a href="#terminators" title="Terminators">Terminators</a></li><li><a href="#debuginfo" title="Debuginfo">Debuginfo</a></li></ul></li></ul><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep::<wbr>bytemuck::<wbr>__<wbr>core::<wbr>intrinsics</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../../index.html">devela</a>::<wbr><a href="../../../../index.html">_dep</a>::<wbr><a href="../../../index.html">bytemuck</a>::<wbr><a href="../../index.html">__core</a>::<wbr><a href="../index.html">intrinsics</a></div><h1>Module <span>mir</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/mod.rs.html#72">Source</a> </span></div><span class="item-info"><div class="stab unstable"><span class="emoji">🔬</span><span>This is a nightly-only experimental API. (<code>custom_mir</code>)</span></div><div class="stab portability">Available on <strong>crate feature <code>dep_bytemuck</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Rustc internal tooling for hand-writing MIR.</p>
 <p>If for some reasons you are not writing rustc tests and have found yourself considering using
 this feature, turn back. This is <em>exceptionally</em> unstable. There is no attempt at all to make
 anything work besides those things which the rustc test suite happened to need. If you make a
@@ -302,7 +418,7 @@ constants in MIR and the only way to access statics.</li>
 <ul>
 <li>Operands implicitly convert to <code>Use</code> rvalues.</li>
 <li><code>&amp;</code>, <code>&amp;mut</code>, <code>addr_of!</code>, and <code>addr_of_mut!</code> all work to create their associated rvalue.</li>
-<li><a href="../../../../../_core/intrinsics/mir/fn.Discriminant.html" title="fn devela::_core::intrinsics::mir::Discriminant"><code>Discriminant</code></a> and <a href="../../../../../_core/intrinsics/mir/fn.CopyForDeref.html" title="fn devela::_core::intrinsics::mir::CopyForDeref"><code>CopyForDeref</code></a> have associated functions.</li>
+<li><a href="../../../../../_core/intrinsics/mir/fn.Discriminant.html" title="fn devela::_core::intrinsics::mir::Discriminant"><code>Discriminant</code></a>, <a href="../../../../../_core/intrinsics/mir/fn.Len.html" title="fn devela::_core::intrinsics::mir::Len"><code>Len</code></a>, and <a href="../../../../../_core/intrinsics/mir/fn.CopyForDeref.html" title="fn devela::_core::intrinsics::mir::CopyForDeref"><code>CopyForDeref</code></a> have associated functions.</li>
 <li>Unary and binary operations use their normal Rust syntax - <code>a * b</code>, <code>!c</code>, etc.</li>
 <li>The binary operation <code>Offset</code> can be created via <a href="../../../../../_core/intrinsics/mir/fn.Offset.html" title="fn devela::_core::intrinsics::mir::Offset"><code>Offset</code></a>.</li>
 <li>Checked binary operations are represented by wrapping the associated binop in <a href="../../../../../_core/intrinsics/mir/fn.Checked.html" title="fn devela::_core::intrinsics::mir::Checked"><code>Checked</code></a>.</li>
@@ -349,4 +465,4 @@ is:</p>
         }
     )
 }</code></pre></div>
-</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="macro" href="macro.mir.html" title="macro devela::_dep::bytemuck::__core::intrinsics::mir::mir">mir</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Macro for generating custom MIR.</div></li><li><div class="item-name"><a class="macro" href="macro.place.html" title="macro devela::_dep::bytemuck::__core::intrinsics::mir::place">place</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Helper macro that allows you to treat a value expression like a place expression.</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.ReturnToArg.html" title="struct devela::_dep::bytemuck::__core::intrinsics::mir::ReturnToArg">Return<wbr>ToArg</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="struct" href="struct.UnwindActionArg.html" title="struct devela::_dep::bytemuck::__core::intrinsics::mir::UnwindActionArg">Unwind<wbr>Action<wbr>Arg</a><wbr><span class="stab unstable" title="">Experimental</span></div></li></ul><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.BasicBlock.html" title="enum devela::_dep::bytemuck::__core::intrinsics::mir::BasicBlock">Basic<wbr>Block</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Type representing basic blocks.</div></li><li><div class="item-name"><a class="enum" href="enum.UnwindTerminateReason.html" title="enum devela::_dep::bytemuck::__core::intrinsics::mir::UnwindTerminateReason">Unwind<wbr>Terminate<wbr>Reason</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">The reason we are terminating the process during unwinding.</div></li></ul><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="fn" href="fn.Assume.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Assume">Assume</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.Call.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Call">Call</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Call a function.</div></li><li><div class="item-name"><a class="fn" href="fn.CastPtrToPtr.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::CastPtrToPtr">Cast<wbr>PtrTo<wbr>Ptr</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Emits a <code>CastKind::PtrToPtr</code> cast.</div></li><li><div class="item-name"><a class="fn" href="fn.CastTransmute.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::CastTransmute">Cast<wbr>Transmute</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Emits a <code>CastKind::Transmute</code> cast.</div></li><li><div class="item-name"><a class="fn" href="fn.Checked.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Checked">Checked</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.CopyForDeref.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::CopyForDeref">Copy<wbr>ForDeref</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.Deinit.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Deinit">Deinit</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.Discriminant.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Discriminant">Discriminant</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Gets the discriminant of a place.</div></li><li><div class="item-name"><a class="fn" href="fn.Drop.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Drop">Drop</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Drop the contents of a place.</div></li><li><div class="item-name"><a class="fn" href="fn.Field.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Field">Field</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Access the field with the given index of some place.</div></li><li><div class="item-name"><a class="fn" href="fn.Goto.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Goto">Goto</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.Move.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Move">Move</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.Offset.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Offset">Offset</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.PtrMetadata.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::PtrMetadata">PtrMetadata</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.Retag.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Retag">Retag</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.Return.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Return">Return</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.ReturnTo.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::ReturnTo">Return<wbr>To</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.SetDiscriminant.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::SetDiscriminant">SetDiscriminant</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.Static.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Static">Static</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.StaticMut.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::StaticMut">Static<wbr>Mut</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.StorageDead.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::StorageDead">Storage<wbr>Dead</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.StorageLive.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::StorageLive">Storage<wbr>Live</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.TailCall.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::TailCall">Tail<wbr>Call</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Call a function.</div></li><li><div class="item-name"><a class="fn" href="fn.Unreachable.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Unreachable">Unreachable</a><wbr><span class="stab unstable" title="">Experimental</span></div></li><li><div class="item-name"><a class="fn" href="fn.UnwindCleanup.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::UnwindCleanup">Unwind<wbr>Cleanup</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">An unwind action that continues execution in a given basic block.</div></li><li><div class="item-name"><a class="fn" href="fn.UnwindContinue.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::UnwindContinue">Unwind<wbr>Continue</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">An unwind action that continues unwinding.</div></li><li><div class="item-name"><a class="fn" href="fn.UnwindResume.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::UnwindResume">Unwind<wbr>Resume</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">A terminator that resumes the unwinding.</div></li><li><div class="item-name"><a class="fn" href="fn.UnwindTerminate.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::UnwindTerminate">Unwind<wbr>Terminate</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">An unwind action that terminates the execution.</div></li><li><div class="item-name"><a class="fn" href="fn.UnwindUnreachable.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::UnwindUnreachable">Unwind<wbr>Unreachable</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">An unwind action that triggers undefined behavior.</div></li><li><div class="item-name"><a class="fn" href="fn.Variant.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Variant">Variant</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Adds a variant projection with the given index to the place.</div></li></ul></section></div></main></body></html>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.mir.html" title="macro devela::_dep::bytemuck::__core::intrinsics::mir::mir">mir</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Macro for generating custom MIR.</dd><dt><a class="macro" href="macro.place.html" title="macro devela::_dep::bytemuck::__core::intrinsics::mir::place">place</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Helper macro that allows you to treat a value expression like a place expression.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.ReturnToArg.html" title="struct devela::_dep::bytemuck::__core::intrinsics::mir::ReturnToArg">Return<wbr>ToArg</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="struct" href="struct.UnwindActionArg.html" title="struct devela::_dep::bytemuck::__core::intrinsics::mir::UnwindActionArg">Unwind<wbr>Action<wbr>Arg</a><wbr><span class="stab unstable" title="">Experimental</span></dt></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.BasicBlock.html" title="enum devela::_dep::bytemuck::__core::intrinsics::mir::BasicBlock">Basic<wbr>Block</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Type representing basic blocks.</dd><dt><a class="enum" href="enum.UnwindTerminateReason.html" title="enum devela::_dep::bytemuck::__core::intrinsics::mir::UnwindTerminateReason">Unwind<wbr>Terminate<wbr>Reason</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>The reason we are terminating the process during unwinding.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.Assume.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Assume">Assume</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.Call.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Call">Call</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Call a function.</dd><dt><a class="fn" href="fn.CastPtrToPtr.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::CastPtrToPtr">Cast<wbr>PtrTo<wbr>Ptr</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Emits a <code>CastKind::PtrToPtr</code> cast.</dd><dt><a class="fn" href="fn.CastTransmute.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::CastTransmute">Cast<wbr>Transmute</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Emits a <code>CastKind::Transmute</code> cast.</dd><dt><a class="fn" href="fn.Checked.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Checked">Checked</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.CopyForDeref.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::CopyForDeref">Copy<wbr>ForDeref</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.Deinit.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Deinit">Deinit</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.Discriminant.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Discriminant">Discriminant</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Gets the discriminant of a place.</dd><dt><a class="fn" href="fn.Drop.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Drop">Drop</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Drop the contents of a place.</dd><dt><a class="fn" href="fn.Field.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Field">Field</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Access the field with the given index of some place.</dd><dt><a class="fn" href="fn.Goto.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Goto">Goto</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.Len.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Len">Len</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.Move.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Move">Move</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.Offset.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Offset">Offset</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.PtrMetadata.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::PtrMetadata">PtrMetadata</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.Retag.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Retag">Retag</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.Return.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Return">Return</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.ReturnTo.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::ReturnTo">Return<wbr>To</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.SetDiscriminant.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::SetDiscriminant">SetDiscriminant</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.Static.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Static">Static</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.StaticMut.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::StaticMut">Static<wbr>Mut</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.StorageDead.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::StorageDead">Storage<wbr>Dead</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.StorageLive.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::StorageLive">Storage<wbr>Live</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.TailCall.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::TailCall">Tail<wbr>Call</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Call a function.</dd><dt><a class="fn" href="fn.Unreachable.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Unreachable">Unreachable</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dt><a class="fn" href="fn.UnwindCleanup.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::UnwindCleanup">Unwind<wbr>Cleanup</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>An unwind action that continues execution in a given basic block.</dd><dt><a class="fn" href="fn.UnwindContinue.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::UnwindContinue">Unwind<wbr>Continue</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>An unwind action that continues unwinding.</dd><dt><a class="fn" href="fn.UnwindResume.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::UnwindResume">Unwind<wbr>Resume</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>A terminator that resumes the unwinding.</dd><dt><a class="fn" href="fn.UnwindTerminate.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::UnwindTerminate">Unwind<wbr>Terminate</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>An unwind action that terminates the execution.</dd><dt><a class="fn" href="fn.UnwindUnreachable.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::UnwindUnreachable">Unwind<wbr>Unreachable</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>An unwind action that triggers undefined behavior.</dd><dt><a class="fn" href="fn.Variant.html" title="fn devela::_dep::bytemuck::__core::intrinsics::mir::Variant">Variant</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Adds a variant projection with the given index to the place.</dd></dl></section></div></main></body></html>

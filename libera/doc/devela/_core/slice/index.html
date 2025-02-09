@@ -1,120 +1,236 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Slice management and manipulation."><title>devela::_core::slice - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Slice management and manipulation."><title>devela::_core::slice - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../static.files/storage-3a5871a4.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-<!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module slice</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>core</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_core</a></span><h1>Module <span>slice</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><span class="since" title="Stable since Rust version 1.6.0">1.6.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/core/lib.rs.html#362">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Slice management and manipulation.</p>
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module slice</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>core</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_core</a></div><h1>Module <span>slice</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><span class="since" title="Stable since Rust version 1.6.0">1.6.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/core/lib.rs.html#373">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Slice management and manipulation.</p>
 <p>For more details see <a href="../../std/slice/index.html"><code>std::slice</code></a>.</p>
-</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="memchr/index.html" title="mod devela::_core::slice::memchr">memchr</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Pure Rust memchr implementation, taken from rust-memchr</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.ChunkBy.html" title="struct devela::_core::slice::ChunkBy">ChunkBy</a></div><div class="desc docblock-short">An iterator over slice in (non-overlapping) chunks separated by a predicate.</div></li><li><div class="item-name"><a class="struct" href="struct.ChunkByMut.html" title="struct devela::_core::slice::ChunkByMut">Chunk<wbr>ByMut</a></div><div class="desc docblock-short">An iterator over slice in (non-overlapping) mutable chunks separated
-by a predicate.</div></li><li><div class="item-name"><a class="struct" href="struct.Chunks.html" title="struct devela::_core::slice::Chunks">Chunks</a></div><div class="desc docblock-short">An iterator over a slice in (non-overlapping) chunks (<code>chunk_size</code> elements at a
-time), starting at the beginning of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.ChunksExact.html" title="struct devela::_core::slice::ChunksExact">Chunks<wbr>Exact</a></div><div class="desc docblock-short">An iterator over a slice in (non-overlapping) chunks (<code>chunk_size</code> elements at a
-time), starting at the beginning of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.ChunksExactMut.html" title="struct devela::_core::slice::ChunksExactMut">Chunks<wbr>Exact<wbr>Mut</a></div><div class="desc docblock-short">An iterator over a slice in (non-overlapping) mutable chunks (<code>chunk_size</code>
-elements at a time), starting at the beginning of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.ChunksMut.html" title="struct devela::_core::slice::ChunksMut">Chunks<wbr>Mut</a></div><div class="desc docblock-short">An iterator over a slice in (non-overlapping) mutable chunks (<code>chunk_size</code>
-elements at a time), starting at the beginning of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.EscapeAscii.html" title="struct devela::_core::slice::EscapeAscii">Escape<wbr>Ascii</a></div><div class="desc docblock-short">An iterator over the escaped version of a byte slice.</div></li><li><div class="item-name"><a class="struct" href="struct.Iter.html" title="struct devela::_core::slice::Iter">Iter</a></div><div class="desc docblock-short">Immutable slice iterator</div></li><li><div class="item-name"><a class="struct" href="struct.IterMut.html" title="struct devela::_core::slice::IterMut">IterMut</a></div><div class="desc docblock-short">Mutable slice iterator.</div></li><li><div class="item-name"><a class="struct" href="struct.RChunks.html" title="struct devela::_core::slice::RChunks">RChunks</a></div><div class="desc docblock-short">An iterator over a slice in (non-overlapping) chunks (<code>chunk_size</code> elements at a
-time), starting at the end of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.RChunksExact.html" title="struct devela::_core::slice::RChunksExact">RChunks<wbr>Exact</a></div><div class="desc docblock-short">An iterator over a slice in (non-overlapping) chunks (<code>chunk_size</code> elements at a
-time), starting at the end of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.RChunksExactMut.html" title="struct devela::_core::slice::RChunksExactMut">RChunks<wbr>Exact<wbr>Mut</a></div><div class="desc docblock-short">An iterator over a slice in (non-overlapping) mutable chunks (<code>chunk_size</code>
-elements at a time), starting at the end of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.RChunksMut.html" title="struct devela::_core::slice::RChunksMut">RChunks<wbr>Mut</a></div><div class="desc docblock-short">An iterator over a slice in (non-overlapping) mutable chunks (<code>chunk_size</code>
-elements at a time), starting at the end of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.RSplit.html" title="struct devela::_core::slice::RSplit">RSplit</a></div><div class="desc docblock-short">An iterator over subslices separated by elements that match a predicate
-function, starting from the end of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.RSplitMut.html" title="struct devela::_core::slice::RSplitMut">RSplit<wbr>Mut</a></div><div class="desc docblock-short">An iterator over the subslices of the vector which are separated
-by elements that match <code>pred</code>, starting from the end of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.RSplitN.html" title="struct devela::_core::slice::RSplitN">RSplitN</a></div><div class="desc docblock-short">An iterator over subslices separated by elements that match a
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="memchr/index.html" title="mod devela::_core::slice::memchr">memchr</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Pure Rust memchr implementation, taken from rust-memchr</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.ChunkBy.html" title="struct devela::_core::slice::ChunkBy">ChunkBy</a></dt><dd>An iterator over slice in (non-overlapping) chunks separated by a predicate.</dd><dt><a class="struct" href="struct.ChunkByMut.html" title="struct devela::_core::slice::ChunkByMut">Chunk<wbr>ByMut</a></dt><dd>An iterator over slice in (non-overlapping) mutable chunks separated
+by a predicate.</dd><dt><a class="struct" href="struct.Chunks.html" title="struct devela::_core::slice::Chunks">Chunks</a></dt><dd>An iterator over a slice in (non-overlapping) chunks (<code>chunk_size</code> elements at a
+time), starting at the beginning of the slice.</dd><dt><a class="struct" href="struct.ChunksExact.html" title="struct devela::_core::slice::ChunksExact">Chunks<wbr>Exact</a></dt><dd>An iterator over a slice in (non-overlapping) chunks (<code>chunk_size</code> elements at a
+time), starting at the beginning of the slice.</dd><dt><a class="struct" href="struct.ChunksExactMut.html" title="struct devela::_core::slice::ChunksExactMut">Chunks<wbr>Exact<wbr>Mut</a></dt><dd>An iterator over a slice in (non-overlapping) mutable chunks (<code>chunk_size</code>
+elements at a time), starting at the beginning of the slice.</dd><dt><a class="struct" href="struct.ChunksMut.html" title="struct devela::_core::slice::ChunksMut">Chunks<wbr>Mut</a></dt><dd>An iterator over a slice in (non-overlapping) mutable chunks (<code>chunk_size</code>
+elements at a time), starting at the beginning of the slice.</dd><dt><a class="struct" href="struct.EscapeAscii.html" title="struct devela::_core::slice::EscapeAscii">Escape<wbr>Ascii</a></dt><dd>An iterator over the escaped version of a byte slice.</dd><dt><a class="struct" href="struct.Iter.html" title="struct devela::_core::slice::Iter">Iter</a></dt><dd>Immutable slice iterator</dd><dt><a class="struct" href="struct.IterMut.html" title="struct devela::_core::slice::IterMut">IterMut</a></dt><dd>Mutable slice iterator.</dd><dt><a class="struct" href="struct.RChunks.html" title="struct devela::_core::slice::RChunks">RChunks</a></dt><dd>An iterator over a slice in (non-overlapping) chunks (<code>chunk_size</code> elements at a
+time), starting at the end of the slice.</dd><dt><a class="struct" href="struct.RChunksExact.html" title="struct devela::_core::slice::RChunksExact">RChunks<wbr>Exact</a></dt><dd>An iterator over a slice in (non-overlapping) chunks (<code>chunk_size</code> elements at a
+time), starting at the end of the slice.</dd><dt><a class="struct" href="struct.RChunksExactMut.html" title="struct devela::_core::slice::RChunksExactMut">RChunks<wbr>Exact<wbr>Mut</a></dt><dd>An iterator over a slice in (non-overlapping) mutable chunks (<code>chunk_size</code>
+elements at a time), starting at the end of the slice.</dd><dt><a class="struct" href="struct.RChunksMut.html" title="struct devela::_core::slice::RChunksMut">RChunks<wbr>Mut</a></dt><dd>An iterator over a slice in (non-overlapping) mutable chunks (<code>chunk_size</code>
+elements at a time), starting at the end of the slice.</dd><dt><a class="struct" href="struct.RSplit.html" title="struct devela::_core::slice::RSplit">RSplit</a></dt><dd>An iterator over subslices separated by elements that match a predicate
+function, starting from the end of the slice.</dd><dt><a class="struct" href="struct.RSplitMut.html" title="struct devela::_core::slice::RSplitMut">RSplit<wbr>Mut</a></dt><dd>An iterator over the subslices of the vector which are separated
+by elements that match <code>pred</code>, starting from the end of the slice.</dd><dt><a class="struct" href="struct.RSplitN.html" title="struct devela::_core::slice::RSplitN">RSplitN</a></dt><dd>An iterator over subslices separated by elements that match a
 predicate function, limited to a given number of splits, starting
-from the end of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.RSplitNMut.html" title="struct devela::_core::slice::RSplitNMut">RSplitN<wbr>Mut</a></div><div class="desc docblock-short">An iterator over subslices separated by elements that match a
+from the end of the slice.</dd><dt><a class="struct" href="struct.RSplitNMut.html" title="struct devela::_core::slice::RSplitNMut">RSplitN<wbr>Mut</a></dt><dd>An iterator over subslices separated by elements that match a
 predicate function, limited to a given number of splits, starting
-from the end of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.Split.html" title="struct devela::_core::slice::Split">Split</a></div><div class="desc docblock-short">An iterator over subslices separated by elements that match a predicate
-function.</div></li><li><div class="item-name"><a class="struct" href="struct.SplitInclusive.html" title="struct devela::_core::slice::SplitInclusive">Split<wbr>Inclusive</a></div><div class="desc docblock-short">An iterator over subslices separated by elements that match a predicate
+from the end of the slice.</dd><dt><a class="struct" href="struct.Split.html" title="struct devela::_core::slice::Split">Split</a></dt><dd>An iterator over subslices separated by elements that match a predicate
+function.</dd><dt><a class="struct" href="struct.SplitInclusive.html" title="struct devela::_core::slice::SplitInclusive">Split<wbr>Inclusive</a></dt><dd>An iterator over subslices separated by elements that match a predicate
 function. Unlike <code>Split</code>, it contains the matched part as a terminator
-of the subslice.</div></li><li><div class="item-name"><a class="struct" href="struct.SplitInclusiveMut.html" title="struct devela::_core::slice::SplitInclusiveMut">Split<wbr>Inclusive<wbr>Mut</a></div><div class="desc docblock-short">An iterator over the mutable subslices of the vector which are separated
+of the subslice.</dd><dt><a class="struct" href="struct.SplitInclusiveMut.html" title="struct devela::_core::slice::SplitInclusiveMut">Split<wbr>Inclusive<wbr>Mut</a></dt><dd>An iterator over the mutable subslices of the vector which are separated
 by elements that match <code>pred</code>. Unlike <code>SplitMut</code>, it contains the matched
-parts in the ends of the subslices.</div></li><li><div class="item-name"><a class="struct" href="struct.SplitMut.html" title="struct devela::_core::slice::SplitMut">Split<wbr>Mut</a></div><div class="desc docblock-short">An iterator over the mutable subslices of the vector which are separated
-by elements that match <code>pred</code>.</div></li><li><div class="item-name"><a class="struct" href="struct.SplitN.html" title="struct devela::_core::slice::SplitN">SplitN</a></div><div class="desc docblock-short">An iterator over subslices separated by elements that match a predicate
-function, limited to a given number of splits.</div></li><li><div class="item-name"><a class="struct" href="struct.SplitNMut.html" title="struct devela::_core::slice::SplitNMut">SplitN<wbr>Mut</a></div><div class="desc docblock-short">An iterator over subslices separated by elements that match a predicate
-function, limited to a given number of splits.</div></li><li><div class="item-name"><a class="struct" href="struct.Windows.html" title="struct devela::_core::slice::Windows">Windows</a></div><div class="desc docblock-short">An iterator over overlapping subslices of length <code>size</code>.</div></li><li><div class="item-name"><a class="struct" href="struct.ArrayChunks.html" title="struct devela::_core::slice::ArrayChunks">Array<wbr>Chunks</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">An iterator over a slice in (non-overlapping) chunks (<code>N</code> elements at a
-time), starting at the beginning of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.ArrayChunksMut.html" title="struct devela::_core::slice::ArrayChunksMut">Array<wbr>Chunks<wbr>Mut</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">An iterator over a slice in (non-overlapping) mutable chunks (<code>N</code> elements
-at a time), starting at the beginning of the slice.</div></li><li><div class="item-name"><a class="struct" href="struct.ArrayWindows.html" title="struct devela::_core::slice::ArrayWindows">Array<wbr>Windows</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">A windowed iterator over a slice in overlapping chunks (<code>N</code> elements at a
-time), starting at the beginning of the slice</div></li></ul><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.GetManyMutError.html" title="enum devela::_core::slice::GetManyMutError">GetMany<wbr>MutError</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">The error type returned by <a href="https://doc.rust-lang.org/nightly/std/primitive.slice.html#method.get_many_mut" title="method slice::get_many_mut"><code>get_many_mut</code></a>.</div></li></ul><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="trait" href="trait.SliceIndex.html" title="trait devela::_core::slice::SliceIndex">Slice<wbr>Index</a></div><div class="desc docblock-short">A helper trait used for indexing operations.</div></li><li><div class="item-name"><a class="trait" href="trait.GetManyMutIndex.html" title="trait devela::_core::slice::GetManyMutIndex">GetMany<wbr>MutIndex</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">A helper trait for <code>&lt;[T]&gt;::get_many_mut()</code>.</div></li><li><div class="item-name"><a class="trait" href="trait.SlicePattern.html" title="trait devela::_core::slice::SlicePattern">Slice<wbr>Pattern</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Patterns in slices - currently, only used by <code>strip_prefix</code> and <code>strip_suffix</code>.  At a future
+parts in the ends of the subslices.</dd><dt><a class="struct" href="struct.SplitMut.html" title="struct devela::_core::slice::SplitMut">Split<wbr>Mut</a></dt><dd>An iterator over the mutable subslices of the vector which are separated
+by elements that match <code>pred</code>.</dd><dt><a class="struct" href="struct.SplitN.html" title="struct devela::_core::slice::SplitN">SplitN</a></dt><dd>An iterator over subslices separated by elements that match a predicate
+function, limited to a given number of splits.</dd><dt><a class="struct" href="struct.SplitNMut.html" title="struct devela::_core::slice::SplitNMut">SplitN<wbr>Mut</a></dt><dd>An iterator over subslices separated by elements that match a predicate
+function, limited to a given number of splits.</dd><dt><a class="struct" href="struct.Windows.html" title="struct devela::_core::slice::Windows">Windows</a></dt><dd>An iterator over overlapping subslices of length <code>size</code>.</dd><dt><a class="struct" href="struct.ArrayChunks.html" title="struct devela::_core::slice::ArrayChunks">Array<wbr>Chunks</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>An iterator over a slice in (non-overlapping) chunks (<code>N</code> elements at a
+time), starting at the beginning of the slice.</dd><dt><a class="struct" href="struct.ArrayChunksMut.html" title="struct devela::_core::slice::ArrayChunksMut">Array<wbr>Chunks<wbr>Mut</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>An iterator over a slice in (non-overlapping) mutable chunks (<code>N</code> elements
+at a time), starting at the beginning of the slice.</dd><dt><a class="struct" href="struct.ArrayWindows.html" title="struct devela::_core::slice::ArrayWindows">Array<wbr>Windows</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>A windowed iterator over a slice in overlapping chunks (<code>N</code> elements at a
+time), starting at the beginning of the slice</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.GetManyMutError.html" title="enum devela::_core::slice::GetManyMutError">GetMany<wbr>MutError</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>The error type returned by <a href="https://doc.rust-lang.org/nightly/std/primitive.slice.html#method.get_many_mut" title="method slice::get_many_mut"><code>get_many_mut</code></a>.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.SliceIndex.html" title="trait devela::_core::slice::SliceIndex">Slice<wbr>Index</a></dt><dd>A helper trait used for indexing operations.</dd><dt><a class="trait" href="trait.GetManyMutIndex.html" title="trait devela::_core::slice::GetManyMutIndex">GetMany<wbr>MutIndex</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>A helper trait for <code>&lt;[T]&gt;::get_many_mut()</code>.</dd><dt><a class="trait" href="trait.SlicePattern.html" title="trait devela::_core::slice::SlicePattern">Slice<wbr>Pattern</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Patterns in slices - currently, only used by <code>strip_prefix</code> and <code>strip_suffix</code>.  At a future
 point, we hope to generalise <code>core::str::Pattern</code> (which at the time of writing is limited to
-<code>str</code>) to slices, and then this trait will be replaced or abolished.</div></li></ul><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="fn" href="fn.from_mut.html" title="fn devela::_core::slice::from_mut">from_<wbr>mut</a></div><div class="desc docblock-short">Converts a reference to T into a slice of length 1 (without copying).</div></li><li><div class="item-name"><a class="fn" href="fn.from_raw_parts.html" title="fn devela::_core::slice::from_raw_parts">from_<wbr>raw_<wbr>parts</a><sup title="unsafe function">⚠</sup></div><div class="desc docblock-short">Forms a slice from a pointer and a length.</div></li><li><div class="item-name"><a class="fn" href="fn.from_raw_parts_mut.html" title="fn devela::_core::slice::from_raw_parts_mut">from_<wbr>raw_<wbr>parts_<wbr>mut</a><sup title="unsafe function">⚠</sup></div><div class="desc docblock-short">Performs the same functionality as <a href="fn.from_raw_parts.html" title="fn devela::_core::slice::from_raw_parts"><code>from_raw_parts</code></a>, except that a
-mutable slice is returned.</div></li><li><div class="item-name"><a class="fn" href="fn.from_ref.html" title="fn devela::_core::slice::from_ref">from_<wbr>ref</a></div><div class="desc docblock-short">Converts a reference to T into a slice of length 1 (without copying).</div></li><li><div class="item-name"><a class="fn" href="fn.from_mut_ptr_range.html" title="fn devela::_core::slice::from_mut_ptr_range">from_<wbr>mut_<wbr>ptr_<wbr>range</a><sup title="unsafe function">⚠</sup><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Forms a mutable slice from a pointer range.</div></li><li><div class="item-name"><a class="fn" href="fn.from_ptr_range.html" title="fn devela::_core::slice::from_ptr_range">from_<wbr>ptr_<wbr>range</a><sup title="unsafe function">⚠</sup><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Forms a slice from a pointer range.</div></li><li><div class="item-name"><a class="fn" href="fn.range.html" title="fn devela::_core::slice::range">range</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Performs bounds checking of a range.</div></li><li><div class="item-name"><a class="fn" href="fn.try_range.html" title="fn devela::_core::slice::try_range">try_<wbr>range</a><wbr><span class="stab unstable" title="">Experimental</span></div><div class="desc docblock-short">Performs bounds checking of a range without panicking.</div></li></ul></section></div></main></body></html>
+<code>str</code>) to slices, and then this trait will be replaced or abolished.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.from_mut.html" title="fn devela::_core::slice::from_mut">from_<wbr>mut</a></dt><dd>Converts a reference to T into a slice of length 1 (without copying).</dd><dt><a class="fn" href="fn.from_raw_parts.html" title="fn devela::_core::slice::from_raw_parts">from_<wbr>raw_<wbr>parts</a><sup title="unsafe function">⚠</sup></dt><dd>Forms a slice from a pointer and a length.</dd><dt><a class="fn" href="fn.from_raw_parts_mut.html" title="fn devela::_core::slice::from_raw_parts_mut">from_<wbr>raw_<wbr>parts_<wbr>mut</a><sup title="unsafe function">⚠</sup></dt><dd>Performs the same functionality as <a href="fn.from_raw_parts.html" title="fn devela::_core::slice::from_raw_parts"><code>from_raw_parts</code></a>, except that a
+mutable slice is returned.</dd><dt><a class="fn" href="fn.from_ref.html" title="fn devela::_core::slice::from_ref">from_<wbr>ref</a></dt><dd>Converts a reference to T into a slice of length 1 (without copying).</dd><dt><a class="fn" href="fn.from_mut_ptr_range.html" title="fn devela::_core::slice::from_mut_ptr_range">from_<wbr>mut_<wbr>ptr_<wbr>range</a><sup title="unsafe function">⚠</sup><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Forms a mutable slice from a pointer range.</dd><dt><a class="fn" href="fn.from_ptr_range.html" title="fn devela::_core::slice::from_ptr_range">from_<wbr>ptr_<wbr>range</a><sup title="unsafe function">⚠</sup><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Forms a slice from a pointer range.</dd><dt><a class="fn" href="fn.range.html" title="fn devela::_core::slice::range">range</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Performs bounds checking of a range.</dd><dt><a class="fn" href="fn.try_range.html" title="fn devela::_core::slice::try_range">try_<wbr>range</a><wbr><span class="stab unstable" title="">Experimental</span></dt><dd>Performs bounds checking of a range without panicking.</dd></dl></section></div></main></body></html>

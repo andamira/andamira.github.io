@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["SDL_GUIDToString","SDL_StringToGUID"],"struct":["SDL_GUID"]};

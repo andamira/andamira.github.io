@@ -1,110 +1,227 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Code reflective synthesis. code::{marker, ops, result, util} "><title>devela::code - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-c579a84d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (99db2737c 2025-01-16)" data-channel="nightly" data-search-js="search-1429c0ba.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Code reflective synthesis. code::{marker, ops, result, util} "><title>devela::code - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-<!-- https://katex.org/docs/browser.html#starter-template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css"
-  integrity="sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV"
-  crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js"
-  integrity="sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE"
-  crossorigin="anonymous"></script>
-
-<!-- # plugins -->
-<!-- https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js"
-  integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-  crossorigin="anonymous"></script>
-<!-- https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex -->
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js"
-  integrity="sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-  crossorigin="anonymous"></script>
-
-<!-- https://katex.org/docs/autorender.html -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js"
-  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-  crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        {left: "\\(", right: "\\)", display: false},
-        {left: "\\[", right: "\\]", display: true}
-      ],
-      // trust: true, // https://katex.org/docs/options
-      trust: (context) => context.command === "\\href",
-    });
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
+
+    /* configuration */
+
+    const crateName = "devela";
+
+    // Allowed path prefixes for loading specific libraries
+    const allowedKatex = [
+      "/all",
+      "/num/",
+      "/phys/",
+    ];
+    const allowedKatexChem = [
+      "/all/",
+      "/phys/",
+    ];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) { return; }
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+    // console.log("Current path:", window.location.pathname);
+    // console.log("Relative path after crate:", relativePath);
+
+    /* loading resources */
+
+    if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) { loadKatex(); }
+    if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) { loadKatexChem(); }
+
+    function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // https://katex.org/docs/browser.html#starter-template
+      const katexJS = document.createElement("script"); katexJS.defer = true;
+      // katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.js";
+      // katexJS.integrity = "sha384-RdymN7NRJ+XoyeRY4185zXaxq9QWOOx3O7beyyrRK4KQZrPlCDQQpCu95FoCGPAE";
+      katexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js";
+      katexJS.integrity = "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh";
+      katexJS.crossOrigin = "anonymous";
+      document.head.appendChild(katexJS);
+      //
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      // katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/katex.min.css";
+      // katexCSS.integrity = "sha384-7lU0muIg/i1plk7MgygDUp3/bNRA65orrBub4/OSWHECgwEsY83HaS1x3bljA/XV";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      // https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+
+      // https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+      const copytexJS = document.createElement("script"); copytexJS.defer = true;
+      // copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/copy-tex.min.js";
+      copytexJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js";
+      copytexJS.integrity = "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi";
+      copytexJS.crossOrigin = "anonymous";
+      document.head.appendChild(copytexJS);
+
+      // https://katex.org/docs/autorender.html
+      const autoRenderJS = document.createElement("script"); autoRenderJS.defer = true;
+      // autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/auto-render.min.js";
+      autoRenderJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js";
+      autoRenderJS.integrity = "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh";
+      autoRenderJS.crossOrigin = "anonymous";
+      autoRenderJS.onload = () => renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href",
+      });
+      document.head.appendChild(autoRenderJS);
+    } // loadKatex
+
+    function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+
+      // https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+      const mhchemJS = document.createElement("script"); mhchemJS.defer = true;
+      // mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.19/dist/contrib/mhchem.min.js";
+      mhchemJS.src = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js";
+      mhchemJS.integrity = "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH";
+      mhchemJS.crossOrigin = "anonymous";
+      document.head.appendChild(mhchemJS);
+    }
   });
 </script>
 
-<!-- https://katex.org/docs/issues.html#css-customization -->
-<style>
-    .katex-display { overflow: hidden; }
-    .docblock p { overflow-y: hidden; }
-</style>
-
-</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module code</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#derives" title="Derive Macros">Derive Macros</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate devela</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">devela</a></span><h1>Module <span>code</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/code/mod.rs.html#3-43">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Code reflective synthesis.
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.23.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module code</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#derives" title="Derive Macros">Derive Macros</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate devela</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a></div><h1>Module <span>code</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/code/mod.rs.html#3-43">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Code reflective synthesis.
 <br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::code">code</a>::{<a href="marker/index.html" title="mod devela::code::marker">marker</a>, <a href="ops/index.html" title="mod devela::code::ops">ops</a>, <a href="result/index.html" title="mod devela::code::result">result</a>, <a href="util/index.html" title="mod devela::code::util">util</a>}</span>
 <br/><br style='display:block;content:"";margin-top:10px;' /></p>
 <p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../_core/any/index.html" title="mod devela::_core::any">any</a>, <a href="../_core/clone/index.html" title="mod devela::_core::clone">clone</a>, <a href="../_core/convert/index.html" title="mod devela::_core::convert">convert</a>, <a href="../_core/default/index.html" title="mod devela::_core::default">default</a>, <a href="../_core/hint/index.html" title="mod devela::_core::hint">hint</a>, <a href="../_core/marker/index.html" title="mod devela::_core::marker">marker</a>, <a href="../_core/ops/index.html" title="mod devela::_core::ops">ops</a>}</span><hr/></p>
-</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="marker/index.html" title="mod devela::code::marker">marker</a></div><div class="desc docblock-short">Marker types, traits and macros.</div></li><li><div class="item-name"><a class="mod" href="ops/index.html" title="mod devela::code::ops">ops</a></div><div class="desc docblock-short">Overloadable operators.</div></li><li><div class="item-name"><a class="mod" href="result/index.html" title="mod devela::code::result">result</a></div><div class="desc docblock-short">Result handling.
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="marker/index.html" title="mod devela::code::marker">marker</a></dt><dd>Marker types, traits and macros.</dd><dt><a class="mod" href="ops/index.html" title="mod devela::code::ops">ops</a></dt><dd>Overloadable operators.</dd><dt><a class="mod" href="result/index.html" title="mod devela::code::result">result</a></dt><dd>Result handling.
 <br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="result/index.html" title="mod devela::code::result">result</a>::{<a href="result/error/index.html" title="mod devela::code::result::error">error</a>}</span>
-<br/><br style='display:block;content:"";margin-top:10px;' /></div></li><li><div class="item-name"><a class="mod" href="util/index.html" title="mod devela::code::util">util</a></div><div class="desc docblock-short">Utility macros and hint functions.</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.TypeId.html" title="struct devela::code::TypeId">TypeId</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-Represents a globally unique identifier for a type.</div></li></ul><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.Infallible.html" title="enum devela::code::Infallible">Infallible</a></div><div class="desc docblock-short"><span class='stab portability' title='Individual error type'>🚩</span>
+<br/><br style='display:block;content:"";margin-top:10px;' /></dd><dt><a class="mod" href="util/index.html" title="mod devela::code::util">util</a></dt><dd>Utility macros and hint functions.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.TypeId.html" title="struct devela::code::TypeId">TypeId</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Represents a globally unique identifier for a type.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.Infallible.html" title="enum devela::code::Infallible">Infallible</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
 <span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-The error type for errors that can never happen.</div></li></ul><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="trait" href="trait.Any.html" title="trait devela::code::Any">Any</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-A trait to emulate dynamic typing.</div></li><li><div class="item-name"><a class="trait" href="trait.AsMut.html" title="trait devela::code::AsMut">AsMut</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-Used to do a cheap mutable-to-mutable reference conversion.</div></li><li><div class="item-name"><a class="trait" href="trait.AsRef.html" title="trait devela::code::AsRef">AsRef</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-Used to do a cheap reference-to-reference conversion.</div></li><li><div class="item-name"><a class="trait" href="trait.Clone.html" title="trait devela::code::Clone">Clone</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-A common trait for the ability to explicitly duplicate an object.</div></li><li><div class="item-name"><a class="trait" href="trait.ConstDefault.html" title="trait devela::code::ConstDefault">Const<wbr>Default</a></div><div class="desc docblock-short">A trait for giving a type a useful default value in <em>compile-time</em>.</div></li><li><div class="item-name"><a class="trait" href="trait.Default.html" title="trait devela::code::Default">Default</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-A trait for giving a type a useful default value.</div></li><li><div class="item-name"><a class="trait" href="trait.ExtAny.html" title="trait devela::code::ExtAny">ExtAny</a></div><div class="desc docblock-short">Extension trait providing convenience methods for <code>T:</code><a href="trait.Any.html" title="trait devela::code::Any"><code>Any</code></a>.</div></li><li><div class="item-name"><a class="trait" href="trait.From.html" title="trait devela::code::From">From</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-Used to do value-to-value conversions while consuming the input value.</div></li><li><div class="item-name"><a class="trait" href="trait.Into.html" title="trait devela::code::Into">Into</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-A value-to-value conversion that consumes the input value.</div></li><li><div class="item-name"><a class="trait" href="trait.TryFrom.html" title="trait devela::code::TryFrom">TryFrom</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-Simple and safe type conversions that may fail in a controlled way.</div></li><li><div class="item-name"><a class="trait" href="trait.TryInto.html" title="trait devela::code::TryInto">TryInto</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-An attempted conversion that consumes self, which may or may not be expensive.</div></li></ul><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="fn" href="fn.identity.html" title="fn devela::code::identity">identity</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-The identity function. Just returns back its input.</div></li></ul><h2 id="derives" class="section-header">Derive Macros<a href="#derives" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="derive" href="derive.Clone.html" title="derive devela::code::Clone">Clone</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-Derive macro generating an impl of the trait <code>Clone</code>.</div></li><li><div class="item-name"><a class="derive" href="derive.Default.html" title="derive devela::code::Default">Default</a></div><div class="desc docblock-short"><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
-Derive macro generating an impl of the trait <code>Default</code>.</div></li></ul></section></div></main></body></html>
+The error type for errors that can never happen.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Any.html" title="trait devela::code::Any">Any</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A trait to emulate dynamic typing.</dd><dt><a class="trait" href="trait.AsMut.html" title="trait devela::code::AsMut">AsMut</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used to do a cheap mutable-to-mutable reference conversion.</dd><dt><a class="trait" href="trait.AsRef.html" title="trait devela::code::AsRef">AsRef</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used to do a cheap reference-to-reference conversion.</dd><dt><a class="trait" href="trait.Clone.html" title="trait devela::code::Clone">Clone</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A common trait for the ability to explicitly duplicate an object.</dd><dt><a class="trait" href="trait.ConstDefault.html" title="trait devela::code::ConstDefault">Const<wbr>Default</a></dt><dd>A trait for giving a type a useful default value in <em>compile-time</em>.</dd><dt><a class="trait" href="trait.Default.html" title="trait devela::code::Default">Default</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A trait for giving a type a useful default value.</dd><dt><a class="trait" href="trait.ExtAny.html" title="trait devela::code::ExtAny">ExtAny</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Extension trait providing convenience methods for <code>T:</code><a href="trait.Any.html" title="trait devela::code::Any"><code>Any</code></a>.</dd><dt><a class="trait" href="trait.From.html" title="trait devela::code::From">From</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used to do value-to-value conversions while consuming the input value.</dd><dt><a class="trait" href="trait.Into.html" title="trait devela::code::Into">Into</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A value-to-value conversion that consumes the input value.</dd><dt><a class="trait" href="trait.TryFrom.html" title="trait devela::code::TryFrom">TryFrom</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Simple and safe type conversions that may fail in a controlled way.</dd><dt><a class="trait" href="trait.TryInto.html" title="trait devela::code::TryInto">TryInto</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An attempted conversion that consumes self, which may or may not be expensive.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.identity.html" title="fn devela::code::identity">identity</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The identity function. Just returns back its input.</dd></dl><h2 id="derives" class="section-header">Derive Macros<a href="#derives" class="anchor">§</a></h2><dl class="item-table"><dt><a class="derive" href="derive.Clone.html" title="derive devela::code::Clone">Clone</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Derive macro generating an impl of the trait <code>Clone</code>.</dd><dt><a class="derive" href="derive.Default.html" title="derive devela::code::Default">Default</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Derive macro generating an impl of the trait <code>Default</code>.</dd></dl></section></div></main></body></html>

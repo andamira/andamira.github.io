@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["ArchivedDestaque","BinaryHeap","Destaque","DestaqueIter","DestaqueResolver","VecDeque"],"trait":["DataDeque","DataQueue"],"type":["DestaqueU8"]};

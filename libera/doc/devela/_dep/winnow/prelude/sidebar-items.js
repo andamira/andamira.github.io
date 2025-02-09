@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["Parser","_"],"type":["IResult","PResult"]};
+window.SIDEBAR_ITEMS = {"trait":["ModalParser","Parser","_"],"type":["ModalResult"]};

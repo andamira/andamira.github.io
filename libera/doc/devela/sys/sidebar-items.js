@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["VarError"],"macro":["env_","option_env"],"mod":["arch","io","log","mem","os","path"],"struct":["Env","IterArgs","IterArgsOs","IterSplitPaths","IterVars","IterVarsOs","JoinPathsError"]};
+window.SIDEBAR_ITEMS = {"mod":["arch","env","fs","io","log","mem","net","os","path"]};
