@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["index_map","index_set","map","set","table"],"struct":["ArchivedHashMap","ArchivedHashSet","ArchivedHashTable","ArchivedIndexMap","ArchivedIndexSet","HashMapResolver","HashSetResolver","HashTableResolver","IndexMapResolver","IndexSetResolver"]};

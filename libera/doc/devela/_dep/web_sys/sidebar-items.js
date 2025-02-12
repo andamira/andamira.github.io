@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["console","js_sys"]};
+window.SIDEBAR_ITEMS = {"mod":["js_sys"]};

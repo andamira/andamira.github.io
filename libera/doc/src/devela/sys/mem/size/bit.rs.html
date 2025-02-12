@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/size/bit.rs`."><title>bit.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (43ca9d18e 2025-02-08)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/size/bit.rs`."><title>bit.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (6171d944a 2025-02-10)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../../../static.files/src-script-8fee9dc5.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
@@ -366,13 +366,13 @@
 // - trait definition
 // - trait impls
 
-</span><span class="kw">use crate</span>::{
-    bytes_from_bits, BareBox, ByteSized, Duration, Infallible, NonZeroI128, NonZeroI16, NonZeroI32,
-    NonZeroI64, NonZeroI8, NonZeroIsize, NonZeroU128, NonZeroU16, NonZeroU32, NonZeroU64,
-    NonZeroU8, NonZeroUsize, Ordering, PhantomData, PhantomPinned,
-};
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use crate</span>::{Arc, HashMap, HashSet, Mutex, Rc, SystemInstant, SystemTime};
+<span class="kw">use crate</span>::{
+    BareBox, ByteSized, Duration, Infallible, Mem, NonZeroI128, NonZeroI16, NonZeroI32, NonZeroI64,
+    NonZeroI8, NonZeroIsize, NonZeroU128, NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU8,
+    NonZeroUsize, Ordering, PhantomData, PhantomPinned,
+};
 
 <span class="comment">// WAIT: [generic_const_exprs](https://github.com/rust-lang/rust/issues/76560#issuecomment-1202124275)
 // use crate::{StringU16, StringU32, GraphemeU8, StringU8};
@@ -411,7 +411,7 @@
     /// # Panics
     /// Panics if `MIN_BYTE_SIZE &gt; `[`BYTE_SIZE`][ByteSized::BYTE_SIZE],
     </span><span class="kw">const </span>BIT_SIZE: usize = {
-        <span class="kw">let </span>min_byte_size = bytes_from_bits(LEN);
+        <span class="kw">let </span>min_byte_size = Mem::bytes_from_bits(LEN);
         <span class="kw">if </span>min_byte_size &gt; <span class="self">Self</span>::BYTE_SIZE {
             <span class="macro">panic!</span>[<span class="string">"BitSized::MIN_BYTE_SIZE &gt; ByteSized::BYTE_SIZE"</span>];
         }
@@ -426,7 +426,7 @@
     /// # Panics
     /// Panics if `MIN_BYTE_SIZE &gt; `[`BYTE_SIZE`][ByteSized::BYTE_SIZE],
     </span><span class="kw">const </span>MIN_BYTE_SIZE: usize = {
-        <span class="kw">let </span>min_byte_size = bytes_from_bits(LEN);
+        <span class="kw">let </span>min_byte_size = Mem::bytes_from_bits(LEN);
         <span class="kw">if </span>min_byte_size &gt; <span class="self">Self</span>::BYTE_SIZE {
             <span class="macro">panic!</span>[<span class="string">"BitSized::MIN_BYTE_SIZE &gt; ByteSized::BYTE_SIZE"</span>];
         }

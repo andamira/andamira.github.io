@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ImageError"],"struct":["Pnm"],"type":["ImageResult"]};
+window.SIDEBAR_ITEMS = {"enum":["ImageError"],"mod":["sixel"],"struct":["Pnm"],"type":["ImageResult"]};

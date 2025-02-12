@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["ArchivedStack","Stack","StackIter","StackResolver"],"trait":["DataDesta","DataStack"],"type":["StackU8"]};
+window.SIDEBAR_ITEMS = {"struct":["Stack","StackIter"],"trait":["DataDesta","DataStack"],"type":["StackU8"]};
