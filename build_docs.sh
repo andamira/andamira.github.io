@@ -3,15 +3,10 @@
 # Compiles docs and deploys to github page
 # https:://andamira.github.io/devela/doc/devela/
 #
+# repo: https://github.com/andamira/andamira.github.io
+#
 # NOTE: before building should run in devela: `git stash -u`
 # and afterwards: `git pop`.
-#
-# finally, after docs are build: `git add .; git commit -m "update docs; git push"`
-#
-#
-## Usage examples
-#
-
 
 #* CONFIGURATION *#
 
@@ -37,8 +32,8 @@ rm -r "$OUT_DIR/debug"
 
 # push updated docs
 cd $GIT_DIR
-git add . --force libera/doc/devela/_info/
-git commit -m "update docs"
+git add . && \
+git commit -m "update docs" && \
 git push
 
 
