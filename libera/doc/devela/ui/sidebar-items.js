@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["UiError"],"mod":["layout","service"],"type":["UiResult"]};
+window.SIDEBAR_ITEMS = {"enum":["UiError"],"mod":["back","front","layout"],"type":["UiResult"]};

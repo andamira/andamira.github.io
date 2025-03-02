@@ -11,8 +11,8 @@
 #* CONFIGURATION *#
 
 WORK_DIR="$HOME/dev/rust/libera/devela"
-GIT_DIR="$HOME/dev/rust/libera/andamira.github.io/"
-OUT_DIR="$HOME/dev/rust/libera/andamira.github.io/libera"
+GIT_DIR="$HOME/tmp/andamira.github.io/"
+OUT_DIR="$HOME/tmp/andamira.github.io/libera"
 
 # CMD="CARGO_TARGET_DIR=$OUT_DIR cargo +nightly nd -F _docsrs"
 # NOTE: need to have in path: ../utils/cargo-nightly

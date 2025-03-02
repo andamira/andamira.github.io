@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Category","Priority"],"fn":["log","set_output_function"]};
+window.SIDEBAR_ITEMS = {"enum":["Category","Priority"],"fn":["get_log_priority","log","log_critical","log_debug","log_error","log_info","log_message","log_trace","log_verbose","log_warn","reset_log_priorities","set_log_priorities","set_log_priority","set_log_priority_prefix","set_output_function"]};

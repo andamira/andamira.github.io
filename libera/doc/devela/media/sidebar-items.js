@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["audio","color","draw","font","image","midi"]};
+window.SIDEBAR_ITEMS = {"mod":["audio","color","draw","font","image","midi","video"]};

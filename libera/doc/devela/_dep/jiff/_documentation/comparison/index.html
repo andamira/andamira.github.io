@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Comparison with other Rust datetime crates"><title>devela::_dep::jiff::_documentation::comparison - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (6171d944a 2025-02-10)" data-channel="nightly" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../../../static.files/storage-3a5871a4.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Comparison with other Rust datetime crates"><title>devela::_dep::jiff::_documentation::comparison - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (287487624 2025-02-28)" data-channel="nightly" data-search-js="search-f7327375.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../../../static.files/storage-d8ac8691.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../static.files/main-a7bf3405.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) { return; } window.scriptLoaderInitialized = true;
@@ -650,30 +650,53 @@ DST safe:</p>
 
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
-<h4 id="chrono-is-faster-than-jiff-in-some-cases"><a class="doc-anchor" href="#chrono-is-faster-than-jiff-in-some-cases">§</a>Chrono is faster than Jiff in some cases</h4>
-<p>.. and in other cases, Jiff is a little faster than Chrono. But Chrono does
-seem to have the edge. These benchmark results were collected on <code>2024-07-11</code>.</p>
+<h4 id="jiff-is-generally-faster-than-chrono"><a class="doc-anchor" href="#jiff-is-generally-faster-than-chrono">§</a>Jiff is generally faster than Chrono</h4>
+<p>There are some cases where Chrono is faster than Jiff, but Jiff should
+generally be competitive for equivalent operations. It’s generally not
+possible for Chrono or Jiff to always be faster than the other, since
+they each use different representations for fundamental types. This in turn
+makes some operations faster and others slower, depending on what you’re
+trying to do.</p>
 <div class="example-wrap"><pre class="language-text"><code>$ cd bench
 $ cargo bench -- --save-baseline base
 [.. snip ..]
-$ critcmp -g &#39;^[^/]+/(.*)$&#39; -f &#39;^(chrono|chrono-tzfile|jiff)/&#39; base
-group                                         base/chrono-tzfile/                    base/chrono/                           base/jiff/
------                                         -------------------                    ------------                           ----------
-civil_datetime_to_instant_static              1.00     19.2±0.26ns        ? ?/sec    1.16     22.1±0.20ns        ? ?/sec    1.00     19.2±0.74ns        ? ?/sec
-civil_datetime_to_instant_with_tzdb_lookup    21.31     2.2±0.03µs        ? ?/sec                                           1.00    103.0±4.99ns        ? ?/sec
-instant_to_civil_datetime_offset                                                     1.00      6.9±0.02ns        ? ?/sec    3.45     23.8±1.11ns        ? ?/sec
-instant_to_civil_datetime_static              1.17     20.1±0.16ns        ? ?/sec    1.00     17.3±0.12ns        ? ?/sec    2.32     40.1±0.22ns        ? ?/sec
-offset_to_civil_datetime                                                             6.22      5.5±0.02ns        ? ?/sec    1.00      0.9±0.02ns        ? ?/sec
-offset_to_instant                                                                    3.61      1.4±0.02ns        ? ?/sec    1.00      0.4±0.00ns        ? ?/sec
-parse_civil_datetime                                                                 2.00     69.1±1.33ns        ? ?/sec    1.00     34.5±0.15ns        ? ?/sec
-parse_rfc2822                                                                        1.36     57.5±0.58ns        ? ?/sec    1.00     42.1±0.46ns        ? ?/sec
-parse_strptime                                                                       2.59    169.4±3.96ns        ? ?/sec    1.00     65.5±0.90ns        ? ?/sec
-zoned_add_time_duration                                                              1.00      5.6±0.06ns        ? ?/sec    5.85     32.8±0.25ns        ? ?/sec</code></pre></div>
-<p>It’s plausible that in cases where Jiff is slower (for example,
-<code>zoned_add_time_duration</code>), users could use <code>Timestamp</code> instead of <code>Zoned</code>.
-Namely, <code>Zoned</code> has some overhead associated with it due to the fact that
-it stores a <code>civil::DateTime</code>, <code>Timestamp</code> and a <code>TimeZone</code>. Where as a
-<code>Timestamp</code> is just a 96-bit integer number of nanoseconds.</p>
+$ critcmp base -g &#39;(.*)/(?:jiff|chrono)$&#39;
+group                                                           base//chrono                         base//jiff
+-----                                                           ------------                         ----------
+civil_datetime/add_days/diffyear/duration                       1.00      8.3±0.07ns        ? ?/sec    1.77     14.6±0.29ns        ? ?/sec
+civil_datetime/add_days/sameyear/duration                       1.00      6.4±0.07ns        ? ?/sec    2.29     14.6±0.23ns        ? ?/sec
+civil_datetime/to_datetime_static/bundled                       1.00     22.3±0.31ns        ? ?/sec
+civil_datetime/to_datetime_static/zoneinfo                      1.12     18.2±0.33ns        ? ?/sec    1.00     16.2±0.17ns        ? ?/sec
+civil_datetime/to_timestamp_tzdb_lookup/bundled                 1.00     32.0±0.28ns        ? ?/sec
+civil_datetime/to_timestamp_tzdb_lookup/zoneinfo                52.41     2.1±0.01µs        ? ?/sec    1.00     40.7±0.17ns        ? ?/sec
+date/add_days/diffyear/duration                                 1.00      5.9±0.04ns        ? ?/sec    1.11      6.5±0.04ns        ? ?/sec
+date/add_days/sameyear/duration                                 1.00      2.1±0.03ns        ? ?/sec    3.08      6.5±0.05ns        ? ?/sec
+date/difference_days/duration                                   1.23      3.4±0.03ns        ? ?/sec    1.00      2.8±0.02ns        ? ?/sec
+date/tomorrow/diff-month                                        1.00      0.4±0.00ns        ? ?/sec    3.24      1.3±0.01ns        ? ?/sec
+date/tomorrow/diff-year                                         1.24      1.8±0.02ns        ? ?/sec    1.00      1.4±0.01ns        ? ?/sec
+date/tomorrow/same-month                                        1.00      0.4±0.02ns        ? ?/sec    1.93      0.8±0.01ns        ? ?/sec
+date/yesterday/diff-month                                       1.00      0.4±0.00ns        ? ?/sec    3.31      1.3±0.01ns        ? ?/sec
+date/yesterday/diff-year                                        1.96      2.1±0.02ns        ? ?/sec    1.00      1.1±0.01ns        ? ?/sec
+date/yesterday/same-month                                       1.00      0.4±0.00ns        ? ?/sec    1.75      0.7±0.01ns        ? ?/sec
+parse/civil_datetime                                            3.13     73.6±0.69ns        ? ?/sec    1.00     23.5±0.17ns        ? ?/sec
+parse/rfc2822                                                   2.41     62.9±0.35ns        ? ?/sec    1.00     26.1±0.30ns        ? ?/sec
+parse/strptime/oneshot                                          2.93    172.8±3.46ns        ? ?/sec    1.00     59.0±0.94ns        ? ?/sec
+parse/strptime/prebuilt                                         1.00     91.0±1.25ns        ? ?/sec
+print/civil_datetime                                            3.08    155.6±3.81ns        ? ?/sec    1.00     50.5±0.18ns        ? ?/sec
+timestamp/add_time_secs/duration                                2.14      5.8±0.04ns        ? ?/sec    1.00      2.7±0.02ns        ? ?/sec
+timestamp/add_time_subsec/duration                              1.84      5.8±0.04ns        ? ?/sec    1.00      3.1±0.05ns        ? ?/sec
+timestamp/every_hour_in_week/byhand                             15.83  1654.8±2.72ns        ? ?/sec    1.00    104.5±1.31ns        ? ?/sec
+timestamp/to_civil_datetime_offset_conversion                   1.61      7.1±0.04ns        ? ?/sec    1.00      4.4±0.04ns        ? ?/sec
+timestamp/to_civil_datetime_static/America-New-York/bundled     1.00     21.3±0.12ns        ? ?/sec
+timestamp/to_civil_datetime_static/America-New-York/zoneinfo    1.15     20.5±0.18ns        ? ?/sec    1.00     17.7±0.15ns        ? ?/sec
+timestamp/to_civil_datetime_static/Asia-Shanghai/bundled        1.00     20.8±0.21ns        ? ?/sec
+timestamp/to_civil_datetime_static/Asia-Shanghai/zoneinfo       2.60     18.7±0.09ns        ? ?/sec    1.00      7.2±0.05ns        ? ?/sec
+zoned/fixed_offset_add_time/duration                            1.00      6.0±0.03ns        ? ?/sec    3.50     20.9±0.11ns        ? ?/sec
+zoned/fixed_offset_to_civil_datetime                            5.92      5.4±0.01ns        ? ?/sec    1.00      0.9±0.02ns        ? ?/sec
+zoned/fixed_offset_to_timestamp                                 3.17      1.2±0.01ns        ? ?/sec    1.00      0.4±0.01ns        ? ?/sec</code></pre></div>
+<p>Questions about benchmarks are
+welcome in
+<a href="https://github.com/BurntSushi/jiff/discussions">Discussions on GitHub</a>.</p>
 <h3 id="time-v0336"><a class="doc-anchor" href="#time-v0336">§</a><a href="https://docs.rs/time"><code>time</code></a> (v0.3.36)</h3>
 <p><code>time</code> is a Rust datetime library that provides a time zone offset aware
 datetime type.</p>
@@ -914,29 +937,46 @@ do the arithmetic yourself:</p>
 
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
-<h4 id="jiff-is-faster-than-time-in-some-cases"><a class="doc-anchor" href="#jiff-is-faster-than-time-in-some-cases">§</a>Jiff is faster than <code>time</code> in some cases</h4>
-<p>.. and in other cases, <code>time</code> is a little faster than Jiff. These benchmark
-results were collected on <code>2024-07-11</code>.</p>
+<h4 id="jiff-is-generally-faster-than-time"><a class="doc-anchor" href="#jiff-is-generally-faster-than-time">§</a>Jiff is generally faster than <code>time</code></h4>
+<p>Unlike Chrono, at least for Jiff’s benchmarks, there are few cases where <code>time</code>
+is faster than Jiff.</p>
 <div class="example-wrap"><pre class="language-text"><code>$ cd bench
 $ cargo bench -- --save-baseline base
 [.. snip ..]
-$ critcmp -g &#39;^[^/]+/(.*)$&#39; -f &#39;^(time|jiff)/&#39; base
-group                                         base/jiff/                             base/time/
------                                         ----------                             ----------
-instant_to_civil_datetime_offset              1.65     23.8±1.11ns        ? ?/sec    1.00     14.4±0.14ns        ? ?/sec
-offset_to_civil_datetime                      1.14      0.9±0.02ns        ? ?/sec    1.00      0.8±0.00ns        ? ?/sec
-offset_to_instant                             1.00      0.4±0.00ns        ? ?/sec    6.29      2.4±0.03ns        ? ?/sec
-parse_civil_datetime                          1.00     34.5±0.15ns        ? ?/sec    1.95     67.2±1.49ns        ? ?/sec
-parse_rfc2822                                 1.00     42.1±0.46ns        ? ?/sec    1.75     73.8±0.66ns        ? ?/sec
-parse_strptime                                1.00     65.5±0.90ns        ? ?/sec    1.71    112.0±0.92ns        ? ?/sec
-zoned_add_time_duration                       1.42     32.8±0.25ns        ? ?/sec    1.00     23.1±0.15ns        ? ?/sec</code></pre></div>
-<p>It’s plausible that in cases where Jiff is slower (for example,
-<code>zoned_add_time_duration</code>), users could use <code>Timestamp</code> instead of <code>Zoned</code>.
-Namely, <code>Zoned</code> has some overhead associated with it due to the fact that
-it stores a <code>civil::DateTime</code>, <code>Timestamp</code> and a <code>TimeZone</code>. Where as a
-<code>Timestamp</code> is just a 96-bit integer number of nanoseconds.</p>
-<p>Note that some benchmarks were omitted here since <code>time</code> does not support time
-zones.</p>
+$ critcmp base -g &#39;(.*)/(?:jiff|time)$&#39;
+group                                                           base//time                           base//jiff
+-----                                                           ----------                           ----------
+civil_datetime/add_days/diffyear/duration                       1.11     16.2±0.14ns        ? ?/sec    1.00     14.6±0.29ns        ? ?/sec
+civil_datetime/add_days/sameyear/duration                       1.14     16.5±0.10ns        ? ?/sec    1.00     14.6±0.23ns        ? ?/sec
+date/add_days/diffyear/duration                                 1.11      7.3±0.07ns        ? ?/sec    1.00      6.5±0.04ns        ? ?/sec
+date/add_days/sameyear/duration                                 1.16      7.6±0.07ns        ? ?/sec    1.00      6.5±0.05ns        ? ?/sec
+date/days_in_month/leap/feb                                     12.53     4.9±0.34ns        ? ?/sec    1.00      0.4±0.01ns        ? ?/sec
+date/days_in_month/leap/nofeb                                   9.08      3.5±0.34ns        ? ?/sec    1.00      0.4±0.00ns        ? ?/sec
+date/days_in_month/noleap/feb                                   11.14     4.4±0.33ns        ? ?/sec    1.00      0.4±0.03ns        ? ?/sec
+date/days_in_month/noleap/nofeb                                 8.20      3.2±0.27ns        ? ?/sec    1.00      0.4±0.00ns        ? ?/sec
+date/difference_days/duration                                   1.45      4.1±0.04ns        ? ?/sec    1.00      2.8±0.02ns        ? ?/sec
+date/tomorrow/diff-month                                        1.00      0.4±0.00ns        ? ?/sec    3.23      1.3±0.01ns        ? ?/sec
+date/tomorrow/diff-year                                         1.00      0.5±0.03ns        ? ?/sec    2.90      1.4±0.01ns        ? ?/sec
+date/tomorrow/same-month                                        1.00      0.4±0.01ns        ? ?/sec    1.96      0.8±0.01ns        ? ?/sec
+date/yesterday/diff-month                                       1.00      0.4±0.00ns        ? ?/sec    3.31      1.3±0.01ns        ? ?/sec
+date/yesterday/diff-year                                        1.00      0.7±0.02ns        ? ?/sec    1.55      1.1±0.01ns        ? ?/sec
+date/yesterday/same-month                                       1.00      0.4±0.00ns        ? ?/sec    1.76      0.7±0.01ns        ? ?/sec
+parse/civil_datetime                                            1.43     33.6±0.19ns        ? ?/sec    1.00     23.5±0.17ns        ? ?/sec
+parse/rfc2822                                                   3.12     81.4±1.60ns        ? ?/sec    1.00     26.1±0.30ns        ? ?/sec
+parse/strptime/oneshot                                                                                 1.00     59.0±0.94ns        ? ?/sec
+parse/strptime/prebuilt                                         1.00    117.0±1.08ns        ? ?/sec
+print/civil_datetime                                            1.02     51.5±0.75ns        ? ?/sec    1.00     50.5±0.18ns        ? ?/sec
+timestamp/add_time_secs/duration                                7.04     19.0±0.21ns        ? ?/sec    1.00      2.7±0.02ns        ? ?/sec
+timestamp/add_time_subsec/duration                              6.06     19.1±0.25ns        ? ?/sec    1.00      3.1±0.05ns        ? ?/sec
+timestamp/every_hour_in_week/byhand                             32.29     3.4±0.04µs        ? ?/sec    1.00    104.5±1.31ns        ? ?/sec
+timestamp/to_civil_datetime_offset_conversion                   3.30     14.6±0.15ns        ? ?/sec    1.00      4.4±0.04ns        ? ?/sec
+timestamp/to_civil_datetime_offset_holistic                     4.48     18.7±0.07ns        ? ?/sec    1.00      4.2±0.02ns        ? ?/sec
+zoned/fixed_offset_add_time/duration                            1.11     23.2±0.14ns        ? ?/sec    1.00     20.9±0.11ns        ? ?/sec
+zoned/fixed_offset_to_civil_datetime                            1.05      1.0±0.02ns        ? ?/sec    1.00      0.9±0.02ns        ? ?/sec
+zoned/fixed_offset_to_timestamp                                 7.01      2.7±0.04ns        ? ?/sec    1.00      0.4±0.01ns        ? ?/sec</code></pre></div>
+<p>Questions about benchmarks are
+welcome in
+<a href="https://github.com/BurntSushi/jiff/discussions">Discussions on GitHub</a>.</p>
 <h3 id="hifitime-v390"><a class="doc-anchor" href="#hifitime-v390">§</a><a href="https://docs.rs/hifitime"><code>hifitime</code></a> (v3.9.0)</h3>
 <p><code>hifitime</code> is a datetime library with a focus on engineering and scientific
 calculations where general relativity and time dilation matter. It supports
@@ -1020,38 +1060,37 @@ calendar conversions are required. To facilitate this, the
 <a href="https://docs.rs/jiff-icu"><code>jiff-icu</code></a> crate makes conversions between Jiff
 and ICU4X data types seamless. For example, to do localization starting from
 a Jiff data type:</p>
-
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu::{
+<div class="example-wrap"><pre class="language-text"><code>use icu::{
     calendar::{japanese::Japanese, DateTime},
     datetime::TypedDateTimeFormatter,
     locid::locale,
 };
-<span class="kw">use </span>jiff::Timestamp;
-<span class="kw">use </span>jiff_icu::ConvertFrom <span class="kw">as _</span>;
+use jiff::Timestamp;
+use jiff_icu::ConvertFrom as _;
 
-<span class="kw">fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
-    <span class="kw">let </span>ts: Timestamp = <span class="string">"2024-09-10T23:37:20Z"</span>.parse()<span class="question-mark">?</span>;
-    <span class="kw">let </span>zoned = ts.in_tz(<span class="string">"Asia/Tokyo"</span>)<span class="question-mark">?</span>;
+fn main() -&gt; anyhow::Result&lt;()&gt; {
+    let ts: Timestamp = &quot;2024-09-10T23:37:20Z&quot;.parse()?;
+    let zoned = ts.in_tz(&quot;Asia/Tokyo&quot;)?;
 
-    <span class="comment">// Create ICU datetime.
-    </span><span class="kw">let </span>datetime = DateTime::convert_from(zoned.datetime());
+    // Create ICU datetime.
+    let datetime = DateTime::convert_from(zoned.datetime());
 
-    <span class="comment">// Convert to Japanese calendar.
-    </span><span class="kw">let </span>japanese_datetime = DateTime::new_from_iso(datetime, Japanese::new());
+    // Convert to Japanese calendar.
+    let japanese_datetime = DateTime::new_from_iso(datetime, Japanese::new());
 
-    <span class="comment">// Format for the en-GB locale.
-    </span><span class="kw">let </span>formatter = TypedDateTimeFormatter::try_new(
-        <span class="kw-2">&amp;</span><span class="macro">locale!</span>(<span class="string">"en-GB"</span>).into(),
+    // Format for the en-GB locale.
+    let formatter = TypedDateTimeFormatter::try_new(
+        &amp;locale!(&quot;en-GB&quot;).into(),
         Default::default(),
-    )<span class="question-mark">?</span>;
+    )?;
 
-    <span class="comment">// Assert that we get the expected result.
-    </span><span class="macro">assert_eq!</span>(
-        formatter.format(<span class="kw-2">&amp;</span>japanese_datetime).to_string(),
-        <span class="string">"Sept 11, 6 Reiwa, 08:37:20"</span>,
+    // Assert that we get the expected result.
+    assert_eq!(
+        formatter.format(&amp;japanese_datetime).to_string(),
+        &quot;Sept 11, 6 Reiwa, 08:37:20&quot;,
     );
 
-    <span class="prelude-val">Ok</span>(())
+    Ok(())
 }</code></pre></div>
 <p>The above example requires the following dependency specifications:</p>
 <div class="example-wrap"><pre class="language-toml"><code>anyhow = &quot;1.0.81&quot;

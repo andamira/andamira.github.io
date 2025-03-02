@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["DstExpr","Expr","ExprKind"],"mod":["linear","symb"],"struct":["Factor","Term","VecVector","Vector"],"trait":["NumVector"],"type":["Vector2d","Vector3d"]};

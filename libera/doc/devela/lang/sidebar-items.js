@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["c","glsl"]};
+window.SIDEBAR_ITEMS = {"mod":["c","glsl","js"]};

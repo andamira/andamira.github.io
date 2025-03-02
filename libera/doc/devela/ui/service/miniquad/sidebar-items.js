@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["MiniquadConf","MiniquadPixelBuf","MiniquadPlatform","MiniquadService","MiniquadWindow"],"trait":["MiniquadEventHandler","MiniquadEventHandlerExt","MiniquadRenderingBackend"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["BTreeMapEntry","HashMapEntry"],"struct":["BTreeMap","BTreeSet","HashMap","HashSet"],"type":["HashMapFx","HashMapStd","HashSetFx","HashSetStd"]};
+window.SIDEBAR_ITEMS = {"enum":["BTreeMapEntry","HashMapEntry","StaticMapEntry"],"macro":["define_static_map"],"struct":["BTreeMap","BTreeSet","ExampleStaticMapU16","HashMap","HashSet"],"type":["HashMapFx","HashMapStd","HashSetFx","HashSetStd"]};

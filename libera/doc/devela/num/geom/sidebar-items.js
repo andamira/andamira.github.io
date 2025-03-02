@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AngleDirection","AngleKind"],"struct":["Angle","Extent","Point","Points","VecPoints"],"type":["Extent2d","Extent3d","Point2d","Point3d"]};
+window.SIDEBAR_ITEMS = {"mod":["linear","metric","shape"]};

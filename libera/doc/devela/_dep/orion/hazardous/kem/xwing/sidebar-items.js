@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["CIPHERTEXT_SIZE","PRIVATE_KEY_SIZE","PUBLIC_KEY_SIZE","SHARED_SECRET_SIZE"],"struct":["Ciphertext","DecapsulationKey","EncapsulationKey","KeyPair","Seed","SharedSecret","XWing"]};
