@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ImageError"],"mod":["sixel"],"struct":["Pnm"],"type":["ImageResult"]};

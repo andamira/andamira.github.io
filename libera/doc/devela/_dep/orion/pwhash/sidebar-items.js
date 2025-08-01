@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["PWHASH_LENGTH","SALT_LENGTH"],"fn":["hash_password","hash_password_verify"],"struct":["Password","PasswordHash"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["SHAKE_256_RATE"],"struct":["Shake256"]};

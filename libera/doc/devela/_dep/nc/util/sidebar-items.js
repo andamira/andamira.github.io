@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["ALL_SYMS"],"fn":["read_syscall_list","syscall_exists"],"struct":["File"],"type":["SyscallTable"]};

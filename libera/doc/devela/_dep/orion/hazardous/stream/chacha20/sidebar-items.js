@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["CHACHA_KEYSIZE","IETF_CHACHA_NONCESIZE"],"fn":["decrypt","encrypt"],"struct":["Nonce","SecretKey"]};

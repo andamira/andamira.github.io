@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["IoErrorKind"],"struct":["Io","IoBufReader","IoBufWriter","IoBytes","IoChain","IoCursor","IoEmpty","IoError","IoLineWriter","IoLines","IoRepeat","IoSink","IoSlice","IoSliceMut","IoSplit","IoTake","Stderr","StderrLock","Stdin","StdinLock","Stdout","StdoutLock"],"trait":["IoBufRead","IoRead","IoSeek","IoWrite"],"type":["IoResult"]};

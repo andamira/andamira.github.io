@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["grantpt","ioctl_tiocgptpeer","openpt","ptsname","unlockpt"],"struct":["OpenptFlags"]};

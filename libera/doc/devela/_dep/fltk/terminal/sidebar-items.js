@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["XtermColor"],"struct":["Attrib","BuffRow","BuffRowIter","CharFlags","OutFlags","RedrawStyle","ScrollbarStyle","Terminal","Utf8Char"]};

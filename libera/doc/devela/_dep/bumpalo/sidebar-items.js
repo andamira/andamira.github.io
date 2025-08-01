@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AllocOrInitError"],"macro":["format","vec"],"mod":["boxed","collections","core_alloc"],"struct":["AllocErr","Bump","ChunkIter","ChunkRawIter"]};

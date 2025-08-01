@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["xorshift_custom"],"struct":["Lgc16","Xabc","XorShift128","XorShift128p","XorShift16","XorShift32","XorShift64","XorShift8","Xoroshiro128pp","Xyza8a","Xyza8b"]};

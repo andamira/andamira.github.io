@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["SeekSearchResult"],"fn":["trim_packet"],"struct":["SeekIndex","SeekPoint"]};

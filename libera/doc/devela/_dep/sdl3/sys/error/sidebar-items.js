@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["SDL_ClearError","SDL_GetError","SDL_InvalidParamError","SDL_OutOfMemory","SDL_SetError","SDL_SetErrorV","SDL_Unsupported"]};

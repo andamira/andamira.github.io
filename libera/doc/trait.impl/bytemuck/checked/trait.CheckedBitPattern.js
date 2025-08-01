@@ -1,9 +1,0 @@
-(function() {
-    var implementors = Object.fromEntries([["devela",[["impl&lt;const V: <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.i8.html\">i8</a>&gt; <a class=\"trait\" href=\"devela/_dep/bytemuck/trait.CheckedBitPattern.html\" title=\"trait devela::_dep::bytemuck::CheckedBitPattern\">CheckedBitPattern</a> for <a class=\"struct\" href=\"devela/_info/examples/niche/struct.NonValueI8.html\" title=\"struct devela::_info::examples::niche::NonValueI8\">NonValueI8</a>&lt;V&gt;"],["impl&lt;const V: <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.i8.html\">i8</a>&gt; <a class=\"trait\" href=\"devela/_dep/bytemuck/trait.CheckedBitPattern.html\" title=\"trait devela::_dep::bytemuck::CheckedBitPattern\">CheckedBitPattern</a> for <a class=\"struct\" href=\"devela/all/struct.NonValueI8.html\" title=\"struct devela::all::NonValueI8\">NonValueI8</a>&lt;V&gt;"],["impl&lt;const V: <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u16.html\">u16</a>&gt; <a class=\"trait\" href=\"devela/_dep/bytemuck/trait.CheckedBitPattern.html\" title=\"trait devela::_dep::bytemuck::CheckedBitPattern\">CheckedBitPattern</a> for <a class=\"struct\" href=\"devela/all/struct.NonValueU16.html\" title=\"struct devela::all::NonValueU16\">NonValueU16</a>&lt;V&gt;"],["impl&lt;const V: <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u8.html\">u8</a>&gt; <a class=\"trait\" href=\"devela/_dep/bytemuck/trait.CheckedBitPattern.html\" title=\"trait devela::_dep::bytemuck::CheckedBitPattern\">CheckedBitPattern</a> for <a class=\"struct\" href=\"devela/all/struct.NonValueU8.html\" title=\"struct devela::all::NonValueU8\">NonValueU8</a>&lt;V&gt;"]]]]);
-    if (window.register_implementors) {
-        window.register_implementors(implementors);
-    } else {
-        window.pending_implementors = implementors;
-    }
-})()
-//{"start":57,"fragment_lengths":[1693]}

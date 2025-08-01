@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["MatcherType"],"mod":["sz"],"struct":["RangeMatches","RangeRMatches","RangeRSplits","RangeSplits"],"trait":["Matcher","MutableStringZilla","StringZilla"]};

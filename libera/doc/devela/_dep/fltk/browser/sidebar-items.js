@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["BrowserScrollbar","BrowserType","FileType"],"struct":["Browser","CheckBrowser","FileBrowser","HoldBrowser","MultiBrowser","SelectBrowser"]};

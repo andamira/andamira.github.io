@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"derive":["Copy"],"macro":["type_marker","type_resource"],"struct":["PhantomData","PhantomPinned","TypeResource"],"trait":["Copy","Send","Sized","Sync","TypeResourced","Unpin"]};

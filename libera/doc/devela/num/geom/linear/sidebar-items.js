@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Affine","Matrix","VecVector","Vector"],"trait":["NumVector"],"type":["Vector2d","Vector3d"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["PI"],"fn":["get_rotozoom_size","get_rotozoom_xy_size","get_zoom_size"],"trait":["RotozoomSurface"]};

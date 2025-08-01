@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Error","Timeout"],"fn":["agent","connect","delete","get","head","options","patch","post","put","run","trace"],"mod":["config","http","middleware","typestate","unversioned"],"struct":["Agent","Body","BodyBuilder","BodyReader","BodyWithConfig","Proxy","RequestBuilder","SendBody"],"trait":["AsSendBody","ResponseExt"]};

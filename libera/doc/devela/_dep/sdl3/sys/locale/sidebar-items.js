@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["SDL_GetPreferredLocales"],"struct":["SDL_Locale"]};

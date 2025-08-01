@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ParseIntErrorKind"],"struct":["ByteSearch","ParseFloatError","ParseIntError"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["HatState","PowerLevel"],"struct":["Joystick","JoystickInstance","PowerInfo"]};

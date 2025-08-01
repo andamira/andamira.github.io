@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["linux_sig_handler_no_return","linux_sys_exit","linux_sys_rt_sigaction"],"struct":["LINUX_SIGACTION","LINUX_SIGNAL","LinuxSigaction","LinuxSigset"]};

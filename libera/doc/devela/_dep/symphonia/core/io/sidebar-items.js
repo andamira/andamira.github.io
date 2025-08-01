@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["vlc"],"struct":["BitReaderLtr","BitReaderRtl","BitStreamLtr","BitStreamRtl","BufReader","MediaSourceStream","MediaSourceStreamOptions","MonitorStream","ReadOnlySource","ScopedStream"],"trait":["FiniteBitStream","FiniteStream","MediaSource","Monitor","ReadBitsLtr","ReadBitsRtl","ReadBytes","SeekBuffered"]};

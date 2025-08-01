@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["_str","str","strjoin"],"struct":["CStr","CString","OsStr","OsString","Str","String","StringNonul","StringU8"],"trait":["ExtStr","ExtString","FromStr","ToString"]};

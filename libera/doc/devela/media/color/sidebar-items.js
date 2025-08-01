@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ColorError"],"struct":["Color"],"trait":["ColorBase"],"type":["ColorResult"]};

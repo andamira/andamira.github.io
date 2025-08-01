@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["add_timer","delay","performance_counter","performance_frequency","ticks"],"struct":["Timer"],"type":["TimerCallback"]};

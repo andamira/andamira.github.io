@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["DevicesError","PlayError","StreamError"],"mod":["buffer","cpal","decoder","dynamic_mixer","queue","source","static_buffer"],"struct":["Decoder","Device","Devices","OutputStream","OutputStreamHandle","Sink","SpatialSink","SupportedStreamConfig"],"trait":["DeviceTrait","Sample","Source"],"type":["InputDevices","OutputDevices"]};

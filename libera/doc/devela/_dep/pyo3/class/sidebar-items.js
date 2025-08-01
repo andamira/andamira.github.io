@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["basic","gc"],"struct":["PyTraverseError","PyVisit"],"type":["IPowModulo","PyClassAttributeDef","PyGetterDef","PyMethodDef","PyMethodDefType","PyMethodType","PySetterDef"]};

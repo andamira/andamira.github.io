@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CoroutineState","TaskPoll"],"macro":["task_ready"],"struct":["Coro","CoroRun","CoroYield","FuturePending","FuturePollFn","FutureReady","TaskContext","TaskRawWaker","TaskRawWakerVTable","TaskWaker"],"trait":["Coroutine","ExtFuture","Future","IntoFuture","TaskWake"]};

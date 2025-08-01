@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["vec"],"mod":["alloc","boxed","collections","vec"]};

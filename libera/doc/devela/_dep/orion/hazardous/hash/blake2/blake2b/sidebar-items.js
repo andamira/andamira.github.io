@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Hasher"],"struct":["Blake2b","Digest"]};

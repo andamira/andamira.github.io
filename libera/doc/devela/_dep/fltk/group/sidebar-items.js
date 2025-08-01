@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["FlexType","PackType","ScrollType","TabsOverflow"],"mod":["experimental"],"struct":["ColorChooser","Column","Flex","Grid","GridAlign","GridRange","Group","HGrid","Pack","Row","Scroll","Tabs","Tile","VGrid","Wizard"]};

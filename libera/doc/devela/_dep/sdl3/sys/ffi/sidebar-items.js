@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["VaList"],"type":["c_wchar_t"]};

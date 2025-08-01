@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["LogLevel","LogLevelFilter"],"macro":["debug","error","info","log","trace","warn"],"struct":["Log","LogConfig","LogMetadata","LogRecord","LoggerSetError"],"trait":["ExtLogger","Logger"]};

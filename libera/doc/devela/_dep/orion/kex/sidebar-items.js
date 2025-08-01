@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["EphemeralClientSession","EphemeralServerSession","PrivateKey","PublicKey","SecretKey","SessionKeys"]};

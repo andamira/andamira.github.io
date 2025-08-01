@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["clock_ticks_per_second","linux_execfn","linux_hwcap","linux_minsigstksz","page_size"]};

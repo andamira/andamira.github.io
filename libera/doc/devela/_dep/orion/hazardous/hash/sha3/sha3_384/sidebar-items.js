@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["SHA3_384_OUTSIZE","SHA3_384_RATE"],"struct":["Digest","Sha3_384"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["InputType"],"struct":["FileInput","FloatInput","Input","IntInput","MultilineInput","SecretInput"]};

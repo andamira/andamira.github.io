@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["miniquad"],"struct":["MiniquadPixels","MiniquadService","MiniquadWindow"],"trait":["MiniquadEventHandlerExt"]};

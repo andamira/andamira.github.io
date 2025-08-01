@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["io","process","thread"],"static":["LINUX_TERMINAL_STATE"],"struct":["LinuxTerminal"]};

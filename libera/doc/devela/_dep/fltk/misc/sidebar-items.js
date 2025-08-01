@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ChartType","ClockType"],"struct":["Chart","Clock","HelpView","InputChoice","Progress","Spinner","Tooltip"]};

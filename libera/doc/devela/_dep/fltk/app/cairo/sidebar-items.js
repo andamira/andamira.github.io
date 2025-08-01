@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["autolink_context","cc","flush","make_current","set_autolink_context","set_cc"]};

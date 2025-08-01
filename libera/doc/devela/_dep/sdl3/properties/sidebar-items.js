@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["PropertiesError"],"struct":["Properties","PropertyType"],"trait":["Getter","Setter"],"type":["CleanupBox","CleanupCallback","EnumerateCallback"]};

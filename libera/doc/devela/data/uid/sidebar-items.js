@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["id_seq"],"struct":["IdPin","IdPinBox"]};

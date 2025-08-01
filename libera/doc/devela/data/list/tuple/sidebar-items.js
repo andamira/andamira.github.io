@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["TupleElement","TupleElementMut","TupleElementRef"],"struct":["TupleFmt","TupleIter","TupleIterMut","TupleIterRef"],"trait":["Tuple"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["POLY1305_KEYSIZE","POLY1305_OUTSIZE"],"struct":["OneTimeKey","Poly1305","Tag"]};

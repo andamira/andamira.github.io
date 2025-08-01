@@ -1,1 +1,0 @@
-searchState.loadedDescShard("xoro", 0, "")

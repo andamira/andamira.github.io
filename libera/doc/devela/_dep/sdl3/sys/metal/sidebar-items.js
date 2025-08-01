@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["SDL_Metal_CreateView","SDL_Metal_DestroyView","SDL_Metal_GetLayer"],"type":["SDL_MetalView"]};

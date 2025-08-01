@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["BinaryHeap","Destaque","DestaqueIter","VecDeque"],"trait":["DataDeque","DataQueue"],"type":["DestaqueU8"]};

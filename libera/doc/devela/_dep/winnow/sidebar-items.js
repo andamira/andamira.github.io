@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["ascii","binary","combinator","error","prelude","stream","token"],"struct":["BStr","Bytes","LocatingSlice","Partial","Stateful"],"trait":["ModalParser","Parser"],"type":["ModalResult","Result","Str"]};

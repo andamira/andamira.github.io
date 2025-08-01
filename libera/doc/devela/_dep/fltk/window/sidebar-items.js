@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["WindowType"],"struct":["AndroidWindow","DoubleWindow","MenuWindow","OverlayWindow","SingleWindow"],"type":["GlContext","RawHandle","Window"]};

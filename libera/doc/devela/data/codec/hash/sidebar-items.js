@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"derive":["Hash"],"struct":["HasherBuildDefault","HasherFnv","HasherFx","HasherPengy","RandomState"],"trait":["Hash","Hasher","HasherBuild"],"type":["HasherBuildFnv","HasherBuildFx"]};

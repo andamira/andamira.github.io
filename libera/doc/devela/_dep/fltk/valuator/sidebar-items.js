@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CounterType","DialType","ScrollbarType","SliderType"],"struct":["Adjuster","Counter","Dial","FillDial","FillSlider","HorFillSlider","HorNiceSlider","HorSlider","HorValueSlider","LineDial","NiceSlider","Roller","Scrollbar","Slider","ValueInput","ValueOutput","ValueSlider"]};

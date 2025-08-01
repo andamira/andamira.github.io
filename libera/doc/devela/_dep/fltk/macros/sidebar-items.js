@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["browser","button","display","group","image","input","menu","table","valuator","widget","window"]};

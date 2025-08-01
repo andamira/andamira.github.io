@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AudioDeviceID","AudioFormat"],"fn":["drivers"],"struct":["AudioDevice","AudioSpec","AudioSpecWAV","AudioStream","AudioStreamWithCallback","DriverIterator"],"trait":["AudioCallback","AudioFormatNum","AudioRecordingCallback"]};
