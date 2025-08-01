@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Homogeneity","PropConstraint","PropOrder","PropStruct","PropUnique"],"struct":["StructureProperties"],"trait":["Introspect"]};
+window.SIDEBAR_ITEMS = {"trait":["Introspect"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Heat"]};
+window.SIDEBAR_ITEMS = {};

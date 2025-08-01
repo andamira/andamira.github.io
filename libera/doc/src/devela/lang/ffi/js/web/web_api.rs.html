@@ -261,278 +261,259 @@
 <a href=#261 id=261 data-nosnippet>261</a>    </span><span class="doccomment">/// Replaces the current document with the given URL,
 <a href=#262 id=262 data-nosnippet>262</a>    /// without creating a new entry in the history.
 <a href=#263 id=263 data-nosnippet>263</a>    </span><span class="kw">pub fn </span>location_replace(url: <span class="kw-2">&amp;</span>str) { <span class="kw">unsafe </span>{ location_replace(url.as_ptr(), url.len()); } }
-<a href=#264 id=264 data-nosnippet>264</a>
-<a href=#265 id=265 data-nosnippet>265</a>    <span class="comment">/* TEMP, TODO: move to a separate url section, maybe use types Url &amp; Url(Search?)Params */
-<a href=#266 id=266 data-nosnippet>266</a>
-<a href=#267 id=267 data-nosnippet>267</a>    </span><span class="doccomment">/// Returns the current URL as a `String`.
-<a href=#268 id=268 data-nosnippet>268</a>    ///
-<a href=#269 id=269 data-nosnippet>269</a>    /// This will dynamically reallocate and retry if the buffer is too small.
-<a href=#270 id=270 data-nosnippet>270</a>    /// Uses the JS-side `str_encode` protocol (positive = written, negative = required).
-<a href=#271 id=271 data-nosnippet>271</a>    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-<a href=#272 id=272 data-nosnippet>272</a>    #[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"alloc"</span>)))]
-<a href=#273 id=273 data-nosnippet>273</a>    </span><span class="kw">pub fn </span>url_current() -&gt; String { Js::read_string(|ptr, len| <span class="kw">unsafe </span>{ url_current(ptr, len) }) }
-<a href=#274 id=274 data-nosnippet>274</a>
-<a href=#275 id=275 data-nosnippet>275</a>    <span class="doccomment">/// Writes the current URL into the provided buffer and returns it as a string slice.
-<a href=#276 id=276 data-nosnippet>276</a>    ///
-<a href=#277 id=277 data-nosnippet>277</a>    /// The output will be truncated if the buffer is too small.
-<a href=#278 id=278 data-nosnippet>278</a>    /// Panics if the JS output is not valid UTF-8.
-<a href=#279 id=279 data-nosnippet>279</a>    </span><span class="kw">pub fn </span>url_current_buf(buffer: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="kw-2">&amp;</span>str {
-<a href=#280 id=280 data-nosnippet>280</a>        Js::read_str(buffer, |ptr, len| <span class="kw">unsafe </span>{ url_current(ptr, len) })
-<a href=#281 id=281 data-nosnippet>281</a>    }
-<a href=#282 id=282 data-nosnippet>282</a>}
-<a href=#283 id=283 data-nosnippet>283</a><span class="macro">js_reexport!</span> {
-<a href=#284 id=284 data-nosnippet>284</a>    [ module: <span class="string">"api_history_location" </span>]
-<a href=#285 id=285 data-nosnippet>285</a>    <span class="kw">unsafe fn </span>history_back();
-<a href=#286 id=286 data-nosnippet>286</a>    <span class="kw">unsafe fn </span>history_forward();
-<a href=#287 id=287 data-nosnippet>287</a>    <span class="kw">unsafe fn </span>history_go(delta: js_int32);
-<a href=#288 id=288 data-nosnippet>288</a>    <span class="kw">unsafe fn </span><span class="string">"history_pushState" </span>history_push_state(state_ptr: <span class="kw-2">*const </span>u8, state_len: usize,
-<a href=#289 id=289 data-nosnippet>289</a>        title_ptr: <span class="kw-2">*const </span>u8, title_len: usize, url_ptr: <span class="kw-2">*const </span>u8, url_len: usize);
-<a href=#290 id=290 data-nosnippet>290</a>    <span class="kw">unsafe fn </span><span class="string">"history_replaceState" </span>history_replace_state(state_ptr: <span class="kw-2">*const </span>u8, state_len: usize,
-<a href=#291 id=291 data-nosnippet>291</a>        title_ptr: <span class="kw-2">*const </span>u8, title_len: usize, url_ptr: <span class="kw-2">*const </span>u8, url_len: usize);
-<a href=#292 id=292 data-nosnippet>292</a>    <span class="comment">//
-<a href=#293 id=293 data-nosnippet>293</a>    </span><span class="kw">unsafe fn </span>location_reload();
-<a href=#294 id=294 data-nosnippet>294</a>    <span class="kw">unsafe fn </span>location_assign(url_ptr: <span class="kw-2">*const </span>u8, url_len: usize);
-<a href=#295 id=295 data-nosnippet>295</a>    <span class="kw">unsafe fn </span>location_replace(url_ptr: <span class="kw-2">*const </span>u8, url_len: usize);
-<a href=#296 id=296 data-nosnippet>296</a>    <span class="kw">unsafe fn </span>url_current(ptr: <span class="kw-2">*mut </span>u8, max_len: js_uint32) -&gt; js_int32; <span class="comment">// TEMP
-<a href=#297 id=297 data-nosnippet>297</a></span>}
-<a href=#298 id=298 data-nosnippet>298</a>
-<a href=#299 id=299 data-nosnippet>299</a><span class="doccomment">/// # Web API permissions
-<a href=#300 id=300 data-nosnippet>300</a>///
-<a href=#301 id=301 data-nosnippet>301</a>/// - &lt;https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API&gt;
-<a href=#302 id=302 data-nosnippet>302</a></span><span class="attr">#[rustfmt::skip]
-<a href=#303 id=303 data-nosnippet>303</a>#[cfg(all(feature = <span class="string">"unsafe_ffi"</span>, not(windows)))]
-<a href=#304 id=304 data-nosnippet>304</a>#[cfg_attr(nightly_doc, doc(cfg(all(feature = <span class="string">"unsafe_ffi"</span>, target_arch = <span class="string">"wasm32"</span>))))]
-<a href=#305 id=305 data-nosnippet>305</a></span><span class="kw">impl </span>Web {
-<a href=#306 id=306 data-nosnippet>306</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(<span class="string">"Permissions"</span>, <span class="string">"query"</span>)]
-<a href=#307 id=307 data-nosnippet>307</a>    </span><span class="doccomment">/// Queries the status of a given permission.
-<a href=#308 id=308 data-nosnippet>308</a>    ///
-<a href=#309 id=309 data-nosnippet>309</a>    /// Returns `Granted`, `Denied`, `Prompt`, or `Unknown` if unsupported.
-<a href=#310 id=310 data-nosnippet>310</a>    </span><span class="kw">pub fn </span>permissions_query(permission: WebPermission) -&gt; WebPermissionState {
-<a href=#311 id=311 data-nosnippet>311</a>        <span class="kw">unsafe </span>{ permissions_query(permission.as_str().as_ptr(), permission.as_str().len()) }
-<a href=#312 id=312 data-nosnippet>312</a>        .into()
-<a href=#313 id=313 data-nosnippet>313</a>    }
-<a href=#314 id=314 data-nosnippet>314</a>}
-<a href=#315 id=315 data-nosnippet>315</a><span class="macro">js_reexport!</span> {
-<a href=#316 id=316 data-nosnippet>316</a>    [ module: <span class="string">"api_permissions" </span>]
-<a href=#317 id=317 data-nosnippet>317</a>    <span class="kw">unsafe fn </span>permissions_query(name_ptr: <span class="kw-2">*const </span>u8, name_len: usize) -&gt; js_int32;
-<a href=#318 id=318 data-nosnippet>318</a>}
-<a href=#319 id=319 data-nosnippet>319</a>
-<a href=#320 id=320 data-nosnippet>320</a><span class="comment">/* methods: extended APIs */
-<a href=#321 id=321 data-nosnippet>321</a>
-<a href=#322 id=322 data-nosnippet>322</a></span><span class="doccomment">/// # Web API canvas
-<a href=#323 id=323 data-nosnippet>323</a>///
-<a href=#324 id=324 data-nosnippet>324</a>/// - &lt;https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D&gt;
-<a href=#325 id=325 data-nosnippet>325</a>/// - &lt;https://html.spec.whatwg.org/multipage/canvas.html&gt;
-<a href=#326 id=326 data-nosnippet>326</a></span><span class="attr">#[rustfmt::skip]
-<a href=#327 id=327 data-nosnippet>327</a>#[cfg(all(feature = <span class="string">"unsafe_ffi"</span>, not(windows)))]
-<a href=#328 id=328 data-nosnippet>328</a>#[cfg_attr(nightly_doc, doc(cfg(all(feature = <span class="string">"unsafe_ffi"</span>, target_arch = <span class="string">"wasm32"</span>))))]
-<a href=#329 id=329 data-nosnippet>329</a></span><span class="kw">impl </span>Web {
-<a href=#330 id=330 data-nosnippet>330</a>    <span class="comment">/* misc. */
-<a href=#331 id=331 data-nosnippet>331</a>    </span><span class="doccomment">/// Sets the active canvas using a CSS `selector`.
-<a href=#332 id=332 data-nosnippet>332</a>    </span><span class="kw">pub fn </span>set_canvas(selector: <span class="kw-2">&amp;</span>str) { <span class="kw">unsafe </span>{ set_canvas(selector.as_ptr(), selector.len()); } }
-<a href=#333 id=333 data-nosnippet>333</a>
-<a href=#334 id=334 data-nosnippet>334</a>    <span class="comment">/* color settings */
-<a href=#335 id=335 data-nosnippet>335</a>    </span><span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"fillStyle"</span>)]
-<a href=#336 id=336 data-nosnippet>336</a>    </span><span class="doccomment">/// Sets the color or style for filling shapes.
-<a href=#337 id=337 data-nosnippet>337</a>    </span><span class="kw">pub fn </span>fill_style(r: u8, g: u8, b: u8) { fill_style(r, g, b); }
-<a href=#338 id=338 data-nosnippet>338</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"strokeStyle"</span>)]
-<a href=#339 id=339 data-nosnippet>339</a>    </span><span class="doccomment">/// Sets the color or style for lines.
-<a href=#340 id=340 data-nosnippet>340</a>    </span><span class="kw">pub fn </span>stroke_style(r: u8, g: u8, b: u8) { stroke_style(r, g, b); }
-<a href=#341 id=341 data-nosnippet>341</a>
-<a href=#342 id=342 data-nosnippet>342</a>    <span class="comment">/* drawing rectangles */
-<a href=#343 id=343 data-nosnippet>343</a>    </span><span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"fillRect"</span>)]
-<a href=#344 id=344 data-nosnippet>344</a>    </span><span class="doccomment">/// Draws a filled rectangle.
-<a href=#345 id=345 data-nosnippet>345</a>    </span><span class="kw">pub fn </span>fill_rect(x: js_number, y: js_number, w: js_number, h: js_number)
-<a href=#346 id=346 data-nosnippet>346</a>        { fill_rect(x, y, w, h); }
-<a href=#347 id=347 data-nosnippet>347</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"strokeRect"</span>)]
-<a href=#348 id=348 data-nosnippet>348</a>    </span><span class="doccomment">/// Draws a rectangular outline.
-<a href=#349 id=349 data-nosnippet>349</a>    </span><span class="kw">pub fn </span>stroke_rect(x: js_number, y: js_number, w: js_number, h: js_number)
-<a href=#350 id=350 data-nosnippet>350</a>        { stroke_rect(x, y, w, h); }
-<a href=#351 id=351 data-nosnippet>351</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"clearRect"</span>)]
-<a href=#352 id=352 data-nosnippet>352</a>    </span><span class="doccomment">/// Clears the specified rectangular area, making it fully transparent.
-<a href=#353 id=353 data-nosnippet>353</a>    </span><span class="kw">pub fn </span>clear_rect(x: js_number, y: js_number, w: js_number, h: js_number)
-<a href=#354 id=354 data-nosnippet>354</a>        { clear_rect(x, y, w, h); }
-<a href=#355 id=355 data-nosnippet>355</a>
-<a href=#356 id=356 data-nosnippet>356</a>    <span class="comment">/* drawing shapes */
-<a href=#357 id=357 data-nosnippet>357</a>    </span><span class="doccomment">/// Draws a line.
-<a href=#358 id=358 data-nosnippet>358</a>    </span><span class="kw">pub fn </span>draw_line(x1: js_number, y1: js_number, x2: js_number, y2: js_number)
-<a href=#359 id=359 data-nosnippet>359</a>        { draw_line(x1, y1, x2, y2); }
-<a href=#360 id=360 data-nosnippet>360</a>    <span class="doccomment">/// Draws a circle.
-<a href=#361 id=361 data-nosnippet>361</a>    </span><span class="kw">pub fn </span>draw_circle(x: js_number, y: js_number, radius: js_number)
-<a href=#362 id=362 data-nosnippet>362</a>        { draw_circle(x, y, radius); }
-<a href=#363 id=363 data-nosnippet>363</a>
-<a href=#364 id=364 data-nosnippet>364</a>    <span class="comment">/* drawing text */
-<a href=#365 id=365 data-nosnippet>365</a>    </span><span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"fillText"</span>)]
-<a href=#366 id=366 data-nosnippet>366</a>    </span><span class="doccomment">/// Draws filled text at the specified position.
-<a href=#367 id=367 data-nosnippet>367</a>    </span><span class="kw">pub fn </span>fill_text(text: <span class="kw-2">&amp;</span>str, x: js_number, y: js_number) {
-<a href=#368 id=368 data-nosnippet>368</a>        <span class="kw">unsafe </span>{ fill_text(text.as_ptr(), text.len(), x, y); }
+<a href=#264 id=264 data-nosnippet>264</a>}
+<a href=#265 id=265 data-nosnippet>265</a><span class="macro">js_reexport!</span> {
+<a href=#266 id=266 data-nosnippet>266</a>    [ module: <span class="string">"api_history_location" </span>]
+<a href=#267 id=267 data-nosnippet>267</a>    <span class="kw">unsafe fn </span>history_back();
+<a href=#268 id=268 data-nosnippet>268</a>    <span class="kw">unsafe fn </span>history_forward();
+<a href=#269 id=269 data-nosnippet>269</a>    <span class="kw">unsafe fn </span>history_go(delta: js_int32);
+<a href=#270 id=270 data-nosnippet>270</a>    <span class="kw">unsafe fn </span><span class="string">"history_pushState" </span>history_push_state(state_ptr: <span class="kw-2">*const </span>u8, state_len: usize,
+<a href=#271 id=271 data-nosnippet>271</a>        title_ptr: <span class="kw-2">*const </span>u8, title_len: usize, url_ptr: <span class="kw-2">*const </span>u8, url_len: usize);
+<a href=#272 id=272 data-nosnippet>272</a>    <span class="kw">unsafe fn </span><span class="string">"history_replaceState" </span>history_replace_state(state_ptr: <span class="kw-2">*const </span>u8, state_len: usize,
+<a href=#273 id=273 data-nosnippet>273</a>        title_ptr: <span class="kw-2">*const </span>u8, title_len: usize, url_ptr: <span class="kw-2">*const </span>u8, url_len: usize);
+<a href=#274 id=274 data-nosnippet>274</a>    <span class="comment">//
+<a href=#275 id=275 data-nosnippet>275</a>    </span><span class="kw">unsafe fn </span>location_reload();
+<a href=#276 id=276 data-nosnippet>276</a>    <span class="kw">unsafe fn </span>location_assign(url_ptr: <span class="kw-2">*const </span>u8, url_len: usize);
+<a href=#277 id=277 data-nosnippet>277</a>    <span class="kw">unsafe fn </span>location_replace(url_ptr: <span class="kw-2">*const </span>u8, url_len: usize);
+<a href=#278 id=278 data-nosnippet>278</a>}
+<a href=#279 id=279 data-nosnippet>279</a>
+<a href=#280 id=280 data-nosnippet>280</a><span class="doccomment">/// # Web API permissions
+<a href=#281 id=281 data-nosnippet>281</a>///
+<a href=#282 id=282 data-nosnippet>282</a>/// - &lt;https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API&gt;
+<a href=#283 id=283 data-nosnippet>283</a></span><span class="attr">#[rustfmt::skip]
+<a href=#284 id=284 data-nosnippet>284</a>#[cfg(all(feature = <span class="string">"unsafe_ffi"</span>, not(windows)))]
+<a href=#285 id=285 data-nosnippet>285</a>#[cfg_attr(nightly_doc, doc(cfg(all(feature = <span class="string">"unsafe_ffi"</span>, target_arch = <span class="string">"wasm32"</span>))))]
+<a href=#286 id=286 data-nosnippet>286</a></span><span class="kw">impl </span>Web {
+<a href=#287 id=287 data-nosnippet>287</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(<span class="string">"Permissions"</span>, <span class="string">"query"</span>)]
+<a href=#288 id=288 data-nosnippet>288</a>    </span><span class="doccomment">/// Queries the status of a given permission.
+<a href=#289 id=289 data-nosnippet>289</a>    ///
+<a href=#290 id=290 data-nosnippet>290</a>    /// Returns `Granted`, `Denied`, `Prompt`, or `Unknown` if unsupported.
+<a href=#291 id=291 data-nosnippet>291</a>    </span><span class="kw">pub fn </span>permissions_query(permission: WebPermission) -&gt; WebPermissionState {
+<a href=#292 id=292 data-nosnippet>292</a>        <span class="kw">unsafe </span>{ permissions_query(permission.as_str().as_ptr(), permission.as_str().len()) }
+<a href=#293 id=293 data-nosnippet>293</a>        .into()
+<a href=#294 id=294 data-nosnippet>294</a>    }
+<a href=#295 id=295 data-nosnippet>295</a>}
+<a href=#296 id=296 data-nosnippet>296</a><span class="macro">js_reexport!</span> {
+<a href=#297 id=297 data-nosnippet>297</a>    [ module: <span class="string">"api_permissions" </span>]
+<a href=#298 id=298 data-nosnippet>298</a>    <span class="kw">unsafe fn </span>permissions_query(name_ptr: <span class="kw-2">*const </span>u8, name_len: usize) -&gt; js_int32;
+<a href=#299 id=299 data-nosnippet>299</a>}
+<a href=#300 id=300 data-nosnippet>300</a>
+<a href=#301 id=301 data-nosnippet>301</a><span class="comment">/* methods: extended APIs */
+<a href=#302 id=302 data-nosnippet>302</a>
+<a href=#303 id=303 data-nosnippet>303</a></span><span class="doccomment">/// # Web API canvas
+<a href=#304 id=304 data-nosnippet>304</a>///
+<a href=#305 id=305 data-nosnippet>305</a>/// - &lt;https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D&gt;
+<a href=#306 id=306 data-nosnippet>306</a>/// - &lt;https://html.spec.whatwg.org/multipage/canvas.html&gt;
+<a href=#307 id=307 data-nosnippet>307</a></span><span class="attr">#[rustfmt::skip]
+<a href=#308 id=308 data-nosnippet>308</a>#[cfg(all(feature = <span class="string">"unsafe_ffi"</span>, not(windows)))]
+<a href=#309 id=309 data-nosnippet>309</a>#[cfg_attr(nightly_doc, doc(cfg(all(feature = <span class="string">"unsafe_ffi"</span>, target_arch = <span class="string">"wasm32"</span>))))]
+<a href=#310 id=310 data-nosnippet>310</a></span><span class="kw">impl </span>Web {
+<a href=#311 id=311 data-nosnippet>311</a>    <span class="comment">/* misc. */
+<a href=#312 id=312 data-nosnippet>312</a>    </span><span class="doccomment">/// Sets the active canvas using a CSS `selector`.
+<a href=#313 id=313 data-nosnippet>313</a>    </span><span class="kw">pub fn </span>set_canvas(selector: <span class="kw-2">&amp;</span>str) { <span class="kw">unsafe </span>{ set_canvas(selector.as_ptr(), selector.len()); } }
+<a href=#314 id=314 data-nosnippet>314</a>
+<a href=#315 id=315 data-nosnippet>315</a>    <span class="comment">/* color settings */
+<a href=#316 id=316 data-nosnippet>316</a>    </span><span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"fillStyle"</span>)]
+<a href=#317 id=317 data-nosnippet>317</a>    </span><span class="doccomment">/// Sets the color or style for filling shapes.
+<a href=#318 id=318 data-nosnippet>318</a>    </span><span class="kw">pub fn </span>fill_style(r: u8, g: u8, b: u8) { fill_style(r, g, b); }
+<a href=#319 id=319 data-nosnippet>319</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"strokeStyle"</span>)]
+<a href=#320 id=320 data-nosnippet>320</a>    </span><span class="doccomment">/// Sets the color or style for lines.
+<a href=#321 id=321 data-nosnippet>321</a>    </span><span class="kw">pub fn </span>stroke_style(r: u8, g: u8, b: u8) { stroke_style(r, g, b); }
+<a href=#322 id=322 data-nosnippet>322</a>
+<a href=#323 id=323 data-nosnippet>323</a>    <span class="comment">/* drawing rectangles */
+<a href=#324 id=324 data-nosnippet>324</a>    </span><span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"fillRect"</span>)]
+<a href=#325 id=325 data-nosnippet>325</a>    </span><span class="doccomment">/// Draws a filled rectangle.
+<a href=#326 id=326 data-nosnippet>326</a>    </span><span class="kw">pub fn </span>fill_rect(x: js_number, y: js_number, w: js_number, h: js_number)
+<a href=#327 id=327 data-nosnippet>327</a>        { fill_rect(x, y, w, h); }
+<a href=#328 id=328 data-nosnippet>328</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"strokeRect"</span>)]
+<a href=#329 id=329 data-nosnippet>329</a>    </span><span class="doccomment">/// Draws a rectangular outline.
+<a href=#330 id=330 data-nosnippet>330</a>    </span><span class="kw">pub fn </span>stroke_rect(x: js_number, y: js_number, w: js_number, h: js_number)
+<a href=#331 id=331 data-nosnippet>331</a>        { stroke_rect(x, y, w, h); }
+<a href=#332 id=332 data-nosnippet>332</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"clearRect"</span>)]
+<a href=#333 id=333 data-nosnippet>333</a>    </span><span class="doccomment">/// Clears the specified rectangular area, making it fully transparent.
+<a href=#334 id=334 data-nosnippet>334</a>    </span><span class="kw">pub fn </span>clear_rect(x: js_number, y: js_number, w: js_number, h: js_number)
+<a href=#335 id=335 data-nosnippet>335</a>        { clear_rect(x, y, w, h); }
+<a href=#336 id=336 data-nosnippet>336</a>
+<a href=#337 id=337 data-nosnippet>337</a>    <span class="comment">/* drawing shapes */
+<a href=#338 id=338 data-nosnippet>338</a>    </span><span class="doccomment">/// Draws a line.
+<a href=#339 id=339 data-nosnippet>339</a>    </span><span class="kw">pub fn </span>draw_line(x1: js_number, y1: js_number, x2: js_number, y2: js_number)
+<a href=#340 id=340 data-nosnippet>340</a>        { draw_line(x1, y1, x2, y2); }
+<a href=#341 id=341 data-nosnippet>341</a>    <span class="doccomment">/// Draws a circle.
+<a href=#342 id=342 data-nosnippet>342</a>    </span><span class="kw">pub fn </span>draw_circle(x: js_number, y: js_number, radius: js_number)
+<a href=#343 id=343 data-nosnippet>343</a>        { draw_circle(x, y, radius); }
+<a href=#344 id=344 data-nosnippet>344</a>
+<a href=#345 id=345 data-nosnippet>345</a>    <span class="comment">/* drawing text */
+<a href=#346 id=346 data-nosnippet>346</a>    </span><span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"fillText"</span>)]
+<a href=#347 id=347 data-nosnippet>347</a>    </span><span class="doccomment">/// Draws filled text at the specified position.
+<a href=#348 id=348 data-nosnippet>348</a>    </span><span class="kw">pub fn </span>fill_text(text: <span class="kw-2">&amp;</span>str, x: js_number, y: js_number) {
+<a href=#349 id=349 data-nosnippet>349</a>        <span class="kw">unsafe </span>{ fill_text(text.as_ptr(), text.len(), x, y); }
+<a href=#350 id=350 data-nosnippet>350</a>    }
+<a href=#351 id=351 data-nosnippet>351</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"strokeText"</span>)]
+<a href=#352 id=352 data-nosnippet>352</a>    </span><span class="doccomment">/// Draws text outline at the specified position.
+<a href=#353 id=353 data-nosnippet>353</a>    </span><span class="kw">pub fn </span>stroke_text(text: <span class="kw-2">&amp;</span>str, x: js_number, y: js_number) {
+<a href=#354 id=354 data-nosnippet>354</a>        <span class="kw">unsafe </span>{ stroke_text(text.as_ptr(), text.len(), x, y); }
+<a href=#355 id=355 data-nosnippet>355</a>    }
+<a href=#356 id=356 data-nosnippet>356</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"measureText"</span>)]
+<a href=#357 id=357 data-nosnippet>357</a>    </span><span class="doccomment">/// Measures the essential properties of text.
+<a href=#358 id=358 data-nosnippet>358</a>    </span><span class="kw">pub fn </span>measure_text(text: <span class="kw-2">&amp;</span>str) -&gt; JsTextMetrics {
+<a href=#359 id=359 data-nosnippet>359</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>metrics, ptr, len) = (JsTextMetrics::default(), text.as_ptr(), text.len());
+<a href=#360 id=360 data-nosnippet>360</a>        <span class="kw">unsafe </span>{ measure_text(ptr, len, <span class="kw-2">&amp;mut </span>metrics <span class="kw">as </span><span class="kw-2">*mut </span>JsTextMetrics); }
+<a href=#361 id=361 data-nosnippet>361</a>        metrics
+<a href=#362 id=362 data-nosnippet>362</a>    }
+<a href=#363 id=363 data-nosnippet>363</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"measureTextFull"</span>)]
+<a href=#364 id=364 data-nosnippet>364</a>    </span><span class="doccomment">/// Measures all available text metrics.
+<a href=#365 id=365 data-nosnippet>365</a>    </span><span class="kw">pub fn </span>measure_text_full(text: <span class="kw-2">&amp;</span>str) -&gt; JsTextMetricsFull {
+<a href=#366 id=366 data-nosnippet>366</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>metrics, ptr, len) = (JsTextMetricsFull::default(), text.as_ptr(), text.len());
+<a href=#367 id=367 data-nosnippet>367</a>        <span class="kw">unsafe </span>{ measure_text_full(ptr, len, <span class="kw-2">&amp;mut </span>metrics <span class="kw">as </span><span class="kw-2">*mut </span>JsTextMetricsFull); }
+<a href=#368 id=368 data-nosnippet>368</a>        metrics
 <a href=#369 id=369 data-nosnippet>369</a>    }
-<a href=#370 id=370 data-nosnippet>370</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"strokeText"</span>)]
-<a href=#371 id=371 data-nosnippet>371</a>    </span><span class="doccomment">/// Draws text outline at the specified position.
-<a href=#372 id=372 data-nosnippet>372</a>    </span><span class="kw">pub fn </span>stroke_text(text: <span class="kw-2">&amp;</span>str, x: js_number, y: js_number) {
-<a href=#373 id=373 data-nosnippet>373</a>        <span class="kw">unsafe </span>{ stroke_text(text.as_ptr(), text.len(), x, y); }
-<a href=#374 id=374 data-nosnippet>374</a>    }
-<a href=#375 id=375 data-nosnippet>375</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"measureText"</span>)]
-<a href=#376 id=376 data-nosnippet>376</a>    </span><span class="doccomment">/// Measures the essential properties of text.
-<a href=#377 id=377 data-nosnippet>377</a>    </span><span class="kw">pub fn </span>measure_text(text: <span class="kw-2">&amp;</span>str) -&gt; JsTextMetrics {
-<a href=#378 id=378 data-nosnippet>378</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>metrics, ptr, len) = (JsTextMetrics::default(), text.as_ptr(), text.len());
-<a href=#379 id=379 data-nosnippet>379</a>        <span class="kw">unsafe </span>{ measure_text(ptr, len, <span class="kw-2">&amp;mut </span>metrics <span class="kw">as </span><span class="kw-2">*mut </span>JsTextMetrics); }
-<a href=#380 id=380 data-nosnippet>380</a>        metrics
-<a href=#381 id=381 data-nosnippet>381</a>    }
-<a href=#382 id=382 data-nosnippet>382</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(canvas <span class="string">"measureTextFull"</span>)]
-<a href=#383 id=383 data-nosnippet>383</a>    </span><span class="doccomment">/// Measures all available text metrics.
-<a href=#384 id=384 data-nosnippet>384</a>    </span><span class="kw">pub fn </span>measure_text_full(text: <span class="kw-2">&amp;</span>str) -&gt; JsTextMetricsFull {
-<a href=#385 id=385 data-nosnippet>385</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>metrics, ptr, len) = (JsTextMetricsFull::default(), text.as_ptr(), text.len());
-<a href=#386 id=386 data-nosnippet>386</a>        <span class="kw">unsafe </span>{ measure_text_full(ptr, len, <span class="kw-2">&amp;mut </span>metrics <span class="kw">as </span><span class="kw-2">*mut </span>JsTextMetricsFull); }
-<a href=#387 id=387 data-nosnippet>387</a>        metrics
-<a href=#388 id=388 data-nosnippet>388</a>    }
-<a href=#389 id=389 data-nosnippet>389</a>}
-<a href=#390 id=390 data-nosnippet>390</a><span class="macro">js_reexport!</span> {
-<a href=#391 id=391 data-nosnippet>391</a>    [ module: <span class="string">"api_canvas" </span>]
-<a href=#392 id=392 data-nosnippet>392</a>    <span class="comment">/* misc. */
-<a href=#393 id=393 data-nosnippet>393</a>    </span><span class="kw">unsafe fn </span>set_canvas(str_ptr: <span class="kw-2">*const </span>u8, str_len: usize);
-<a href=#394 id=394 data-nosnippet>394</a>    <span class="comment">/* color settings */
-<a href=#395 id=395 data-nosnippet>395</a>    </span>safe <span class="kw">fn </span><span class="string">"fillStyle" </span>fill_style(r: u8, g: u8, b: u8);
-<a href=#396 id=396 data-nosnippet>396</a>    safe <span class="kw">fn </span><span class="string">"strokeStyle" </span>stroke_style(r: u8, g: u8, b: u8);
-<a href=#397 id=397 data-nosnippet>397</a>    <span class="comment">/* drawing rectangles */
-<a href=#398 id=398 data-nosnippet>398</a>    </span>safe <span class="kw">fn </span><span class="string">"fillRect" </span>fill_rect(x: js_number, y: js_number, w: js_number, h: js_number);
-<a href=#399 id=399 data-nosnippet>399</a>    safe <span class="kw">fn </span><span class="string">"strokeRect" </span>stroke_rect(x: js_number, y: js_number, w: js_number, h: js_number);
-<a href=#400 id=400 data-nosnippet>400</a>    safe <span class="kw">fn </span><span class="string">"clearRect" </span>clear_rect(x: js_number, y: js_number, w: js_number, h: js_number);
-<a href=#401 id=401 data-nosnippet>401</a>    <span class="comment">/* drawing paths */
-<a href=#402 id=402 data-nosnippet>402</a>    //
-<a href=#403 id=403 data-nosnippet>403</a>    /* drawing shapes */
-<a href=#404 id=404 data-nosnippet>404</a>    </span>safe <span class="kw">fn </span>draw_line(x1: js_number, y1: js_number, x2: js_number, y2: js_number);
-<a href=#405 id=405 data-nosnippet>405</a>    safe <span class="kw">fn </span>draw_circle(x: js_number, y: js_number, radius: js_number);
-<a href=#406 id=406 data-nosnippet>406</a>
-<a href=#407 id=407 data-nosnippet>407</a>    <span class="comment">/* drawing text */
-<a href=#408 id=408 data-nosnippet>408</a>    </span><span class="kw">unsafe fn </span><span class="string">"fillText" </span>fill_text(str_ptr: <span class="kw-2">*const </span>u8, str_len: usize, x: js_number, y: js_number);
-<a href=#409 id=409 data-nosnippet>409</a>    <span class="kw">unsafe fn </span><span class="string">"strokeText" </span>stroke_text(str_ptr: <span class="kw-2">*const </span>u8, str_len: usize,
-<a href=#410 id=410 data-nosnippet>410</a>        x: js_number, y: js_number);
-<a href=#411 id=411 data-nosnippet>411</a>    <span class="kw">unsafe fn </span><span class="string">"measureText" </span>measure_text(text_ptr: <span class="kw-2">*const </span>u8, text_len: usize,
-<a href=#412 id=412 data-nosnippet>412</a>        out_metrics: <span class="kw-2">*mut </span>JsTextMetrics);
-<a href=#413 id=413 data-nosnippet>413</a>    <span class="kw">unsafe fn </span><span class="string">"measureTextFull" </span>measure_text_full(text_ptr: <span class="kw-2">*const </span>u8, text_len: usize,
-<a href=#414 id=414 data-nosnippet>414</a>        out_metrics: <span class="kw-2">*mut </span>JsTextMetricsFull);
-<a href=#415 id=415 data-nosnippet>415</a>}
-<a href=#416 id=416 data-nosnippet>416</a>
-<a href=#417 id=417 data-nosnippet>417</a><span class="doccomment">/// # Web API performance
-<a href=#418 id=418 data-nosnippet>418</a>///
-<a href=#419 id=419 data-nosnippet>419</a>/// - &lt;https://developer.mozilla.org/en-US/docs/Web/API/Performance&gt;
-<a href=#420 id=420 data-nosnippet>420</a></span><span class="attr">#[rustfmt::skip]
-<a href=#421 id=421 data-nosnippet>421</a>#[cfg(all(feature = <span class="string">"unsafe_ffi"</span>, not(windows)))]
-<a href=#422 id=422 data-nosnippet>422</a>#[cfg_attr(nightly_doc, doc(cfg(all(feature = <span class="string">"unsafe_ffi"</span>, target_arch = <span class="string">"wasm32"</span>))))]
-<a href=#423 id=423 data-nosnippet>423</a></span><span class="kw">impl </span>Web {
-<a href=#424 id=424 data-nosnippet>424</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(<span class="string">"Performance"</span>, <span class="string">"now"</span>)]
-<a href=#425 id=425 data-nosnippet>425</a>    </span><span class="doccomment">/// Retrieves a high-resolution timestamp in milliseconds.
-<a href=#426 id=426 data-nosnippet>426</a>    </span><span class="kw">pub fn </span>performance_now() -&gt; JsInstant { JsInstant::from_millis_f64(performance_now()) }
-<a href=#427 id=427 data-nosnippet>427</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(<span class="string">"Performance"</span>, <span class="string">"timeOrigin"</span>)]
-<a href=#428 id=428 data-nosnippet>428</a>    </span><span class="doccomment">/// Retrieves the time origin in milliseconds.
-<a href=#429 id=429 data-nosnippet>429</a>    </span><span class="kw">pub fn </span>performance_time_origin() -&gt; JsInstant {
-<a href=#430 id=430 data-nosnippet>430</a>        JsInstant::from_millis_f64(performance_time_origin()) }
-<a href=#431 id=431 data-nosnippet>431</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(<span class="string">"Performance"</span>, <span class="string">"eventCounts"</span>)]
-<a href=#432 id=432 data-nosnippet>432</a>    </span><span class="doccomment">/// Retrieves the count of recorded events.
-<a href=#433 id=433 data-nosnippet>433</a>    </span><span class="kw">pub fn </span>performance_event_count(event: WebEventKind) -&gt; js_uint32 {
-<a href=#434 id=434 data-nosnippet>434</a>        <span class="kw">let </span>name = event.as_str();
-<a href=#435 id=435 data-nosnippet>435</a>        <span class="kw">unsafe </span>{ performance_event_count(name.as_ptr(), name.len()) }
+<a href=#370 id=370 data-nosnippet>370</a>}
+<a href=#371 id=371 data-nosnippet>371</a><span class="macro">js_reexport!</span> {
+<a href=#372 id=372 data-nosnippet>372</a>    [ module: <span class="string">"api_canvas" </span>]
+<a href=#373 id=373 data-nosnippet>373</a>    <span class="comment">/* misc. */
+<a href=#374 id=374 data-nosnippet>374</a>    </span><span class="kw">unsafe fn </span>set_canvas(str_ptr: <span class="kw-2">*const </span>u8, str_len: usize);
+<a href=#375 id=375 data-nosnippet>375</a>    <span class="comment">/* color settings */
+<a href=#376 id=376 data-nosnippet>376</a>    </span>safe <span class="kw">fn </span><span class="string">"fillStyle" </span>fill_style(r: u8, g: u8, b: u8);
+<a href=#377 id=377 data-nosnippet>377</a>    safe <span class="kw">fn </span><span class="string">"strokeStyle" </span>stroke_style(r: u8, g: u8, b: u8);
+<a href=#378 id=378 data-nosnippet>378</a>    <span class="comment">/* drawing rectangles */
+<a href=#379 id=379 data-nosnippet>379</a>    </span>safe <span class="kw">fn </span><span class="string">"fillRect" </span>fill_rect(x: js_number, y: js_number, w: js_number, h: js_number);
+<a href=#380 id=380 data-nosnippet>380</a>    safe <span class="kw">fn </span><span class="string">"strokeRect" </span>stroke_rect(x: js_number, y: js_number, w: js_number, h: js_number);
+<a href=#381 id=381 data-nosnippet>381</a>    safe <span class="kw">fn </span><span class="string">"clearRect" </span>clear_rect(x: js_number, y: js_number, w: js_number, h: js_number);
+<a href=#382 id=382 data-nosnippet>382</a>    <span class="comment">/* drawing paths */
+<a href=#383 id=383 data-nosnippet>383</a>    //
+<a href=#384 id=384 data-nosnippet>384</a>    /* drawing shapes */
+<a href=#385 id=385 data-nosnippet>385</a>    </span>safe <span class="kw">fn </span>draw_line(x1: js_number, y1: js_number, x2: js_number, y2: js_number);
+<a href=#386 id=386 data-nosnippet>386</a>    safe <span class="kw">fn </span>draw_circle(x: js_number, y: js_number, radius: js_number);
+<a href=#387 id=387 data-nosnippet>387</a>
+<a href=#388 id=388 data-nosnippet>388</a>    <span class="comment">/* drawing text */
+<a href=#389 id=389 data-nosnippet>389</a>    </span><span class="kw">unsafe fn </span><span class="string">"fillText" </span>fill_text(str_ptr: <span class="kw-2">*const </span>u8, str_len: usize, x: js_number, y: js_number);
+<a href=#390 id=390 data-nosnippet>390</a>    <span class="kw">unsafe fn </span><span class="string">"strokeText" </span>stroke_text(str_ptr: <span class="kw-2">*const </span>u8, str_len: usize,
+<a href=#391 id=391 data-nosnippet>391</a>        x: js_number, y: js_number);
+<a href=#392 id=392 data-nosnippet>392</a>    <span class="kw">unsafe fn </span><span class="string">"measureText" </span>measure_text(text_ptr: <span class="kw-2">*const </span>u8, text_len: usize,
+<a href=#393 id=393 data-nosnippet>393</a>        out_metrics: <span class="kw-2">*mut </span>JsTextMetrics);
+<a href=#394 id=394 data-nosnippet>394</a>    <span class="kw">unsafe fn </span><span class="string">"measureTextFull" </span>measure_text_full(text_ptr: <span class="kw-2">*const </span>u8, text_len: usize,
+<a href=#395 id=395 data-nosnippet>395</a>        out_metrics: <span class="kw-2">*mut </span>JsTextMetricsFull);
+<a href=#396 id=396 data-nosnippet>396</a>}
+<a href=#397 id=397 data-nosnippet>397</a>
+<a href=#398 id=398 data-nosnippet>398</a><span class="doccomment">/// # Web API performance
+<a href=#399 id=399 data-nosnippet>399</a>///
+<a href=#400 id=400 data-nosnippet>400</a>/// - &lt;https://developer.mozilla.org/en-US/docs/Web/API/Performance&gt;
+<a href=#401 id=401 data-nosnippet>401</a></span><span class="attr">#[rustfmt::skip]
+<a href=#402 id=402 data-nosnippet>402</a>#[cfg(all(feature = <span class="string">"unsafe_ffi"</span>, not(windows)))]
+<a href=#403 id=403 data-nosnippet>403</a>#[cfg_attr(nightly_doc, doc(cfg(all(feature = <span class="string">"unsafe_ffi"</span>, target_arch = <span class="string">"wasm32"</span>))))]
+<a href=#404 id=404 data-nosnippet>404</a></span><span class="kw">impl </span>Web {
+<a href=#405 id=405 data-nosnippet>405</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(<span class="string">"Performance"</span>, <span class="string">"now"</span>)]
+<a href=#406 id=406 data-nosnippet>406</a>    </span><span class="doccomment">/// Retrieves a high-resolution timestamp in milliseconds.
+<a href=#407 id=407 data-nosnippet>407</a>    </span><span class="kw">pub fn </span>performance_now() -&gt; JsInstant { JsInstant::from_millis_f64(performance_now()) }
+<a href=#408 id=408 data-nosnippet>408</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(<span class="string">"Performance"</span>, <span class="string">"timeOrigin"</span>)]
+<a href=#409 id=409 data-nosnippet>409</a>    </span><span class="doccomment">/// Retrieves the time origin in milliseconds.
+<a href=#410 id=410 data-nosnippet>410</a>    </span><span class="kw">pub fn </span>performance_time_origin() -&gt; JsInstant {
+<a href=#411 id=411 data-nosnippet>411</a>        JsInstant::from_millis_f64(performance_time_origin()) }
+<a href=#412 id=412 data-nosnippet>412</a>    <span class="attr">#[doc = <span class="macro">js_doc!</span>(<span class="string">"Performance"</span>, <span class="string">"eventCounts"</span>)]
+<a href=#413 id=413 data-nosnippet>413</a>    </span><span class="doccomment">/// Retrieves the count of recorded events.
+<a href=#414 id=414 data-nosnippet>414</a>    </span><span class="kw">pub fn </span>performance_event_count(event: WebEventKind) -&gt; js_uint32 {
+<a href=#415 id=415 data-nosnippet>415</a>        <span class="kw">let </span>name = event.as_str();
+<a href=#416 id=416 data-nosnippet>416</a>        <span class="kw">unsafe </span>{ performance_event_count(name.as_ptr(), name.len()) }
+<a href=#417 id=417 data-nosnippet>417</a>    }
+<a href=#418 id=418 data-nosnippet>418</a>}
+<a href=#419 id=419 data-nosnippet>419</a><span class="macro">js_reexport!</span> {
+<a href=#420 id=420 data-nosnippet>420</a>    [ module: <span class="string">"api_performance" </span>]
+<a href=#421 id=421 data-nosnippet>421</a>    safe <span class="kw">fn </span><span class="string">"now" </span>performance_now() -&gt; js_number;
+<a href=#422 id=422 data-nosnippet>422</a>    safe <span class="kw">fn </span><span class="string">"timeOrigin" </span>performance_time_origin() -&gt; js_number;
+<a href=#423 id=423 data-nosnippet>423</a>    <span class="kw">unsafe fn </span><span class="string">"eventCounts" </span>performance_event_count(event_ptr: <span class="kw-2">*const </span>u8, event_len: usize)
+<a href=#424 id=424 data-nosnippet>424</a>        -&gt; js_uint32;
+<a href=#425 id=425 data-nosnippet>425</a>}
+<a href=#426 id=426 data-nosnippet>426</a>
+<a href=#427 id=427 data-nosnippet>427</a><span class="doccomment">/// Web API workers
+<a href=#428 id=428 data-nosnippet>428</a></span><span class="attr">#[rustfmt::skip]
+<a href=#429 id=429 data-nosnippet>429</a>#[cfg(all(feature = <span class="string">"unsafe_ffi"</span>, not(windows)))]
+<a href=#430 id=430 data-nosnippet>430</a>#[cfg_attr(nightly_doc, doc(cfg(all(feature = <span class="string">"unsafe_ffi"</span>, target_arch = <span class="string">"wasm32"</span>))))]
+<a href=#431 id=431 data-nosnippet>431</a></span><span class="kw">impl </span>Web {
+<a href=#432 id=432 data-nosnippet>432</a>    <span class="doccomment">/// Spawns a Web Worker and returns its ID.
+<a href=#433 id=433 data-nosnippet>433</a>    </span><span class="kw">pub fn </span>worker_spawn(script: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;WebWorker, WebWorkerError&gt; {
+<a href=#434 id=434 data-nosnippet>434</a>        <span class="kw">let </span>id = <span class="kw">unsafe </span>{ worker_spawn(script.as_ptr(), script.len()) };
+<a href=#435 id=435 data-nosnippet>435</a>        <span class="kw">if </span>id == <span class="number">0 </span>{ <span class="prelude-val">Err</span>(WebWorkerError::InvalidScript) } <span class="kw">else </span>{ <span class="prelude-val">Ok</span>(WebWorker { id }) }
 <a href=#436 id=436 data-nosnippet>436</a>    }
-<a href=#437 id=437 data-nosnippet>437</a>}
-<a href=#438 id=438 data-nosnippet>438</a><span class="macro">js_reexport!</span> {
-<a href=#439 id=439 data-nosnippet>439</a>    [ module: <span class="string">"api_performance" </span>]
-<a href=#440 id=440 data-nosnippet>440</a>    safe <span class="kw">fn </span><span class="string">"now" </span>performance_now() -&gt; js_number;
-<a href=#441 id=441 data-nosnippet>441</a>    safe <span class="kw">fn </span><span class="string">"timeOrigin" </span>performance_time_origin() -&gt; js_number;
-<a href=#442 id=442 data-nosnippet>442</a>    <span class="kw">unsafe fn </span><span class="string">"eventCounts" </span>performance_event_count(event_ptr: <span class="kw-2">*const </span>u8, event_len: usize)
-<a href=#443 id=443 data-nosnippet>443</a>        -&gt; js_uint32;
-<a href=#444 id=444 data-nosnippet>444</a>}
-<a href=#445 id=445 data-nosnippet>445</a>
-<a href=#446 id=446 data-nosnippet>446</a><span class="doccomment">/// Web API workers
-<a href=#447 id=447 data-nosnippet>447</a></span><span class="attr">#[rustfmt::skip]
-<a href=#448 id=448 data-nosnippet>448</a>#[cfg(all(feature = <span class="string">"unsafe_ffi"</span>, not(windows)))]
-<a href=#449 id=449 data-nosnippet>449</a>#[cfg_attr(nightly_doc, doc(cfg(all(feature = <span class="string">"unsafe_ffi"</span>, target_arch = <span class="string">"wasm32"</span>))))]
-<a href=#450 id=450 data-nosnippet>450</a></span><span class="kw">impl </span>Web {
-<a href=#451 id=451 data-nosnippet>451</a>    <span class="doccomment">/// Spawns a Web Worker and returns its ID.
-<a href=#452 id=452 data-nosnippet>452</a>    </span><span class="kw">pub fn </span>worker_spawn(script: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;WebWorker, WebWorkerError&gt; {
-<a href=#453 id=453 data-nosnippet>453</a>        <span class="kw">let </span>id = <span class="kw">unsafe </span>{ worker_spawn(script.as_ptr(), script.len()) };
-<a href=#454 id=454 data-nosnippet>454</a>        <span class="kw">if </span>id == <span class="number">0 </span>{ <span class="prelude-val">Err</span>(WebWorkerError::InvalidScript) } <span class="kw">else </span>{ <span class="prelude-val">Ok</span>(WebWorker { id }) }
-<a href=#455 id=455 data-nosnippet>455</a>    }
-<a href=#456 id=456 data-nosnippet>456</a>    <span class="doccomment">/// Checks if this worker is still active by querying JavaScript.
-<a href=#457 id=457 data-nosnippet>457</a>    </span><span class="kw">pub fn </span>worker_is_active(worker: WebWorker) -&gt; js_bool { worker_is_active(worker.id()) }
-<a href=#458 id=458 data-nosnippet>458</a>    <span class="doccomment">/// Stops a specific Web Worker by ID.
-<a href=#459 id=459 data-nosnippet>459</a>    </span><span class="kw">pub fn </span>worker_stop(worker: WebWorker) { worker_stop(worker.id()); }
-<a href=#460 id=460 data-nosnippet>460</a>    <span class="doccomment">/// Stops all Web Workers.
-<a href=#461 id=461 data-nosnippet>461</a>    </span><span class="kw">pub fn </span>worker_stop_all() { worker_stop_all(); }
-<a href=#462 id=462 data-nosnippet>462</a>    <span class="doccomment">/// Returns the number of active workers.
-<a href=#463 id=463 data-nosnippet>463</a>    </span><span class="kw">pub fn </span>worker_list_len() -&gt; usize { worker_list_len() <span class="kw">as </span>usize }
-<a href=#464 id=464 data-nosnippet>464</a>    <span class="doccomment">/// Returns the list of active worker IDs.
-<a href=#465 id=465 data-nosnippet>465</a>    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-<a href=#466 id=466 data-nosnippet>466</a>    #[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"alloc"</span>)))]
-<a href=#467 id=467 data-nosnippet>467</a>    </span><span class="kw">pub fn </span>worker_list() -&gt; Vec&lt;WebWorker&gt; {
-<a href=#468 id=468 data-nosnippet>468</a>        <span class="kw">let </span>len = worker_list_len() <span class="kw">as </span>usize;
-<a href=#469 id=469 data-nosnippet>469</a>        <span class="kw">let </span><span class="kw-2">mut </span>workers = <span class="macro">vec!</span>[WebWorker::default(); len];
-<a href=#470 id=470 data-nosnippet>470</a>        <span class="kw">let </span>count = Web::worker_list_buf(<span class="kw-2">&amp;mut </span>workers);
-<a href=#471 id=471 data-nosnippet>471</a>        workers.truncate(count);
-<a href=#472 id=472 data-nosnippet>472</a>        workers
-<a href=#473 id=473 data-nosnippet>473</a>    }
-<a href=#474 id=474 data-nosnippet>474</a>    <span class="doccomment">/// Writes active worker handles into a buffer and returns the number written.
-<a href=#475 id=475 data-nosnippet>475</a>    </span><span class="kw">pub fn </span>worker_list_buf(buffer: <span class="kw-2">&amp;mut </span>[WebWorker]) -&gt; usize {
-<a href=#476 id=476 data-nosnippet>476</a>        <span class="kw">let </span>len = worker_list_len() <span class="kw">as </span>usize;
-<a href=#477 id=477 data-nosnippet>477</a>        <span class="kw">let </span>count = len.min(buffer.len());
-<a href=#478 id=478 data-nosnippet>478</a>        <span class="kw">unsafe </span>{ worker_list(buffer.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>js_uint32, count <span class="kw">as </span>js_uint32); }
-<a href=#479 id=479 data-nosnippet>479</a>        count
-<a href=#480 id=480 data-nosnippet>480</a>    }
-<a href=#481 id=481 data-nosnippet>481</a>    <span class="doccomment">/// Sends a message to a specific Web Worker.
-<a href=#482 id=482 data-nosnippet>482</a>    </span><span class="kw">pub fn </span>worker_send_message(worker: WebWorker, msg: <span class="kw-2">&amp;</span>str) {
-<a href=#483 id=483 data-nosnippet>483</a>        <span class="kw">unsafe </span>{ worker_send_message(worker.id(), msg.as_ptr(), msg.len()); }
-<a href=#484 id=484 data-nosnippet>484</a>    }
-<a href=#485 id=485 data-nosnippet>485</a>    <span class="doccomment">/// Requests execution of JavaScript inside a worker.
-<a href=#486 id=486 data-nosnippet>486</a>    </span><span class="kw">pub fn </span>worker_eval(worker: WebWorker, js_code: <span class="kw-2">&amp;</span>str) -&gt; WebWorkerJob {
-<a href=#487 id=487 data-nosnippet>487</a>        <span class="kw">let </span>id = <span class="kw">unsafe </span>{ worker_eval(worker.id(), js_code.as_ptr(), js_code.len()) };
-<a href=#488 id=488 data-nosnippet>488</a>        WebWorkerJob { worker, id }
+<a href=#437 id=437 data-nosnippet>437</a>    <span class="doccomment">/// Checks if this worker is still active by querying JavaScript.
+<a href=#438 id=438 data-nosnippet>438</a>    </span><span class="kw">pub fn </span>worker_is_active(worker: WebWorker) -&gt; js_bool { worker_is_active(worker.id()) }
+<a href=#439 id=439 data-nosnippet>439</a>    <span class="doccomment">/// Stops a specific Web Worker by ID.
+<a href=#440 id=440 data-nosnippet>440</a>    </span><span class="kw">pub fn </span>worker_stop(worker: WebWorker) { worker_stop(worker.id()); }
+<a href=#441 id=441 data-nosnippet>441</a>    <span class="doccomment">/// Stops all Web Workers.
+<a href=#442 id=442 data-nosnippet>442</a>    </span><span class="kw">pub fn </span>worker_stop_all() { worker_stop_all(); }
+<a href=#443 id=443 data-nosnippet>443</a>    <span class="doccomment">/// Returns the number of active workers.
+<a href=#444 id=444 data-nosnippet>444</a>    </span><span class="kw">pub fn </span>worker_list_len() -&gt; usize { worker_list_len() <span class="kw">as </span>usize }
+<a href=#445 id=445 data-nosnippet>445</a>    <span class="doccomment">/// Returns the list of active worker IDs.
+<a href=#446 id=446 data-nosnippet>446</a>    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+<a href=#447 id=447 data-nosnippet>447</a>    #[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"alloc"</span>)))]
+<a href=#448 id=448 data-nosnippet>448</a>    </span><span class="kw">pub fn </span>worker_list() -&gt; Vec&lt;WebWorker&gt; {
+<a href=#449 id=449 data-nosnippet>449</a>        <span class="kw">let </span>len = worker_list_len() <span class="kw">as </span>usize;
+<a href=#450 id=450 data-nosnippet>450</a>        <span class="kw">let </span><span class="kw-2">mut </span>workers = <span class="macro">vec!</span>[WebWorker::default(); len];
+<a href=#451 id=451 data-nosnippet>451</a>        <span class="kw">let </span>count = Web::worker_list_buf(<span class="kw-2">&amp;mut </span>workers);
+<a href=#452 id=452 data-nosnippet>452</a>        workers.truncate(count);
+<a href=#453 id=453 data-nosnippet>453</a>        workers
+<a href=#454 id=454 data-nosnippet>454</a>    }
+<a href=#455 id=455 data-nosnippet>455</a>    <span class="doccomment">/// Writes active worker handles into a buffer and returns the number written.
+<a href=#456 id=456 data-nosnippet>456</a>    </span><span class="kw">pub fn </span>worker_list_buf(buffer: <span class="kw-2">&amp;mut </span>[WebWorker]) -&gt; usize {
+<a href=#457 id=457 data-nosnippet>457</a>        <span class="kw">let </span>len = worker_list_len() <span class="kw">as </span>usize;
+<a href=#458 id=458 data-nosnippet>458</a>        <span class="kw">let </span>count = len.min(buffer.len());
+<a href=#459 id=459 data-nosnippet>459</a>        <span class="kw">unsafe </span>{ worker_list(buffer.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>js_uint32, count <span class="kw">as </span>js_uint32); }
+<a href=#460 id=460 data-nosnippet>460</a>        count
+<a href=#461 id=461 data-nosnippet>461</a>    }
+<a href=#462 id=462 data-nosnippet>462</a>    <span class="doccomment">/// Sends a message to a specific Web Worker.
+<a href=#463 id=463 data-nosnippet>463</a>    </span><span class="kw">pub fn </span>worker_send_message(worker: WebWorker, msg: <span class="kw-2">&amp;</span>str) {
+<a href=#464 id=464 data-nosnippet>464</a>        <span class="kw">unsafe </span>{ worker_send_message(worker.id(), msg.as_ptr(), msg.len()); }
+<a href=#465 id=465 data-nosnippet>465</a>    }
+<a href=#466 id=466 data-nosnippet>466</a>    <span class="doccomment">/// Requests execution of JavaScript inside a worker.
+<a href=#467 id=467 data-nosnippet>467</a>    </span><span class="kw">pub fn </span>worker_eval(worker: WebWorker, js_code: <span class="kw-2">&amp;</span>str) -&gt; WebWorkerJob {
+<a href=#468 id=468 data-nosnippet>468</a>        <span class="kw">let </span>id = <span class="kw">unsafe </span>{ worker_eval(worker.id(), js_code.as_ptr(), js_code.len()) };
+<a href=#469 id=469 data-nosnippet>469</a>        WebWorkerJob { worker, id }
+<a href=#470 id=470 data-nosnippet>470</a>    }
+<a href=#471 id=471 data-nosnippet>471</a>    <span class="doccomment">/// Polls for the result of a JavaScript execution in a worker.
+<a href=#472 id=472 data-nosnippet>472</a>    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+<a href=#473 id=473 data-nosnippet>473</a>    #[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"alloc"</span>)))]
+<a href=#474 id=474 data-nosnippet>474</a>    </span><span class="kw">pub fn </span>worker_poll(job: WebWorkerJob) -&gt; TaskPoll&lt;<span class="prelude-ty">Result</span>&lt;String, WebWorkerError&gt;&gt; {
+<a href=#475 id=475 data-nosnippet>475</a>        <span class="kw">if </span>!job.worker().is_active() { <span class="kw">return </span>TaskPoll::Ready(<span class="prelude-val">Err</span>(WebWorkerError::WorkerNotFound)); }
+<a href=#476 id=476 data-nosnippet>476</a>        <span class="kw">let </span><span class="kw-2">mut </span>first_check = <span class="bool-val">true</span>;
+<a href=#477 id=477 data-nosnippet>477</a>        <span class="kw">let </span>result = Js::read_string_capped(<span class="number">128</span>, <span class="bool-val">false</span>, |ptr, cap| {
+<a href=#478 id=478 data-nosnippet>478</a>            <span class="kw">let </span>res = <span class="kw">unsafe </span>{ worker_poll_buf(job.id(), ptr, cap <span class="kw">as </span>usize) <span class="kw">as </span>js_int32 };
+<a href=#479 id=479 data-nosnippet>479</a>            <span class="kw">if </span>first_check {
+<a href=#480 id=480 data-nosnippet>480</a>                first_check = <span class="bool-val">false</span>; <span class="comment">// Intercept status codes before bothering with decoding
+<a href=#481 id=481 data-nosnippet>481</a>                </span><span class="kw">if </span>res == <span class="number">0 </span>{ <span class="kw">return </span><span class="number">0</span>; } <span class="kw">else if </span>res == -<span class="number">1 </span>{ <span class="kw">return </span>-<span class="number">1</span>; } <span class="comment">// pending or not found
+<a href=#482 id=482 data-nosnippet>482</a>            </span>}
+<a href=#483 id=483 data-nosnippet>483</a>            res
+<a href=#484 id=484 data-nosnippet>484</a>        });
+<a href=#485 id=485 data-nosnippet>485</a>        <span class="kw">match </span>result.as_str() {
+<a href=#486 id=486 data-nosnippet>486</a>            <span class="string">"" </span>=&gt; TaskPoll::Pending, <span class="comment">// Covers 0 and -1 (mapped above)
+<a href=#487 id=487 data-nosnippet>487</a>            </span><span class="kw">_ </span>=&gt; TaskPoll::Ready(<span class="prelude-val">Ok</span>(result)),
+<a href=#488 id=488 data-nosnippet>488</a>        }
 <a href=#489 id=489 data-nosnippet>489</a>    }
-<a href=#490 id=490 data-nosnippet>490</a>    <span class="doccomment">/// Polls for the result of a JavaScript execution in a worker.
-<a href=#491 id=491 data-nosnippet>491</a>    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-<a href=#492 id=492 data-nosnippet>492</a>    #[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"alloc"</span>)))]
-<a href=#493 id=493 data-nosnippet>493</a>    </span><span class="kw">pub fn </span>worker_poll(job: WebWorkerJob) -&gt; TaskPoll&lt;<span class="prelude-ty">Result</span>&lt;String, WebWorkerError&gt;&gt; {
-<a href=#494 id=494 data-nosnippet>494</a>        <span class="kw">if </span>!job.worker().is_active() { <span class="kw">return </span>TaskPoll::Ready(<span class="prelude-val">Err</span>(WebWorkerError::WorkerNotFound)); }
-<a href=#495 id=495 data-nosnippet>495</a>        <span class="kw">let </span><span class="kw-2">mut </span>first_check = <span class="bool-val">true</span>;
-<a href=#496 id=496 data-nosnippet>496</a>        <span class="kw">let </span>result = Js::read_string_capped(<span class="number">128</span>, <span class="bool-val">false</span>, |ptr, cap| {
-<a href=#497 id=497 data-nosnippet>497</a>            <span class="kw">let </span>res = <span class="kw">unsafe </span>{ worker_poll_buf(job.id(), ptr, cap <span class="kw">as </span>usize) <span class="kw">as </span>js_int32 };
-<a href=#498 id=498 data-nosnippet>498</a>            <span class="kw">if </span>first_check {
-<a href=#499 id=499 data-nosnippet>499</a>                first_check = <span class="bool-val">false</span>; <span class="comment">// Intercept status codes before bothering with decoding
-<a href=#500 id=500 data-nosnippet>500</a>                </span><span class="kw">if </span>res == <span class="number">0 </span>{ <span class="kw">return </span><span class="number">0</span>; } <span class="kw">else if </span>res == -<span class="number">1 </span>{ <span class="kw">return </span>-<span class="number">1</span>; } <span class="comment">// pending or not found
-<a href=#501 id=501 data-nosnippet>501</a>            </span>}
-<a href=#502 id=502 data-nosnippet>502</a>            res
-<a href=#503 id=503 data-nosnippet>503</a>        });
-<a href=#504 id=504 data-nosnippet>504</a>        <span class="kw">match </span>result.as_str() {
-<a href=#505 id=505 data-nosnippet>505</a>            <span class="string">"" </span>=&gt; TaskPoll::Pending, <span class="comment">// Covers 0 and -1 (mapped above)
-<a href=#506 id=506 data-nosnippet>506</a>            </span><span class="kw">_ </span>=&gt; TaskPoll::Ready(<span class="prelude-val">Ok</span>(result)),
-<a href=#507 id=507 data-nosnippet>507</a>        }
-<a href=#508 id=508 data-nosnippet>508</a>    }
-<a href=#509 id=509 data-nosnippet>509</a>    <span class="doccomment">/// Polls for the result of a JavaScript execution in a worker, and writes it into `buffer`.
-<a href=#510 id=510 data-nosnippet>510</a>    ///
-<a href=#511 id=511 data-nosnippet>511</a>    /// If ready, returns the number of bytes written to the buffer.
-<a href=#512 id=512 data-nosnippet>512</a>    </span><span class="kw">pub fn </span>worker_poll_buf(job: WebWorkerJob, buffer: <span class="kw-2">&amp;mut </span>[u8])
-<a href=#513 id=513 data-nosnippet>513</a>        -&gt; TaskPoll&lt;<span class="prelude-ty">Result</span>&lt;usize, WebWorkerError&gt;&gt; {
-<a href=#514 id=514 data-nosnippet>514</a>        <span class="kw">if </span>!job.worker().is_active() { <span class="kw">return </span>TaskPoll::Ready(<span class="prelude-val">Err</span>(WebWorkerError::WorkerNotFound)); }
-<a href=#515 id=515 data-nosnippet>515</a>        <span class="kw">let </span>written = <span class="kw">unsafe </span>{ worker_poll_buf(job.id(), buffer.as_mut_ptr(), buffer.len()) };
-<a href=#516 id=516 data-nosnippet>516</a>        <span class="kw">match </span>written {
-<a href=#517 id=517 data-nosnippet>517</a>            <span class="number">0 </span>=&gt; TaskPoll::Pending,
-<a href=#518 id=518 data-nosnippet>518</a>            js_uint32::MAX =&gt; TaskPoll::Ready(<span class="prelude-val">Err</span>(WebWorkerError::JobNotFound)),
-<a href=#519 id=519 data-nosnippet>519</a>            <span class="kw">_ </span>=&gt; TaskPoll::Ready(<span class="prelude-val">Ok</span>(written <span class="kw">as </span>usize)),
-<a href=#520 id=520 data-nosnippet>520</a>        }
-<a href=#521 id=521 data-nosnippet>521</a>    }
-<a href=#522 id=522 data-nosnippet>522</a>    <span class="doccomment">/// Cancels an ongoing JavaScript evaluation.
-<a href=#523 id=523 data-nosnippet>523</a>    </span><span class="kw">pub fn </span>worker_eval_cancel(job: WebWorkerJob) { worker_cancel_eval(job.id()); }
-<a href=#524 id=524 data-nosnippet>524</a>}
-<a href=#525 id=525 data-nosnippet>525</a><span class="macro">js_reexport!</span> { [module: <span class="string">"api_workers"</span>]
-<a href=#526 id=526 data-nosnippet>526</a>    <span class="kw">unsafe fn </span>worker_spawn(script_ptr: <span class="kw-2">*const </span>u8, script_len: usize) -&gt; js_uint32;
-<a href=#527 id=527 data-nosnippet>527</a>    safe <span class="kw">fn </span>worker_is_active(worker_id: js_uint32) -&gt; js_bool;
-<a href=#528 id=528 data-nosnippet>528</a>    safe <span class="kw">fn </span>worker_stop(worker_id: js_uint32);
-<a href=#529 id=529 data-nosnippet>529</a>    safe <span class="kw">fn </span>worker_stop_all();
-<a href=#530 id=530 data-nosnippet>530</a>    safe <span class="kw">fn </span>worker_list_len() -&gt; js_uint32;
-<a href=#531 id=531 data-nosnippet>531</a>    <span class="kw">unsafe fn </span>worker_list(worker_list_ptr: <span class="kw-2">*mut </span>js_uint32, len: js_uint32) -&gt; js_uint32;
-<a href=#532 id=532 data-nosnippet>532</a>    <span class="kw">unsafe fn </span>worker_send_message(worker_id: js_uint32, msg_ptr: <span class="kw-2">*const </span>u8, msg_len: usize);
-<a href=#533 id=533 data-nosnippet>533</a>    <span class="kw">unsafe fn </span>worker_eval(worker_id: js_uint32, js_code_ptr: <span class="kw-2">*const </span>u8, js_code_len: usize)
-<a href=#534 id=534 data-nosnippet>534</a>        -&gt; js_uint32;
-<a href=#535 id=535 data-nosnippet>535</a>    <span class="kw">unsafe fn </span>worker_poll_buf(job_id: js_uint32, buffer_ptr: <span class="kw-2">*mut </span>u8, buffer_len: usize)
-<a href=#536 id=536 data-nosnippet>536</a>        -&gt; js_uint32;
-<a href=#537 id=537 data-nosnippet>537</a>    safe <span class="kw">fn </span>worker_cancel_eval(job_id: js_uint32);
-<a href=#538 id=538 data-nosnippet>538</a>}</code></pre></div></section></main></body></html>
+<a href=#490 id=490 data-nosnippet>490</a>    <span class="doccomment">/// Polls for the result of a JavaScript execution in a worker, and writes it into `buffer`.
+<a href=#491 id=491 data-nosnippet>491</a>    ///
+<a href=#492 id=492 data-nosnippet>492</a>    /// If ready, returns the number of bytes written to the buffer.
+<a href=#493 id=493 data-nosnippet>493</a>    </span><span class="kw">pub fn </span>worker_poll_buf(job: WebWorkerJob, buffer: <span class="kw-2">&amp;mut </span>[u8])
+<a href=#494 id=494 data-nosnippet>494</a>        -&gt; TaskPoll&lt;<span class="prelude-ty">Result</span>&lt;usize, WebWorkerError&gt;&gt; {
+<a href=#495 id=495 data-nosnippet>495</a>        <span class="kw">if </span>!job.worker().is_active() { <span class="kw">return </span>TaskPoll::Ready(<span class="prelude-val">Err</span>(WebWorkerError::WorkerNotFound)); }
+<a href=#496 id=496 data-nosnippet>496</a>        <span class="kw">let </span>written = <span class="kw">unsafe </span>{ worker_poll_buf(job.id(), buffer.as_mut_ptr(), buffer.len()) };
+<a href=#497 id=497 data-nosnippet>497</a>        <span class="kw">match </span>written {
+<a href=#498 id=498 data-nosnippet>498</a>            <span class="number">0 </span>=&gt; TaskPoll::Pending,
+<a href=#499 id=499 data-nosnippet>499</a>            js_uint32::MAX =&gt; TaskPoll::Ready(<span class="prelude-val">Err</span>(WebWorkerError::JobNotFound)),
+<a href=#500 id=500 data-nosnippet>500</a>            <span class="kw">_ </span>=&gt; TaskPoll::Ready(<span class="prelude-val">Ok</span>(written <span class="kw">as </span>usize)),
+<a href=#501 id=501 data-nosnippet>501</a>        }
+<a href=#502 id=502 data-nosnippet>502</a>    }
+<a href=#503 id=503 data-nosnippet>503</a>    <span class="doccomment">/// Cancels an ongoing JavaScript evaluation.
+<a href=#504 id=504 data-nosnippet>504</a>    </span><span class="kw">pub fn </span>worker_eval_cancel(job: WebWorkerJob) { worker_cancel_eval(job.id()); }
+<a href=#505 id=505 data-nosnippet>505</a>}
+<a href=#506 id=506 data-nosnippet>506</a><span class="macro">js_reexport!</span> { [module: <span class="string">"api_workers"</span>]
+<a href=#507 id=507 data-nosnippet>507</a>    <span class="kw">unsafe fn </span>worker_spawn(script_ptr: <span class="kw-2">*const </span>u8, script_len: usize) -&gt; js_uint32;
+<a href=#508 id=508 data-nosnippet>508</a>    safe <span class="kw">fn </span>worker_is_active(worker_id: js_uint32) -&gt; js_bool;
+<a href=#509 id=509 data-nosnippet>509</a>    safe <span class="kw">fn </span>worker_stop(worker_id: js_uint32);
+<a href=#510 id=510 data-nosnippet>510</a>    safe <span class="kw">fn </span>worker_stop_all();
+<a href=#511 id=511 data-nosnippet>511</a>    safe <span class="kw">fn </span>worker_list_len() -&gt; js_uint32;
+<a href=#512 id=512 data-nosnippet>512</a>    <span class="kw">unsafe fn </span>worker_list(worker_list_ptr: <span class="kw-2">*mut </span>js_uint32, len: js_uint32) -&gt; js_uint32;
+<a href=#513 id=513 data-nosnippet>513</a>    <span class="kw">unsafe fn </span>worker_send_message(worker_id: js_uint32, msg_ptr: <span class="kw-2">*const </span>u8, msg_len: usize);
+<a href=#514 id=514 data-nosnippet>514</a>    <span class="kw">unsafe fn </span>worker_eval(worker_id: js_uint32, js_code_ptr: <span class="kw-2">*const </span>u8, js_code_len: usize)
+<a href=#515 id=515 data-nosnippet>515</a>        -&gt; js_uint32;
+<a href=#516 id=516 data-nosnippet>516</a>    <span class="kw">unsafe fn </span>worker_poll_buf(job_id: js_uint32, buffer_ptr: <span class="kw-2">*mut </span>u8, buffer_len: usize)
+<a href=#517 id=517 data-nosnippet>517</a>        -&gt; js_uint32;
+<a href=#518 id=518 data-nosnippet>518</a>    safe <span class="kw">fn </span>worker_cancel_eval(job_id: js_uint32);
+<a href=#519 id=519 data-nosnippet>519</a>}</code></pre></div></section></main></body></html>
