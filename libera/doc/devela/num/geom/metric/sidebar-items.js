@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AngleDirection","AngleKind"],"struct":["Angle","Distance","Extent","Orientation","Position","Region","RegionStrided","Stride"]};

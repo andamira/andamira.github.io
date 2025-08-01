@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["PyDict_GetItemRef","PyImport_AddModuleRef","PyList_Clear","PyList_Extend","PyList_GetItemRef","PyModule_Add","PyModule_AddObjectRef","PyObject_CallMethodNoArgs","PyObject_CallNoArgs","PyWeakref_GetRef","Py_HashBuffer","Py_NewRef","Py_XNewRef"]};

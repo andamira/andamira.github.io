@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EventButton","EventButtonState","EventPointerType","Key","KeyAlpha","KeyFfi","KeyMedia","KeyMod","KeyPad","KeyState"],"struct":["EventKey","EventKeyFfi","EventMouse","EventPointer","EventTimestamp","EventWheel","KeyMods"]};

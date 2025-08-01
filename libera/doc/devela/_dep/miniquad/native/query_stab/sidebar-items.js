@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["GL_TIME_ELAPSED"],"fn":["glGetQueryObjectiv","glGetQueryObjectui64v"]};

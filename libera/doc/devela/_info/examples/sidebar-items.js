@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["bitfield","enumint","enumset","id_seq"]};

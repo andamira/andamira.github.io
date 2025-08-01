@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="𝐓 Joins multiple byte slices or string slices in compile-time."><title>join in devela::sys::mem - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-4e99c027.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.24.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">join</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li><li><a href="#features" title="Features">Features</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>sys::<wbr>mem</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">sys</a>::<wbr><a href="index.html">mem</a></div><h1>Macro <span class="macro">join</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/sys/mem/slice/join.rs.html#46-160">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! join {
+    (bytes:) =&gt; { ... };
+    (bytes: $bytes:expr $(,)?) =&gt; { ... };
+    (bytes: $($bytes: expr),+ $(,)?) =&gt; { ... };
+    (bytes_repeated: $bytes:expr, $num:expr $(,)?) =&gt; { ... };
+    (bytes_separated: $sep:expr; $first:expr, $($rest:expr),+ $(,)?) =&gt; { ... };
+    (bytes_as_slice: $bytes: expr) =&gt; { ... };
+    (str: ) =&gt; { ... };
+    (str: $A:expr $(,)?) =&gt; { ... };
+    (str: $A:expr, $B:expr, $($rest:expr),+ $(,)?) =&gt; { ... };
+    (str: $A:expr, $B:expr $(,)?) =&gt; { ... };
+    (str_repeated: $A:expr, $count:expr $(,)?) =&gt; { ... };
+    (str_separated: $sep:expr; $first:expr, $($rest:expr),+ $(,)?) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Text-related type'>𝐓</span>
+Joins multiple byte slices or string slices in compile-time.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">/* string slices */
+
+</span><span class="kw">const </span>SBASE: <span class="kw-2">&amp;</span>str = <span class="string">"path/to"</span>;
+<span class="kw">const </span>SPART1: <span class="kw-2">&amp;</span>str = <span class="string">"/foo"</span>;
+<span class="kw">const </span>SPART2: <span class="kw-2">&amp;</span>str = <span class="string">"/bar"</span>;
+<span class="kw">const </span>SPATH: <span class="kw-2">&amp;</span>str = <span class="macro">join!</span>(str: SBASE, SPART1, SPART2);
+<span class="macro">const_assert!</span>[eq_str SPATH, <span class="string">"path/to/foo/bar"</span>];
+
+<span class="kw">const </span>SREPEATED: <span class="kw-2">&amp;</span>str = <span class="macro">join!</span>(str_repeated: SPART1, <span class="number">3</span>);
+<span class="macro">const_assert!</span>[eq_str SREPEATED, <span class="string">"/foo/foo/foo"</span>];
+
+<span class="kw">const </span>SPARTS: <span class="kw-2">&amp;</span>str = <span class="macro">join!</span>(str_separated: <span class="string">"/"</span>; <span class="string">"path"</span>, <span class="string">"to"</span>, <span class="string">"file"</span>);
+<span class="macro">const_assert!</span>(eq_str SPARTS, <span class="string">"path/to/file"</span>);
+
+<span class="comment">/* byte slices */
+
+</span><span class="kw">const </span>BBASE: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"path/to"</span>;
+<span class="kw">const </span>BPART1: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"/foo"</span>;
+<span class="kw">const </span>BPART2: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"/bar"</span>;
+<span class="kw">const </span>BPATH: <span class="kw-2">&amp;</span>[u8] = <span class="macro">join!</span>(bytes: BBASE, BPART1, BPART2);
+<span class="macro">const_assert!</span>[eq_buf BPATH, <span class="string">b"path/to/foo/bar"</span>];
+
+<span class="kw">const </span>BREPEATED: <span class="kw-2">&amp;</span>[u8] = <span class="macro">join!</span>(bytes_repeated: BPART1, <span class="number">3</span>);
+<span class="macro">const_assert!</span>[eq_buf BREPEATED, <span class="string">b"/foo/foo/foo"</span>];
+
+<span class="kw">const </span>BPARTS: <span class="kw-2">&amp;</span>[u8] = <span class="macro">join!</span>(bytes_separated: <span class="string">b"/"</span>; <span class="string">b"path"</span>, <span class="string">b"to"</span>, <span class="string">b"file"</span>);
+<span class="macro">const_assert!</span>(eq_buf BPARTS, <span class="string">b"path/to/file"</span>);</code></pre></div>
+<h2 id="features"><a class="doc-anchor" href="#features">§</a>Features</h2>
+<p>Makes use of the <code>unsafe_str</code> feature if available.</p>
+</div></details></section></div></main></body></html>
