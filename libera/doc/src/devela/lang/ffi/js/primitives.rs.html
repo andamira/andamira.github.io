@@ -1,8 +1,224 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/lang/ffi/js/primitives.rs`."><title>primitives.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../../../static.files/storage-4e99c027.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/lang/ffi/js/</div>primitives.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::lang::ffi::js::types::primitives
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/lang/ffi/js/primitives.rs`."><title>primitives.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../../../static.files/storage-4e99c027.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) return;
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) return;
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/lang/ffi/js/</div>primitives.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::lang::ffi::js::types::primitives
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="attr">#![allow(non_camel_case_types, non_upper_case_globals)]
 <a href=#4 id=4 data-nosnippet>4</a>
-<a href=#5 id=5 data-nosnippet>5</a></span><span class="kw">use </span><span class="kw">crate</span>::TAG_PRIMITIVE;
+<a href=#5 id=5 data-nosnippet>5</a></span><span class="kw">use </span><a href="../../../code/util/_doc.rs.html#235-334"><span class="kw">crate</span>::TAG_PRIMITIVE</a>;
 <a href=#6 id=6 data-nosnippet>6</a>
 <a href=#7 id=7 data-nosnippet>7</a><span class="comment">/* numbers */
 <a href=#8 id=8 data-nosnippet>8</a>
@@ -13,7 +229,7 @@
 <a href=#13 id=13 data-nosnippet>13</a>/// All numeric values are represented as IEEE 754 **64-bit floating-point** values.
 <a href=#14 id=14 data-nosnippet>14</a>///
 <a href=#15 id=15 data-nosnippet>15</a>/// JavaScript does not distinguish between integers and floating-point numbers at the type level.
-<a href=#16 id=16 data-nosnippet>16</a></span><span class="kw">pub type </span>js_number = f64;
+<a href=#16 id=16 data-nosnippet>16</a></span><span class="kw">pub type </span><a href="../../../../../devela/all/type.js_number.html">js_number</a> = <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>;
 <a href=#17 id=17 data-nosnippet>17</a>
 <a href=#18 id=18 data-nosnippet>18</a><span class="attr">#[doc = <span class="macro">TAG_PRIMITIVE!</span>()]
 <a href=#19 id=19 data-nosnippet>19</a>#[doc = <span class="macro">crate::TAG_NUM!</span>()]
@@ -25,7 +241,7 @@
 <a href=#25 id=25 data-nosnippet>25</a>/// - **To ensure signed 32-bit behavior in JavaScript:** use `Int32Array` instead of plain arrays.
 <a href=#26 id=26 data-nosnippet>26</a>/// - **To coerce a number into an `i32`:** use `num | 0` in JavaScript.
 <a href=#27 id=27 data-nosnippet>27</a>/// - **Bitwise shifts (`&lt;&lt;`, `&gt;&gt;`) operate on signed 32-bit integers.**
-<a href=#28 id=28 data-nosnippet>28</a></span><span class="kw">pub type </span>js_int32 = i32;
+<a href=#28 id=28 data-nosnippet>28</a></span><span class="kw">pub type </span><a href="../../../../../devela/all/type.js_int32.html">js_int32</a> = <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>;
 <a href=#29 id=29 data-nosnippet>29</a>
 <a href=#30 id=30 data-nosnippet>30</a><span class="attr">#[doc = <span class="macro">TAG_PRIMITIVE!</span>()]
 <a href=#31 id=31 data-nosnippet>31</a>#[doc = <span class="macro">crate::TAG_NUM!</span>()]
@@ -37,7 +253,7 @@
 <a href=#37 id=37 data-nosnippet>37</a>/// - **To ensure unsigned 32-bit behavior in JavaScript:** use `Uint32Array` instead of plain arrays.
 <a href=#38 id=38 data-nosnippet>38</a>/// - **To coerce a number into a `u32`:** use `num &gt;&gt;&gt; 0` in JavaScript.
 <a href=#39 id=39 data-nosnippet>39</a>/// - **Only `&gt;&gt;&gt;` (unsigned right shift) preserves unsigned semantics.**
-<a href=#40 id=40 data-nosnippet>40</a></span><span class="kw">pub type </span>js_uint32 = u32;
+<a href=#40 id=40 data-nosnippet>40</a></span><span class="kw">pub type </span><a href="../../../../../devela/all/type.js_uint32.html">js_uint32</a> = <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
 <a href=#41 id=41 data-nosnippet>41</a>
 <a href=#42 id=42 data-nosnippet>42</a><span class="comment">/* numeric constants */
 <a href=#43 id=43 data-nosnippet>43</a>// MAYBE
@@ -53,7 +269,7 @@
 <a href=#53 id=53 data-nosnippet>53</a>
 <a href=#54 id=54 data-nosnippet>54</a></span><span class="attr">#[doc = <span class="macro">TAG_PRIMITIVE!</span>()]
 <a href=#55 id=55 data-nosnippet>55</a></span><span class="doccomment">/// A JavaScript boolean (`true` / `false`).
-<a href=#56 id=56 data-nosnippet>56</a></span><span class="kw">pub type </span>js_bool = bool;
+<a href=#56 id=56 data-nosnippet>56</a></span><span class="kw">pub type </span><a href="../../../../../devela/all/type.js_bool.html">js_bool</a> = <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
 <a href=#57 id=57 data-nosnippet>57</a>
 <a href=#58 id=58 data-nosnippet>58</a><span class="comment">/* string */
 <a href=#59 id=59 data-nosnippet>59</a>
@@ -63,7 +279,7 @@
 <a href=#63 id=63 data-nosnippet>63</a>///
 <a href=#64 id=64 data-nosnippet>64</a>/// JavaScript strings are **UTF-16 internally**, but Rust typically interacts with them
 <a href=#65 id=65 data-nosnippet>65</a>/// as **UTF-8**. This type represents a pointer to a UTF-8 encoded string.
-<a href=#66 id=66 data-nosnippet>66</a></span><span class="kw">pub type </span>js_str = <span class="kw-2">*const </span>u8;
+<a href=#66 id=66 data-nosnippet>66</a></span><span class="kw">pub type </span><a href="../../../../../devela/all/type.js_str.html">js_str</a> = <span class="kw-2">*const </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
 <a href=#67 id=67 data-nosnippet>67</a>
 <a href=#68 id=68 data-nosnippet>68</a><span class="comment">/* special types */
 <a href=#69 id=69 data-nosnippet>69</a>
@@ -74,11 +290,11 @@
 <a href=#74 id=74 data-nosnippet>74</a>/// Though `null` is distinct from `undefined` in JavaScript,
 <a href=#75 id=75 data-nosnippet>75</a>/// both are often treated interchangeably.
 <a href=#76 id=76 data-nosnippet>76</a>/// In Rust, `null` is mapped to the unit type `()`.
-<a href=#77 id=77 data-nosnippet>77</a></span><span class="kw">pub type </span>js_null = ();
+<a href=#77 id=77 data-nosnippet>77</a></span><span class="kw">pub type </span><a href="../../../../../devela/all/type.js_null.html">js_null</a> = ();
 <a href=#78 id=78 data-nosnippet>78</a>
 <a href=#79 id=79 data-nosnippet>79</a><span class="attr">#[doc = <span class="macro">TAG_PRIMITIVE!</span>()]
 <a href=#80 id=80 data-nosnippet>80</a>#[doc = <span class="macro">crate::TAG_NO!</span>()]
 <a href=#81 id=81 data-nosnippet>81</a></span><span class="doccomment">/// The JavaScript `undefined` value.
 <a href=#82 id=82 data-nosnippet>82</a>///
 <a href=#83 id=83 data-nosnippet>83</a>/// In Rust, `undefined` is represented as the unit type `()`, as it carries no meaningful value.
-<a href=#84 id=84 data-nosnippet>84</a></span><span class="kw">pub type </span>js_undefined = ();</code></pre></div></section></main></body></html>
+<a href=#84 id=84 data-nosnippet>84</a></span><span class="kw">pub type </span><a href="../../../../../devela/all/type.js_undefined.html">js_undefined</a> = ();</code></pre></div></section></main></body></html>

@@ -1,15 +1,231 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/ascii/wrapper.rs`."><title>wrapper.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-4e99c027.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/text/ascii/</div>wrapper.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::text::ascii::wrapper
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text/ascii/wrapper.rs`."><title>wrapper.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-4e99c027.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) return;
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) return;
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/text/ascii/</div>wrapper.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::text::ascii::wrapper
 <a href=#2 id=2 data-nosnippet>2</a>//
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//! Ascii functionality wrapper struct.
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
 <a href=#5 id=5 data-nosnippet>5</a>
-<a href=#6 id=6 data-nosnippet>6</a></span><span class="kw">use </span><span class="kw">crate</span>::is;
+<a href=#6 id=6 data-nosnippet>6</a></span><span class="kw">use </span><a href="../../code/util/is.rs.html#100-139"><span class="kw">crate</span>::is</a>;
 <a href=#7 id=7 data-nosnippet>7</a>
 <a href=#8 id=8 data-nosnippet>8</a><span class="comment">// imports for the `digits_str` method
 <a href=#9 id=9 data-nosnippet>9</a></span><span class="attr">#[cfg(all(feature = <span class="string">"_str_u8"</span>, feature = <span class="string">"_cmp_u8"</span>))]
 <a href=#10 id=10 data-nosnippet>10</a></span><span class="kw">use </span><span class="kw">crate</span>::Compare;
 <a href=#11 id=11 data-nosnippet>11</a><span class="attr">#[cfg(feature = <span class="string">"_str_u8"</span>)]
-<a href=#12 id=12 data-nosnippet>12</a></span><span class="kw">use </span><span class="kw">crate</span>::StringU8;
+<a href=#12 id=12 data-nosnippet>12</a></span><span class="kw">use </span><a href="../str/string_u.rs.html#705"><span class="kw">crate</span>::StringU8</a>;
 <a href=#13 id=13 data-nosnippet>13</a><span class="attr">#[cfg(all(feature = <span class="string">"_str_u8"</span>, any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>))))]
 <a href=#14 id=14 data-nosnippet>14</a></span><span class="kw">use </span><span class="kw">crate</span>::unwrap;
 <a href=#15 id=15 data-nosnippet>15</a>
@@ -17,11 +233,11 @@
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="doccomment">/// Provides ASCII operations on `T`, most of them *const*.
 <a href=#18 id=18 data-nosnippet>18</a></span><span class="attr">#[derive(Clone, Copy)]
 <a href=#19 id=19 data-nosnippet>19</a>#[repr(transparent)]
-<a href=#20 id=20 data-nosnippet>20</a></span><span class="kw">pub struct </span>Ascii&lt;T: Copy&gt;(<span class="kw">pub </span>T);
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="kw">pub struct </span><a href="../../../../devela/text/struct.Ascii.html">Ascii</a>&lt;T: <a href="../../../../devela/all/trait.Copy.html">Copy</a>&gt;(<span class="kw">pub </span>T);
 <a href=#21 id=21 data-nosnippet>21</a>
-<a href=#22 id=22 data-nosnippet>22</a><span class="kw">impl </span>Ascii&lt;usize&gt; {
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">impl </span><a href="#20">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
 <a href=#23 id=23 data-nosnippet>23</a>    <span class="doccomment">/// The maximum number of decimal digits a `usize` can represent in the current platform.
-<a href=#24 id=24 data-nosnippet>24</a>    </span><span class="kw">pub const </span>MAX_DIGITS: usize = Ascii(usize::MAX).count_digits() <span class="kw">as </span>usize;
+<a href=#24 id=24 data-nosnippet>24</a>    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <a href="#20">Ascii</a>(usize::MAX).<a href="#52-54">count_digits</a>() <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>;
 <a href=#25 id=25 data-nosnippet>25</a>
 <a href=#26 id=26 data-nosnippet>26</a>    <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `usize` number.
 <a href=#27 id=27 data-nosnippet>27</a>    ///
@@ -35,8 +251,8 @@
 <a href=#35 id=35 data-nosnippet>35</a>    /// assert_eq!(Ascii(12345_usize).calc_digit(1000), b'2');
 <a href=#36 id=36 data-nosnippet>36</a>    /// ```
 <a href=#37 id=37 data-nosnippet>37</a>    </span><span class="attr">#[must_use]
-<a href=#38 id=38 data-nosnippet>38</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: usize) -&gt; u8 {
-<a href=#39 id=39 data-nosnippet>39</a>        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) <span class="kw">as </span>u8 + <span class="string">b'0'
+<a href=#38 id=38 data-nosnippet>38</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#39 id=39 data-nosnippet>39</a>        (<a class="self" href="#38">self</a>.<span class="number">0 </span>/ <a href="#38">divisor</a> % <span class="number">10</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> + <span class="string">b'0'
 <a href=#40 id=40 data-nosnippet>40</a>    </span>}
 <a href=#41 id=41 data-nosnippet>41</a>
 <a href=#42 id=42 data-nosnippet>42</a>    <span class="doccomment">/// Counts the number of decimal digits.
@@ -49,8 +265,8 @@
 <a href=#49 id=49 data-nosnippet>49</a>    /// assert_eq![4, Ascii(9876_usize).count_digits()];
 <a href=#50 id=50 data-nosnippet>50</a>    /// ```
 <a href=#51 id=51 data-nosnippet>51</a>    </span><span class="attr">#[must_use]
-<a href=#52 id=52 data-nosnippet>52</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-<a href=#53 id=53 data-nosnippet>53</a>        <span class="macro">is!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+<a href=#52 id=52 data-nosnippet>52</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#53 id=53 data-nosnippet>53</a>        <a class="macro" href="../../code/util/is.rs.html#100-139">is!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
 <a href=#54 id=54 data-nosnippet>54</a>    }
 <a href=#55 id=55 data-nosnippet>55</a>
 <a href=#56 id=56 data-nosnippet>56</a>    <span class="doccomment">/// Converts a `usize` into a byte array of `5` ascii digits with leading zeros.
@@ -82,8 +298,8 @@
 <a href=#82 id=82 data-nosnippet>82</a>    /// You can trim the leading zeros with
 <a href=#83 id=83 data-nosnippet>83</a>    /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
 <a href=#84 id=84 data-nosnippet>84</a>    </span><span class="attr">#[must_use] #[cfg(target_pointer_width = <span class="string">"64"</span>)] #[rustfmt::skip]
-<a href=#85 id=85 data-nosnippet>85</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="self">Self</span>::MAX_DIGITS] {
-<a href=#86 id=86 data-nosnippet>86</a>        Ascii(<span class="self">self</span>.<span class="number">0 </span><span class="kw">as </span>u64).digits()
+<a href=#85 id=85 data-nosnippet>85</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="self">Self</span>::MAX_DIGITS] {
+<a href=#86 id=86 data-nosnippet>86</a>        <a href="#20">Ascii</a>(<a class="self" href="#85">self</a>.<span class="number">0 </span><span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>).<a href="#478-503">digits</a>()
 <a href=#87 id=87 data-nosnippet>87</a>    }
 <a href=#88 id=88 data-nosnippet>88</a>
 <a href=#89 id=89 data-nosnippet>89</a>    <span class="doccomment">/// Returns a static string with zero-padded digits with minimum `width`.
@@ -111,22 +327,22 @@
 <a href=#111 id=111 data-nosnippet>111</a>    <span class="attr">#[allow(missing_docs)]
 <a href=#112 id=112 data-nosnippet>112</a>    #[cfg(not(feature = <span class="string">"_cmp_u8"</span>))] </span><span class="comment">// !const
 <a href=#113 id=113 data-nosnippet>113</a>    </span><span class="attr">#[cfg(feature = <span class="string">"_str_u8"</span>)]
-<a href=#114 id=114 data-nosnippet>114</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;{ <span class="self">Self</span>::MAX_DIGITS }&gt; {
-<a href=#115 id=115 data-nosnippet>115</a>        <span class="kw">let </span>width = width.max(<span class="self">self</span>.count_digits()).min(<span class="self">Self</span>::MAX_DIGITS <span class="kw">as </span>u8);
+<a href=#114 id=114 data-nosnippet>114</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#705">StringU8</a>&lt;{ <span class="self">Self</span>::MAX_DIGITS }&gt; {
+<a href=#115 id=115 data-nosnippet>115</a>        <span class="kw">let </span>width = <a href="#114">width</a>.<a href="../../../../devela/all/trait.Ord.html">max</a>(<a class="self" href="#114">self</a>.<a href="#52-54">count_digits</a>()).<a href="../../../../devela/all/trait.Ord.html">min</a>(<span class="self">Self</span>::MAX_DIGITS <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>);
 <a href=#116 id=116 data-nosnippet>116</a>
 <a href=#117 id=117 data-nosnippet>117</a>        <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
 <a href=#118 id=118 data-nosnippet>118</a>        </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;{<span class="self">Self</span>::MAX_DIGITS}&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
 <a href=#119 id=119 data-nosnippet>119</a>        <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
 <a href=#120 id=120 data-nosnippet>120</a>        </span><span class="comment">// SAFETY: the bytes are valid utf-8
 <a href=#121 id=121 data-nosnippet>121</a>        </span><span class="kw">unsafe </span>{
-<a href=#122 id=122 data-nosnippet>122</a>            StringU8::&lt;{ <span class="self">Self</span>::MAX_DIGITS }&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+<a href=#122 id=122 data-nosnippet>122</a>            <a href="../str/string_u.rs.html#705">StringU8</a>::&lt;{ <span class="self">Self</span>::MAX_DIGITS }&gt;::from_bytes_nright_unchecked(<a class="self" href="#114">self</a>.<a href="#85-87">digits</a>(), <a href="#115">width</a>)
 <a href=#123 id=123 data-nosnippet>123</a>        }
 <a href=#124 id=124 data-nosnippet>124</a>    }
 <a href=#125 id=125 data-nosnippet>125</a>}
 <a href=#126 id=126 data-nosnippet>126</a>
-<a href=#127 id=127 data-nosnippet>127</a><span class="kw">impl </span>Ascii&lt;u8&gt; {
+<a href=#127 id=127 data-nosnippet>127</a><span class="kw">impl </span><a href="#20">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; {
 <a href=#128 id=128 data-nosnippet>128</a>    <span class="doccomment">/// The maximum number of decimal digits a `u8` can represent.
-<a href=#129 id=129 data-nosnippet>129</a>    </span><span class="kw">pub const </span>MAX_DIGITS: usize = <span class="number">3</span>;
+<a href=#129 id=129 data-nosnippet>129</a>    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">3</span>;
 <a href=#130 id=130 data-nosnippet>130</a>
 <a href=#131 id=131 data-nosnippet>131</a>    <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `u8` number.
 <a href=#132 id=132 data-nosnippet>132</a>    ///
@@ -140,8 +356,8 @@
 <a href=#140 id=140 data-nosnippet>140</a>    /// assert_eq!(Ascii(123_u8).calc_digit(100), b'1');
 <a href=#141 id=141 data-nosnippet>141</a>    /// ```
 <a href=#142 id=142 data-nosnippet>142</a>    </span><span class="attr">#[must_use]
-<a href=#143 id=143 data-nosnippet>143</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: u8) -&gt; u8 {
-<a href=#144 id=144 data-nosnippet>144</a>        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) + <span class="string">b'0'
+<a href=#143 id=143 data-nosnippet>143</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#144 id=144 data-nosnippet>144</a>        (<a class="self" href="#143">self</a>.<span class="number">0 </span>/ <a href="#143">divisor</a> % <span class="number">10</span>) + <span class="string">b'0'
 <a href=#145 id=145 data-nosnippet>145</a>    </span>}
 <a href=#146 id=146 data-nosnippet>146</a>
 <a href=#147 id=147 data-nosnippet>147</a>    <span class="doccomment">/// Counts the number of decimal digits.
@@ -154,8 +370,8 @@
 <a href=#154 id=154 data-nosnippet>154</a>    /// assert_eq![3, Ascii(123_u8).count_digits()];
 <a href=#155 id=155 data-nosnippet>155</a>    /// ```
 <a href=#156 id=156 data-nosnippet>156</a>    </span><span class="attr">#[must_use]
-<a href=#157 id=157 data-nosnippet>157</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-<a href=#158 id=158 data-nosnippet>158</a>        <span class="macro">is!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+<a href=#157 id=157 data-nosnippet>157</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#158 id=158 data-nosnippet>158</a>        <a class="macro" href="../../code/util/is.rs.html#100-139">is!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
 <a href=#159 id=159 data-nosnippet>159</a>    }
 <a href=#160 id=160 data-nosnippet>160</a>
 <a href=#161 id=161 data-nosnippet>161</a>    <span class="doccomment">/// Converts a `u8` into a byte array of `3` ASCII digits with leading zeros.
@@ -163,13 +379,13 @@
 <a href=#163 id=163 data-nosnippet>163</a>    /// You can trim the leading zeros with
 <a href=#164 id=164 data-nosnippet>164</a>    /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
 <a href=#165 id=165 data-nosnippet>165</a>    </span><span class="attr">#[must_use]
-<a href=#166 id=166 data-nosnippet>166</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="number">3</span>] {
+<a href=#166 id=166 data-nosnippet>166</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">3</span>] {
 <a href=#167 id=167 data-nosnippet>167</a>        [
 <a href=#168 id=168 data-nosnippet>168</a>            <span class="comment">//              321
 <a href=#169 id=169 data-nosnippet>169</a>            //              255 u8::MAX
-<a href=#170 id=170 data-nosnippet>170</a>            </span><span class="self">self</span>.calc_digit(<span class="number">100</span>),
-<a href=#171 id=171 data-nosnippet>171</a>            <span class="self">self</span>.calc_digit(<span class="number">10</span>),
-<a href=#172 id=172 data-nosnippet>172</a>            <span class="self">self</span>.calc_digit(<span class="number">1</span>),
+<a href=#170 id=170 data-nosnippet>170</a>            </span><a class="self" href="#166">self</a>.<a href="#143-145">calc_digit</a>(<span class="number">100</span>),
+<a href=#171 id=171 data-nosnippet>171</a>            <a class="self" href="#166">self</a>.<a href="#143-145">calc_digit</a>(<span class="number">10</span>),
+<a href=#172 id=172 data-nosnippet>172</a>            <a class="self" href="#166">self</a>.<a href="#143-145">calc_digit</a>(<span class="number">1</span>),
 <a href=#173 id=173 data-nosnippet>173</a>        ]
 <a href=#174 id=174 data-nosnippet>174</a>    }
 <a href=#175 id=175 data-nosnippet>175</a>
@@ -198,15 +414,15 @@
 <a href=#198 id=198 data-nosnippet>198</a>    <span class="attr">#[allow(missing_docs)]
 <a href=#199 id=199 data-nosnippet>199</a>    #[cfg(not(feature = <span class="string">"_cmp_u8"</span>))] </span><span class="comment">// !const
 <a href=#200 id=200 data-nosnippet>200</a>    </span><span class="attr">#[cfg(feature = <span class="string">"_str_u8"</span>)]
-<a href=#201 id=201 data-nosnippet>201</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;<span class="number">3</span>&gt; {
-<a href=#202 id=202 data-nosnippet>202</a>        <span class="kw">let </span>width = width.max(<span class="self">self</span>.count_digits()).min(<span class="number">3</span>);
+<a href=#201 id=201 data-nosnippet>201</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#705">StringU8</a>&lt;<span class="number">3</span>&gt; {
+<a href=#202 id=202 data-nosnippet>202</a>        <span class="kw">let </span>width = <a href="#201">width</a>.<a href="../../../../devela/all/trait.Ord.html">max</a>(<a class="self" href="#201">self</a>.<a href="#157-159">count_digits</a>()).<a href="../../../../devela/all/trait.Ord.html">min</a>(<span class="number">3</span>);
 <a href=#203 id=203 data-nosnippet>203</a>
 <a href=#204 id=204 data-nosnippet>204</a>        <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
 <a href=#205 id=205 data-nosnippet>205</a>        </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;<span class="number">3</span>&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
 <a href=#206 id=206 data-nosnippet>206</a>        <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
 <a href=#207 id=207 data-nosnippet>207</a>        </span><span class="comment">// SAFETY: the bytes are valid utf-8
 <a href=#208 id=208 data-nosnippet>208</a>        </span><span class="kw">unsafe </span>{
-<a href=#209 id=209 data-nosnippet>209</a>            StringU8::&lt;<span class="number">3</span>&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+<a href=#209 id=209 data-nosnippet>209</a>            <a href="../str/string_u.rs.html#705">StringU8</a>::&lt;<span class="number">3</span>&gt;::from_bytes_nright_unchecked(<a class="self" href="#201">self</a>.<a href="#166-174">digits</a>(), <a href="#202">width</a>)
 <a href=#210 id=210 data-nosnippet>210</a>        }
 <a href=#211 id=211 data-nosnippet>211</a>    }
 <a href=#212 id=212 data-nosnippet>212</a>
@@ -215,9 +431,9 @@
 <a href=#215 id=215 data-nosnippet>215</a>    /// # Panics
 <a href=#216 id=216 data-nosnippet>216</a>    /// This function panics in debug if the given number is &gt; 9.
 <a href=#217 id=217 data-nosnippet>217</a>    </span><span class="attr">#[must_use]
-<a href=#218 id=218 data-nosnippet>218</a>    </span><span class="kw">pub const fn </span>digits_1(<span class="self">self</span>) -&gt; u8 {
-<a href=#219 id=219 data-nosnippet>219</a>        <span class="macro">debug_assert!</span>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">9</span>];
-<a href=#220 id=220 data-nosnippet>220</a>        <span class="self">self</span>.<span class="number">0 </span>+ <span class="string">b'0'
+<a href=#218 id=218 data-nosnippet>218</a>    </span><span class="kw">pub const fn </span>digits_1(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#219 id=219 data-nosnippet>219</a>        <a class="macro" href="../../../../devela/all/macro.debug_assert.html">debug_assert!</a>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">9</span>];
+<a href=#220 id=220 data-nosnippet>220</a>        <a class="self" href="#218">self</a>.<span class="number">0 </span>+ <span class="string">b'0'
 <a href=#221 id=221 data-nosnippet>221</a>    </span>}
 <a href=#222 id=222 data-nosnippet>222</a>
 <a href=#223 id=223 data-nosnippet>223</a>    <span class="doccomment">/// Converts a two-digit number to the corresponding `2` ASCII digits.
@@ -225,15 +441,15 @@
 <a href=#225 id=225 data-nosnippet>225</a>    /// # Panics
 <a href=#226 id=226 data-nosnippet>226</a>    /// This function panics in debug if the given number is &gt; 99.
 <a href=#227 id=227 data-nosnippet>227</a>    </span><span class="attr">#[must_use]
-<a href=#228 id=228 data-nosnippet>228</a>    </span><span class="kw">pub const fn </span>digits_2(<span class="self">self</span>) -&gt; [u8; <span class="number">2</span>] {
-<a href=#229 id=229 data-nosnippet>229</a>        <span class="macro">debug_assert!</span>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">99</span>];
-<a href=#230 id=230 data-nosnippet>230</a>        [<span class="self">self</span>.calc_digit(<span class="number">10</span>), <span class="self">self</span>.calc_digit(<span class="number">1</span>)]
+<a href=#228 id=228 data-nosnippet>228</a>    </span><span class="kw">pub const fn </span>digits_2(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">2</span>] {
+<a href=#229 id=229 data-nosnippet>229</a>        <a class="macro" href="../../../../devela/all/macro.debug_assert.html">debug_assert!</a>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">99</span>];
+<a href=#230 id=230 data-nosnippet>230</a>        [<a class="self" href="#228">self</a>.<a href="#143-145">calc_digit</a>(<span class="number">10</span>), <a class="self" href="#228">self</a>.<a href="#143-145">calc_digit</a>(<span class="number">1</span>)]
 <a href=#231 id=231 data-nosnippet>231</a>    }
 <a href=#232 id=232 data-nosnippet>232</a>}
 <a href=#233 id=233 data-nosnippet>233</a>
-<a href=#234 id=234 data-nosnippet>234</a><span class="kw">impl </span>Ascii&lt;u16&gt; {
+<a href=#234 id=234 data-nosnippet>234</a><span class="kw">impl </span><a href="#20">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt; {
 <a href=#235 id=235 data-nosnippet>235</a>    <span class="doccomment">/// The maximum number of decimal digits a `u16` can represent.
-<a href=#236 id=236 data-nosnippet>236</a>    </span><span class="kw">pub const </span>MAX_DIGITS: usize = <span class="number">5</span>;
+<a href=#236 id=236 data-nosnippet>236</a>    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">5</span>;
 <a href=#237 id=237 data-nosnippet>237</a>
 <a href=#238 id=238 data-nosnippet>238</a>    <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `u16` number.
 <a href=#239 id=239 data-nosnippet>239</a>    ///
@@ -247,8 +463,8 @@
 <a href=#247 id=247 data-nosnippet>247</a>    /// assert_eq!(Ascii(12345_u16).calc_digit(1000), b'2');
 <a href=#248 id=248 data-nosnippet>248</a>    /// ```
 <a href=#249 id=249 data-nosnippet>249</a>    </span><span class="attr">#[must_use]
-<a href=#250 id=250 data-nosnippet>250</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: u16) -&gt; u8 {
-<a href=#251 id=251 data-nosnippet>251</a>        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) <span class="kw">as </span>u8 + <span class="string">b'0'
+<a href=#250 id=250 data-nosnippet>250</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#251 id=251 data-nosnippet>251</a>        (<a class="self" href="#250">self</a>.<span class="number">0 </span>/ <a href="#250">divisor</a> % <span class="number">10</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> + <span class="string">b'0'
 <a href=#252 id=252 data-nosnippet>252</a>    </span>}
 <a href=#253 id=253 data-nosnippet>253</a>
 <a href=#254 id=254 data-nosnippet>254</a>    <span class="doccomment">/// Counts the number of decimal digits.
@@ -261,8 +477,8 @@
 <a href=#261 id=261 data-nosnippet>261</a>    /// assert_eq![4, Ascii(9876_u16).count_digits()];
 <a href=#262 id=262 data-nosnippet>262</a>    /// ```
 <a href=#263 id=263 data-nosnippet>263</a>    </span><span class="attr">#[must_use]
-<a href=#264 id=264 data-nosnippet>264</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-<a href=#265 id=265 data-nosnippet>265</a>        <span class="macro">is!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+<a href=#264 id=264 data-nosnippet>264</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#265 id=265 data-nosnippet>265</a>        <a class="macro" href="../../code/util/is.rs.html#100-139">is!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
 <a href=#266 id=266 data-nosnippet>266</a>    }
 <a href=#267 id=267 data-nosnippet>267</a>
 <a href=#268 id=268 data-nosnippet>268</a>    <span class="doccomment">/// Converts a `u16` into a byte array of `5` ASCII digits with leading zeros.
@@ -270,15 +486,15 @@
 <a href=#270 id=270 data-nosnippet>270</a>    /// You can trim the leading zeros with
 <a href=#271 id=271 data-nosnippet>271</a>    /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
 <a href=#272 id=272 data-nosnippet>272</a>    </span><span class="attr">#[must_use]
-<a href=#273 id=273 data-nosnippet>273</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="number">5</span>] {
+<a href=#273 id=273 data-nosnippet>273</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">5</span>] {
 <a href=#274 id=274 data-nosnippet>274</a>        [
 <a href=#275 id=275 data-nosnippet>275</a>            <span class="comment">//              54321
 <a href=#276 id=276 data-nosnippet>276</a>            //              65535    ← u16::MAX
-<a href=#277 id=277 data-nosnippet>277</a>            </span><span class="self">self</span>.calc_digit(<span class="number">10000</span>), <span class="comment">// 5 digits
-<a href=#278 id=278 data-nosnippet>278</a>            </span><span class="self">self</span>.calc_digit(<span class="number">1000</span>),
-<a href=#279 id=279 data-nosnippet>279</a>            <span class="self">self</span>.calc_digit(<span class="number">100</span>),
-<a href=#280 id=280 data-nosnippet>280</a>            <span class="self">self</span>.calc_digit(<span class="number">10</span>),
-<a href=#281 id=281 data-nosnippet>281</a>            <span class="self">self</span>.calc_digit(<span class="number">1</span>),
+<a href=#277 id=277 data-nosnippet>277</a>            </span><a class="self" href="#273">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">10000</span>), <span class="comment">// 5 digits
+<a href=#278 id=278 data-nosnippet>278</a>            </span><a class="self" href="#273">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">1000</span>),
+<a href=#279 id=279 data-nosnippet>279</a>            <a class="self" href="#273">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">100</span>),
+<a href=#280 id=280 data-nosnippet>280</a>            <a class="self" href="#273">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">10</span>),
+<a href=#281 id=281 data-nosnippet>281</a>            <a class="self" href="#273">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">1</span>),
 <a href=#282 id=282 data-nosnippet>282</a>        ]
 <a href=#283 id=283 data-nosnippet>283</a>    }
 <a href=#284 id=284 data-nosnippet>284</a>
@@ -307,15 +523,15 @@
 <a href=#307 id=307 data-nosnippet>307</a>    <span class="attr">#[allow(missing_docs)]
 <a href=#308 id=308 data-nosnippet>308</a>    #[cfg(not(feature = <span class="string">"_cmp_u8"</span>))] </span><span class="comment">// !const
 <a href=#309 id=309 data-nosnippet>309</a>    </span><span class="attr">#[cfg(feature = <span class="string">"_str_u8"</span>)]
-<a href=#310 id=310 data-nosnippet>310</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;<span class="number">5</span>&gt; {
-<a href=#311 id=311 data-nosnippet>311</a>        <span class="kw">let </span>width = width.max(<span class="self">self</span>.count_digits()).min(<span class="number">5</span>);
+<a href=#310 id=310 data-nosnippet>310</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#705">StringU8</a>&lt;<span class="number">5</span>&gt; {
+<a href=#311 id=311 data-nosnippet>311</a>        <span class="kw">let </span>width = <a href="#310">width</a>.<a href="../../../../devela/all/trait.Ord.html">max</a>(<a class="self" href="#310">self</a>.<a href="#264-266">count_digits</a>()).<a href="../../../../devela/all/trait.Ord.html">min</a>(<span class="number">5</span>);
 <a href=#312 id=312 data-nosnippet>312</a>
 <a href=#313 id=313 data-nosnippet>313</a>        <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
 <a href=#314 id=314 data-nosnippet>314</a>        </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;<span class="number">5</span>&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
 <a href=#315 id=315 data-nosnippet>315</a>        <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
 <a href=#316 id=316 data-nosnippet>316</a>        </span><span class="comment">// SAFETY: the bytes are valid utf-8
 <a href=#317 id=317 data-nosnippet>317</a>        </span><span class="kw">unsafe </span>{
-<a href=#318 id=318 data-nosnippet>318</a>            StringU8::&lt;<span class="number">5</span>&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+<a href=#318 id=318 data-nosnippet>318</a>            <a href="../str/string_u.rs.html#705">StringU8</a>::&lt;<span class="number">5</span>&gt;::from_bytes_nright_unchecked(<a class="self" href="#310">self</a>.<a href="#273-283">digits</a>(), <a href="#311">width</a>)
 <a href=#319 id=319 data-nosnippet>319</a>        }
 <a href=#320 id=320 data-nosnippet>320</a>    }
 <a href=#321 id=321 data-nosnippet>321</a>
@@ -324,9 +540,9 @@
 <a href=#324 id=324 data-nosnippet>324</a>    /// # Panics
 <a href=#325 id=325 data-nosnippet>325</a>    /// This function panics in debug if the given number is &gt; 999.
 <a href=#326 id=326 data-nosnippet>326</a>    </span><span class="attr">#[must_use]
-<a href=#327 id=327 data-nosnippet>327</a>    </span><span class="kw">pub const fn </span>digits_3(<span class="self">self</span>) -&gt; [u8; <span class="number">3</span>] {
-<a href=#328 id=328 data-nosnippet>328</a>        <span class="macro">debug_assert!</span>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">999</span>];
-<a href=#329 id=329 data-nosnippet>329</a>        [<span class="self">self</span>.calc_digit(<span class="number">100</span>), <span class="self">self</span>.calc_digit(<span class="number">10</span>), <span class="self">self</span>.calc_digit(<span class="number">1</span>)]
+<a href=#327 id=327 data-nosnippet>327</a>    </span><span class="kw">pub const fn </span>digits_3(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">3</span>] {
+<a href=#328 id=328 data-nosnippet>328</a>        <a class="macro" href="../../../../devela/all/macro.debug_assert.html">debug_assert!</a>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">999</span>];
+<a href=#329 id=329 data-nosnippet>329</a>        [<a class="self" href="#327">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">100</span>), <a class="self" href="#327">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">10</span>), <a class="self" href="#327">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">1</span>)]
 <a href=#330 id=330 data-nosnippet>330</a>    }
 <a href=#331 id=331 data-nosnippet>331</a>
 <a href=#332 id=332 data-nosnippet>332</a>    <span class="doccomment">/// Converts a four-digit number to the corresponding `4` ASCII digits.
@@ -334,15 +550,15 @@
 <a href=#334 id=334 data-nosnippet>334</a>    /// # Panics
 <a href=#335 id=335 data-nosnippet>335</a>    /// This function panics in debug if the given number is &gt; 9999.
 <a href=#336 id=336 data-nosnippet>336</a>    </span><span class="attr">#[must_use]
-<a href=#337 id=337 data-nosnippet>337</a>    </span><span class="kw">pub const fn </span>digits_4(<span class="self">self</span>) -&gt; [u8; <span class="number">4</span>] {
-<a href=#338 id=338 data-nosnippet>338</a>        <span class="macro">debug_assert!</span>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">9999</span>];
-<a href=#339 id=339 data-nosnippet>339</a>        [<span class="self">self</span>.calc_digit(<span class="number">1000</span>), <span class="self">self</span>.calc_digit(<span class="number">100</span>), <span class="self">self</span>.calc_digit(<span class="number">10</span>), <span class="self">self</span>.calc_digit(<span class="number">1</span>)]
+<a href=#337 id=337 data-nosnippet>337</a>    </span><span class="kw">pub const fn </span>digits_4(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">4</span>] {
+<a href=#338 id=338 data-nosnippet>338</a>        <a class="macro" href="../../../../devela/all/macro.debug_assert.html">debug_assert!</a>[<span class="self">self</span>.<span class="number">0 </span>&lt;= <span class="number">9999</span>];
+<a href=#339 id=339 data-nosnippet>339</a>        [<a class="self" href="#337">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">1000</span>), <a class="self" href="#337">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">100</span>), <a class="self" href="#337">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">10</span>), <a class="self" href="#337">self</a>.<a href="#250-252">calc_digit</a>(<span class="number">1</span>)]
 <a href=#340 id=340 data-nosnippet>340</a>    }
 <a href=#341 id=341 data-nosnippet>341</a>}
 <a href=#342 id=342 data-nosnippet>342</a>
-<a href=#343 id=343 data-nosnippet>343</a><span class="kw">impl </span>Ascii&lt;u32&gt; {
+<a href=#343 id=343 data-nosnippet>343</a><span class="kw">impl </span><a href="#20">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; {
 <a href=#344 id=344 data-nosnippet>344</a>    <span class="doccomment">/// The maximum number of decimal digits a `u32` can represent.
-<a href=#345 id=345 data-nosnippet>345</a>    </span><span class="kw">pub const </span>MAX_DIGITS: usize = <span class="number">10</span>;
+<a href=#345 id=345 data-nosnippet>345</a>    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">10</span>;
 <a href=#346 id=346 data-nosnippet>346</a>
 <a href=#347 id=347 data-nosnippet>347</a>    <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `u32` number.
 <a href=#348 id=348 data-nosnippet>348</a>    ///
@@ -356,8 +572,8 @@
 <a href=#356 id=356 data-nosnippet>356</a>    /// assert_eq!(Ascii(12345_u32).calc_digit(1000), b'2');
 <a href=#357 id=357 data-nosnippet>357</a>    /// ```
 <a href=#358 id=358 data-nosnippet>358</a>    </span><span class="attr">#[must_use]
-<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: u32) -&gt; u8 {
-<a href=#360 id=360 data-nosnippet>360</a>        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) <span class="kw">as </span>u8 + <span class="string">b'0'
+<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#360 id=360 data-nosnippet>360</a>        (<a class="self" href="#359">self</a>.<span class="number">0 </span>/ <a href="#359">divisor</a> % <span class="number">10</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> + <span class="string">b'0'
 <a href=#361 id=361 data-nosnippet>361</a>    </span>}
 <a href=#362 id=362 data-nosnippet>362</a>
 <a href=#363 id=363 data-nosnippet>363</a>    <span class="doccomment">/// Counts the number of decimal digits.
@@ -370,8 +586,8 @@
 <a href=#370 id=370 data-nosnippet>370</a>    /// assert_eq![4, Ascii(9876_u32).count_digits()];
 <a href=#371 id=371 data-nosnippet>371</a>    /// ```
 <a href=#372 id=372 data-nosnippet>372</a>    </span><span class="attr">#[must_use]
-<a href=#373 id=373 data-nosnippet>373</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-<a href=#374 id=374 data-nosnippet>374</a>        <span class="macro">is!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+<a href=#373 id=373 data-nosnippet>373</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#374 id=374 data-nosnippet>374</a>        <a class="macro" href="../../code/util/is.rs.html#100-139">is!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
 <a href=#375 id=375 data-nosnippet>375</a>    }
 <a href=#376 id=376 data-nosnippet>376</a>
 <a href=#377 id=377 data-nosnippet>377</a>    <span class="doccomment">/// Converts a `u32` into a byte array of `10` ASCII digits with leading zeros.
@@ -380,20 +596,20 @@
 <a href=#380 id=380 data-nosnippet>380</a>    /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
 <a href=#381 id=381 data-nosnippet>381</a>    </span><span class="attr">#[must_use]
 <a href=#382 id=382 data-nosnippet>382</a>    #[allow(clippy::unreadable_literal)]
-<a href=#383 id=383 data-nosnippet>383</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="number">10</span>] {
+<a href=#383 id=383 data-nosnippet>383</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">10</span>] {
 <a href=#384 id=384 data-nosnippet>384</a>        [
 <a href=#385 id=385 data-nosnippet>385</a>            <span class="comment">//              0987654321
 <a href=#386 id=386 data-nosnippet>386</a>            //              4294967295    ← u32::MAX
-<a href=#387 id=387 data-nosnippet>387</a>            </span><span class="self">self</span>.calc_digit(<span class="number">1000000000</span>), <span class="comment">// 10 digits
-<a href=#388 id=388 data-nosnippet>388</a>            </span><span class="self">self</span>.calc_digit(<span class="number">100000000</span>),
-<a href=#389 id=389 data-nosnippet>389</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000</span>),
-<a href=#390 id=390 data-nosnippet>390</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000</span>),
-<a href=#391 id=391 data-nosnippet>391</a>            <span class="self">self</span>.calc_digit(<span class="number">100000</span>),
-<a href=#392 id=392 data-nosnippet>392</a>            <span class="self">self</span>.calc_digit(<span class="number">10000</span>), <span class="comment">// 5 digits
-<a href=#393 id=393 data-nosnippet>393</a>            </span><span class="self">self</span>.calc_digit(<span class="number">1000</span>),
-<a href=#394 id=394 data-nosnippet>394</a>            <span class="self">self</span>.calc_digit(<span class="number">100</span>),
-<a href=#395 id=395 data-nosnippet>395</a>            <span class="self">self</span>.calc_digit(<span class="number">10</span>),
-<a href=#396 id=396 data-nosnippet>396</a>            <span class="self">self</span>.calc_digit(<span class="number">1</span>),
+<a href=#387 id=387 data-nosnippet>387</a>            </span><a class="self" href="#383">self</a>.<a href="#359-361">calc_digit</a>(<span class="number">1000000000</span>), <span class="comment">// 10 digits
+<a href=#388 id=388 data-nosnippet>388</a>            </span><a class="self" href="#383">self</a>.<a href="#359-361">calc_digit</a>(<span class="number">100000000</span>),
+<a href=#389 id=389 data-nosnippet>389</a>            <a class="self" href="#383">self</a>.<a href="#359-361">calc_digit</a>(<span class="number">10000000</span>),
+<a href=#390 id=390 data-nosnippet>390</a>            <a class="self" href="#383">self</a>.<a href="#359-361">calc_digit</a>(<span class="number">1000000</span>),
+<a href=#391 id=391 data-nosnippet>391</a>            <a class="self" href="#383">self</a>.<a href="#359-361">calc_digit</a>(<span class="number">100000</span>),
+<a href=#392 id=392 data-nosnippet>392</a>            <a class="self" href="#383">self</a>.<a href="#359-361">calc_digit</a>(<span class="number">10000</span>), <span class="comment">// 5 digits
+<a href=#393 id=393 data-nosnippet>393</a>            </span><a class="self" href="#383">self</a>.<a href="#359-361">calc_digit</a>(<span class="number">1000</span>),
+<a href=#394 id=394 data-nosnippet>394</a>            <a class="self" href="#383">self</a>.<a href="#359-361">calc_digit</a>(<span class="number">100</span>),
+<a href=#395 id=395 data-nosnippet>395</a>            <a class="self" href="#383">self</a>.<a href="#359-361">calc_digit</a>(<span class="number">10</span>),
+<a href=#396 id=396 data-nosnippet>396</a>            <a class="self" href="#383">self</a>.<a href="#359-361">calc_digit</a>(<span class="number">1</span>),
 <a href=#397 id=397 data-nosnippet>397</a>        ]
 <a href=#398 id=398 data-nosnippet>398</a>    }
 <a href=#399 id=399 data-nosnippet>399</a>
@@ -422,22 +638,22 @@
 <a href=#422 id=422 data-nosnippet>422</a>    <span class="attr">#[allow(missing_docs)]
 <a href=#423 id=423 data-nosnippet>423</a>    #[cfg(not(feature = <span class="string">"_cmp_u8"</span>))] </span><span class="comment">// !const
 <a href=#424 id=424 data-nosnippet>424</a>    </span><span class="attr">#[cfg(feature = <span class="string">"_str_u8"</span>)]
-<a href=#425 id=425 data-nosnippet>425</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;<span class="number">10</span>&gt; {
-<a href=#426 id=426 data-nosnippet>426</a>        <span class="kw">let </span>width = width.max(<span class="self">self</span>.count_digits()).min(<span class="number">10</span>);
+<a href=#425 id=425 data-nosnippet>425</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#705">StringU8</a>&lt;<span class="number">10</span>&gt; {
+<a href=#426 id=426 data-nosnippet>426</a>        <span class="kw">let </span>width = <a href="#425">width</a>.<a href="../../../../devela/all/trait.Ord.html">max</a>(<a class="self" href="#425">self</a>.<a href="#373-375">count_digits</a>()).<a href="../../../../devela/all/trait.Ord.html">min</a>(<span class="number">10</span>);
 <a href=#427 id=427 data-nosnippet>427</a>
 <a href=#428 id=428 data-nosnippet>428</a>        <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
 <a href=#429 id=429 data-nosnippet>429</a>        </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;<span class="number">10</span>&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
 <a href=#430 id=430 data-nosnippet>430</a>        <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
 <a href=#431 id=431 data-nosnippet>431</a>        </span><span class="comment">// SAFETY: the bytes are valid utf-8
 <a href=#432 id=432 data-nosnippet>432</a>        </span><span class="kw">unsafe </span>{
-<a href=#433 id=433 data-nosnippet>433</a>            StringU8::&lt;<span class="number">10</span>&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+<a href=#433 id=433 data-nosnippet>433</a>            <a href="../str/string_u.rs.html#705">StringU8</a>::&lt;<span class="number">10</span>&gt;::from_bytes_nright_unchecked(<a class="self" href="#425">self</a>.<a href="#383-398">digits</a>(), <a href="#426">width</a>)
 <a href=#434 id=434 data-nosnippet>434</a>        }
 <a href=#435 id=435 data-nosnippet>435</a>    }
 <a href=#436 id=436 data-nosnippet>436</a>}
 <a href=#437 id=437 data-nosnippet>437</a>
-<a href=#438 id=438 data-nosnippet>438</a><span class="kw">impl </span>Ascii&lt;u64&gt; {
+<a href=#438 id=438 data-nosnippet>438</a><span class="kw">impl </span><a href="#20">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt; {
 <a href=#439 id=439 data-nosnippet>439</a>    <span class="doccomment">/// The maximum number of decimal digits a `u64` can represent.
-<a href=#440 id=440 data-nosnippet>440</a>    </span><span class="kw">pub const </span>MAX_DIGITS: usize = <span class="number">20</span>;
+<a href=#440 id=440 data-nosnippet>440</a>    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">20</span>;
 <a href=#441 id=441 data-nosnippet>441</a>
 <a href=#442 id=442 data-nosnippet>442</a>    <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `u64` number.
 <a href=#443 id=443 data-nosnippet>443</a>    ///
@@ -451,8 +667,8 @@
 <a href=#451 id=451 data-nosnippet>451</a>    /// assert_eq!(Ascii(12345_u64).calc_digit(1000), b'2');
 <a href=#452 id=452 data-nosnippet>452</a>    /// ```
 <a href=#453 id=453 data-nosnippet>453</a>    </span><span class="attr">#[must_use]
-<a href=#454 id=454 data-nosnippet>454</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: u64) -&gt; u8 {
-<a href=#455 id=455 data-nosnippet>455</a>        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) <span class="kw">as </span>u8 + <span class="string">b'0'
+<a href=#454 id=454 data-nosnippet>454</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#455 id=455 data-nosnippet>455</a>        (<a class="self" href="#454">self</a>.<span class="number">0 </span>/ <a href="#454">divisor</a> % <span class="number">10</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> + <span class="string">b'0'
 <a href=#456 id=456 data-nosnippet>456</a>    </span>}
 <a href=#457 id=457 data-nosnippet>457</a>
 <a href=#458 id=458 data-nosnippet>458</a>    <span class="doccomment">/// Counts the number of decimal digits.
@@ -465,8 +681,8 @@
 <a href=#465 id=465 data-nosnippet>465</a>    /// assert_eq![4, Ascii(9876_u64).count_digits()];
 <a href=#466 id=466 data-nosnippet>466</a>    /// ```
 <a href=#467 id=467 data-nosnippet>467</a>    </span><span class="attr">#[must_use]
-<a href=#468 id=468 data-nosnippet>468</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-<a href=#469 id=469 data-nosnippet>469</a>        <span class="macro">is!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+<a href=#468 id=468 data-nosnippet>468</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#469 id=469 data-nosnippet>469</a>        <a class="macro" href="../../code/util/is.rs.html#100-139">is!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
 <a href=#470 id=470 data-nosnippet>470</a>    }
 <a href=#471 id=471 data-nosnippet>471</a>
 <a href=#472 id=472 data-nosnippet>472</a>    <span class="doccomment">/// Converts a `u64` into a byte array of `20` ascii digits with leading zeros.
@@ -475,30 +691,30 @@
 <a href=#475 id=475 data-nosnippet>475</a>    /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
 <a href=#476 id=476 data-nosnippet>476</a>    </span><span class="attr">#[must_use]
 <a href=#477 id=477 data-nosnippet>477</a>    #[allow(clippy::unreadable_literal)]
-<a href=#478 id=478 data-nosnippet>478</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="number">20</span>] {
+<a href=#478 id=478 data-nosnippet>478</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">20</span>] {
 <a href=#479 id=479 data-nosnippet>479</a>        [
 <a href=#480 id=480 data-nosnippet>480</a>            <span class="comment">//              0987654321_987654321
 <a href=#481 id=481 data-nosnippet>481</a>            //              18446744073709551615    ← u64::MAX
-<a href=#482 id=482 data-nosnippet>482</a>            </span><span class="self">self</span>.calc_digit(<span class="number">10000000000000000000</span>), <span class="comment">// 20 digits
-<a href=#483 id=483 data-nosnippet>483</a>            </span><span class="self">self</span>.calc_digit(<span class="number">1000000000000000000</span>),
-<a href=#484 id=484 data-nosnippet>484</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000</span>),
-<a href=#485 id=485 data-nosnippet>485</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000</span>),
-<a href=#486 id=486 data-nosnippet>486</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000</span>),
-<a href=#487 id=487 data-nosnippet>487</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000000</span>),
-<a href=#488 id=488 data-nosnippet>488</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000000000</span>),
-<a href=#489 id=489 data-nosnippet>489</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000000</span>),
-<a href=#490 id=490 data-nosnippet>490</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000</span>),
-<a href=#491 id=491 data-nosnippet>491</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000000</span>),
-<a href=#492 id=492 data-nosnippet>492</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000</span>), <span class="comment">// 10 digits
-<a href=#493 id=493 data-nosnippet>493</a>            </span><span class="self">self</span>.calc_digit(<span class="number">100000000</span>),
-<a href=#494 id=494 data-nosnippet>494</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000</span>),
-<a href=#495 id=495 data-nosnippet>495</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000</span>),
-<a href=#496 id=496 data-nosnippet>496</a>            <span class="self">self</span>.calc_digit(<span class="number">100000</span>),
-<a href=#497 id=497 data-nosnippet>497</a>            <span class="self">self</span>.calc_digit(<span class="number">10000</span>),
-<a href=#498 id=498 data-nosnippet>498</a>            <span class="self">self</span>.calc_digit(<span class="number">1000</span>),
-<a href=#499 id=499 data-nosnippet>499</a>            <span class="self">self</span>.calc_digit(<span class="number">100</span>),
-<a href=#500 id=500 data-nosnippet>500</a>            <span class="self">self</span>.calc_digit(<span class="number">10</span>),
-<a href=#501 id=501 data-nosnippet>501</a>            <span class="self">self</span>.calc_digit(<span class="number">1</span>),
+<a href=#482 id=482 data-nosnippet>482</a>            </span><a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">10000000000000000000</span>), <span class="comment">// 20 digits
+<a href=#483 id=483 data-nosnippet>483</a>            </span><a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">1000000000000000000</span>),
+<a href=#484 id=484 data-nosnippet>484</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">100000000000000000</span>),
+<a href=#485 id=485 data-nosnippet>485</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">10000000000000000</span>),
+<a href=#486 id=486 data-nosnippet>486</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">1000000000000000</span>),
+<a href=#487 id=487 data-nosnippet>487</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">100000000000000</span>),
+<a href=#488 id=488 data-nosnippet>488</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">10000000000000</span>),
+<a href=#489 id=489 data-nosnippet>489</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">1000000000000</span>),
+<a href=#490 id=490 data-nosnippet>490</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">100000000000</span>),
+<a href=#491 id=491 data-nosnippet>491</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">10000000000</span>),
+<a href=#492 id=492 data-nosnippet>492</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">1000000000</span>), <span class="comment">// 10 digits
+<a href=#493 id=493 data-nosnippet>493</a>            </span><a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">100000000</span>),
+<a href=#494 id=494 data-nosnippet>494</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">10000000</span>),
+<a href=#495 id=495 data-nosnippet>495</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">1000000</span>),
+<a href=#496 id=496 data-nosnippet>496</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">100000</span>),
+<a href=#497 id=497 data-nosnippet>497</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">10000</span>),
+<a href=#498 id=498 data-nosnippet>498</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">1000</span>),
+<a href=#499 id=499 data-nosnippet>499</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">100</span>),
+<a href=#500 id=500 data-nosnippet>500</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">10</span>),
+<a href=#501 id=501 data-nosnippet>501</a>            <a class="self" href="#478">self</a>.<a href="#454-456">calc_digit</a>(<span class="number">1</span>),
 <a href=#502 id=502 data-nosnippet>502</a>        ]
 <a href=#503 id=503 data-nosnippet>503</a>    }
 <a href=#504 id=504 data-nosnippet>504</a>
@@ -527,22 +743,22 @@
 <a href=#527 id=527 data-nosnippet>527</a>    <span class="attr">#[allow(missing_docs)]
 <a href=#528 id=528 data-nosnippet>528</a>    #[cfg(not(feature = <span class="string">"_cmp_u8"</span>))] </span><span class="comment">// !const
 <a href=#529 id=529 data-nosnippet>529</a>    </span><span class="attr">#[cfg(feature = <span class="string">"_str_u8"</span>)]
-<a href=#530 id=530 data-nosnippet>530</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;<span class="number">20</span>&gt; {
-<a href=#531 id=531 data-nosnippet>531</a>        <span class="kw">let </span>width = width.max(<span class="self">self</span>.count_digits()).min(<span class="number">20</span>);
+<a href=#530 id=530 data-nosnippet>530</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#705">StringU8</a>&lt;<span class="number">20</span>&gt; {
+<a href=#531 id=531 data-nosnippet>531</a>        <span class="kw">let </span>width = <a href="#530">width</a>.<a href="../../../../devela/all/trait.Ord.html">max</a>(<a class="self" href="#530">self</a>.<a href="#468-470">count_digits</a>()).<a href="../../../../devela/all/trait.Ord.html">min</a>(<span class="number">20</span>);
 <a href=#532 id=532 data-nosnippet>532</a>
 <a href=#533 id=533 data-nosnippet>533</a>        <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
 <a href=#534 id=534 data-nosnippet>534</a>        </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;<span class="number">20</span>&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
 <a href=#535 id=535 data-nosnippet>535</a>        <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
 <a href=#536 id=536 data-nosnippet>536</a>        </span><span class="comment">// SAFETY: the bytes are valid utf-8
 <a href=#537 id=537 data-nosnippet>537</a>        </span><span class="kw">unsafe </span>{
-<a href=#538 id=538 data-nosnippet>538</a>            StringU8::&lt;<span class="number">20</span>&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+<a href=#538 id=538 data-nosnippet>538</a>            <a href="../str/string_u.rs.html#705">StringU8</a>::&lt;<span class="number">20</span>&gt;::from_bytes_nright_unchecked(<a class="self" href="#530">self</a>.<a href="#478-503">digits</a>(), <a href="#531">width</a>)
 <a href=#539 id=539 data-nosnippet>539</a>        }
 <a href=#540 id=540 data-nosnippet>540</a>    }
 <a href=#541 id=541 data-nosnippet>541</a>}
 <a href=#542 id=542 data-nosnippet>542</a>
-<a href=#543 id=543 data-nosnippet>543</a><span class="kw">impl </span>Ascii&lt;u128&gt; {
+<a href=#543 id=543 data-nosnippet>543</a><span class="kw">impl </span><a href="#20">Ascii</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>&gt; {
 <a href=#544 id=544 data-nosnippet>544</a>    <span class="doccomment">/// The maximum number of decimal digits a `u128` can represent.
-<a href=#545 id=545 data-nosnippet>545</a>    </span><span class="kw">pub const </span>MAX_DIGITS: usize = <span class="number">30</span>;
+<a href=#545 id=545 data-nosnippet>545</a>    </span><span class="kw">pub const </span>MAX_DIGITS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">30</span>;
 <a href=#546 id=546 data-nosnippet>546</a>
 <a href=#547 id=547 data-nosnippet>547</a>    <span class="doccomment">/// Returns the ASCII byte of a specific digit in a `u128` number.
 <a href=#548 id=548 data-nosnippet>548</a>    ///
@@ -556,8 +772,8 @@
 <a href=#556 id=556 data-nosnippet>556</a>    /// assert_eq!(Ascii(12345_u128).calc_digit(1000), b'2');
 <a href=#557 id=557 data-nosnippet>557</a>    /// ```
 <a href=#558 id=558 data-nosnippet>558</a>    </span><span class="attr">#[must_use]
-<a href=#559 id=559 data-nosnippet>559</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: u128) -&gt; u8 {
-<a href=#560 id=560 data-nosnippet>560</a>        (<span class="self">self</span>.<span class="number">0 </span>/ divisor % <span class="number">10</span>) <span class="kw">as </span>u8 + <span class="string">b'0'
+<a href=#559 id=559 data-nosnippet>559</a>    </span><span class="kw">pub const fn </span>calc_digit(<span class="self">self</span>, divisor: <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#560 id=560 data-nosnippet>560</a>        (<a class="self" href="#559">self</a>.<span class="number">0 </span>/ <a href="#559">divisor</a> % <span class="number">10</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> + <span class="string">b'0'
 <a href=#561 id=561 data-nosnippet>561</a>    </span>}
 <a href=#562 id=562 data-nosnippet>562</a>
 <a href=#563 id=563 data-nosnippet>563</a>    <span class="doccomment">/// Counts the number of decimal digits.
@@ -570,8 +786,8 @@
 <a href=#570 id=570 data-nosnippet>570</a>    /// assert_eq![19, Ascii(9876543210987654321_u128).count_digits()];
 <a href=#571 id=571 data-nosnippet>571</a>    /// ```
 <a href=#572 id=572 data-nosnippet>572</a>    </span><span class="attr">#[must_use]
-<a href=#573 id=573 data-nosnippet>573</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; u8 {
-<a href=#574 id=574 data-nosnippet>574</a>        <span class="macro">is!</span>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
+<a href=#573 id=573 data-nosnippet>573</a>    </span><span class="kw">pub const fn </span>count_digits(<span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#574 id=574 data-nosnippet>574</a>        <a class="macro" href="../../code/util/is.rs.html#100-139">is!</a>[<span class="self">self</span>.<span class="number">0 </span>== <span class="number">0</span>; <span class="number">1</span>; <span class="self">self</span>.<span class="number">0</span>.ilog10() <span class="kw">as </span>u8 + <span class="number">1</span>]
 <a href=#575 id=575 data-nosnippet>575</a>    }
 <a href=#576 id=576 data-nosnippet>576</a>
 <a href=#577 id=577 data-nosnippet>577</a>    <span class="doccomment">/// Converts a `u128` into a byte array of `39` ascii digits with leading zeros.
@@ -580,49 +796,49 @@
 <a href=#580 id=580 data-nosnippet>580</a>    /// [`trim_leading_bytes`][crate::Slice::trim_leading_bytes].
 <a href=#581 id=581 data-nosnippet>581</a>    </span><span class="attr">#[must_use]
 <a href=#582 id=582 data-nosnippet>582</a>    #[allow(clippy::unreadable_literal)]
-<a href=#583 id=583 data-nosnippet>583</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [u8; <span class="number">39</span>] {
+<a href=#583 id=583 data-nosnippet>583</a>    </span><span class="kw">pub const fn </span>digits(<span class="self">self</span>) -&gt; [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">39</span>] {
 <a href=#584 id=584 data-nosnippet>584</a>        [
 <a href=#585 id=585 data-nosnippet>585</a>            <span class="comment">//              987654321_987654321_987654321_987654321
 <a href=#586 id=586 data-nosnippet>586</a>            //              340282366920938463463374607431768211455    ← u128::MAX
-<a href=#587 id=587 data-nosnippet>587</a>            </span><span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000000000000000000</span>), <span class="comment">// 39 digits
-<a href=#588 id=588 data-nosnippet>588</a>            </span><span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000000000000000000</span>),
-<a href=#589 id=589 data-nosnippet>589</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000000000000000000</span>),
-<a href=#590 id=590 data-nosnippet>590</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000000000000000</span>),
-<a href=#591 id=591 data-nosnippet>591</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000000000000000</span>),
-<a href=#592 id=592 data-nosnippet>592</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000000000000000</span>),
-<a href=#593 id=593 data-nosnippet>593</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000000000000</span>),
-<a href=#594 id=594 data-nosnippet>594</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000000000000</span>),
-<a href=#595 id=595 data-nosnippet>595</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000000000000</span>),
-<a href=#596 id=596 data-nosnippet>596</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000000000</span>), <span class="comment">// 30 digits
-<a href=#597 id=597 data-nosnippet>597</a>            </span><span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000000000</span>),
-<a href=#598 id=598 data-nosnippet>598</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000000000</span>),
-<a href=#599 id=599 data-nosnippet>599</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000000</span>),
-<a href=#600 id=600 data-nosnippet>600</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000000</span>),
-<a href=#601 id=601 data-nosnippet>601</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000000</span>),
-<a href=#602 id=602 data-nosnippet>602</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000000</span>),
-<a href=#603 id=603 data-nosnippet>603</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000000000</span>),
-<a href=#604 id=604 data-nosnippet>604</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000000000</span>),
-<a href=#605 id=605 data-nosnippet>605</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000000</span>),
-<a href=#606 id=606 data-nosnippet>606</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000000</span>), <span class="comment">// 20 digits
-<a href=#607 id=607 data-nosnippet>607</a>            </span><span class="self">self</span>.calc_digit(<span class="number">1000000000000000000</span>),
-<a href=#608 id=608 data-nosnippet>608</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000000000</span>),
-<a href=#609 id=609 data-nosnippet>609</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000000000000</span>),
-<a href=#610 id=610 data-nosnippet>610</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000000000</span>),
-<a href=#611 id=611 data-nosnippet>611</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000000</span>),
-<a href=#612 id=612 data-nosnippet>612</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000000000</span>),
-<a href=#613 id=613 data-nosnippet>613</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000000</span>),
-<a href=#614 id=614 data-nosnippet>614</a>            <span class="self">self</span>.calc_digit(<span class="number">100000000000</span>),
-<a href=#615 id=615 data-nosnippet>615</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000000</span>),
-<a href=#616 id=616 data-nosnippet>616</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000000</span>), <span class="comment">// 10 digits
-<a href=#617 id=617 data-nosnippet>617</a>            </span><span class="self">self</span>.calc_digit(<span class="number">100000000</span>),
-<a href=#618 id=618 data-nosnippet>618</a>            <span class="self">self</span>.calc_digit(<span class="number">10000000</span>),
-<a href=#619 id=619 data-nosnippet>619</a>            <span class="self">self</span>.calc_digit(<span class="number">1000000</span>),
-<a href=#620 id=620 data-nosnippet>620</a>            <span class="self">self</span>.calc_digit(<span class="number">100000</span>),
-<a href=#621 id=621 data-nosnippet>621</a>            <span class="self">self</span>.calc_digit(<span class="number">10000</span>),
-<a href=#622 id=622 data-nosnippet>622</a>            <span class="self">self</span>.calc_digit(<span class="number">1000</span>),
-<a href=#623 id=623 data-nosnippet>623</a>            <span class="self">self</span>.calc_digit(<span class="number">100</span>),
-<a href=#624 id=624 data-nosnippet>624</a>            <span class="self">self</span>.calc_digit(<span class="number">10</span>),
-<a href=#625 id=625 data-nosnippet>625</a>            <span class="self">self</span>.calc_digit(<span class="number">1</span>),
+<a href=#587 id=587 data-nosnippet>587</a>            </span><a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000000000000000000000000000000000000</span>), <span class="comment">// 39 digits
+<a href=#588 id=588 data-nosnippet>588</a>            </span><a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000000000000000000000000000000000000</span>),
+<a href=#589 id=589 data-nosnippet>589</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000000000000000000000000000000000000</span>),
+<a href=#590 id=590 data-nosnippet>590</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000000000000000000000000000000000</span>),
+<a href=#591 id=591 data-nosnippet>591</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000000000000000000000000000000000</span>),
+<a href=#592 id=592 data-nosnippet>592</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000000000000000000000000000000000</span>),
+<a href=#593 id=593 data-nosnippet>593</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000000000000000000000000000000</span>),
+<a href=#594 id=594 data-nosnippet>594</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000000000000000000000000000000</span>),
+<a href=#595 id=595 data-nosnippet>595</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000000000000000000000000000000</span>),
+<a href=#596 id=596 data-nosnippet>596</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000000000000000000000000000</span>), <span class="comment">// 30 digits
+<a href=#597 id=597 data-nosnippet>597</a>            </span><a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000000000000000000000000000</span>),
+<a href=#598 id=598 data-nosnippet>598</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000000000000000000000000000</span>),
+<a href=#599 id=599 data-nosnippet>599</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000000000000000000000000</span>),
+<a href=#600 id=600 data-nosnippet>600</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000000000000000000000000</span>),
+<a href=#601 id=601 data-nosnippet>601</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000000000000000000000000</span>),
+<a href=#602 id=602 data-nosnippet>602</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000000000000000000000</span>),
+<a href=#603 id=603 data-nosnippet>603</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000000000000000000000</span>),
+<a href=#604 id=604 data-nosnippet>604</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000000000000000000000</span>),
+<a href=#605 id=605 data-nosnippet>605</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000000000000000000</span>),
+<a href=#606 id=606 data-nosnippet>606</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000000000000000000</span>), <span class="comment">// 20 digits
+<a href=#607 id=607 data-nosnippet>607</a>            </span><a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000000000000000000</span>),
+<a href=#608 id=608 data-nosnippet>608</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000000000000000</span>),
+<a href=#609 id=609 data-nosnippet>609</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000000000000000</span>),
+<a href=#610 id=610 data-nosnippet>610</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000000000000000</span>),
+<a href=#611 id=611 data-nosnippet>611</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000000000000</span>),
+<a href=#612 id=612 data-nosnippet>612</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000000000000</span>),
+<a href=#613 id=613 data-nosnippet>613</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000000000000</span>),
+<a href=#614 id=614 data-nosnippet>614</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000000000</span>),
+<a href=#615 id=615 data-nosnippet>615</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000000000</span>),
+<a href=#616 id=616 data-nosnippet>616</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000000000</span>), <span class="comment">// 10 digits
+<a href=#617 id=617 data-nosnippet>617</a>            </span><a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000000</span>),
+<a href=#618 id=618 data-nosnippet>618</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000000</span>),
+<a href=#619 id=619 data-nosnippet>619</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000000</span>),
+<a href=#620 id=620 data-nosnippet>620</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100000</span>),
+<a href=#621 id=621 data-nosnippet>621</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10000</span>),
+<a href=#622 id=622 data-nosnippet>622</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1000</span>),
+<a href=#623 id=623 data-nosnippet>623</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">100</span>),
+<a href=#624 id=624 data-nosnippet>624</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">10</span>),
+<a href=#625 id=625 data-nosnippet>625</a>            <a class="self" href="#583">self</a>.<a href="#559-561">calc_digit</a>(<span class="number">1</span>),
 <a href=#626 id=626 data-nosnippet>626</a>        ]
 <a href=#627 id=627 data-nosnippet>627</a>    }
 <a href=#628 id=628 data-nosnippet>628</a>
@@ -651,15 +867,37 @@
 <a href=#651 id=651 data-nosnippet>651</a>    <span class="attr">#[cfg(not(feature = <span class="string">"_cmp_u8"</span>))] </span><span class="comment">// !const
 <a href=#652 id=652 data-nosnippet>652</a>    </span><span class="attr">#[cfg(feature = <span class="string">"_str_u8"</span>)]
 <a href=#653 id=653 data-nosnippet>653</a>    #[allow(missing_docs)]
-<a href=#654 id=654 data-nosnippet>654</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: u8) -&gt; StringU8&lt;<span class="number">39</span>&gt; {
-<a href=#655 id=655 data-nosnippet>655</a>        <span class="kw">let </span>width = width.max(<span class="self">self</span>.count_digits()).min(<span class="number">39</span>);
+<a href=#654 id=654 data-nosnippet>654</a>    </span><span class="kw">pub fn </span>digits_str(<span class="self">self</span>, width: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="../str/string_u.rs.html#705">StringU8</a>&lt;<span class="number">39</span>&gt; {
+<a href=#655 id=655 data-nosnippet>655</a>        <span class="kw">let </span>width = <a href="#654">width</a>.<a href="../../../../devela/all/trait.Ord.html">max</a>(<a class="self" href="#654">self</a>.<a href="#573-575">count_digits</a>()).<a href="../../../../devela/all/trait.Ord.html">min</a>(<span class="number">39</span>);
 <a href=#656 id=656 data-nosnippet>656</a>
 <a href=#657 id=657 data-nosnippet>657</a>        <span class="attr">#[cfg(any(feature = <span class="string">"safe_text"</span>, not(feature = <span class="string">"unsafe_str"</span>)))]
 <a href=#658 id=658 data-nosnippet>658</a>        </span><span class="kw">return </span><span class="macro">unwrap!</span>[ok StringU8::&lt;<span class="number">39</span>&gt;::from_bytes_nright(<span class="self">self</span>.digits(), width)];
 <a href=#659 id=659 data-nosnippet>659</a>        <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
 <a href=#660 id=660 data-nosnippet>660</a>        </span><span class="comment">// SAFETY: the bytes are valid utf-8
 <a href=#661 id=661 data-nosnippet>661</a>        </span><span class="kw">unsafe </span>{
-<a href=#662 id=662 data-nosnippet>662</a>            StringU8::&lt;<span class="number">39</span>&gt;::from_bytes_nright_unchecked(<span class="self">self</span>.digits(), width)
+<a href=#662 id=662 data-nosnippet>662</a>            <a href="../str/string_u.rs.html#705">StringU8</a>::&lt;<span class="number">39</span>&gt;::from_bytes_nright_unchecked(<a class="self" href="#654">self</a>.<a href="#583-627">digits</a>(), <a href="#655">width</a>)
 <a href=#663 id=663 data-nosnippet>663</a>        }
 <a href=#664 id=664 data-nosnippet>664</a>    }
-<a href=#665 id=665 data-nosnippet>665</a>}</code></pre></div></section></main></body></html>
+<a href=#665 id=665 data-nosnippet>665</a>}
+<a href=#666 id=666 data-nosnippet>666</a>
+<a href=#667 id=667 data-nosnippet>667</a><span class="comment">/* WIPZONE */
+<a href=#668 id=668 data-nosnippet>668</a>
+<a href=#669 id=669 data-nosnippet>669</a>// MAYBE
+<a href=#670 id=670 data-nosnippet>670</a></span><span class="kw">impl </span><a href="#20">Ascii</a>&lt;<span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; {
+<a href=#671 id=671 data-nosnippet>671</a>    <span class="doccomment">/// WIP
+<a href=#672 id=672 data-nosnippet>672</a>    </span><span class="kw">pub const fn </span>parse_u8_from_bytes(<span class="kw-2">mut </span>bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; (<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) {
+<a href=#673 id=673 data-nosnippet>673</a>        <span class="kw">let </span><span class="kw-2">mut </span>num = <span class="number">0u8</span>;
+<a href=#674 id=674 data-nosnippet>674</a>        <span class="kw">let </span><span class="kw-2">mut </span>valid = <span class="bool-val">false</span>;
+<a href=#675 id=675 data-nosnippet>675</a>
+<a href=#676 id=676 data-nosnippet>676</a>        <span class="kw">while let </span><span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>digit, rest)) = bytes.split_first() {
+<a href=#677 id=677 data-nosnippet>677</a>            <span class="kw">if </span>digit &lt; <span class="string">b'0' </span>|| digit &gt; <span class="string">b'9' </span>{
+<a href=#678 id=678 data-nosnippet>678</a>                <span class="kw">return </span>(<span class="number">0</span>, <span class="bool-val">false</span>); <span class="comment">// Invalid non-numeric character
+<a href=#679 id=679 data-nosnippet>679</a>            </span>}
+<a href=#680 id=680 data-nosnippet>680</a>            num = num * <span class="number">10 </span>+ (digit - <span class="string">b'0'</span>);
+<a href=#681 id=681 data-nosnippet>681</a>            valid = <span class="bool-val">true</span>;
+<a href=#682 id=682 data-nosnippet>682</a>            bytes = rest;
+<a href=#683 id=683 data-nosnippet>683</a>        }
+<a href=#684 id=684 data-nosnippet>684</a>
+<a href=#685 id=685 data-nosnippet>685</a>        (<a href="#673">num</a>, <a href="#674">valid</a>)
+<a href=#686 id=686 data-nosnippet>686</a>    }
+<a href=#687 id=687 data-nosnippet>687</a>}</code></pre></div></section></main></body></html>

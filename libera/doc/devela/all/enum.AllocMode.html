@@ -1,8 +1,225 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Controls how values should be acquired, between borrowing and allocation."><title>AllocMode in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-4e99c027.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc enum"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.24.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Alloc<wbr>Mode</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#philosophy" title="Philosophy">Philosophy</a></li><li><a href="#usage-patterns" title="Usage Patterns">Usage Patterns</a><ul><li><a href="#basic-flow" title="Basic Flow">Basic Flow</a></li><li><a href="#features" title="Features">Features</a></li></ul></li></ul><h3><a href="#variants">Variants</a></h3><ul class="block variant"><li><a href="#variant.Borrowed" title="Borrowed">Borrowed</a></li><li><a href="#variant.Heap" title="Heap">Heap</a></li></ul><h3><a href="#implementations">Methods</a></h3><ul class="block method"><li><a href="#method.is_borrowed" title="is_borrowed">is_borrowed</a></li><li><a href="#method.is_heap" title="is_heap">is_heap</a></li></ul><h3><a href="#trait-implementations">Trait Implementations</a></h3><ul class="block trait-implementation"><li><a href="#impl-Debug-for-AllocMode%3C'a%3E" title="Debug">Debug</a></li><li><a href="#impl-From%3C%26mut+%5Bu8;+LEN%5D%3E-for-AllocMode%3C'a%3E" title="From&#60;&#38;&#39;a mut [u8; LEN]&#62;">From&#60;&#38;&#39;a mut [u8; LEN]&#62;</a></li><li><a href="#impl-From%3C%26mut+%5Bu8%5D%3E-for-AllocMode%3C'a%3E" title="From&#60;&#38;&#39;a mut [u8]&#62;">From&#60;&#38;&#39;a mut [u8]&#62;</a></li><li><a href="#impl-From%3CRangeFull%3E-for-AllocMode%3C'a%3E" title="From&#60;RangeFull&#62;">From&#60;RangeFull&#62;</a></li></ul><h3><a href="#synthetic-implementations">Auto Trait Implementations</a></h3><ul class="block synthetic-implementation"><li><a href="#impl-UnwindSafe-for-AllocMode%3C'a%3E" title="!UnwindSafe">!UnwindSafe</a></li><li><a href="#impl-Freeze-for-AllocMode%3C'a%3E" title="Freeze">Freeze</a></li><li><a href="#impl-RefUnwindSafe-for-AllocMode%3C'a%3E" title="RefUnwindSafe">RefUnwindSafe</a></li><li><a href="#impl-Send-for-AllocMode%3C'a%3E" title="Send">Send</a></li><li><a href="#impl-Sync-for-AllocMode%3C'a%3E" title="Sync">Sync</a></li><li><a href="#impl-Unpin-for-AllocMode%3C'a%3E" title="Unpin">Unpin</a></li></ul><h3><a href="#blanket-implementations">Blanket Implementations</a></h3><ul class="block blanket-implementation"><li><a href="#impl-Any-for-T" title="Any">Any</a></li><li><a href="#impl-Borrow%3CT%3E-for-T" title="Borrow&#60;T&#62;">Borrow&#60;T&#62;</a></li><li><a href="#impl-BorrowMut%3CT%3E-for-T" title="BorrowMut&#60;T&#62;">BorrowMut&#60;T&#62;</a></li><li><a href="#impl-ByteSized-for-T" title="ByteSized">ByteSized</a></li><li><a href="#impl-Chain%3CR%3E-for-T" title="Chain&#60;R&#62;">Chain&#60;R&#62;</a></li><li><a href="#impl-Duplex%3CS%3E-for-T" title="Duplex&#60;S&#62;">Duplex&#60;S&#62;</a></li><li><a href="#impl-ExtAny-for-T" title="ExtAny">ExtAny</a></li><li><a href="#impl-ExtMem-for-T" title="ExtMem">ExtMem</a></li><li><a href="#impl-From%3CT%3E-for-T" title="From&#60;T&#62;">From&#60;T&#62;</a></li><li><a href="#impl-FromSample%3CS%3E-for-S" title="FromSample&#60;S&#62;">FromSample&#60;S&#62;</a></li><li><a href="#impl-Hook-for-T" title="Hook">Hook</a></li><li><a href="#impl-Into%3CU%3E-for-T" title="Into&#60;U&#62;">Into&#60;U&#62;</a></li><li><a href="#impl-IntoEither-for-T" title="IntoEither">IntoEither</a></li><li><a href="#impl-IntoSample%3CT%3E-for-F" title="IntoSample&#60;T&#62;">IntoSample&#60;T&#62;</a></li><li><a href="#impl-Pointable-for-T" title="Pointable">Pointable</a></li><li><a href="#impl-ToSample%3CU%3E-for-T" title="ToSample&#60;U&#62;">ToSample&#60;U&#62;</a></li><li><a href="#impl-TryFrom%3CU%3E-for-T" title="TryFrom&#60;U&#62;">TryFrom&#60;U&#62;</a></li><li><a href="#impl-TryInto%3CU%3E-for-T" title="TryInto&#60;U&#62;">TryInto&#60;U&#62;</a></li><li><a href="#impl-Ungil-for-T" title="Ungil">Ungil</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Enum <span class="enum">AllocMode</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/sys/mem/borrow/alloc.rs.html#34-65">Source</a> </span></div><pre class="rust item-decl"><code><div class="code-attribute">#[non_exhaustive]</div>pub enum AllocMode&lt;'a&gt; {
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Controls how values should be acquired, between borrowing and allocation."><title>AllocMode in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-4e99c027.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) return;
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) return;
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc enum"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.24.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Alloc<wbr>Mode</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#philosophy" title="Philosophy">Philosophy</a></li><li><a href="#usage-patterns" title="Usage Patterns">Usage Patterns</a><ul><li><a href="#basic-flow" title="Basic Flow">Basic Flow</a></li><li><a href="#features" title="Features">Features</a></li></ul></li></ul><h3><a href="#variants">Variants</a></h3><ul class="block variant"><li><a href="#variant.Borrowed" title="Borrowed">Borrowed</a></li><li><a href="#variant.Heap" title="Heap">Heap</a></li></ul><h3><a href="#implementations">Methods</a></h3><ul class="block method"><li><a href="#method.is_borrowed" title="is_borrowed">is_borrowed</a></li><li><a href="#method.is_heap" title="is_heap">is_heap</a></li></ul><h3><a href="#trait-implementations">Trait Implementations</a></h3><ul class="block trait-implementation"><li><a href="#impl-Debug-for-AllocMode%3C'a%3E" title="Debug">Debug</a></li><li><a href="#impl-From%3C%26mut+%5Bu8;+LEN%5D%3E-for-AllocMode%3C'a%3E" title="From&#60;&#38;&#39;a mut [u8; LEN]&#62;">From&#60;&#38;&#39;a mut [u8; LEN]&#62;</a></li><li><a href="#impl-From%3C%26mut+%5Bu8%5D%3E-for-AllocMode%3C'a%3E" title="From&#60;&#38;&#39;a mut [u8]&#62;">From&#60;&#38;&#39;a mut [u8]&#62;</a></li><li><a href="#impl-From%3CRangeFull%3E-for-AllocMode%3C'a%3E" title="From&#60;RangeFull&#62;">From&#60;RangeFull&#62;</a></li></ul><h3><a href="#synthetic-implementations">Auto Trait Implementations</a></h3><ul class="block synthetic-implementation"><li><a href="#impl-UnwindSafe-for-AllocMode%3C'a%3E" title="!UnwindSafe">!UnwindSafe</a></li><li><a href="#impl-Freeze-for-AllocMode%3C'a%3E" title="Freeze">Freeze</a></li><li><a href="#impl-RefUnwindSafe-for-AllocMode%3C'a%3E" title="RefUnwindSafe">RefUnwindSafe</a></li><li><a href="#impl-Send-for-AllocMode%3C'a%3E" title="Send">Send</a></li><li><a href="#impl-Sync-for-AllocMode%3C'a%3E" title="Sync">Sync</a></li><li><a href="#impl-Unpin-for-AllocMode%3C'a%3E" title="Unpin">Unpin</a></li></ul><h3><a href="#blanket-implementations">Blanket Implementations</a></h3><ul class="block blanket-implementation"><li><a href="#impl-Any-for-T" title="Any">Any</a></li><li><a href="#impl-Borrow%3CT%3E-for-T" title="Borrow&#60;T&#62;">Borrow&#60;T&#62;</a></li><li><a href="#impl-BorrowMut%3CT%3E-for-T" title="BorrowMut&#60;T&#62;">BorrowMut&#60;T&#62;</a></li><li><a href="#impl-ByteSized-for-T" title="ByteSized">ByteSized</a></li><li><a href="#impl-Chain%3CR%3E-for-T" title="Chain&#60;R&#62;">Chain&#60;R&#62;</a></li><li><a href="#impl-Duplex%3CS%3E-for-T" title="Duplex&#60;S&#62;">Duplex&#60;S&#62;</a></li><li><a href="#impl-ExtAny-for-T" title="ExtAny">ExtAny</a></li><li><a href="#impl-ExtMem-for-T" title="ExtMem">ExtMem</a></li><li><a href="#impl-From%3CT%3E-for-T" title="From&#60;T&#62;">From&#60;T&#62;</a></li><li><a href="#impl-FromSample%3CS%3E-for-S" title="FromSample&#60;S&#62;">FromSample&#60;S&#62;</a></li><li><a href="#impl-Hook-for-T" title="Hook">Hook</a></li><li><a href="#impl-Into%3CU%3E-for-T" title="Into&#60;U&#62;">Into&#60;U&#62;</a></li><li><a href="#impl-IntoEither-for-T" title="IntoEither">IntoEither</a></li><li><a href="#impl-IntoSample%3CT%3E-for-F" title="IntoSample&#60;T&#62;">IntoSample&#60;T&#62;</a></li><li><a href="#impl-Pointable-for-T" title="Pointable">Pointable</a></li><li><a href="#impl-ToSample%3CU%3E-for-T" title="ToSample&#60;U&#62;">ToSample&#60;U&#62;</a></li><li><a href="#impl-TryFrom%3CU%3E-for-T" title="TryFrom&#60;U&#62;">TryFrom&#60;U&#62;</a></li><li><a href="#impl-TryInto%3CU%3E-for-T" title="TryInto&#60;U&#62;">TryInto&#60;U&#62;</a></li><li><a href="#impl-Ungil-for-T" title="Ungil">Ungil</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Enum <span class="enum">AllocMode</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/sys/mem/borrow/alloc.rs.html#35-66">Source</a> </span></div><pre class="rust item-decl"><code><div class="code-attribute">#[non_exhaustive]</div>pub enum AllocMode&lt;'a&gt; {
     Borrowed(&amp;'a mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]),
     Heap,
 }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Controls how values should be acquired, between borrowing and allocation.</p>
-<p>Complements [<code>MaybeOwned</code>] by controlling the <em>acquisition strategy</em> for values.</p>
+<p>Complements <a href="enum.MaybeOwned.html" title="enum devela::all::MaybeOwned"><code>MaybeOwned</code></a>
+by controlling the <em>acquisition strategy</em> for values.</p>
 <h2 id="philosophy"><a class="doc-anchor" href="#philosophy">§</a>Philosophy</h2>
 <p>Like Rust’s <code>Cow</code> but for acquisition rather than storage. Enables APIs to:</p>
 <ul>
@@ -39,11 +256,11 @@
 <h4 id="example-1"><a class="doc-anchor" href="#example-1">§</a>Example</h4>
 <div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">let </span>data = get_data(..); <span class="comment">// Allocates as needed</span></code></pre></div>
-</div></div><h2 id="implementations" class="section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-AllocMode%3C'_%3E" class="impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#97-109">Source</a><a href="#impl-AllocMode%3C'_%3E" class="anchor">§</a><h3 class="code-header">impl <a class="enum" href="enum.AllocMode.html" title="enum devela::all::AllocMode">AllocMode</a>&lt;'_&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.is_heap" class="method"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#100-102">Source</a><h4 class="code-header">pub fn <a href="#method.is_heap" class="fn">is_heap</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns <code>true</code> if this mode requires allocation.</p>
-</div></details><details class="toggle method-toggle" open><summary><section id="method.is_borrowed" class="method"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#106-108">Source</a><h4 class="code-header">pub fn <a href="#method.is_borrowed" class="fn">is_borrowed</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns <code>true</code> if this mode uses existing memory.</p>
-</div></details></div></details></div><h2 id="trait-implementations" class="section-header">Trait Implementations<a href="#trait-implementations" class="anchor">§</a></h2><div id="trait-implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-Debug-for-AllocMode%3C'a%3E" class="impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#33">Source</a><a href="#impl-Debug-for-AllocMode%3C'a%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a&gt; <a class="trait" href="trait.Debug.html" title="trait devela::all::Debug">Debug</a> for <a class="enum" href="enum.AllocMode.html" title="enum devela::all::AllocMode">AllocMode</a>&lt;'a&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.fmt" class="method trait-impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#33">Source</a><a href="#method.fmt" class="anchor">§</a><h4 class="code-header">fn <a href="trait.Debug.html#tymethod.fmt" class="fn">fmt</a>(&amp;self, f: &amp;mut <a class="struct" href="struct.Formatter.html" title="struct devela::all::Formatter">Formatter</a>&lt;'_&gt;) -&gt; <a class="type" href="../_core/fmt/type.Result.html" title="type devela::_core::fmt::Result">Result</a></h4></section></summary><div class='docblock'>Formats the value using the given formatter. <a href="trait.Debug.html#tymethod.fmt">Read more</a></div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3C%26mut+%5Bu8%5D%3E-for-AllocMode%3C'a%3E" class="impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#69-74">Source</a><a href="#impl-From%3C%26mut+%5Bu8%5D%3E-for-AllocMode%3C'a%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a&gt; <a class="trait" href="../code/trait.From.html" title="trait devela::code::From">From</a>&lt;&amp;'a mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; for <a class="enum" href="enum.AllocMode.html" title="enum devela::all::AllocMode">AllocMode</a>&lt;'a&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from" class="method trait-impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#71-73">Source</a><a href="#method.from" class="anchor">§</a><h4 class="code-header">fn <a href="../code/trait.From.html#tymethod.from" class="fn">from</a>(buf: &amp;'a mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; Self</h4></section></summary><div class="docblock"><p>Convert an exclusive slice into borrowing mode.</p>
-</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3C%26mut+%5Bu8;+LEN%5D%3E-for-AllocMode%3C'a%3E" class="impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#75-80">Source</a><a href="#impl-From%3C%26mut+%5Bu8;+LEN%5D%3E-for-AllocMode%3C'a%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a, const LEN: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a class="trait" href="../code/trait.From.html" title="trait devela::code::From">From</a>&lt;&amp;'a mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">LEN</a>]&gt; for <a class="enum" href="enum.AllocMode.html" title="enum devela::all::AllocMode">AllocMode</a>&lt;'a&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-1" class="method trait-impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#77-79">Source</a><a href="#method.from-1" class="anchor">§</a><h4 class="code-header">fn <a href="../code/trait.From.html#tymethod.from" class="fn">from</a>(buf: &amp;'a mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">LEN</a>]) -&gt; Self</h4></section></summary><div class="docblock"><p>Convert an exclusive reference to an array into borrowing mode.</p>
-</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3CRangeFull%3E-for-AllocMode%3C'a%3E" class="impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#84-95">Source</a><a href="#impl-From%3CRangeFull%3E-for-AllocMode%3C'a%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a&gt; <a class="trait" href="../code/trait.From.html" title="trait devela::code::From">From</a>&lt;<a class="struct" href="struct.RangeFull.html" title="struct devela::all::RangeFull">RangeFull</a>&gt; for <a class="enum" href="enum.AllocMode.html" title="enum devela::all::AllocMode">AllocMode</a>&lt;'a&gt;</h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>alloc</code></strong> only.</div></span></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-2" class="method trait-impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#92-94">Source</a><a href="#method.from-2" class="anchor">§</a><h4 class="code-header">fn <a href="../code/trait.From.html#tymethod.from" class="fn">from</a>(_: <a class="struct" href="struct.RangeFull.html" title="struct devela::all::RangeFull">RangeFull</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Convert <code>..</code> into allocation mode.</p>
+</div></div><h2 id="implementations" class="section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-AllocMode%3C'_%3E" class="impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#98-113">Source</a><a href="#impl-AllocMode%3C'_%3E" class="anchor">§</a><h3 class="code-header">impl <a class="enum" href="enum.AllocMode.html" title="enum devela::all::AllocMode">AllocMode</a>&lt;'_&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.is_heap" class="method"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#101-106">Source</a><h4 class="code-header">pub fn <a href="#method.is_heap" class="fn">is_heap</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns <code>true</code> if this mode requires allocation.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.is_borrowed" class="method"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#110-112">Source</a><h4 class="code-header">pub fn <a href="#method.is_borrowed" class="fn">is_borrowed</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns <code>true</code> if this mode uses existing memory.</p>
+</div></details></div></details></div><h2 id="trait-implementations" class="section-header">Trait Implementations<a href="#trait-implementations" class="anchor">§</a></h2><div id="trait-implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-Debug-for-AllocMode%3C'a%3E" class="impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#34">Source</a><a href="#impl-Debug-for-AllocMode%3C'a%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a&gt; <a class="trait" href="trait.Debug.html" title="trait devela::all::Debug">Debug</a> for <a class="enum" href="enum.AllocMode.html" title="enum devela::all::AllocMode">AllocMode</a>&lt;'a&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.fmt" class="method trait-impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#34">Source</a><a href="#method.fmt" class="anchor">§</a><h4 class="code-header">fn <a href="trait.Debug.html#tymethod.fmt" class="fn">fmt</a>(&amp;self, f: &amp;mut <a class="struct" href="struct.Formatter.html" title="struct devela::all::Formatter">Formatter</a>&lt;'_&gt;) -&gt; <a class="type" href="../_core/fmt/type.Result.html" title="type devela::_core::fmt::Result">Result</a></h4></section></summary><div class='docblock'>Formats the value using the given formatter. <a href="trait.Debug.html#tymethod.fmt">Read more</a></div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3C%26mut+%5Bu8%5D%3E-for-AllocMode%3C'a%3E" class="impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#70-75">Source</a><a href="#impl-From%3C%26mut+%5Bu8%5D%3E-for-AllocMode%3C'a%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a&gt; <a class="trait" href="../code/trait.From.html" title="trait devela::code::From">From</a>&lt;&amp;'a mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; for <a class="enum" href="enum.AllocMode.html" title="enum devela::all::AllocMode">AllocMode</a>&lt;'a&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from" class="method trait-impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#72-74">Source</a><a href="#method.from" class="anchor">§</a><h4 class="code-header">fn <a href="../code/trait.From.html#tymethod.from" class="fn">from</a>(buf: &amp;'a mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; Self</h4></section></summary><div class="docblock"><p>Convert an exclusive slice into borrowing mode.</p>
+</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3C%26mut+%5Bu8;+LEN%5D%3E-for-AllocMode%3C'a%3E" class="impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#76-81">Source</a><a href="#impl-From%3C%26mut+%5Bu8;+LEN%5D%3E-for-AllocMode%3C'a%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a, const LEN: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a class="trait" href="../code/trait.From.html" title="trait devela::code::From">From</a>&lt;&amp;'a mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">LEN</a>]&gt; for <a class="enum" href="enum.AllocMode.html" title="enum devela::all::AllocMode">AllocMode</a>&lt;'a&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-1" class="method trait-impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#78-80">Source</a><a href="#method.from-1" class="anchor">§</a><h4 class="code-header">fn <a href="../code/trait.From.html#tymethod.from" class="fn">from</a>(buf: &amp;'a mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">LEN</a>]) -&gt; Self</h4></section></summary><div class="docblock"><p>Convert an exclusive reference to an array into borrowing mode.</p>
+</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3CRangeFull%3E-for-AllocMode%3C'a%3E" class="impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#85-96">Source</a><a href="#impl-From%3CRangeFull%3E-for-AllocMode%3C'a%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a&gt; <a class="trait" href="../code/trait.From.html" title="trait devela::code::From">From</a>&lt;<a class="struct" href="struct.RangeFull.html" title="struct devela::all::RangeFull">RangeFull</a>&gt; for <a class="enum" href="enum.AllocMode.html" title="enum devela::all::AllocMode">AllocMode</a>&lt;'a&gt;</h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>alloc</code></strong> only.</div></span></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-2" class="method trait-impl"><a class="src rightside" href="../../src/devela/sys/mem/borrow/alloc.rs.html#93-95">Source</a><a href="#method.from-2" class="anchor">§</a><h4 class="code-header">fn <a href="../code/trait.From.html#tymethod.from" class="fn">from</a>(_: <a class="struct" href="struct.RangeFull.html" title="struct devela::all::RangeFull">RangeFull</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Convert <code>..</code> into allocation mode.</p>
 <p>The range syntax visually suggests “fill everything”:</p>
 
 <div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]

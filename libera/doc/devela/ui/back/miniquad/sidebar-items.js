@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["miniquad"],"struct":["MiniquadPixels","MiniquadService","MiniquadWindow"],"trait":["MiniquadEventHandlerExt"]};
+window.SIDEBAR_ITEMS = {"macro":["miniquad"],"struct":["MiniquadConf","MiniquadPixels","MiniquadPlatform","MiniquadService","MiniquadWindow"],"trait":["MiniquadEventHandler","MiniquadEventHandlerExt","MiniquadRenderingBackend"]};

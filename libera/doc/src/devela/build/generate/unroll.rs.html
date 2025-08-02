@@ -1,4 +1,220 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/_info/../../build/generate/unroll.rs`."><title>unroll.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-4e99c027.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/build/generate/</div>unroll.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::build::generate::tuple
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/_info/../../build/generate/unroll.rs`."><title>unroll.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-4e99c027.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) return;
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Extract the relative path after the crate name
+    const pathSegments = window.location.pathname.split("/");
+    const crateIndex = pathSegments.indexOf(crateName);
+    if (crateIndex === -1) return;
+    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/build/generate/</div>unroll.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::build::generate::tuple
 <a href=#2 id=2 data-nosnippet>2</a>//
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//! Code generator for the [`unroll!`] macro.
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
@@ -8,36 +224,36 @@
 <a href=#8 id=8 data-nosnippet>8</a>
 <a href=#9 id=9 data-nosnippet>9</a></span><span class="attr">#![allow(clippy::uninlined_format_args, reason = <span class="string">"consistency"</span>)]
 <a href=#10 id=10 data-nosnippet>10</a>
-<a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::utils::<span class="kw-2">*</span>;
+<a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">use </span><a href="../mod.rs.html#18"><span class="kw">super</span>::<span class="kw">super</span>::utils</a>::<span class="kw-2">*</span>;
 <a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span>std::{
-<a href=#13 id=13 data-nosnippet>13</a>    fs::{File, create_dir_all},
-<a href=#14 id=14 data-nosnippet>14</a>    io::{BufWriter, Error, Write},
-<a href=#15 id=15 data-nosnippet>15</a>    writeln <span class="kw">as </span>w,
+<a href=#13 id=13 data-nosnippet>13</a>    fs::{<a href="../../../../devela/all/struct.File.html">File</a>, <a href="../../../../devela/_dep/_std/fs/fn.create_dir_all.html">create_dir_all</a>},
+<a href=#14 id=14 data-nosnippet>14</a>    io::{<a href="../../../../devela/all/struct.IoBufWriter.html">BufWriter</a>, <a href="../../../../devela/all/struct.IoError.html">Error</a>, <a href="../../../../devela/all/trait.IoWrite.html">Write</a>},
+<a href=#15 id=15 data-nosnippet>15</a>    <a href="../../../../devela/all/macro.writeln.html">writeln</a> <span class="kw">as </span>w,
 <a href=#16 id=16 data-nosnippet>16</a>};
 <a href=#17 id=17 data-nosnippet>17</a>
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">const </span>LOWER_LIMIT: usize = <span class="number">16</span>;
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">const </span>LOWER_LIMIT: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">16</span>;
 <a href=#19 id=19 data-nosnippet>19</a>
-<a href=#20 id=20 data-nosnippet>20</a><span class="attr">#[rustfmt::skip] </span><span class="kw">const </span>MAX_RECURSION: usize = {
-<a href=#21 id=21 data-nosnippet>21</a>    <span class="kw">if </span><span class="macro">cfg!</span>(not(feature = <span class="string">"_unroll_128"</span>)) { <span class="number">64
-<a href=#22 id=22 data-nosnippet>22</a>    </span>} <span class="kw">else if </span><span class="macro">cfg!</span>(all(feature = <span class="string">"_unroll_128"</span>, not(feature = <span class="string">"_unroll_256"</span>))) { <span class="number">128
-<a href=#23 id=23 data-nosnippet>23</a>    </span>} <span class="kw">else if </span><span class="macro">cfg!</span>(all(feature = <span class="string">"_unroll_256"</span>, not(feature = <span class="string">"_unroll_512"</span>))) { <span class="number">256
-<a href=#24 id=24 data-nosnippet>24</a>    </span>} <span class="kw">else if </span><span class="macro">cfg!</span>(all(feature = <span class="string">"_unroll_512"</span>, not(feature = <span class="string">"_unroll_1024"</span>))) { <span class="number">512
-<a href=#25 id=25 data-nosnippet>25</a>    </span>} <span class="kw">else if </span><span class="macro">cfg!</span>(all(feature = <span class="string">"_unroll_1024"</span>, not(feature = <span class="string">"_unroll_2048"</span>))) { <span class="number">1024
+<a href=#20 id=20 data-nosnippet>20</a><span class="attr">#[rustfmt::skip] </span><span class="kw">const </span>MAX_RECURSION: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = {
+<a href=#21 id=21 data-nosnippet>21</a>    <span class="kw">if </span><a class="macro" href="../../../../devela/all/macro.cfg.html">cfg!</a>(not(feature = <span class="string">"_unroll_128"</span>)) { <span class="number">64
+<a href=#22 id=22 data-nosnippet>22</a>    </span>} <span class="kw">else if </span><a class="macro" href="../../../../devela/all/macro.cfg.html">cfg!</a>(all(feature = <span class="string">"_unroll_128"</span>, not(feature = <span class="string">"_unroll_256"</span>))) { <span class="number">128
+<a href=#23 id=23 data-nosnippet>23</a>    </span>} <span class="kw">else if </span><a class="macro" href="../../../../devela/all/macro.cfg.html">cfg!</a>(all(feature = <span class="string">"_unroll_256"</span>, not(feature = <span class="string">"_unroll_512"</span>))) { <span class="number">256
+<a href=#24 id=24 data-nosnippet>24</a>    </span>} <span class="kw">else if </span><a class="macro" href="../../../../devela/all/macro.cfg.html">cfg!</a>(all(feature = <span class="string">"_unroll_512"</span>, not(feature = <span class="string">"_unroll_1024"</span>))) { <span class="number">512
+<a href=#25 id=25 data-nosnippet>25</a>    </span>} <span class="kw">else if </span><a class="macro" href="../../../../devela/all/macro.cfg.html">cfg!</a>(all(feature = <span class="string">"_unroll_1024"</span>, not(feature = <span class="string">"_unroll_2048"</span>))) { <span class="number">1024
 <a href=#26 id=26 data-nosnippet>26</a>    </span>} <span class="kw">else </span>{ <span class="number">2048 </span>}
 <a href=#27 id=27 data-nosnippet>27</a>};
 <a href=#28 id=28 data-nosnippet>28</a>
 <a href=#29 id=29 data-nosnippet>29</a><span class="attr">#[rustfmt::skip]
-<a href=#30 id=30 data-nosnippet>30</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>generate() -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-<a href=#31 id=31 data-nosnippet>31</a>    <span class="kw">let </span>build_out_dir = out_dir().join(<span class="string">"build/"</span>);
-<a href=#32 id=32 data-nosnippet>32</a>    create_dir_all(<span class="kw-2">&amp;</span>build_out_dir)<span class="question-mark">?</span>;
-<a href=#33 id=33 data-nosnippet>33</a>    <span class="kw">let </span>path = build_out_dir.join(<span class="string">"unroll.rs"</span>);
+<a href=#30 id=30 data-nosnippet>30</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>generate() -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;(), <a href="../../../../devela/all/struct.IoError.html">Error</a>&gt; {
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="kw">let </span>build_out_dir = <a href="../utils.rs.html#53-55">out_dir</a>().<a href="https://doc.rust-lang.org/nightly/std/path/struct.Path.html#method.join">join</a>(<span class="string">"build/"</span>);
+<a href=#32 id=32 data-nosnippet>32</a>    <a href="../../../../devela/_dep/_std/fs/fn.create_dir_all.html">create_dir_all</a>(<span class="kw-2">&amp;</span><a href="#31">build_out_dir</a>)<span class="question-mark">?</span>;
+<a href=#33 id=33 data-nosnippet>33</a>    <span class="kw">let </span>path = <a href="#31">build_out_dir</a>.<a href="https://doc.rust-lang.org/nightly/std/path/struct.Path.html#method.join">join</a>(<span class="string">"unroll.rs"</span>);
 <a href=#34 id=34 data-nosnippet>34</a>
 <a href=#35 id=35 data-nosnippet>35</a>    <span class="comment">// the generated file will be imported from /src/code/util/unroll/mod.rs
 <a href=#36 id=36 data-nosnippet>36</a>    </span><span class="attr">#[cfg(feature = <span class="string">"__dbg"</span>)]
 <a href=#37 id=37 data-nosnippet>37</a>    </span>println(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"generated: {}"</span>, path.display()));
 <a href=#38 id=38 data-nosnippet>38</a>
-<a href=#39 id=39 data-nosnippet>39</a>    <span class="kw">let </span>file = File::create(path)<span class="question-mark">?</span>;
-<a href=#40 id=40 data-nosnippet>40</a>    <span class="kw">let </span><span class="kw-2">mut </span>f = BufWriter::new(file);
+<a href=#39 id=39 data-nosnippet>39</a>    <span class="kw">let </span>file = <a href="https://doc.rust-lang.org/nightly/std/fs/struct.File.html#method.create">File::create</a>(<a href="#33">path</a>)<span class="question-mark">?</span>;
+<a href=#40 id=40 data-nosnippet>40</a>    <span class="kw">let </span><span class="kw-2">mut </span>f = <a href="https://doc.rust-lang.org/nightly/std/io/buffered/bufwriter/struct.BufWriter.html#method.new">BufWriter::new</a>(<a href="#39">file</a>);
 <a href=#41 id=41 data-nosnippet>41</a>    <span class="comment">// let mut f = BufWriter::with_capacity(100 * 1024, file);
 <a href=#42 id=42 data-nosnippet>42</a>
 <a href=#43 id=43 data-nosnippet>43</a>    </span><span class="kw">let </span>macro_code1 = <span class="string">r#"/// Unrolls the given for loop.
@@ -68,7 +284,7 @@
 <a href=#68 id=68 data-nosnippet>68</a>/// # Vendored
 <a href=#69 id=69 data-nosnippet>69</a>/// This is adapted work from [crunchy][crate::_info::vendored#crunchy]"#</span>;
 <a href=#70 id=70 data-nosnippet>70</a><span class="comment">// In sync with code::utils::_doc::doc_!(vendor:)
-<a href=#71 id=71 data-nosnippet>71</a>    </span><span class="macro">w!</span>(f, <span class="string">"{macro_code1}"</span>)<span class="question-mark">?</span>;
+<a href=#71 id=71 data-nosnippet>71</a>    </span><a class="macro" href="../../../../devela/all/macro.writeln.html">w!</a>(<a href="#40">f</a>, <span class="string">"{macro_code1}"</span>)<span class="question-mark">?</span>;
 <a href=#72 id=72 data-nosnippet>72</a>    <span class="kw">let </span>macro_code2 = <span class="string">r#"#[doc(hidden)]
 <a href=#73 id=73 data-nosnippet>73</a>#[macro_export]
 <a href=#74 id=74 data-nosnippet>74</a>macro_rules! _unroll {
@@ -134,7 +350,7 @@
 <a href=#134 id=134 data-nosnippet>134</a>        { const $v: usize = $a; $c }
 <a href=#135 id=135 data-nosnippet>135</a>    };
 <a href=#136 id=136 data-nosnippet>136</a>"#</span>;
-<a href=#137 id=137 data-nosnippet>137</a>    <span class="macro">w!</span>(f, <span class="string">"{macro_code2}"</span>)<span class="question-mark">?</span>;
+<a href=#137 id=137 data-nosnippet>137</a>    <a class="macro" href="../../../../devela/all/macro.writeln.html">w!</a>(<a href="#40">f</a>, <span class="string">"{macro_code2}"</span>)<span class="question-mark">?</span>;
 <a href=#138 id=138 data-nosnippet>138</a>
 <a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..MAX_RECURSION + <span class="number">1 </span>{
 <a href=#140 id=140 data-nosnippet>140</a>        <span class="macro">w!</span>(f, <span class="string">"    (@$v:ident, $a:expr, {0}, $c:block) =&gt; {{"</span>, i)<span class="question-mark">?</span>;
@@ -158,7 +374,7 @@
 <a href=#158 id=158 data-nosnippet>158</a>        }
 <a href=#159 id=159 data-nosnippet>159</a>        <span class="macro">w!</span>(f, <span class="string">"    }};"</span>)<span class="question-mark">?</span>;
 <a href=#160 id=160 data-nosnippet>160</a>    }
-<a href=#161 id=161 data-nosnippet>161</a>    <span class="macro">w!</span>(f, <span class="string">"}}\n#[doc(inline)]\npub use _unroll as unroll;"</span>)<span class="question-mark">?</span>;
+<a href=#161 id=161 data-nosnippet>161</a>    <a class="macro" href="../../../../devela/all/macro.writeln.html">w!</a>(<a href="#40">f</a>, <span class="string">"}}\n#[doc(inline)]\npub use _unroll as unroll;"</span>)<span class="question-mark">?</span>;
 <a href=#162 id=162 data-nosnippet>162</a>
 <a href=#163 id=163 data-nosnippet>163</a>    <span class="comment">/* tests */
 <a href=#164 id=164 data-nosnippet>164</a>
@@ -220,9 +436,9 @@
 <a href=#220 id=220 data-nosnippet>220</a>            }
 <a href=#221 id=221 data-nosnippet>221</a>            assert_eq!(a, (0..1).collect::&lt;Vec&lt;usize&gt;&gt;());
 <a href=#222 id=222 data-nosnippet>222</a>        }"#</span>;
-<a href=#223 id=223 data-nosnippet>223</a>    <span class="macro">w!</span>(f, <span class="string">"{0}"</span>, tests_code1)<span class="question-mark">?</span>;
+<a href=#223 id=223 data-nosnippet>223</a>    <a class="macro" href="../../../../devela/all/macro.writeln.html">w!</a>(<a href="#40">f</a>, <span class="string">"{0}"</span>, tests_code1)<span class="question-mark">?</span>;
 <a href=#224 id=224 data-nosnippet>224</a>
-<a href=#225 id=225 data-nosnippet>225</a>    <span class="macro">w!</span>(f, <span class="string">r#"
+<a href=#225 id=225 data-nosnippet>225</a>    <a class="macro" href="../../../../devela/all/macro.writeln.html">w!</a>(<a href="#40">f</a>, <span class="string">r#"
 <a href=#226 id=226 data-nosnippet>226</a>        {{
 <a href=#227 id=227 data-nosnippet>227</a>            let mut a: Vec&lt;usize&gt; = vec![];
 <a href=#228 id=228 data-nosnippet>228</a>            unroll! {{
@@ -268,12 +484,12 @@
 <a href=#268 id=268 data-nosnippet>268</a>
 <a href=#269 id=269 data-nosnippet>269</a>    <span class="comment">// --------------------------------------------------------------------------
 <a href=#270 id=270 data-nosnippet>270</a>
-<a href=#271 id=271 data-nosnippet>271</a>    </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = f.flush() {
-<a href=#272 id=272 data-nosnippet>272</a>        <span class="macro">eprintln!</span>(<span class="string">"Failed to write to file: {0}"</span>, e);
-<a href=#273 id=273 data-nosnippet>273</a>        std::process::exit(<span class="number">1</span>);
+<a href=#271 id=271 data-nosnippet>271</a>    </span><span class="kw">if let </span><a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(e) = <a href="#40">f</a>.<a href="../../../../devela/all/trait.IoWrite.html">flush</a>() {
+<a href=#272 id=272 data-nosnippet>272</a>        <a class="macro" href="../../../../devela/_dep/_std/macro.eprintln.html">eprintln!</a>(<span class="string">"Failed to write to file: {0}"</span>, e);
+<a href=#273 id=273 data-nosnippet>273</a>        <a href="../../../../devela/_dep/_std/process/fn.exit.html">std::process::exit</a>(<span class="number">1</span>);
 <a href=#274 id=274 data-nosnippet>274</a>    }
 <a href=#275 id=275 data-nosnippet>275</a>
 <a href=#276 id=276 data-nosnippet>276</a>    <span class="comment">// #[cfg(doc)] // format the source if we're building the docs
 <a href=#277 id=277 data-nosnippet>277</a>    // super::super::rustfmt_file(path);
-<a href=#278 id=278 data-nosnippet>278</a>    </span><span class="prelude-val">Ok</span>(())
+<a href=#278 id=278 data-nosnippet>278</a>    </span><a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(())
 <a href=#279 id=279 data-nosnippet>279</a>}</code></pre></div></section></main></body></html>

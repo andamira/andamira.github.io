@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["asm","detect_aarch64","detect_x86","global_asm"],"static":["__heap_base"],"struct":["Arch","Wasm","m128","m128d","m128i","m256","m256d","m256i"]};
+window.SIDEBAR_ITEMS = {"macro":["asm","detect_aarch64","detect_x86","global_asm"],"struct":["Arch","Wasm","m128","m128d","m128i","m256","m256d","m256i"]};

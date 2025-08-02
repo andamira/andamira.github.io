@@ -16,7 +16,9 @@ OUT_DIR="$HOME/tmp/andamira.github.io/libera"
 
 # CMD="CARGO_TARGET_DIR=$OUT_DIR cargo +nightly nd -F _docsrs"
 # NOTE: need to have in path: ../utils/cargo-nightly
-CMD="CARGO_TARGET_DIR=$OUT_DIR RUSTDOCFLAGS=\"--cfg nightly\" cargo +nightly d -F _docsrs"
+# CMD="CARGO_TARGET_DIR=$OUT_DIR RUSTDOCFLAGS=\"--cfg nightly\" cargo +nightly d -F _docsrs"
+CMD="CARGO_TARGET_DIR=$OUT_DIR cargo +nightly d -F _docsrs"
+# CMD="CARGO_TARGET_DIR=$OUT_DIR RUSTDOCFLAGS=\"--cfg nightly\ --html-in-header ./config/rustdoc-header.html ->unstable-options --generate-link-to-definition" cargo +nightly d -F _docsrs"
 
 # delete previous version
 rm -r "$OUT_DIR"

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["codec","dst","iter","key","list","table","uid"],"struct":["Sort"],"trait":["DataCollection"],"type":["NoData"]};
+window.SIDEBAR_ITEMS = {"mod":["codec","dst","iter","key","list","node","table","uid"],"struct":["Sort"],"trait":["DataCollection"],"type":["NoData"]};
