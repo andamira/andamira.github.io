@@ -37,11 +37,3 @@ ln -sf "$VERSION" "$OUT_SYM"
 mv "$TMP_DIR/doc" "$OUT_DIR"
 rm -r "$TMP_DIR"
 
-
-# push updated docs
-cd $GIT_DIR
-git add . && \
-git commit -m "update latest published docs" && \
-git push
-
-
