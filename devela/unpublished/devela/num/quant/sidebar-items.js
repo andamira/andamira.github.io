@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["interval"],"struct":["Cycle","CycleCount","Interval","Ratio","Scale"]};
+window.SIDEBAR_ITEMS = {"macro":["interval"],"struct":["Cycle","CycleCount","Interval","Ratio"]};

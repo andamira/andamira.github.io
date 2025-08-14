@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["art","nat"]};
+window.SIDEBAR_ITEMS = {"mod":["art","grammar","nat"]};

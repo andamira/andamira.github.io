@@ -1,112 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/ptr/namespace.rs`."><title>namespace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../../../static.files/storage-4e99c027.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
-  document.addEventListener("DOMContentLoaded", async function() {
-    // Ensure this script runs only once per page load
-    if (window.scriptLoaderInitialized) return;
-    window.scriptLoaderInitialized = true;
-
-    /* settings */
-
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
-
-    // Extract the relative path after the crate name
-    const pathSegments = window.location.pathname.split("/");
-    const crateIndex = pathSegments.indexOf(crateName);
-    if (crateIndex === -1) return;
-    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
-
-    /* load resources */
-
-    try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
-        await loadKatex().catch(handleMathError);
-      }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
-        await loadKatexChem().catch(handleMathError);
-      }
-    } catch (error) {
-      handleMathError(error);
-    }
-
-    /* resource loading functions */
-
-    // INFO: https://katex.org/docs/browser.html#starter-template
-    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
-    async function loadKatex() {
-      console.log("Loading KaTeX for:", relativePath);
-
-      // Load CSS, and scripts sequentially
-      const katexCSS = document.createElement("link");
-      katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
-      katexCSS.crossOrigin = "anonymous";
-      document.head.appendChild(katexCSS);
-
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
-      });
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
-        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-      });
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
-        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-      });
-
-      // Initialize KaTeX
-      renderMathInElement(document.body, {
-        delimiters: [
-          {left: "$$", right: "$$", display: true},
-          {left: "$", right: "$", display: false},
-          {left: "\\(", right: "\\)", display: false},
-          {left: "\\[", right: "\\]", display: true}
-        ],
-        trust: (context) => context.command === "\\href"
-      });
-      // Add custom styles: https://katex.org/docs/issues.html#css-customization
-      const katexStyle = document.createElement("style");
-      katexStyle.textContent = `
-        .katex-display { overflow: hidden; }
-        .docblock p { overflow-y: hidden; }
-      `;
-      document.head.appendChild(katexStyle);
-    }
-
-    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
-    async function loadKatexChem() {
-      console.log("Loading KaTeX MhChem plugin for:", relativePath);
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
-        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-      });
-    }
-
-    /* helper functions */
-
-    function loadScript(config) {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = config.src;
-        if (config.integrity) {
-          script.integrity = config.integrity;
-          script.crossOrigin = "anonymous";
-        }
-        script.onload = resolve;
-        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
-        document.head.appendChild(script);
-      });
-    }
-    function handleMathError(error) {
-      console.error("Math rendering error:", error);
-    }
-  });
-</script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/ptr/namespace.rs`."><title>namespace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../../static.files/storage-68b7e25d.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
@@ -231,7 +123,7 @@
 <a href=#15 id=15 data-nosnippet>15</a>        <a href="../../../../../devela/_core/ptr/fn.slice_from_raw_parts.html">slice_from_raw_parts</a>, <a href="../../../../../devela/_core/ptr/fn.slice_from_raw_parts_mut.html">slice_from_raw_parts_mut</a>, <a href="../../../../../devela/_core/ptr/fn.with_exposed_provenance.html">with_exposed_provenance</a>,
 <a href=#16 id=16 data-nosnippet>16</a>        <a href="../../../../../devela/_core/ptr/fn.with_exposed_provenance_mut.html">with_exposed_provenance_mut</a>, <a href="../../../../../devela/_core/ptr/fn.without_provenance.html">without_provenance</a>, <a href="../../../../../devela/_core/ptr/fn.without_provenance_mut.html">without_provenance_mut</a>,
 <a href=#17 id=17 data-nosnippet>17</a>    },
-<a href=#18 id=18 data-nosnippet>18</a>    <a href="../../../../../devela/all/trait.Hasher.html">Hasher</a>, <a href="../../../code/util/is.rs.html#100-139">is</a>,
+<a href=#18 id=18 data-nosnippet>18</a>    <a href="../../../../../devela/all/trait.Hasher.html">Hasher</a>, <a href="../../../../../devela/all/struct.NonZero.html">NonZero</a>, <a href="../../../../../devela/all/struct.PtrNonNull.html">PtrNonNull</a>, <a href="../../../code/util/is.rs.html#100-139">is</a>,
 <a href=#19 id=19 data-nosnippet>19</a>};
 <a href=#20 id=20 data-nosnippet>20</a>
 <a href=#21 id=21 data-nosnippet>21</a><span class="attr">#[doc = <span class="macro">crate::TAG_NAMESPACE!</span>()]
@@ -587,4 +479,36 @@
 <a href=#371 id=371 data-nosnippet>371</a>        <span class="comment">// SAFETY: Caller must uphold the safety contract.
 <a href=#372 id=372 data-nosnippet>372</a>        </span><span class="kw">unsafe </span>{ <a href="../../../../../devela/_core/ptr/fn.write_volatile.html">write_volatile</a>(<a href="#370">dst</a>, <a href="#370">src</a>); };
 <a href=#373 id=373 data-nosnippet>373</a>    }
-<a href=#374 id=374 data-nosnippet>374</a>}</code></pre></div></section></main></body></html>
+<a href=#374 id=374 data-nosnippet>374</a>}
+<a href=#375 id=375 data-nosnippet>375</a>
+<a href=#376 id=376 data-nosnippet>376</a><span class="doccomment">/// # [`PtrNonNull`] methods
+<a href=#377 id=377 data-nosnippet>377</a></span><span class="kw">impl </span><a href="#25">Ptr</a> {
+<a href=#378 id=378 data-nosnippet>378</a>    <span class="doccomment">/// Creates a new `PtrNonNull` if `ptr` is non-null.
+<a href=#379 id=379 data-nosnippet>379</a>    </span><span class="attr">#[inline(always)]
+<a href=#380 id=380 data-nosnippet>380</a>    </span><span class="kw">pub const fn </span>nn_new&lt;T: <span class="question-mark">?</span><a href="../../../../../devela/all/trait.Sized.html">Sized</a>&gt;(ptr: <span class="kw-2">*mut </span>T) -&gt; <a class="prelude-ty" href="../../../../../devela/all/enum.Option.html">Option</a>&lt;<a href="../../../../../devela/all/struct.PtrNonNull.html">PtrNonNull</a>&lt;T&gt;&gt; {
+<a href=#381 id=381 data-nosnippet>381</a>        <a href="https://doc.rust-lang.org/nightly/core/ptr/non_null/struct.NonNull.html#method.new">PtrNonNull::new</a>(<a href="#380">ptr</a>)
+<a href=#382 id=382 data-nosnippet>382</a>    }
+<a href=#383 id=383 data-nosnippet>383</a>
+<a href=#384 id=384 data-nosnippet>384</a>    <span class="doccomment">/// Converts a reference to a `PtrNonNull`.
+<a href=#385 id=385 data-nosnippet>385</a>    </span><span class="attr">#[inline(always)]
+<a href=#386 id=386 data-nosnippet>386</a>    </span><span class="kw">pub const fn </span>nn_from_ref&lt;T: <span class="question-mark">?</span><a href="../../../../../devela/all/trait.Sized.html">Sized</a>&gt;(r: <span class="kw-2">&amp;</span>T) -&gt; <a href="../../../../../devela/all/struct.PtrNonNull.html">PtrNonNull</a>&lt;T&gt; {
+<a href=#387 id=387 data-nosnippet>387</a>        <a href="https://doc.rust-lang.org/nightly/core/ptr/non_null/struct.NonNull.html#method.from_ref">PtrNonNull::from_ref</a>(<a href="#386">r</a>)
+<a href=#388 id=388 data-nosnippet>388</a>    }
+<a href=#389 id=389 data-nosnippet>389</a>
+<a href=#390 id=390 data-nosnippet>390</a>    <span class="doccomment">/// Converts a mutable reference to a `PtrNonNull`.
+<a href=#391 id=391 data-nosnippet>391</a>    </span><span class="attr">#[inline(always)]
+<a href=#392 id=392 data-nosnippet>392</a>    </span><span class="kw">pub const fn </span>nn_from_mut&lt;T: <span class="question-mark">?</span><a href="../../../../../devela/all/trait.Sized.html">Sized</a>&gt;(r: <span class="kw-2">&amp;mut </span>T) -&gt; <a href="../../../../../devela/all/struct.PtrNonNull.html">PtrNonNull</a>&lt;T&gt; {
+<a href=#393 id=393 data-nosnippet>393</a>        <a href="https://doc.rust-lang.org/nightly/core/ptr/non_null/struct.NonNull.html#method.from_mut">PtrNonNull::from_mut</a>(<a href="#392">r</a>)
+<a href=#394 id=394 data-nosnippet>394</a>    }
+<a href=#395 id=395 data-nosnippet>395</a>
+<a href=#396 id=396 data-nosnippet>396</a>    <span class="doccomment">/// Creates a `PtrNonNull` with the given address and no provenance.
+<a href=#397 id=397 data-nosnippet>397</a>    </span><span class="kw">pub const fn </span>nn_without_provenance&lt;T&gt;(addr: <a href="../../../../../devela/all/struct.NonZero.html">NonZero</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;) -&gt; <a href="../../../../../devela/all/struct.PtrNonNull.html">PtrNonNull</a>&lt;T&gt; {
+<a href=#398 id=398 data-nosnippet>398</a>        <a href="https://doc.rust-lang.org/nightly/core/ptr/non_null/struct.NonNull.html#method.without_provenance">PtrNonNull::without_provenance</a>(<a href="#397">addr</a>)
+<a href=#399 id=399 data-nosnippet>399</a>    }
+<a href=#400 id=400 data-nosnippet>400</a>
+<a href=#401 id=401 data-nosnippet>401</a>    <span class="doccomment">/// Creates a new `PtrNonNull` that is dangling, but well-aligned.
+<a href=#402 id=402 data-nosnippet>402</a>    </span><span class="attr">#[inline(always)]
+<a href=#403 id=403 data-nosnippet>403</a>    </span><span class="kw">pub const fn </span>nn_dangling&lt;T&gt;() -&gt; <a href="../../../../../devela/all/struct.PtrNonNull.html">PtrNonNull</a>&lt;T&gt; {
+<a href=#404 id=404 data-nosnippet>404</a>        <a href="https://doc.rust-lang.org/nightly/core/ptr/non_null/struct.NonNull.html#method.dangling">PtrNonNull::dangling</a>()
+<a href=#405 id=405 data-nosnippet>405</a>    }
+<a href=#406 id=406 data-nosnippet>406</a>}</code></pre></div></section></main></body></html>

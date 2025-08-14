@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Errors, backtraces, structured handling."><title>devela::code::error - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-4e99c027.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Errors, backtraces, structured handling."><title>devela::code::error - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
@@ -106,115 +106,7 @@
   });
 </script>
 
-<script>
-  document.addEventListener("DOMContentLoaded", async function() {
-    // Ensure this script runs only once per page load
-    if (window.scriptLoaderInitialized) return;
-    window.scriptLoaderInitialized = true;
-
-    /* settings */
-
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
-
-    // Extract the relative path after the crate name
-    const pathSegments = window.location.pathname.split("/");
-    const crateIndex = pathSegments.indexOf(crateName);
-    if (crateIndex === -1) return;
-    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
-
-    /* load resources */
-
-    try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
-        await loadKatex().catch(handleMathError);
-      }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
-        await loadKatexChem().catch(handleMathError);
-      }
-    } catch (error) {
-      handleMathError(error);
-    }
-
-    /* resource loading functions */
-
-    // INFO: https://katex.org/docs/browser.html#starter-template
-    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
-    async function loadKatex() {
-      console.log("Loading KaTeX for:", relativePath);
-
-      // Load CSS, and scripts sequentially
-      const katexCSS = document.createElement("link");
-      katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
-      katexCSS.crossOrigin = "anonymous";
-      document.head.appendChild(katexCSS);
-
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
-      });
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
-        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-      });
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
-        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-      });
-
-      // Initialize KaTeX
-      renderMathInElement(document.body, {
-        delimiters: [
-          {left: "$$", right: "$$", display: true},
-          {left: "$", right: "$", display: false},
-          {left: "\\(", right: "\\)", display: false},
-          {left: "\\[", right: "\\]", display: true}
-        ],
-        trust: (context) => context.command === "\\href"
-      });
-      // Add custom styles: https://katex.org/docs/issues.html#css-customization
-      const katexStyle = document.createElement("style");
-      katexStyle.textContent = `
-        .katex-display { overflow: hidden; }
-        .docblock p { overflow-y: hidden; }
-      `;
-      document.head.appendChild(katexStyle);
-    }
-
-    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
-    async function loadKatexChem() {
-      console.log("Loading KaTeX MhChem plugin for:", relativePath);
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
-        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-      });
-    }
-
-    /* helper functions */
-
-    function loadScript(config) {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = config.src;
-        if (config.integrity) {
-          script.integrity = config.integrity;
-          script.crossOrigin = "anonymous";
-        }
-        script.onload = resolve;
-        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
-        document.head.appendChild(script);
-      });
-    }
-    function handleMathError(error) {
-      console.error("Math rendering error:", error);
-    }
-  });
-</script>
-
-</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.24.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module error</a></h2><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>code</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">code</a></div><h1>Module <span>error</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/code/error/mod.rs.html#3-40">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Errors, backtraces, structured handling.</p>
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.24.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module error</a></h2><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>code</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">code</a></div><h1>Module <span>error</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/code/error/mod.rs.html#3-38">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Errors, backtraces, structured handling.</p>
 <p>It re-exports the error and result types defined in other modules.</p>
 <p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../../_dep/_std/backtrace/index.html" title="mod devela::_dep::_std::backtrace">backtrace</a>, <a href="../../_dep/_std/error/index.html" title="mod devela::_dep::_std::error">error</a>}</span><hr/></p>
 </div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.compile_error.html" title="macro devela::code::error::compile_error">compile_<wbr>error</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
@@ -231,20 +123,15 @@ Error type for <a href="../../all/trait.IoRead.html" title="trait devela::all::I
 The key already exists.</dd><dt><a class="struct" href="struct.MismatchedCapacity.html" title="struct devela::code::error::MismatchedCapacity">Mismatched<wbr>Capacity</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
 The given capacity did not match the required constraints.</dd><dt><a class="struct" href="struct.MismatchedDimensions.html" title="struct devela::code::error::MismatchedDimensions">Mismatched<wbr>Dimensions</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
 The dimensions given did not match the elements provided.</dd><dt><a class="struct" href="struct.MismatchedIndices.html" title="struct devela::code::error::MismatchedIndices">Mismatched<wbr>Indices</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
-The given indices does not match the expected order.</dd><dt><a class="struct" href="struct.NoInverse.html" title="struct devela::code::error::NoInverse">NoInverse</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
-An inverse doesn’t exist.</dd><dt><a class="struct" href="struct.NodeEmpty.html" title="struct devela::code::error::NodeEmpty">Node<wbr>Empty</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
+The given indices does not match the expected order.</dd><dt><a class="struct" href="struct.NodeEmpty.html" title="struct devela::code::error::NodeEmpty">Node<wbr>Empty</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
 The node is empty.</dd><dt><a class="struct" href="struct.NodeLinkNotSet.html" title="struct devela::code::error::NodeLinkNotSet">Node<wbr>Link<wbr>NotSet</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
 The link is not set.</dd><dt><a class="struct" href="struct.NodeLinkNotUnique.html" title="struct devela::code::error::NodeLinkNotUnique">Node<wbr>Link<wbr>NotUnique</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
-The link is not unique.</dd><dt><a class="struct" href="struct.NonNegativeRequired.html" title="struct devela::code::error::NonNegativeRequired">NonNegative<wbr>Required</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
-A non-negative value is required.</dd><dt><a class="struct" href="struct.NonZeroRequired.html" title="struct devela::code::error::NonZeroRequired">NonZero<wbr>Required</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
-A non-zero value is required.</dd><dt><a class="struct" href="struct.NotEnoughElements.html" title="struct devela::code::error::NotEnoughElements">NotEnough<wbr>Elements</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
+The link is not unique.</dd><dt><a class="struct" href="struct.NotEnoughElements.html" title="struct devela::code::error::NotEnoughElements">NotEnough<wbr>Elements</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
 There are not enough elements for the operation.</dd><dt><a class="struct" href="struct.NotEnoughSpace.html" title="struct devela::code::error::NotEnoughSpace">NotEnough<wbr>Space</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
 There is not enough free space for the operation.</dd><dt><a class="struct" href="struct.NotImplemented.html" title="struct devela::code::error::NotImplemented">NotImplemented</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
 The requested functionality is not implemented.</dd><dt><a class="struct" href="struct.NotSupported.html" title="struct devela::code::error::NotSupported">NotSupported</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
-The requested functionality is not supported by this type.</dd><dt><a class="struct" href="struct.NumericOverflow.html" title="struct devela::code::error::NumericOverflow">Numeric<wbr>Overflow</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
-An arithmetic overflow error, with an optional associated sign.</dd><dt><a class="struct" href="struct.PartiallyAdded.html" title="struct devela::code::error::PartiallyAdded">Partially<wbr>Added</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
-The operation could only add a subset of the elements.</dd><dt><a class="struct" href="struct.PositiveRequired.html" title="struct devela::code::error::PositiveRequired">Positive<wbr>Required</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
-A positive value is required.</dd><dt><a class="struct" href="struct.SystemTimeError.html" title="struct devela::code::error::SystemTimeError">System<wbr>Time<wbr>Error</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Time-related type'>🕘</span>
+The requested functionality is not supported by this type.</dd><dt><a class="struct" href="struct.PartiallyAdded.html" title="struct devela::code::error::PartiallyAdded">Partially<wbr>Added</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
+The operation could only add a subset of the elements.</dd><dt><a class="struct" href="struct.SystemTimeError.html" title="struct devela::code::error::SystemTimeError">System<wbr>Time<wbr>Error</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Time-related type'>🕘</span>
 <span class='stab portability' title='Individual error type'>🚩</span>
 Returned from the <code>duration_since</code> and <code>elapsed</code> methods on <code>SystemTime</code>.</dd><dt><a class="struct" href="struct.Timeout.html" title="struct devela::code::error::Timeout">Timeout</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
 The operation has exceeded the allowed execution time.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.AllError.html" title="enum devela::code::error::AllError">AllError</a><wbr><span class="stab portability" title="Available on crate feature `error` only"><code>error</code></span></dt><dd><span class='stab portability' title='Composite error type'>🚩+</span>

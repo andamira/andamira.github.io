@@ -1,112 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/quant/interval.rs`."><title>interval.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-4e99c027.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
-  document.addEventListener("DOMContentLoaded", async function() {
-    // Ensure this script runs only once per page load
-    if (window.scriptLoaderInitialized) return;
-    window.scriptLoaderInitialized = true;
-
-    /* settings */
-
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
-
-    // Extract the relative path after the crate name
-    const pathSegments = window.location.pathname.split("/");
-    const crateIndex = pathSegments.indexOf(crateName);
-    if (crateIndex === -1) return;
-    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
-
-    /* load resources */
-
-    try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
-        await loadKatex().catch(handleMathError);
-      }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
-        await loadKatexChem().catch(handleMathError);
-      }
-    } catch (error) {
-      handleMathError(error);
-    }
-
-    /* resource loading functions */
-
-    // INFO: https://katex.org/docs/browser.html#starter-template
-    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
-    async function loadKatex() {
-      console.log("Loading KaTeX for:", relativePath);
-
-      // Load CSS, and scripts sequentially
-      const katexCSS = document.createElement("link");
-      katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
-      katexCSS.crossOrigin = "anonymous";
-      document.head.appendChild(katexCSS);
-
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
-      });
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
-        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-      });
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
-        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-      });
-
-      // Initialize KaTeX
-      renderMathInElement(document.body, {
-        delimiters: [
-          {left: "$$", right: "$$", display: true},
-          {left: "$", right: "$", display: false},
-          {left: "\\(", right: "\\)", display: false},
-          {left: "\\[", right: "\\]", display: true}
-        ],
-        trust: (context) => context.command === "\\href"
-      });
-      // Add custom styles: https://katex.org/docs/issues.html#css-customization
-      const katexStyle = document.createElement("style");
-      katexStyle.textContent = `
-        .katex-display { overflow: hidden; }
-        .docblock p { overflow-y: hidden; }
-      `;
-      document.head.appendChild(katexStyle);
-    }
-
-    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
-    async function loadKatexChem() {
-      console.log("Loading KaTeX MhChem plugin for:", relativePath);
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
-        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-      });
-    }
-
-    /* helper functions */
-
-    function loadScript(config) {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = config.src;
-        if (config.integrity) {
-          script.integrity = config.integrity;
-          script.crossOrigin = "anonymous";
-        }
-        script.onload = resolve;
-        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
-        document.head.appendChild(script);
-      });
-    }
-    function handleMathError(error) {
-      console.error("Math rendering error:", error);
-    }
-  });
-</script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/quant/interval.rs`."><title>interval.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-68b7e25d.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
@@ -608,7 +500,7 @@
 <a href=#392 id=392 data-nosnippet>392</a></span><span class="kw">mod </span>impl_traits {
 <a href=#393 id=393 data-nosnippet>393</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#394 id=394 data-nosnippet>394</a>    <span class="kw">use crate</span>::{
-<a href=#395 id=395 data-nosnippet>395</a>        <a href="../../code/default.rs.html#10-13">ConstDefault</a>, <a href="../error.rs.html#44-82">NumError</a>, <a href="../error.rs.html#69">NumError::IncompatibleBounds</a>, <a href="../error.rs.html#37">NumResult</a>, <a href="../../../../devela/all/enum.Ordering.html">Ordering</a>, <a href="../../../../devela/all/trait.RangeBounds.html">RangeBounds</a>,
+<a href=#395 id=395 data-nosnippet>395</a>        <a href="../../code/default.rs.html#10-13">ConstDefault</a>, <a href="../error.rs.html#18-56">NumError</a>, <a href="../error.rs.html#43">NumError::IncompatibleBounds</a>, <a href="../error.rs.html#11">NumResult</a>, <a href="../../../../devela/all/enum.Ordering.html">Ordering</a>, <a href="../../../../devela/all/trait.RangeBounds.html">RangeBounds</a>,
 <a href=#396 id=396 data-nosnippet>396</a>    };
 <a href=#397 id=397 data-nosnippet>397</a>
 <a href=#398 id=398 data-nosnippet>398</a>    <span class="doccomment">/// Provides a default value for `Interval`, the unbounded interval $(-\infty, \infty)$.
@@ -664,33 +556,33 @@
 <a href=#448 id=448 data-nosnippet>448</a>    </span><span class="doccomment">/// # Errors
 <a href=#449 id=449 data-nosnippet>449</a>    /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
 <a href=#450 id=450 data-nosnippet>450</a>    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<a href="#131-136">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../../devela/all/struct.RangeInclusive.html">RangeInclusive</a>&lt;T&gt; {
-<a href=#451 id=451 data-nosnippet>451</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#44-82">NumError</a>;
-<a href=#452 id=452 data-nosnippet>452</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#37">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+<a href=#451 id=451 data-nosnippet>451</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#18-56">NumError</a>;
+<a href=#452 id=452 data-nosnippet>452</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#11">NumResult</a>&lt;<span class="self">Self</span>&gt; {
 <a href=#453 id=453 data-nosnippet>453</a>            <span class="kw">match </span>(<a href="#452">interval</a>.lower, <a href="#452">interval</a>.upper) {
 <a href=#454 id=454 data-nosnippet>454</a>                (Bound::Included(start), Bound::Included(end)) =&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a href="#454">start</a>..=<a href="#454">end</a>),
-<a href=#455 id=455 data-nosnippet>455</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#69">IncompatibleBounds</a>),
+<a href=#455 id=455 data-nosnippet>455</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#43">IncompatibleBounds</a>),
 <a href=#456 id=456 data-nosnippet>456</a>            }
 <a href=#457 id=457 data-nosnippet>457</a>        }
 <a href=#458 id=458 data-nosnippet>458</a>    }
 <a href=#459 id=459 data-nosnippet>459</a>    <span class="doccomment">/// # Errors
 <a href=#460 id=460 data-nosnippet>460</a>    /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
 <a href=#461 id=461 data-nosnippet>461</a>    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<a href="#131-136">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../../devela/all/struct.Range.html">Range</a>&lt;T&gt; {
-<a href=#462 id=462 data-nosnippet>462</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#44-82">NumError</a>;
-<a href=#463 id=463 data-nosnippet>463</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#37">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+<a href=#462 id=462 data-nosnippet>462</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#18-56">NumError</a>;
+<a href=#463 id=463 data-nosnippet>463</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#11">NumResult</a>&lt;<span class="self">Self</span>&gt; {
 <a href=#464 id=464 data-nosnippet>464</a>            <span class="kw">match </span>(<a href="#463">interval</a>.lower, <a href="#463">interval</a>.upper) {
 <a href=#465 id=465 data-nosnippet>465</a>                (Bound::Included(start), Bound::Excluded(end)) =&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a href="#465">start</a>..<a href="#465">end</a>),
-<a href=#466 id=466 data-nosnippet>466</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#69">IncompatibleBounds</a>),
+<a href=#466 id=466 data-nosnippet>466</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#43">IncompatibleBounds</a>),
 <a href=#467 id=467 data-nosnippet>467</a>            }
 <a href=#468 id=468 data-nosnippet>468</a>        }
 <a href=#469 id=469 data-nosnippet>469</a>    }
 <a href=#470 id=470 data-nosnippet>470</a>    <span class="doccomment">/// # Errors
 <a href=#471 id=471 data-nosnippet>471</a>    /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
 <a href=#472 id=472 data-nosnippet>472</a>    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<a href="#131-136">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../../devela/all/struct.RangeFrom.html">RangeFrom</a>&lt;T&gt; {
-<a href=#473 id=473 data-nosnippet>473</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#44-82">NumError</a>;
-<a href=#474 id=474 data-nosnippet>474</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#37">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+<a href=#473 id=473 data-nosnippet>473</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#18-56">NumError</a>;
+<a href=#474 id=474 data-nosnippet>474</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#11">NumResult</a>&lt;<span class="self">Self</span>&gt; {
 <a href=#475 id=475 data-nosnippet>475</a>            <span class="kw">match </span>(<a href="#474">interval</a>.lower, <a href="#474">interval</a>.upper) {
 <a href=#476 id=476 data-nosnippet>476</a>                (Bound::Included(start), Bound::Unbounded) =&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a href="#476">start</a>..),
-<a href=#477 id=477 data-nosnippet>477</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#69">IncompatibleBounds</a>),
+<a href=#477 id=477 data-nosnippet>477</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#43">IncompatibleBounds</a>),
 <a href=#478 id=478 data-nosnippet>478</a>            }
 <a href=#479 id=479 data-nosnippet>479</a>        }
 <a href=#480 id=480 data-nosnippet>480</a>    }
@@ -698,33 +590,33 @@
 <a href=#482 id=482 data-nosnippet>482</a>    </span><span class="doccomment">/// # Errors
 <a href=#483 id=483 data-nosnippet>483</a>    /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
 <a href=#484 id=484 data-nosnippet>484</a>    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<a href="#131-136">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../../devela/all/struct.RangeFull.html">RangeFull</a> {
-<a href=#485 id=485 data-nosnippet>485</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#44-82">NumError</a>;
-<a href=#486 id=486 data-nosnippet>486</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#37">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+<a href=#485 id=485 data-nosnippet>485</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#18-56">NumError</a>;
+<a href=#486 id=486 data-nosnippet>486</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#11">NumResult</a>&lt;<span class="self">Self</span>&gt; {
 <a href=#487 id=487 data-nosnippet>487</a>            <span class="kw">match </span>(<a href="#486">interval</a>.lower, <a href="#486">interval</a>.upper) {
 <a href=#488 id=488 data-nosnippet>488</a>                (Bound::Unbounded, Bound::Unbounded) =&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(..),
-<a href=#489 id=489 data-nosnippet>489</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#69">IncompatibleBounds</a>),
+<a href=#489 id=489 data-nosnippet>489</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#43">IncompatibleBounds</a>),
 <a href=#490 id=490 data-nosnippet>490</a>            }
 <a href=#491 id=491 data-nosnippet>491</a>        }
 <a href=#492 id=492 data-nosnippet>492</a>    }
 <a href=#493 id=493 data-nosnippet>493</a>    <span class="doccomment">/// # Errors
 <a href=#494 id=494 data-nosnippet>494</a>    /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
 <a href=#495 id=495 data-nosnippet>495</a>    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<a href="#131-136">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../../devela/all/struct.RangeTo.html">RangeTo</a>&lt;T&gt; {
-<a href=#496 id=496 data-nosnippet>496</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#44-82">NumError</a>;
-<a href=#497 id=497 data-nosnippet>497</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#37">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+<a href=#496 id=496 data-nosnippet>496</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#18-56">NumError</a>;
+<a href=#497 id=497 data-nosnippet>497</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#11">NumResult</a>&lt;<span class="self">Self</span>&gt; {
 <a href=#498 id=498 data-nosnippet>498</a>            <span class="kw">match </span>(<a href="#497">interval</a>.lower, <a href="#497">interval</a>.upper) {
 <a href=#499 id=499 data-nosnippet>499</a>                (Bound::Unbounded, Bound::Excluded(end)) =&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(..<a href="#499">end</a>),
-<a href=#500 id=500 data-nosnippet>500</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#69">IncompatibleBounds</a>),
+<a href=#500 id=500 data-nosnippet>500</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#43">IncompatibleBounds</a>),
 <a href=#501 id=501 data-nosnippet>501</a>            }
 <a href=#502 id=502 data-nosnippet>502</a>        }
 <a href=#503 id=503 data-nosnippet>503</a>    }
 <a href=#504 id=504 data-nosnippet>504</a>    <span class="doccomment">/// # Errors
 <a href=#505 id=505 data-nosnippet>505</a>    /// Returns [`IncompatibleBounds`] if the bounds are not compatible.
 <a href=#506 id=506 data-nosnippet>506</a>    </span><span class="kw">impl</span>&lt;T&gt; <a href="../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<a href="#131-136">Interval</a>&lt;T&gt;&gt; <span class="kw">for </span><a href="../../../../devela/all/struct.RangeToInclusive.html">RangeToInclusive</a>&lt;T&gt; {
-<a href=#507 id=507 data-nosnippet>507</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#44-82">NumError</a>;
-<a href=#508 id=508 data-nosnippet>508</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#37">NumResult</a>&lt;<span class="self">Self</span>&gt; {
+<a href=#507 id=507 data-nosnippet>507</a>        <span class="kw">type </span>Error = <a href="../error.rs.html#18-56">NumError</a>;
+<a href=#508 id=508 data-nosnippet>508</a>        <span class="kw">fn </span>try_from(interval: <a href="#131-136">Interval</a>&lt;T&gt;) -&gt; <a href="../error.rs.html#11">NumResult</a>&lt;<span class="self">Self</span>&gt; {
 <a href=#509 id=509 data-nosnippet>509</a>            <span class="kw">match </span>(<a href="#508">interval</a>.lower, <a href="#508">interval</a>.upper) {
 <a href=#510 id=510 data-nosnippet>510</a>                (Bound::Unbounded, Bound::Included(end)) =&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(..=<a href="#510">end</a>),
-<a href=#511 id=511 data-nosnippet>511</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#69">IncompatibleBounds</a>),
+<a href=#511 id=511 data-nosnippet>511</a>                <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="../error.rs.html#43">IncompatibleBounds</a>),
 <a href=#512 id=512 data-nosnippet>512</a>            }
 <a href=#513 id=513 data-nosnippet>513</a>        }
 <a href=#514 id=514 data-nosnippet>514</a>    }

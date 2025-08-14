@@ -1,112 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/media/color/rgb/impls/u8alpha.rs`."><title>u8alpha.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0-nightly (b56aaec52 2025-07-24)" data-channel="nightly" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../../../../static.files/storage-4e99c027.js"></script><script defer src="../../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-673ee1e0.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><script>
-  document.addEventListener("DOMContentLoaded", async function() {
-    // Ensure this script runs only once per page load
-    if (window.scriptLoaderInitialized) return;
-    window.scriptLoaderInitialized = true;
-
-    /* settings */
-
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
-
-    // Extract the relative path after the crate name
-    const pathSegments = window.location.pathname.split("/");
-    const crateIndex = pathSegments.indexOf(crateName);
-    if (crateIndex === -1) return;
-    const relativePath = "/" + pathSegments.slice(crateIndex + 1).join("/");
-
-    /* load resources */
-
-    try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
-        await loadKatex().catch(handleMathError);
-      }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
-        await loadKatexChem().catch(handleMathError);
-      }
-    } catch (error) {
-      handleMathError(error);
-    }
-
-    /* resource loading functions */
-
-    // INFO: https://katex.org/docs/browser.html#starter-template
-    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
-    async function loadKatex() {
-      console.log("Loading KaTeX for:", relativePath);
-
-      // Load CSS, and scripts sequentially
-      const katexCSS = document.createElement("link");
-      katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
-      katexCSS.crossOrigin = "anonymous";
-      document.head.appendChild(katexCSS);
-
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
-      });
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
-        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
-      });
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
-        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
-      });
-
-      // Initialize KaTeX
-      renderMathInElement(document.body, {
-        delimiters: [
-          {left: "$$", right: "$$", display: true},
-          {left: "$", right: "$", display: false},
-          {left: "\\(", right: "\\)", display: false},
-          {left: "\\[", right: "\\]", display: true}
-        ],
-        trust: (context) => context.command === "\\href"
-      });
-      // Add custom styles: https://katex.org/docs/issues.html#css-customization
-      const katexStyle = document.createElement("style");
-      katexStyle.textContent = `
-        .katex-display { overflow: hidden; }
-        .docblock p { overflow-y: hidden; }
-      `;
-      document.head.appendChild(katexStyle);
-    }
-
-    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
-    async function loadKatexChem() {
-      console.log("Loading KaTeX MhChem plugin for:", relativePath);
-      await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
-        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
-      });
-    }
-
-    /* helper functions */
-
-    function loadScript(config) {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = config.src;
-        if (config.integrity) {
-          script.integrity = config.integrity;
-          script.crossOrigin = "anonymous";
-        }
-        script.onload = resolve;
-        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
-        document.head.appendChild(script);
-      });
-    }
-    function handleMathError(error) {
-      console.error("Math rendering error:", error);
-    }
-  });
-</script>
-
-<script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/media/color/rgb/impls/u8alpha.rs`."><title>u8alpha.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../../../static.files/storage-68b7e25d.js"></script><script defer src="../../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
@@ -217,7 +109,7 @@
 </head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/media/color/rgb/impls/</div>u8alpha.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::media::color::rgb::impls::u8alpha
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use crate</span>::{<a href="../../helpers.rs.html#158">Norm</a>, <a href="../definitions.rs.html#31">Rgb8</a>, <a href="../definitions.rs.html#38">Rgb16</a>, <a href="../definitions.rs.html#33">Rgba8</a>, <a href="../definitions.rs.html#40">Rgba16</a>};
+<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use crate</span>::{<a href="../../helpers.rs.html#134">Norm</a>, <a href="../definitions.rs.html#31">Rgb8</a>, <a href="../definitions.rs.html#38">Rgb16</a>, <a href="../definitions.rs.html#33">Rgba8</a>, <a href="../definitions.rs.html#40">Rgba16</a>};
 <a href=#5 id=5 data-nosnippet>5</a>
 <a href=#6 id=6 data-nosnippet>6</a><span class="attr">#[cfg(feature = <span class="string">"_float_f32"</span>)]
 <a href=#7 id=7 data-nosnippet>7</a></span><span class="kw">use crate</span>::{RgbF32, RgbaF32};
@@ -390,35 +282,35 @@
 <a href=#174 id=174 data-nosnippet>174</a>    /// Adds the given `alpha` channel.
 <a href=#175 id=175 data-nosnippet>175</a>    </span><span class="kw">pub const fn </span>from_rgb_f64(c: <a href="../definitions.rs.html#63">RgbF64</a>, alpha: <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>) -&gt; <a href="../definitions.rs.html#33">Rgba8</a> {
 <a href=#176 id=176 data-nosnippet>176</a>        <a href="#15">Rgba8::new</a>(
-<a href=#177 id=177 data-nosnippet>177</a>            <a href="../../helpers.rs.html#197-199">Norm::f64_to_u8</a>(<a href="#175">c</a>.<a href="f64.rs.html#18">r</a>()),
-<a href=#178 id=178 data-nosnippet>178</a>            <a href="../../helpers.rs.html#197-199">Norm::f64_to_u8</a>(<a href="#175">c</a>.<a href="f64.rs.html#21">g</a>()),
-<a href=#179 id=179 data-nosnippet>179</a>            <a href="../../helpers.rs.html#197-199">Norm::f64_to_u8</a>(<a href="#175">c</a>.<a href="f64.rs.html#24">b</a>()),
-<a href=#180 id=180 data-nosnippet>180</a>            <a href="../../helpers.rs.html#197-199">Norm::f64_to_u8</a>(<a href="#175">alpha</a>),
+<a href=#177 id=177 data-nosnippet>177</a>            <a href="../../helpers.rs.html#173-175">Norm::f64_to_u8</a>(<a href="#175">c</a>.<a href="f64.rs.html#18">r</a>()),
+<a href=#178 id=178 data-nosnippet>178</a>            <a href="../../helpers.rs.html#173-175">Norm::f64_to_u8</a>(<a href="#175">c</a>.<a href="f64.rs.html#21">g</a>()),
+<a href=#179 id=179 data-nosnippet>179</a>            <a href="../../helpers.rs.html#173-175">Norm::f64_to_u8</a>(<a href="#175">c</a>.<a href="f64.rs.html#24">b</a>()),
+<a href=#180 id=180 data-nosnippet>180</a>            <a href="../../helpers.rs.html#173-175">Norm::f64_to_u8</a>(<a href="#175">alpha</a>),
 <a href=#181 id=181 data-nosnippet>181</a>        )
 <a href=#182 id=182 data-nosnippet>182</a>    }
 <a href=#183 id=183 data-nosnippet>183</a>    <span class="doccomment">/// Convert to [`Rgb&lt;f64&gt;`].
 <a href=#184 id=184 data-nosnippet>184</a>    ///
 <a href=#185 id=185 data-nosnippet>185</a>    /// Loses the alpha channel.
 <a href=#186 id=186 data-nosnippet>186</a>    </span><span class="kw">pub const fn </span>to_rgb_f64(<span class="self">self</span>) -&gt; <a href="../definitions.rs.html#63">RgbF64</a> {
-<a href=#187 id=187 data-nosnippet>187</a>        <a href="f64.rs.html#15">RgbF64::new</a>(<a href="../../helpers.rs.html#195">Norm::u8_to_f64</a>(<a class="self" href="#186">self</a>.<a href="#18">r</a>()), <a href="../../helpers.rs.html#195">Norm::u8_to_f64</a>(<a class="self" href="#186">self</a>.<a href="#21">g</a>()), <a href="../../helpers.rs.html#195">Norm::u8_to_f64</a>(<a class="self" href="#186">self</a>.<a href="#24">b</a>()))
+<a href=#187 id=187 data-nosnippet>187</a>        <a href="f64.rs.html#15">RgbF64::new</a>(<a href="../../helpers.rs.html#171">Norm::u8_to_f64</a>(<a class="self" href="#186">self</a>.<a href="#18">r</a>()), <a href="../../helpers.rs.html#171">Norm::u8_to_f64</a>(<a class="self" href="#186">self</a>.<a href="#21">g</a>()), <a href="../../helpers.rs.html#171">Norm::u8_to_f64</a>(<a class="self" href="#186">self</a>.<a href="#24">b</a>()))
 <a href=#188 id=188 data-nosnippet>188</a>    }
 <a href=#189 id=189 data-nosnippet>189</a>
 <a href=#190 id=190 data-nosnippet>190</a>    <span class="doccomment">/// Create from [`Rgba&lt;f64&gt;`].
 <a href=#191 id=191 data-nosnippet>191</a>    </span><span class="kw">pub const fn </span>from_rgba_f64(c: <a href="../definitions.rs.html#65">RgbaF64</a>) -&gt; <a href="../definitions.rs.html#33">Rgba8</a> {
 <a href=#192 id=192 data-nosnippet>192</a>        <a href="#15">Rgba8::new</a>(
-<a href=#193 id=193 data-nosnippet>193</a>            <a href="../../helpers.rs.html#197-199">Norm::f64_to_u8</a>(<a href="#191">c</a>.<a href="f64alpha.rs.html#18">r</a>()),
-<a href=#194 id=194 data-nosnippet>194</a>            <a href="../../helpers.rs.html#197-199">Norm::f64_to_u8</a>(<a href="#191">c</a>.<a href="f64alpha.rs.html#21">g</a>()),
-<a href=#195 id=195 data-nosnippet>195</a>            <a href="../../helpers.rs.html#197-199">Norm::f64_to_u8</a>(<a href="#191">c</a>.<a href="f64alpha.rs.html#24">b</a>()),
-<a href=#196 id=196 data-nosnippet>196</a>            <a href="../../helpers.rs.html#197-199">Norm::f64_to_u8</a>(<a href="#191">c</a>.<a href="f64alpha.rs.html#27">a</a>()),
+<a href=#193 id=193 data-nosnippet>193</a>            <a href="../../helpers.rs.html#173-175">Norm::f64_to_u8</a>(<a href="#191">c</a>.<a href="f64alpha.rs.html#18">r</a>()),
+<a href=#194 id=194 data-nosnippet>194</a>            <a href="../../helpers.rs.html#173-175">Norm::f64_to_u8</a>(<a href="#191">c</a>.<a href="f64alpha.rs.html#21">g</a>()),
+<a href=#195 id=195 data-nosnippet>195</a>            <a href="../../helpers.rs.html#173-175">Norm::f64_to_u8</a>(<a href="#191">c</a>.<a href="f64alpha.rs.html#24">b</a>()),
+<a href=#196 id=196 data-nosnippet>196</a>            <a href="../../helpers.rs.html#173-175">Norm::f64_to_u8</a>(<a href="#191">c</a>.<a href="f64alpha.rs.html#27">a</a>()),
 <a href=#197 id=197 data-nosnippet>197</a>        )
 <a href=#198 id=198 data-nosnippet>198</a>    }
 <a href=#199 id=199 data-nosnippet>199</a>    <span class="doccomment">/// Convert to [`Rgba&lt;f64&gt;`].
 <a href=#200 id=200 data-nosnippet>200</a>    </span><span class="kw">pub const fn </span>to_rgba_f64(<span class="self">self</span>) -&gt; <a href="../definitions.rs.html#65">RgbaF64</a> {
 <a href=#201 id=201 data-nosnippet>201</a>        <a href="f64alpha.rs.html#15">RgbaF64::new</a>(
-<a href=#202 id=202 data-nosnippet>202</a>            <a href="../../helpers.rs.html#195">Norm::u8_to_f64</a>(<a class="self" href="#200">self</a>.<a href="#18">r</a>()),
-<a href=#203 id=203 data-nosnippet>203</a>            <a href="../../helpers.rs.html#195">Norm::u8_to_f64</a>(<a class="self" href="#200">self</a>.<a href="#21">g</a>()),
-<a href=#204 id=204 data-nosnippet>204</a>            <a href="../../helpers.rs.html#195">Norm::u8_to_f64</a>(<a class="self" href="#200">self</a>.<a href="#24">b</a>()),
-<a href=#205 id=205 data-nosnippet>205</a>            <a href="../../helpers.rs.html#195">Norm::u8_to_f64</a>(<a class="self" href="#200">self</a>.<a href="#27">a</a>()),
+<a href=#202 id=202 data-nosnippet>202</a>            <a href="../../helpers.rs.html#171">Norm::u8_to_f64</a>(<a class="self" href="#200">self</a>.<a href="#18">r</a>()),
+<a href=#203 id=203 data-nosnippet>203</a>            <a href="../../helpers.rs.html#171">Norm::u8_to_f64</a>(<a class="self" href="#200">self</a>.<a href="#21">g</a>()),
+<a href=#204 id=204 data-nosnippet>204</a>            <a href="../../helpers.rs.html#171">Norm::u8_to_f64</a>(<a class="self" href="#200">self</a>.<a href="#24">b</a>()),
+<a href=#205 id=205 data-nosnippet>205</a>            <a href="../../helpers.rs.html#171">Norm::u8_to_f64</a>(<a class="self" href="#200">self</a>.<a href="#27">a</a>()),
 <a href=#206 id=206 data-nosnippet>206</a>        )
 <a href=#207 id=207 data-nosnippet>207</a>    }
 <a href=#208 id=208 data-nosnippet>208</a>}

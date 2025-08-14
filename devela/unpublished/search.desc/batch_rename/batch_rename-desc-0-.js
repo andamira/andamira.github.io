@@ -1,1 +1,0 @@
-searchState.loadedDescShard("batch_rename", 0, "Docs")
