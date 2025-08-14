@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Dither","PixelFormat","SixelError","SixelMean","SixelQuality","SixelSplit"],"struct":["Sixel"]};

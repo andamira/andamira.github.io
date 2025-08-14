@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Either"],"mod":["time"],"struct":["ChainedConnector","ConnectProxyConnector","ConnectionDetails","DefaultConnector","LazyBuffers","NextTimeout","TcpConnector","TransportAdapter"],"trait":["Buffers","Connector","Transport"]};

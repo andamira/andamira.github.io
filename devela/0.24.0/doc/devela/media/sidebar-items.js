@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["audio","color","draw","font","image","midi","video"]};

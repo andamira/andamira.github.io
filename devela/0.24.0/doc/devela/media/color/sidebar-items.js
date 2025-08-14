@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Gamma","Lum","Rgb","Rgba"],"trait":["Color"],"type":["Lightness","LinearLightness","Luma","Luminance","Rgb16","Rgb8","RgbF64","RgbLinF64","Rgba16","Rgba8","RgbaF64","RgbaLinF64","RgbaLinPreF64","RgbaPre16","RgbaPre8","RgbaPreF64"]};

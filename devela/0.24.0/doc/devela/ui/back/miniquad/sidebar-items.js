@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["miniquad"],"struct":["MiniquadConf","MiniquadPixels","MiniquadPlatform","MiniquadService","MiniquadWindow"],"trait":["MiniquadEventHandler","MiniquadEventHandlerExt","MiniquadRenderingBackend"]};

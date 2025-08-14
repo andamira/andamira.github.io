@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FlashOperation","FullscreenType","GLProfile","Orientation","SwapInterval","WindowBuildError","WindowPos"],"fn":["calculate_gamma_ramp","drivers"],"mod":["gl_attr"],"struct":["DisplayMode","DriverIterator","GLContext","Window","WindowBuilder","WindowContext","WindowSurfaceRef"],"type":["VkInstance","VkSurfaceKHR"]};

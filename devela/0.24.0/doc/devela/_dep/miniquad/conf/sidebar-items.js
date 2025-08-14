@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AppleGfxApi","LinuxBackend","LinuxX11Gl","WaylandDecorations","WebGLVersion"],"struct":["Conf","Icon","Platform"]};

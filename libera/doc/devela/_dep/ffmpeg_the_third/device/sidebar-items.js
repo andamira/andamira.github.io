@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["configuration","license","register_all","version"],"mod":["extensions","input","output"],"struct":["Info"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["list_demuxers","list_muxers"],"mod":["flag"],"struct":["DemuxerIter","Flags","Input","MuxerIter","Output"]};

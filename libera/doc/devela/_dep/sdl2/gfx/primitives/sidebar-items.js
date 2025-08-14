@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["set_font","set_font_rotation"],"trait":["DrawRenderer","ToColor"]};

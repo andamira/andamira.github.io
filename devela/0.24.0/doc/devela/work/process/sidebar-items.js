@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Process","ProcessCommand","ProcessCommandArgs","ProcessCommandEnvs","ProcessExitCode","ProcessExitStatus","ProcessOutput","ProcessStderr","ProcessStdin","ProcessStdio","ProcessStdout"],"trait":["ExtProcess","ProcessTermination"]};

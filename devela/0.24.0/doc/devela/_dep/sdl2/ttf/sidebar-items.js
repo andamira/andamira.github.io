@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FontError","Hinting"],"fn":["get_linked_version","has_been_initialized","init"],"struct":["Font","FontStyle","GlyphMetrics","PartialRendering","Sdl2TtfContext"],"type":["FontResult"]};
