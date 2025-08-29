@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CompressionMode","EncodingMode"],"mod":["crypto","hash"],"struct":["Base","CodecBe","CodecFlags","CodecIf","CodecJoin","CodecLe","CodecLen","CodecLenValue","Crockford","Rfc4648","Rfc4648Hex"],"trait":["Decodable","Encodable","EncodableLen"],"type":["Base16","Base32","Base32Crockford","Base32Hex","Base32Padded","Base64","Base64Padded"]};

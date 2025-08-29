@@ -1,0 +1,125 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A binding for the library `SDL2_mixer`"><title>devela::_dep::sdl2::mixer - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module mixer</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep::<wbr>sdl2</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">_dep</a>::<wbr><a href="../index.html">sdl2</a></div><h1>Module <span>mixer</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_sdl2</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A binding for the library <code>SDL2_mixer</code></p>
+<p>Note that you need to build with the
+feature <code>mixer</code> for this module to be enabled,
+like so:</p>
+<div class="example-wrap"><pre class="language-bash"><code>$ cargo build --features &quot;mixer&quot;</code></pre></div>
+<p>If you want to use this with from inside your own
+crate, you will need to add this in your Cargo.toml</p>
+<div class="example-wrap"><pre class="language-toml"><code>[dependencies.sdl2]
+version = ...
+default-features = false
+features = [&quot;mixer&quot;]</code></pre></div></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AllowChangeFlag.html" title="struct devela::_dep::sdl2::mixer::AllowChangeFlag">Allow<wbr>Change<wbr>Flag</a></dt><dd>Which audio format changes are allowed when opening a device (<a href="fn.open_audio_device.html" title="fn devela::_dep::sdl2::mixer::open_audio_device"><code>open_audio_device</code></a>).</dd><dt><a class="struct" href="struct.Channel.html" title="struct devela::_dep::sdl2::mixer::Channel">Channel</a></dt><dd>Sound effect channel.</dd><dt><a class="struct" href="struct.Chunk.html" title="struct devela::_dep::sdl2::mixer::Chunk">Chunk</a></dt><dd>The internal format for an audio chunk.</dd><dt><a class="struct" href="struct.Group.html" title="struct devela::_dep::sdl2::mixer::Group">Group</a></dt><dd>Sound effect channel grouping.</dd><dt><a class="struct" href="struct.InitFlag.html" title="struct devela::_dep::sdl2::mixer::InitFlag">Init<wbr>Flag</a></dt><dt><a class="struct" href="struct.Music.html" title="struct devela::_dep::sdl2::mixer::Music">Music</a></dt><dd>This is an opaque data type used for Music data.</dd><dt><a class="struct" href="struct.Sdl2MixerContext.html" title="struct devela::_dep::sdl2::mixer::Sdl2MixerContext">Sdl2<wbr>Mixer<wbr>Context</a></dt><dd>Context manager for <code>sdl2_mixer</code> to manage init and quit</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.Fading.html" title="enum devela::_dep::sdl2::mixer::Fading">Fading</a></dt><dd>Fader effect type enumerations</dd><dt><a class="enum" href="enum.MusicType.html" title="enum devela::_dep::sdl2::mixer::MusicType">Music<wbr>Type</a></dt><dd>Music type enumerations</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.AUDIO_F32.html" title="constant devela::_dep::sdl2::mixer::AUDIO_F32">AUDIO_<wbr>F32</a></dt><dt><a class="constant" href="constant.AUDIO_F32LSB.html" title="constant devela::_dep::sdl2::mixer::AUDIO_F32LSB">AUDIO_<wbr>F32LSB</a></dt><dt><a class="constant" href="constant.AUDIO_F32MSB.html" title="constant devela::_dep::sdl2::mixer::AUDIO_F32MSB">AUDIO_<wbr>F32MSB</a></dt><dt><a class="constant" href="constant.AUDIO_F32SYS.html" title="constant devela::_dep::sdl2::mixer::AUDIO_F32SYS">AUDIO_<wbr>F32SYS</a></dt><dt><a class="constant" href="constant.AUDIO_S8.html" title="constant devela::_dep::sdl2::mixer::AUDIO_S8">AUDIO_<wbr>S8</a></dt><dt><a class="constant" href="constant.AUDIO_S16.html" title="constant devela::_dep::sdl2::mixer::AUDIO_S16">AUDIO_<wbr>S16</a></dt><dt><a class="constant" href="constant.AUDIO_S32.html" title="constant devela::_dep::sdl2::mixer::AUDIO_S32">AUDIO_<wbr>S32</a></dt><dt><a class="constant" href="constant.AUDIO_S16LSB.html" title="constant devela::_dep::sdl2::mixer::AUDIO_S16LSB">AUDIO_<wbr>S16LSB</a></dt><dt><a class="constant" href="constant.AUDIO_S16MSB.html" title="constant devela::_dep::sdl2::mixer::AUDIO_S16MSB">AUDIO_<wbr>S16MSB</a></dt><dt><a class="constant" href="constant.AUDIO_S16SYS.html" title="constant devela::_dep::sdl2::mixer::AUDIO_S16SYS">AUDIO_<wbr>S16SYS</a></dt><dt><a class="constant" href="constant.AUDIO_S32LSB.html" title="constant devela::_dep::sdl2::mixer::AUDIO_S32LSB">AUDIO_<wbr>S32LSB</a></dt><dt><a class="constant" href="constant.AUDIO_S32MSB.html" title="constant devela::_dep::sdl2::mixer::AUDIO_S32MSB">AUDIO_<wbr>S32MSB</a></dt><dt><a class="constant" href="constant.AUDIO_S32SYS.html" title="constant devela::_dep::sdl2::mixer::AUDIO_S32SYS">AUDIO_<wbr>S32SYS</a></dt><dt><a class="constant" href="constant.AUDIO_U8.html" title="constant devela::_dep::sdl2::mixer::AUDIO_U8">AUDIO_<wbr>U8</a></dt><dt><a class="constant" href="constant.AUDIO_U16.html" title="constant devela::_dep::sdl2::mixer::AUDIO_U16">AUDIO_<wbr>U16</a></dt><dt><a class="constant" href="constant.AUDIO_U16LSB.html" title="constant devela::_dep::sdl2::mixer::AUDIO_U16LSB">AUDIO_<wbr>U16LSB</a></dt><dt><a class="constant" href="constant.AUDIO_U16MSB.html" title="constant devela::_dep::sdl2::mixer::AUDIO_U16MSB">AUDIO_<wbr>U16MSB</a></dt><dt><a class="constant" href="constant.AUDIO_U16SYS.html" title="constant devela::_dep::sdl2::mixer::AUDIO_U16SYS">AUDIO_<wbr>U16SYS</a></dt><dt><a class="constant" href="constant.DEFAULT_CHANNELS.html" title="constant devela::_dep::sdl2::mixer::DEFAULT_CHANNELS">DEFAULT_<wbr>CHANNELS</a></dt><dd>Default channels: Stereo.</dd><dt><a class="constant" href="constant.DEFAULT_FORMAT.html" title="constant devela::_dep::sdl2::mixer::DEFAULT_FORMAT">DEFAULT_<wbr>FORMAT</a></dt><dd>The suggested default is signed 16bit samples in host byte order.</dd><dt><a class="constant" href="constant.DEFAULT_FREQUENCY.html" title="constant devela::_dep::sdl2::mixer::DEFAULT_FREQUENCY">DEFAULT_<wbr>FREQUENCY</a></dt><dd>Good default sample rate in Hz (samples per second) for PC sound cards.</dd><dt><a class="constant" href="constant.MAX_VOLUME.html" title="constant devela::_dep::sdl2::mixer::MAX_VOLUME">MAX_<wbr>VOLUME</a></dt><dd>Maximum value for any volume setting.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.LoaderRWops.html" title="trait devela::_dep::sdl2::mixer::LoaderRWops">LoaderR<wbr>Wops</a></dt><dd>Loader trait for <code>RWops</code></dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.allocate_channels.html" title="fn devela::_dep::sdl2::mixer::allocate_channels">allocate_<wbr>channels</a></dt><dd>Set the number of channels being mixed.</dd><dt><a class="fn" href="fn.close_audio.html" title="fn devela::_dep::sdl2::mixer::close_audio">close_<wbr>audio</a></dt><dd>Shutdown and cleanup the mixer API.</dd><dt><a class="fn" href="fn.get_chunk_decoder.html" title="fn devela::_dep::sdl2::mixer::get_chunk_decoder">get_<wbr>chunk_<wbr>decoder</a></dt><dd>Get the name of the indexed sample chunk decoder.</dd><dt><a class="fn" href="fn.get_chunk_decoders_number.html" title="fn devela::_dep::sdl2::mixer::get_chunk_decoders_number">get_<wbr>chunk_<wbr>decoders_<wbr>number</a></dt><dd>Get the number of sample chunk decoders available from the <code>Mix_GetChunkDecoder</code> function.</dd><dt><a class="fn" href="fn.get_linked_version.html" title="fn devela::_dep::sdl2::mixer::get_linked_version">get_<wbr>linked_<wbr>version</a></dt><dd>Returns the version of the dynamically linked <code>SDL_mixer</code> library</dd><dt><a class="fn" href="fn.get_music_decoder.html" title="fn devela::_dep::sdl2::mixer::get_music_decoder">get_<wbr>music_<wbr>decoder</a></dt><dd>Get the name of the indexed music decoder.</dd><dt><a class="fn" href="fn.get_music_decoders_number.html" title="fn devela::_dep::sdl2::mixer::get_music_decoders_number">get_<wbr>music_<wbr>decoders_<wbr>number</a></dt><dd>Get the number of music decoders available.</dd><dt><a class="fn" href="fn.get_paused_channels_number.html" title="fn devela::_dep::sdl2::mixer::get_paused_channels_number">get_<wbr>paused_<wbr>channels_<wbr>number</a></dt><dd>Returns how many channels are currently paused.</dd><dt><a class="fn" href="fn.get_playing_channels_number.html" title="fn devela::_dep::sdl2::mixer::get_playing_channels_number">get_<wbr>playing_<wbr>channels_<wbr>number</a></dt><dd>Returns how many channels are currently playing.</dd><dt><a class="fn" href="fn.init.html" title="fn devela::_dep::sdl2::mixer::init">init</a></dt><dd>Loads dynamic libraries and prepares them for use.  Flags should be one or
+more flags from <code>InitFlag</code>. Returns error if any of the requested flags
+failed</dd><dt><a class="fn" href="fn.open_audio.html" title="fn devela::_dep::sdl2::mixer::open_audio">open_<wbr>audio</a></dt><dd>Opens the default audio device for playback. If you need to select a specific audio device
+or require more fine-grained control over the device configuration, use <a href="fn.open_audio_device.html" title="fn devela::_dep::sdl2::mixer::open_audio_device"><code>open_audio_device</code></a>.</dd><dt><a class="fn" href="fn.open_audio_device.html" title="fn devela::_dep::sdl2::mixer::open_audio_device">open_<wbr>audio_<wbr>device</a></dt><dd>Open a specific audio device for playback.</dd><dt><a class="fn" href="fn.query_spec.html" title="fn devela::_dep::sdl2::mixer::query_spec">query_<wbr>spec</a></dt><dd>Get the actual audio format in use by the opened audio device.</dd><dt><a class="fn" href="fn.reserve_channels.html" title="fn devela::_dep::sdl2::mixer::reserve_channels">reserve_<wbr>channels</a></dt><dd>Reserve num channels from being used when playing samples when
+passing in -1 as a channel number to playback functions.</dd><dt><a class="fn" href="fn.set_channel_finished.html" title="fn devela::_dep::sdl2::mixer::set_channel_finished">set_<wbr>channel_<wbr>finished</a></dt><dd>When channel playback is halted, then the specified <code>channel_finished</code> function is called.</dd><dt><a class="fn" href="fn.unset_channel_finished.html" title="fn devela::_dep::sdl2::mixer::unset_channel_finished">unset_<wbr>channel_<wbr>finished</a></dt><dd>Unhooks the specified function set before, so no function is called when channel playback is
+halted.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.AudioFormat.html" title="type devela::_dep::sdl2::mixer::AudioFormat">Audio<wbr>Format</a></dt></dl></section></div></main></body></html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Takes two closures and potentially runs them in parallel. It returns a pair of the results from those closures."><title>join in devela::_dep::rayon - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">join</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">join</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li><li><a href="#warning-about-blocking-io" title="Warning about blocking I/O">Warning about blocking I/O</a></li><li><a href="#panics" title="Panics">Panics</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>rayon</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a>::<wbr><a href="index.html">rayon</a></div><h1>Function <span class="fn">join</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>pub fn join&lt;A, B, RA, RB&gt;(oper_a: A, oper_b: B) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(RA, RB)</a> <a href="#" class="tooltip" data-notable-ty="(RA, RB)">ⓘ</a><div class="where">where
+    A: <a class="trait" href="../../all/trait.FnOnce.html" title="trait devela::all::FnOnce">FnOnce</a>() -&gt; RA + <a class="trait" href="../../all/trait.Send.html" title="trait devela::all::Send">Send</a>,
+    B: <a class="trait" href="../../all/trait.FnOnce.html" title="trait devela::all::FnOnce">FnOnce</a>() -&gt; RB + <a class="trait" href="../../all/trait.Send.html" title="trait devela::all::Send">Send</a>,
+    RA: <a class="trait" href="../../all/trait.Send.html" title="trait devela::all::Send">Send</a>,
+    RB: <a class="trait" href="../../all/trait.Send.html" title="trait devela::all::Send">Send</a>,</div></code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_rayon</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Takes two closures and <em>potentially</em> runs them in parallel. It
+returns a pair of the results from those closures.</p>
+<p>Conceptually, calling <code>join()</code> is similar to spawning two threads,
+one executing each of the two closures. However, the
+implementation is quite different and incurs very low
+overhead. The underlying technique is called “work stealing”: the
+Rayon runtime uses a fixed pool of worker threads and attempts to
+only execute code in parallel when there are idle CPUs to handle
+it.</p>
+<p>When <code>join</code> is called from outside the thread pool, the calling
+thread will block while the closures execute in the pool.  When
+<code>join</code> is called within the pool, the calling thread still actively
+participates in the thread pool. It will begin by executing closure
+A (on the current thread). While it is doing that, it will advertise
+closure B as being available for other threads to execute. Once closure A
+has completed, the current thread will try to execute closure B;
+if however closure B has been stolen, then it will look for other work
+while waiting for the thief to fully execute closure B. (This is the
+typical work-stealing strategy).</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>This example uses join to perform a quick-sort (note this is not a
+particularly optimized implementation: if you <strong>actually</strong> want to
+sort for real, you should prefer <a href="../rayon/slice/trait.ParallelSliceMut.html#method.par_sort">the <code>par_sort</code> method</a> offered
+by Rayon).</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>v = <span class="macro">vec!</span>[<span class="number">5</span>, <span class="number">1</span>, <span class="number">8</span>, <span class="number">22</span>, <span class="number">0</span>, <span class="number">44</span>];
+quick_sort(<span class="kw-2">&amp;mut </span>v);
+<span class="macro">assert_eq!</span>(v, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">22</span>, <span class="number">44</span>]);
+
+<span class="kw">fn </span>quick_sort&lt;T:PartialOrd+Send&gt;(v: <span class="kw-2">&amp;mut </span>[T]) {
+   <span class="kw">if </span>v.len() &gt; <span class="number">1 </span>{
+       <span class="kw">let </span>mid = partition(v);
+       <span class="kw">let </span>(lo, hi) = v.split_at_mut(mid);
+       rayon::join(|| quick_sort(lo),
+                   || quick_sort(hi));
+   }
+}
+
+<span class="comment">// Partition rearranges all items `&lt;=` to the pivot
+// item (arbitrary selected to be the last item in the slice)
+// to the first half of the slice. It then returns the
+// "dividing point" where the pivot is placed.
+</span><span class="kw">fn </span>partition&lt;T:PartialOrd+Send&gt;(v: <span class="kw-2">&amp;mut </span>[T]) -&gt; usize {
+    <span class="kw">let </span>pivot = v.len() - <span class="number">1</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+    <span class="kw">for </span>j <span class="kw">in </span><span class="number">0</span>..pivot {
+        <span class="kw">if </span>v[j] &lt;= v[pivot] {
+            v.swap(i, j);
+            i += <span class="number">1</span>;
+        }
+    }
+    v.swap(i, pivot);
+    i
+}</code></pre></div>
+<h2 id="warning-about-blocking-io"><a class="doc-anchor" href="#warning-about-blocking-io">§</a>Warning about blocking I/O</h2>
+<p>The assumption is that the closures given to <code>join()</code> are
+CPU-bound tasks that do not perform I/O or other blocking
+operations. If you do perform I/O, and that I/O should block
+(e.g., waiting for a network request), the overall performance may
+be poor.  Moreover, if you cause one closure to be blocked waiting
+on another (for example, using a channel), that could lead to a
+deadlock.</p>
+<h2 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics</h2>
+<p>No matter what happens, both closures will always be executed.  If
+a single closure panics, whether it be the first or second
+closure, that panic will be propagated and hence <code>join()</code> will
+panic with the same panic value. If both closures panic, <code>join()</code>
+will panic with the panic value from the first closure.</p>
+</div></details><script type="text/json" id="notable-traits-data">{"(RA, RB)":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0, _1)</a></code></h3><pre><code><div class=\"where\">impl&lt;_0, _1&gt; <a class=\"trait\" href=\"../../all/trait.Tuple.html\" title=\"trait devela::all::Tuple\">Tuple</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0, _1)</a></div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.Head\" class=\"associatedtype\">Head</a> = _0;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.Tail\" class=\"associatedtype\">Tail</a> = _1;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.NoHead\" class=\"associatedtype\">NoHead</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_1,)</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.NoTail\" class=\"associatedtype\">NoTail</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0,)</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.Append\" class=\"associatedtype\">Append</a>&lt;T&gt; = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0, _1, T)</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.Prepend\" class=\"associatedtype\">Prepend</a>&lt;T&gt; = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(T, _0, _1)</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._0\" class=\"associatedtype\">_0</a> = _0;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._1\" class=\"associatedtype\">_1</a> = _1;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._2\" class=\"associatedtype\">_2</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._3\" class=\"associatedtype\">_3</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._4\" class=\"associatedtype\">_4</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._5\" class=\"associatedtype\">_5</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._6\" class=\"associatedtype\">_6</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._7\" class=\"associatedtype\">_7</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._8\" class=\"associatedtype\">_8</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._9\" class=\"associatedtype\">_9</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._10\" class=\"associatedtype\">_10</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._11\" class=\"associatedtype\">_11</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">impl&lt;Candidate, Requirement&gt; <a class=\"trait\" href=\"../../all/trait.MemAligned.html\" title=\"trait devela::all::MemAligned\">MemAligned</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(Candidate, Requirement)</a></div>"}</script></section></div></main></body></html>

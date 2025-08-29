@@ -1,0 +1,220 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="📦 Initializes a `[$T; $LEN]` array in multiple ways."><title>array_init in devela::data::list::array - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">array_<wbr>init</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#arguments" title="Arguments">Arguments</a></li><li><a href="#examples" title="Examples">Examples</a></li><li><a href="#features" title="Features">Features</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>data::<wbr>list::<wbr>array</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">data</a>::<wbr><a href="../index.html">list</a>::<wbr><a href="index.html">array</a></div><h1>Macro <span class="macro">array_init</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/data/list/array/init.rs.html#57-260">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! array_init {
+    (
+    /* safe initializations */
+
+    // safe array initialization in the stack
+    safe_init [$T:ty; $LEN:expr], $init:expr) =&gt; { ... };
+    (
+    // safe array initialization in the stack, compile-time friendly.
+    safe_const_init [$T:ty; $LEN:expr], $const_init:expr, $copiable:expr) =&gt; { ... };
+    (
+    // safe array initialization in the heap
+    safe_init_heap [$T:ty; $LEN:expr], $init:expr) =&gt; { ... };
+    (
+
+    /* unsafe initializations */
+
+    // unsafe array initialization in the stack
+    unsafe_init [$T:ty; $LEN:expr], $init:expr) =&gt; { ... };
+    (
+    // unsafe array initialization in the stack, compile-time friendly.
+    unsafe_const_init [$T:ty; $LEN:expr], $const_init:expr) =&gt; { ... };
+    (
+    // unsafe array initialization in the heap
+    unsafe_init_heap [$T:ty; $LEN:expr], $init:expr) =&gt; { ... };
+    (
+
+    /* safety-agnostic initializations */
+
+    // initialize an array in the stack
+    init [$T:ty; $LEN:expr], $fsafe:literal, $funsafe:literal, $init:expr) =&gt; { ... };
+    (
+    // initialize an array the stack, compile-time friendly.
+    // $copiable is only used by the safe version as temporary placeholder.
+    const_init
+    [$T:ty; $LEN:expr], $fsafe:literal, $funsafe:literal, $const_init:expr, $copiable:expr) =&gt; { ... };
+    (
+    // initialize an array in the heap
+    init_heap [$T:ty; $LEN:expr], $fsafe:literal, $funsafe:literal, $init:expr) =&gt; { ... };
+    (
+
+    // initialize an array in the stack by cloning $clonable
+    clone [$T:ty; $LEN:expr], $fsafe:literal, $funsafe:literal, $clonable:expr) =&gt; { ... };
+    (
+    // initialize an array in the heap, by cloning $clonable
+    clone_heap [$T:ty; $LEN:expr], $fsafe:literal, $funsafe:literal, $clonable:expr) =&gt; { ... };
+    (
+
+    // initialize an array in the stack with $T: Default::default()
+    default [$T:ty; $LEN:expr], $fsafe:literal, $funsafe:literal) =&gt; { ... };
+    (
+    // initialize an array in the stack with $T: ConstDefault::DEFAULT
+    const_default [$T:ty; $LEN:expr]) =&gt; { ... };
+    (
+    // initialize an array in the heap, with $T: Default::default()
+    default_heap [$T:ty; $LEN:expr], $fsafe:literal, $funsafe:literal) =&gt; { ... };
+    (
+
+    // initialize an array in the stack with an IntoIterator&lt;Item = $T&gt; and with
+    // $T::default() in case the iterator length is &lt; $LEN, for the remaining elements.
+    iter [$T:ty; $LEN:expr], $fsafe:literal, $funsafe:literal, $intoiter:expr) =&gt; { ... };
+    (
+    // initialize an array in the heap with an IntoIterator&lt;Item = $T&gt; and with
+    // $T::default() in case the iterator length is &lt; $LEN, for the remaining elements.
+    iter_heap [$T:ty; $LEN:expr], $fsafe:literal, $funsafe:literal, $intoiter:expr) =&gt; { ... };
+    (
+
+    // initialize an array by applying $op (in safe mode it first clones $pre)
+    // and propagates errors both from $pre and $op.
+    preop [$T:ty; $LEN:expr]?, $fsafe:literal, $funsafe:literal, $pre:expr, $op:expr) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='General-purpose data structure'>📦</span>
+Initializes a <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>[$T; $LEN]</code></a> array in multiple ways.</p>
+<h2 id="arguments"><a class="doc-anchor" href="#arguments">§</a>Arguments</h2>
+<ul>
+<li><code>[$T; $LEN]</code>: the array’s elements’ type and length.</li>
+<li><code>$init</code>: a function with an <code>usize</code> argument that returns <code>$T</code>.</li>
+<li><code>$const_init</code>: a const fn with an <code>usize</code> argument that returns <code>$T: Copy</code>.</li>
+<li><code>$copiable</code>: an expression that returns an element of type <code>$T: Copy</code>.</li>
+<li><code>$clonable</code>: an expression that returns an element of type <code>$T: Clone</code>.</li>
+<li><code>$fsafe</code>: a feature that forbids the use of <code>unsafe</code> when enabled.</li>
+<li><code>$funsafe</code>: a feature that enables the use of <code>unsafe</code> when enabled.</li>
+<li><code>$intoiter</code>: an item that implements <a href="../../../all/trait.IteratorInto.html" title="trait devela::all::IteratorInto"><code>IntoIterator</code></a>.</li>
+</ul>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">assert_eq!</span>[[<span class="number">2</span>,<span class="number">4</span>,<span class="number">6</span>], <span class="macro">array_init!</span>[safe_init [i32; <span class="number">3</span>], |n| (n <span class="kw">as </span>i32 + <span class="number">1</span>) * <span class="number">2</span>]];
+<span class="attr">#[cfg(feature = <span class="string">"unsafe_array"</span>)]
+</span><span class="macro">assert_eq!</span>[[<span class="number">3</span>,<span class="number">6</span>,<span class="number">9</span>], <span class="macro">array_init!</span>[unsafe_init [i32; <span class="number">3</span>], |n| (n <span class="kw">as </span>i32 + <span class="number">1</span>) * <span class="number">3</span>]];
+
+<span class="macro">assert_eq!</span>[[<span class="number">2</span>,<span class="number">4</span>,<span class="number">6</span>], <span class="macro">array_init!</span>[init [i32; <span class="number">3</span>], <span class="string">"safe"</span>, <span class="string">"unsafe_array"</span>,
+    |n| (n <span class="kw">as </span>i32 + <span class="number">1</span>) * <span class="number">2</span>]];
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="macro">assert_eq!</span>[Box::new([<span class="number">2</span>,<span class="number">4</span>,<span class="number">6</span>]), <span class="macro">array_init!</span>[init_heap [i32; <span class="number">3</span>], <span class="string">"safe"</span>, <span class="string">"unsafe_array"</span>,
+    |n| (n <span class="kw">as </span>i32 + <span class="number">1</span>) * <span class="number">2</span>]];
+
+<span class="macro">assert_eq!</span>[[<span class="number">7</span>,<span class="number">7</span>,<span class="number">7</span>], <span class="macro">array_init!</span>[clone [i32; <span class="number">3</span>], <span class="string">"safe"</span>, <span class="string">"unsafe_array"</span>, <span class="number">7</span>]];
+<span class="macro">assert_eq!</span>[[<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>], <span class="macro">array_init!</span>[default [i32; <span class="number">3</span>], <span class="string">"safe"</span>, <span class="string">"unsafe_array"</span>]];
+<span class="macro">assert_eq!</span>[[<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>], <span class="macro">array_init!</span>[iter [i32; <span class="number">3</span>], <span class="string">"safe"</span>, <span class="string">"unsafe_array"</span>, <span class="macro">vec!</span>[<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>]]];
+<span class="macro">assert_eq!</span>[[<span class="number">4</span>,<span class="number">0</span>,<span class="number">0</span>], <span class="macro">array_init!</span>[iter [i32; <span class="number">3</span>], <span class="string">"safe"</span>, <span class="string">"unsafe_array"</span>, <span class="macro">vec!</span>[<span class="number">4</span>]]];
+
+<span class="kw">const fn </span>init(n: usize) -&gt; i32 { (n <span class="kw">as </span>i32 + <span class="number">1</span>) * <span class="number">4 </span>}
+<span class="kw">const </span>ARRAY1: [i32; <span class="number">3</span>] = <span class="macro">array_init!</span>[const_init [i32; <span class="number">3</span>], <span class="string">"safe"</span>, <span class="string">"unsafe_array"</span>, init, <span class="number">0</span>];
+<span class="macro">assert_eq!</span>[[<span class="number">4</span>, <span class="number">8</span>, <span class="number">12</span>], ARRAY1];
+
+<span class="kw">const </span>ARRAY2: [i32; <span class="number">3</span>] = <span class="macro">array_init!</span>[const_default [i32; <span class="number">3</span>]];
+<span class="macro">assert_eq!</span>[[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>], ARRAY2];</code></pre></div>
+<h2 id="features"><a class="doc-anchor" href="#features">§</a>Features</h2>
+<p>The unsafe version uses <a href="../../../all/union.MaybeUninit.html" title="union devela::all::MaybeUninit"><code>MaybeUninit</code></a> in the case
+of stack allocation or <a href="../../../all/struct.Box.html#method.from_raw" title="associated function devela::all::Box::from_raw"><code>Box::from_raw</code></a> in the case of heap allocation.</p>
+<p>For the <code>const_init</code>, <code>clone</code>, <code>default</code> and <code>iter</code> versions, if the given
+<code>$funsafe</code> is enabled and the given <code>$fsafe</code> is disabled, it will use unsafe
+initialization.</p>
+</div></details></section></div></main></body></html>

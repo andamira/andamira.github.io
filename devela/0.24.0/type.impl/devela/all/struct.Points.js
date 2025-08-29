@@ -1,0 +1,9 @@
+(function() {
+    var type_impls = Object.fromEntries([["devela",[["<details class=\"toggle implementors-toggle\" open><summary><section id=\"impl-Points%3CT,+D,+N%3E\" class=\"impl\"><a class=\"src rightside\" href=\"src/devela/num/geom/shape/point/methods.rs.html#161-164\">Source</a><a href=\"#impl-Points%3CT,+D,+N%3E\" class=\"anchor\">§</a><h3 class=\"code-header\">impl&lt;T, const D: <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.usize.html\">usize</a>, const N: <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.usize.html\">usize</a>&gt; <a class=\"struct\" href=\"devela/all/struct.Points.html\" title=\"struct devela::all::Points\">Points</a>&lt;T, D, N&gt;</h3></section></summary><div class=\"impl-items\"><details class=\"toggle method-toggle\" open><summary><section id=\"method.new\" class=\"method\"><a class=\"src rightside\" href=\"src/devela/num/geom/shape/point/methods.rs.html#163\">Source</a><h4 class=\"code-header\">pub const fn <a href=\"devela/all/struct.Points.html#tymethod.new\" class=\"fn\">new</a>(points: [<a class=\"struct\" href=\"devela/all/struct.Point.html\" title=\"struct devela::all::Point\">Point</a>&lt;T, D&gt;; <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.array.html\">N</a>]) -&gt; Self</h4></section></summary><div class=\"docblock\"><p>Returns new <code>Points</code> from the given <code>coords</code> array.</p>\n</div></details></div></details>",0,"devela::num::geom::shape::point::Points2d"]]]]);
+    if (window.register_type_impls) {
+        window.register_type_impls(type_impls);
+    } else {
+        window.pending_type_impls = type_impls;
+    }
+})()
+//{"start":55,"fragment_lengths":[1485]}

@@ -1,0 +1,843 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/syscalls/consts/x86_64.rs`."><title>x86_64.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../../" data-static-root-path="../../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../../../src-files.js"></script><script defer src="../../../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/sys/os/linux/syscalls/consts/</div>x86_64.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::sys::os::linux::consts::syscall::x86_64
+<a href=#2 id=2 data-nosnippet>2</a>//
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//!
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
+<a href=#5 id=5 data-nosnippet>5</a>// - https://x64.syscall.sh/
+<a href=#6 id=6 data-nosnippet>6</a>// - https://syscalls.mebeim.net/?table=x86/64/x64/latest
+<a href=#7 id=7 data-nosnippet>7</a>// - https://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/
+<a href=#8 id=8 data-nosnippet>8</a>
+<a href=#9 id=9 data-nosnippet>9</a></span><span class="doccomment">/// Linux `sys/syscall.h` constants for `x86_64`.
+<a href=#10 id=10 data-nosnippet>10</a></span><span class="attr">#[derive(Debug)]
+<a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">pub struct </span>LINUX_SYS_X86_64;
+<a href=#12 id=12 data-nosnippet>12</a>
+<a href=#13 id=13 data-nosnippet>13</a><span class="kw">impl </span><a href="#11">LINUX_SYS_X86_64</a> {
+<a href=#14 id=14 data-nosnippet>14</a>    <span class="doccomment">/// Accept a connection on a socket.
+<a href=#15 id=15 data-nosnippet>15</a>    </span><span class="kw">pub const </span>ACCEPT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">43</span>;
+<a href=#16 id=16 data-nosnippet>16</a>    <span class="doccomment">/// Accept a connection on a socket with flags.
+<a href=#17 id=17 data-nosnippet>17</a>    </span><span class="kw">pub const </span>ACCEPT4: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">288</span>;
+<a href=#18 id=18 data-nosnippet>18</a>    <span class="doccomment">/// Check user's permissions for a file.
+<a href=#19 id=19 data-nosnippet>19</a>    </span><span class="kw">pub const </span>ACCESS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">21</span>;
+<a href=#20 id=20 data-nosnippet>20</a>    <span class="doccomment">/// Switch process accounting on/off.
+<a href=#21 id=21 data-nosnippet>21</a>    </span><span class="kw">pub const </span>ACCT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">163</span>;
+<a href=#22 id=22 data-nosnippet>22</a>    <span class="doccomment">/// Add a key to the kernel's key management facility.
+<a href=#23 id=23 data-nosnippet>23</a>    </span><span class="kw">pub const </span>ADD_KEY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">248</span>;
+<a href=#24 id=24 data-nosnippet>24</a>    <span class="doccomment">/// Tune kernel clock.
+<a href=#25 id=25 data-nosnippet>25</a>    </span><span class="kw">pub const </span>ADJTIMEX: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">159</span>;
+<a href=#26 id=26 data-nosnippet>26</a>    <span class="doccomment">/// Reserved for AFS.
+<a href=#27 id=27 data-nosnippet>27</a>    </span><span class="kw">pub const </span>AFS_SYSCALL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">183</span>;
+<a href=#28 id=28 data-nosnippet>28</a>    <span class="doccomment">/// Schedule an alarm clock signal.
+<a href=#29 id=29 data-nosnippet>29</a>    </span><span class="kw">pub const </span>ALARM: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">37</span>;
+<a href=#30 id=30 data-nosnippet>30</a>    <span class="doccomment">/// Set architecture-specific thread state.
+<a href=#31 id=31 data-nosnippet>31</a>    </span><span class="kw">pub const </span>ARCH_PRCTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">158</span>;
+<a href=#32 id=32 data-nosnippet>32</a>    <span class="doccomment">/// Bind a name to a socket.
+<a href=#33 id=33 data-nosnippet>33</a>    </span><span class="kw">pub const </span>BIND: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">49</span>;
+<a href=#34 id=34 data-nosnippet>34</a>    <span class="doccomment">/// Perform a command on an extended BPF map/program.
+<a href=#35 id=35 data-nosnippet>35</a>    </span><span class="kw">pub const </span>BPF: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">321</span>;
+<a href=#36 id=36 data-nosnippet>36</a>    <span class="doccomment">/// Change data segment size.
+<a href=#37 id=37 data-nosnippet>37</a>    </span><span class="kw">pub const </span>BRK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">12</span>;
+<a href=#38 id=38 data-nosnippet>38</a>    <span class="doccomment">/// Get capabilities of a process.
+<a href=#39 id=39 data-nosnippet>39</a>    </span><span class="kw">pub const </span>CAPGET: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">125</span>;
+<a href=#40 id=40 data-nosnippet>40</a>    <span class="doccomment">/// Set capabilities of a process.
+<a href=#41 id=41 data-nosnippet>41</a>    </span><span class="kw">pub const </span>CAPSET: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">126</span>;
+<a href=#42 id=42 data-nosnippet>42</a>    <span class="doccomment">/// Change working directory.
+<a href=#43 id=43 data-nosnippet>43</a>    </span><span class="kw">pub const </span>CHDIR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">80</span>;
+<a href=#44 id=44 data-nosnippet>44</a>    <span class="doccomment">/// Change permissions of a file.
+<a href=#45 id=45 data-nosnippet>45</a>    </span><span class="kw">pub const </span>CHMOD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">90</span>;
+<a href=#46 id=46 data-nosnippet>46</a>    <span class="doccomment">/// Change ownership of a file.
+<a href=#47 id=47 data-nosnippet>47</a>    </span><span class="kw">pub const </span>CHOWN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">92</span>;
+<a href=#48 id=48 data-nosnippet>48</a>    <span class="doccomment">/// Change root directory.
+<a href=#49 id=49 data-nosnippet>49</a>    </span><span class="kw">pub const </span>CHROOT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">161</span>;
+<a href=#50 id=50 data-nosnippet>50</a>    <span class="doccomment">/// Tune a clock.
+<a href=#51 id=51 data-nosnippet>51</a>    </span><span class="kw">pub const </span>CLOCK_ADJTIME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">305</span>;
+<a href=#52 id=52 data-nosnippet>52</a>    <span class="doccomment">/// Get clock resolution.
+<a href=#53 id=53 data-nosnippet>53</a>    </span><span class="kw">pub const </span>CLOCK_GETRES: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">229</span>;
+<a href=#54 id=54 data-nosnippet>54</a>    <span class="doccomment">/// Get time from a clock.
+<a href=#55 id=55 data-nosnippet>55</a>    </span><span class="kw">pub const </span>CLOCK_GETTIME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">228</span>;
+<a href=#56 id=56 data-nosnippet>56</a>    <span class="doccomment">/// Sleep with high precision.
+<a href=#57 id=57 data-nosnippet>57</a>    </span><span class="kw">pub const </span>CLOCK_NANOSLEEP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">230</span>;
+<a href=#58 id=58 data-nosnippet>58</a>    <span class="doccomment">/// Set time for a clock.
+<a href=#59 id=59 data-nosnippet>59</a>    </span><span class="kw">pub const </span>CLOCK_SETTIME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">227</span>;
+<a href=#60 id=60 data-nosnippet>60</a>    <span class="doccomment">/// Create a child process.
+<a href=#61 id=61 data-nosnippet>61</a>    </span><span class="kw">pub const </span>CLONE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">56</span>;
+<a href=#62 id=62 data-nosnippet>62</a>    <span class="doccomment">/// Create a child process with more control.
+<a href=#63 id=63 data-nosnippet>63</a>    </span><span class="kw">pub const </span>CLONE3: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">435</span>;
+<a href=#64 id=64 data-nosnippet>64</a>    <span class="doccomment">/// Close a file descriptor.
+<a href=#65 id=65 data-nosnippet>65</a>    </span><span class="kw">pub const </span>CLOSE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">3</span>;
+<a href=#66 id=66 data-nosnippet>66</a>    <span class="doccomment">/// Close a range of file descriptors.
+<a href=#67 id=67 data-nosnippet>67</a>    </span><span class="kw">pub const </span>CLOSE_RANGE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">436</span>;
+<a href=#68 id=68 data-nosnippet>68</a>    <span class="doccomment">/// Connect to a socket.
+<a href=#69 id=69 data-nosnippet>69</a>    </span><span class="kw">pub const </span>CONNECT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">42</span>;
+<a href=#70 id=70 data-nosnippet>70</a>    <span class="doccomment">/// Copy data between file descriptors.
+<a href=#71 id=71 data-nosnippet>71</a>    </span><span class="kw">pub const </span>COPY_FILE_RANGE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">326</span>;
+<a href=#72 id=72 data-nosnippet>72</a>    <span class="doccomment">/// Create a file.
+<a href=#73 id=73 data-nosnippet>73</a>    </span><span class="kw">pub const </span>CREAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">85</span>;
+<a href=#74 id=74 data-nosnippet>74</a>    <span class="doccomment">/// Create a loadable module entry.
+<a href=#75 id=75 data-nosnippet>75</a>    </span><span class="kw">pub const </span>CREATE_MODULE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">174</span>;
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="doccomment">/// Delete a kernel module.
+<a href=#77 id=77 data-nosnippet>77</a>    </span><span class="kw">pub const </span>DELETE_MODULE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">176</span>;
+<a href=#78 id=78 data-nosnippet>78</a>    <span class="doccomment">/// Duplicate file descriptor.
+<a href=#79 id=79 data-nosnippet>79</a>    </span><span class="kw">pub const </span>DUP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">32</span>;
+<a href=#80 id=80 data-nosnippet>80</a>    <span class="doccomment">/// Duplicate file descriptor to specific number.
+<a href=#81 id=81 data-nosnippet>81</a>    </span><span class="kw">pub const </span>DUP2: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">33</span>;
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="doccomment">/// Duplicate file descriptor with flags.
+<a href=#83 id=83 data-nosnippet>83</a>    </span><span class="kw">pub const </span>DUP3: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">292</span>;
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="doccomment">/// Create an epoll file descriptor.
+<a href=#85 id=85 data-nosnippet>85</a>    </span><span class="kw">pub const </span>EPOLL_CREATE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">213</span>;
+<a href=#86 id=86 data-nosnippet>86</a>    <span class="doccomment">/// Create an epoll file descriptor with flags.
+<a href=#87 id=87 data-nosnippet>87</a>    </span><span class="kw">pub const </span>EPOLL_CREATE1: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">291</span>;
+<a href=#88 id=88 data-nosnippet>88</a>    <span class="doccomment">/// Control interface for epoll.
+<a href=#89 id=89 data-nosnippet>89</a>    </span><span class="kw">pub const </span>EPOLL_CTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">233</span>;
+<a href=#90 id=90 data-nosnippet>90</a>    <span class="doccomment">/// Old version of epoll_ctl.
+<a href=#91 id=91 data-nosnippet>91</a>    </span><span class="kw">pub const </span>EPOLL_CTL_OLD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">214</span>;
+<a href=#92 id=92 data-nosnippet>92</a>    <span class="doccomment">/// Wait for an epoll file descriptor with timeout.
+<a href=#93 id=93 data-nosnippet>93</a>    </span><span class="kw">pub const </span>EPOLL_PWAIT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">281</span>;
+<a href=#94 id=94 data-nosnippet>94</a>    <span class="doccomment">/// Extended version of epoll_wait.
+<a href=#95 id=95 data-nosnippet>95</a>    </span><span class="kw">pub const </span>EPOLL_PWAIT2: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">441</span>;
+<a href=#96 id=96 data-nosnippet>96</a>    <span class="doccomment">/// Wait for an epoll file descriptor.
+<a href=#97 id=97 data-nosnippet>97</a>    </span><span class="kw">pub const </span>EPOLL_WAIT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">232</span>;
+<a href=#98 id=98 data-nosnippet>98</a>    <span class="doccomment">/// Old version of epoll_wait.
+<a href=#99 id=99 data-nosnippet>99</a>    </span><span class="kw">pub const </span>EPOLL_WAIT_OLD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">215</span>;
+<a href=#100 id=100 data-nosnippet>100</a>    <span class="doccomment">/// Create a file descriptor for event notification.
+<a href=#101 id=101 data-nosnippet>101</a>    </span><span class="kw">pub const </span>EVENTFD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">284</span>;
+<a href=#102 id=102 data-nosnippet>102</a>    <span class="doccomment">/// Create an eventfd file descriptor with flags.
+<a href=#103 id=103 data-nosnippet>103</a>    </span><span class="kw">pub const </span>EVENTFD2: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">290</span>;
+<a href=#104 id=104 data-nosnippet>104</a>    <span class="doccomment">/// Execute program.
+<a href=#105 id=105 data-nosnippet>105</a>    </span><span class="kw">pub const </span>EXECVE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">59</span>;
+<a href=#106 id=106 data-nosnippet>106</a>    <span class="doccomment">/// Execute program relative to directory file descriptor.
+<a href=#107 id=107 data-nosnippet>107</a>    </span><span class="kw">pub const </span>EXECVEAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">322</span>;
+<a href=#108 id=108 data-nosnippet>108</a>    <span class="doccomment">/// Terminate calling process.
+<a href=#109 id=109 data-nosnippet>109</a>    </span><span class="kw">pub const </span>EXIT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">60</span>;
+<a href=#110 id=110 data-nosnippet>110</a>    <span class="doccomment">/// Terminate all threads in process.
+<a href=#111 id=111 data-nosnippet>111</a>    </span><span class="kw">pub const </span>EXIT_GROUP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">231</span>;
+<a href=#112 id=112 data-nosnippet>112</a>    <span class="doccomment">/// Check permissions of a file relative to directory fd.
+<a href=#113 id=113 data-nosnippet>113</a>    </span><span class="kw">pub const </span>FACCESSAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">269</span>;
+<a href=#114 id=114 data-nosnippet>114</a>    <span class="doccomment">/// Check permissions with additional flags.
+<a href=#115 id=115 data-nosnippet>115</a>    </span><span class="kw">pub const </span>FACCESSAT2: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">439</span>;
+<a href=#116 id=116 data-nosnippet>116</a>    <span class="doccomment">/// Predeclare file access pattern.
+<a href=#117 id=117 data-nosnippet>117</a>    </span><span class="kw">pub const </span>FADVISE64: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">221</span>;
+<a href=#118 id=118 data-nosnippet>118</a>    <span class="doccomment">/// Manipulate file space.
+<a href=#119 id=119 data-nosnippet>119</a>    </span><span class="kw">pub const </span>FALLOCATE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">285</span>;
+<a href=#120 id=120 data-nosnippet>120</a>    <span class="doccomment">/// Create fanotify group.
+<a href=#121 id=121 data-nosnippet>121</a>    </span><span class="kw">pub const </span>FANOTIFY_INIT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">300</span>;
+<a href=#122 id=122 data-nosnippet>122</a>    <span class="doccomment">/// Add/remove fanotify marks.
+<a href=#123 id=123 data-nosnippet>123</a>    </span><span class="kw">pub const </span>FANOTIFY_MARK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">301</span>;
+<a href=#124 id=124 data-nosnippet>124</a>    <span class="doccomment">/// Change working directory by fd.
+<a href=#125 id=125 data-nosnippet>125</a>    </span><span class="kw">pub const </span>FCHDIR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">81</span>;
+<a href=#126 id=126 data-nosnippet>126</a>    <span class="doccomment">/// Change permissions of a file by fd.
+<a href=#127 id=127 data-nosnippet>127</a>    </span><span class="kw">pub const </span>FCHMOD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">91</span>;
+<a href=#128 id=128 data-nosnippet>128</a>    <span class="doccomment">/// Change permissions of file relative to directory fd.
+<a href=#129 id=129 data-nosnippet>129</a>    </span><span class="kw">pub const </span>FCHMODAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">268</span>;
+<a href=#130 id=130 data-nosnippet>130</a>    <span class="doccomment">/// Change ownership of a file by fd.
+<a href=#131 id=131 data-nosnippet>131</a>    </span><span class="kw">pub const </span>FCHOWN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">93</span>;
+<a href=#132 id=132 data-nosnippet>132</a>    <span class="doccomment">/// Change ownership of file relative to directory fd.
+<a href=#133 id=133 data-nosnippet>133</a>    </span><span class="kw">pub const </span>FCHOWNAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">260</span>;
+<a href=#134 id=134 data-nosnippet>134</a>    <span class="doccomment">/// Manipulate file descriptor.
+<a href=#135 id=135 data-nosnippet>135</a>    </span><span class="kw">pub const </span>FCNTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">72</span>;
+<a href=#136 id=136 data-nosnippet>136</a>    <span class="doccomment">/// Synchronize file data to storage.
+<a href=#137 id=137 data-nosnippet>137</a>    </span><span class="kw">pub const </span>FDATASYNC: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">75</span>;
+<a href=#138 id=138 data-nosnippet>138</a>    <span class="doccomment">/// Get extended attribute value by fd.
+<a href=#139 id=139 data-nosnippet>139</a>    </span><span class="kw">pub const </span>FGETXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">193</span>;
+<a href=#140 id=140 data-nosnippet>140</a>    <span class="doccomment">/// Load kernel module from fd.
+<a href=#141 id=141 data-nosnippet>141</a>    </span><span class="kw">pub const </span>FINIT_MODULE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">313</span>;
+<a href=#142 id=142 data-nosnippet>142</a>    <span class="doccomment">/// List extended attribute names by fd.
+<a href=#143 id=143 data-nosnippet>143</a>    </span><span class="kw">pub const </span>FLISTXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">196</span>;
+<a href=#144 id=144 data-nosnippet>144</a>    <span class="doccomment">/// Apply/advisory lock on open file.
+<a href=#145 id=145 data-nosnippet>145</a>    </span><span class="kw">pub const </span>FLOCK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">73</span>;
+<a href=#146 id=146 data-nosnippet>146</a>    <span class="doccomment">/// Create a child process.
+<a href=#147 id=147 data-nosnippet>147</a>    </span><span class="kw">pub const </span>FORK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">57</span>;
+<a href=#148 id=148 data-nosnippet>148</a>    <span class="doccomment">/// Remove extended attribute by fd.
+<a href=#149 id=149 data-nosnippet>149</a>    </span><span class="kw">pub const </span>FREMOVEXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">199</span>;
+<a href=#150 id=150 data-nosnippet>150</a>    <span class="doccomment">/// Configure filesystem context.
+<a href=#151 id=151 data-nosnippet>151</a>    </span><span class="kw">pub const </span>FSCONFIG: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">431</span>;
+<a href=#152 id=152 data-nosnippet>152</a>    <span class="doccomment">/// Set extended attribute value by fd.
+<a href=#153 id=153 data-nosnippet>153</a>    </span><span class="kw">pub const </span>FSETXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">190</span>;
+<a href=#154 id=154 data-nosnippet>154</a>    <span class="doccomment">/// Mount filesystem context.
+<a href=#155 id=155 data-nosnippet>155</a>    </span><span class="kw">pub const </span>FSMOUNT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">432</span>;
+<a href=#156 id=156 data-nosnippet>156</a>    <span class="doccomment">/// Open filesystem context.
+<a href=#157 id=157 data-nosnippet>157</a>    </span><span class="kw">pub const </span>FSOPEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">430</span>;
+<a href=#158 id=158 data-nosnippet>158</a>    <span class="doccomment">/// Pick filesystem context.
+<a href=#159 id=159 data-nosnippet>159</a>    </span><span class="kw">pub const </span>FSPICK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">433</span>;
+<a href=#160 id=160 data-nosnippet>160</a>    <span class="doccomment">/// Get file status by fd.
+<a href=#161 id=161 data-nosnippet>161</a>    </span><span class="kw">pub const </span>FSTAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">5</span>;
+<a href=#162 id=162 data-nosnippet>162</a>    <span class="doccomment">/// Get filesystem statistics by fd.
+<a href=#163 id=163 data-nosnippet>163</a>    </span><span class="kw">pub const </span>FSTATFS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">138</span>;
+<a href=#164 id=164 data-nosnippet>164</a>    <span class="doccomment">/// Synchronize file's complete state to storage.
+<a href=#165 id=165 data-nosnippet>165</a>    </span><span class="kw">pub const </span>FSYNC: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">74</span>;
+<a href=#166 id=166 data-nosnippet>166</a>    <span class="doccomment">/// Truncate file to specified length by fd.
+<a href=#167 id=167 data-nosnippet>167</a>    </span><span class="kw">pub const </span>FTRUNCATE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">77</span>;
+<a href=#168 id=168 data-nosnippet>168</a>    <span class="doccomment">/// Fast user-space locking.
+<a href=#169 id=169 data-nosnippet>169</a>    </span><span class="kw">pub const </span>FUTEX: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">202</span>;
+<a href=#170 id=170 data-nosnippet>170</a>    <span class="doccomment">/// Change file timestamps relative to directory fd.
+<a href=#171 id=171 data-nosnippet>171</a>    </span><span class="kw">pub const </span>FUTIMESAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">261</span>;
+<a href=#172 id=172 data-nosnippet>172</a>    <span class="doccomment">/// Determine CPU and NUMA node.
+<a href=#173 id=173 data-nosnippet>173</a>    </span><span class="kw">pub const </span>GETCPU: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">309</span>;
+<a href=#174 id=174 data-nosnippet>174</a>    <span class="doccomment">/// Get current working directory.
+<a href=#175 id=175 data-nosnippet>175</a>    </span><span class="kw">pub const </span>GETCWD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">79</span>;
+<a href=#176 id=176 data-nosnippet>176</a>    <span class="doccomment">/// Get directory entries (64-bit version).
+<a href=#177 id=177 data-nosnippet>177</a>    </span><span class="kw">pub const </span>GETDENTS64: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">217</span>;
+<a href=#178 id=178 data-nosnippet>178</a>    <span class="doccomment">/// Get directory entries.
+<a href=#179 id=179 data-nosnippet>179</a>    </span><span class="kw">pub const </span>GETDENTS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">78</span>;
+<a href=#180 id=180 data-nosnippet>180</a>    <span class="doccomment">/// Get effective group ID.
+<a href=#181 id=181 data-nosnippet>181</a>    </span><span class="kw">pub const </span>GETEGID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">108</span>;
+<a href=#182 id=182 data-nosnippet>182</a>    <span class="doccomment">/// Get effective user ID.
+<a href=#183 id=183 data-nosnippet>183</a>    </span><span class="kw">pub const </span>GETEUID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">107</span>;
+<a href=#184 id=184 data-nosnippet>184</a>    <span class="doccomment">/// Get group identity.
+<a href=#185 id=185 data-nosnippet>185</a>    </span><span class="kw">pub const </span>GETGID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">104</span>;
+<a href=#186 id=186 data-nosnippet>186</a>    <span class="doccomment">/// Get list of supplementary group IDs.
+<a href=#187 id=187 data-nosnippet>187</a>    </span><span class="kw">pub const </span>GETGROUPS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">115</span>;
+<a href=#188 id=188 data-nosnippet>188</a>    <span class="doccomment">/// Get value of interval timer.
+<a href=#189 id=189 data-nosnippet>189</a>    </span><span class="kw">pub const </span>GETITIMER: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">36</span>;
+<a href=#190 id=190 data-nosnippet>190</a>    <span class="doccomment">/// Get exported kernel and module symbols.
+<a href=#191 id=191 data-nosnippet>191</a>    </span><span class="kw">pub const </span>GET_KERNEL_SYMS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">177</span>;
+<a href=#192 id=192 data-nosnippet>192</a>    <span class="doccomment">/// Get NUMA memory policy for thread.
+<a href=#193 id=193 data-nosnippet>193</a>    </span><span class="kw">pub const </span>GET_MEMPOLICY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">239</span>;
+<a href=#194 id=194 data-nosnippet>194</a>    <span class="doccomment">/// Get name of connected peer socket.
+<a href=#195 id=195 data-nosnippet>195</a>    </span><span class="kw">pub const </span>GETPEERNAME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">52</span>;
+<a href=#196 id=196 data-nosnippet>196</a>    <span class="doccomment">/// Get process group ID.
+<a href=#197 id=197 data-nosnippet>197</a>    </span><span class="kw">pub const </span>GETPGID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">121</span>;
+<a href=#198 id=198 data-nosnippet>198</a>    <span class="doccomment">/// Get process group.
+<a href=#199 id=199 data-nosnippet>199</a>    </span><span class="kw">pub const </span>GETPGRP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">111</span>;
+<a href=#200 id=200 data-nosnippet>200</a>    <span class="doccomment">/// Get process ID.
+<a href=#201 id=201 data-nosnippet>201</a>    </span><span class="kw">pub const </span>GETPID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">39</span>;
+<a href=#202 id=202 data-nosnippet>202</a>    <span class="doccomment">/// Get message from STREAMS buffer.
+<a href=#203 id=203 data-nosnippet>203</a>    </span><span class="kw">pub const </span>GETPMSG: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">181</span>;
+<a href=#204 id=204 data-nosnippet>204</a>    <span class="doccomment">/// Get parent process ID.
+<a href=#205 id=205 data-nosnippet>205</a>    </span><span class="kw">pub const </span>GETPPID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">110</span>;
+<a href=#206 id=206 data-nosnippet>206</a>    <span class="doccomment">/// Get program scheduling priority.
+<a href=#207 id=207 data-nosnippet>207</a>    </span><span class="kw">pub const </span>GETPRIORITY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">140</span>;
+<a href=#208 id=208 data-nosnippet>208</a>    <span class="doccomment">/// Get random bytes.
+<a href=#209 id=209 data-nosnippet>209</a>    </span><span class="kw">pub const </span>GETRANDOM: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">318</span>;
+<a href=#210 id=210 data-nosnippet>210</a>    <span class="doccomment">/// Get real, effective and saved group IDs.
+<a href=#211 id=211 data-nosnippet>211</a>    </span><span class="kw">pub const </span>GETRESGID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">120</span>;
+<a href=#212 id=212 data-nosnippet>212</a>    <span class="doccomment">/// Get real, effective and saved user IDs.
+<a href=#213 id=213 data-nosnippet>213</a>    </span><span class="kw">pub const </span>GETRESUID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">118</span>;
+<a href=#214 id=214 data-nosnippet>214</a>    <span class="doccomment">/// Get resource limits.
+<a href=#215 id=215 data-nosnippet>215</a>    </span><span class="kw">pub const </span>GETRLIMIT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">97</span>;
+<a href=#216 id=216 data-nosnippet>216</a>    <span class="doccomment">/// Get list of robust futexes.
+<a href=#217 id=217 data-nosnippet>217</a>    </span><span class="kw">pub const </span>GET_ROBUST_LIST: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">274</span>;
+<a href=#218 id=218 data-nosnippet>218</a>    <span class="doccomment">/// Get resource usage.
+<a href=#219 id=219 data-nosnippet>219</a>    </span><span class="kw">pub const </span>GETRUSAGE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">98</span>;
+<a href=#220 id=220 data-nosnippet>220</a>    <span class="doccomment">/// Get session ID.
+<a href=#221 id=221 data-nosnippet>221</a>    </span><span class="kw">pub const </span>GETSID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">124</span>;
+<a href=#222 id=222 data-nosnippet>222</a>    <span class="doccomment">/// Get socket name.
+<a href=#223 id=223 data-nosnippet>223</a>    </span><span class="kw">pub const </span>GETSOCKNAME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">51</span>;
+<a href=#224 id=224 data-nosnippet>224</a>    <span class="doccomment">/// Get options on sockets.
+<a href=#225 id=225 data-nosnippet>225</a>    </span><span class="kw">pub const </span>GETSOCKOPT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">55</span>;
+<a href=#226 id=226 data-nosnippet>226</a>    <span class="doccomment">/// Get thread area.
+<a href=#227 id=227 data-nosnippet>227</a>    </span><span class="kw">pub const </span>GET_THREAD_AREA: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">211</span>;
+<a href=#228 id=228 data-nosnippet>228</a>    <span class="doccomment">/// Get thread ID.
+<a href=#229 id=229 data-nosnippet>229</a>    </span><span class="kw">pub const </span>GETTID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">186</span>;
+<a href=#230 id=230 data-nosnippet>230</a>    <span class="doccomment">/// Get time (microsecond precision).
+<a href=#231 id=231 data-nosnippet>231</a>    </span><span class="kw">pub const </span>GETTIMEOFDAY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">96</span>;
+<a href=#232 id=232 data-nosnippet>232</a>    <span class="doccomment">/// Get user identity.
+<a href=#233 id=233 data-nosnippet>233</a>    </span><span class="kw">pub const </span>GETUID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">102</span>;
+<a href=#234 id=234 data-nosnippet>234</a>    <span class="doccomment">/// Get extended attribute value.
+<a href=#235 id=235 data-nosnippet>235</a>    </span><span class="kw">pub const </span>GETXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">191</span>;
+<a href=#236 id=236 data-nosnippet>236</a>    <span class="doccomment">/// Initialize a kernel module.
+<a href=#237 id=237 data-nosnippet>237</a>    </span><span class="kw">pub const </span>INIT_MODULE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">175</span>;
+<a href=#238 id=238 data-nosnippet>238</a>    <span class="doccomment">/// Add watch to inotify instance.
+<a href=#239 id=239 data-nosnippet>239</a>    </span><span class="kw">pub const </span>INOTIFY_ADD_WATCH: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">254</span>;
+<a href=#240 id=240 data-nosnippet>240</a>    <span class="doccomment">/// Initialize inotify instance.
+<a href=#241 id=241 data-nosnippet>241</a>    </span><span class="kw">pub const </span>INOTIFY_INIT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">253</span>;
+<a href=#242 id=242 data-nosnippet>242</a>    <span class="doccomment">/// Initialize inotify instance with flags.
+<a href=#243 id=243 data-nosnippet>243</a>    </span><span class="kw">pub const </span>INOTIFY_INIT1: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">294</span>;
+<a href=#244 id=244 data-nosnippet>244</a>    <span class="doccomment">/// Remove watch from inotify instance.
+<a href=#245 id=245 data-nosnippet>245</a>    </span><span class="kw">pub const </span>INOTIFY_RM_WATCH: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">255</span>;
+<a href=#246 id=246 data-nosnippet>246</a>    <span class="doccomment">/// Cancel asynchronous I/O operation.
+<a href=#247 id=247 data-nosnippet>247</a>    </span><span class="kw">pub const </span>IO_CANCEL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">210</span>;
+<a href=#248 id=248 data-nosnippet>248</a>    <span class="doccomment">/// Destroy asynchronous I/O context.
+<a href=#249 id=249 data-nosnippet>249</a>    </span><span class="kw">pub const </span>IO_DESTROY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">207</span>;
+<a href=#250 id=250 data-nosnippet>250</a>    <span class="doccomment">/// Read asynchronous I/O events.
+<a href=#251 id=251 data-nosnippet>251</a>    </span><span class="kw">pub const </span>IO_GETEVENTS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">208</span>;
+<a href=#252 id=252 data-nosnippet>252</a>    <span class="doccomment">/// Read asynchronous I/O events (extended).
+<a href=#253 id=253 data-nosnippet>253</a>    </span><span class="kw">pub const </span>IO_PGETEVENTS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">333</span>;
+<a href=#254 id=254 data-nosnippet>254</a>    <span class="doccomment">/// Set up asynchronous I/O context.
+<a href=#255 id=255 data-nosnippet>255</a>    </span><span class="kw">pub const </span>IO_SETUP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">206</span>;
+<a href=#256 id=256 data-nosnippet>256</a>    <span class="doccomment">/// Submit asynchronous I/O blocks.
+<a href=#257 id=257 data-nosnippet>257</a>    </span><span class="kw">pub const </span>IO_SUBMIT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">209</span>;
+<a href=#258 id=258 data-nosnippet>258</a>    <span class="doccomment">/// Control device.
+<a href=#259 id=259 data-nosnippet>259</a>    </span><span class="kw">pub const </span>IOCTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">16</span>;
+<a href=#260 id=260 data-nosnippet>260</a>    <span class="doccomment">/// Set I/O privilege level.
+<a href=#261 id=261 data-nosnippet>261</a>    </span><span class="kw">pub const </span>IOPL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">172</span>;
+<a href=#262 id=262 data-nosnippet>262</a>    <span class="doccomment">/// Set port input/output permissions.
+<a href=#263 id=263 data-nosnippet>263</a>    </span><span class="kw">pub const </span>IOPERM: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">173</span>;
+<a href=#264 id=264 data-nosnippet>264</a>    <span class="doccomment">/// Get I/O scheduling class/priority.
+<a href=#265 id=265 data-nosnippet>265</a>    </span><span class="kw">pub const </span>IOPRIO_GET: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">252</span>;
+<a href=#266 id=266 data-nosnippet>266</a>    <span class="doccomment">/// Set I/O scheduling class/priority.
+<a href=#267 id=267 data-nosnippet>267</a>    </span><span class="kw">pub const </span>IOPRIO_SET: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">251</span>;
+<a href=#268 id=268 data-nosnippet>268</a>    <span class="doccomment">/// Set up io_uring interface.
+<a href=#269 id=269 data-nosnippet>269</a>    </span><span class="kw">pub const </span>IO_URING_SETUP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">425</span>;
+<a href=#270 id=270 data-nosnippet>270</a>    <span class="doccomment">/// Enter io_uring for completion.
+<a href=#271 id=271 data-nosnippet>271</a>    </span><span class="kw">pub const </span>IO_URING_ENTER: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">426</span>;
+<a href=#272 id=272 data-nosnippet>272</a>    <span class="doccomment">/// Register files or buffers for io_uring.
+<a href=#273 id=273 data-nosnippet>273</a>    </span><span class="kw">pub const </span>IO_URING_REGISTER: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">427</span>;
+<a href=#274 id=274 data-nosnippet>274</a>    <span class="doccomment">/// Compare two processes.
+<a href=#275 id=275 data-nosnippet>275</a>    </span><span class="kw">pub const </span>KCMP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">312</span>;
+<a href=#276 id=276 data-nosnippet>276</a>    <span class="doccomment">/// Load new kernel for execution.
+<a href=#277 id=277 data-nosnippet>277</a>    </span><span class="kw">pub const </span>KEXEC_LOAD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">246</span>;
+<a href=#278 id=278 data-nosnippet>278</a>    <span class="doccomment">/// Load new kernel for execution with file descriptor.
+<a href=#279 id=279 data-nosnippet>279</a>    </span><span class="kw">pub const </span>KEXEC_FILE_LOAD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">320</span>;
+<a href=#280 id=280 data-nosnippet>280</a>    <span class="doccomment">/// Manipulate kernel keyring.
+<a href=#281 id=281 data-nosnippet>281</a>    </span><span class="kw">pub const </span>KEYCTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">250</span>;
+<a href=#282 id=282 data-nosnippet>282</a>    <span class="doccomment">/// Send signal to process.
+<a href=#283 id=283 data-nosnippet>283</a>    </span><span class="kw">pub const </span>KILL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">62</span>;
+<a href=#284 id=284 data-nosnippet>284</a>    <span class="doccomment">/// Create Landlock ruleset.
+<a href=#285 id=285 data-nosnippet>285</a>    </span><span class="kw">pub const </span>LANDLOCK_CREATE_RULESET: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">444</span>;
+<a href=#286 id=286 data-nosnippet>286</a>    <span class="doccomment">/// Add rule to Landlock ruleset.
+<a href=#287 id=287 data-nosnippet>287</a>    </span><span class="kw">pub const </span>LANDLOCK_ADD_RULE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">445</span>;
+<a href=#288 id=288 data-nosnippet>288</a>    <span class="doccomment">/// Enforce Landlock ruleset on current thread.
+<a href=#289 id=289 data-nosnippet>289</a>    </span><span class="kw">pub const </span>LANDLOCK_RESTRICT_SELF: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">446</span>;
+<a href=#290 id=290 data-nosnippet>290</a>    <span class="doccomment">/// Change ownership of symbolic link.
+<a href=#291 id=291 data-nosnippet>291</a>    </span><span class="kw">pub const </span>LCHOWN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">94</span>;
+<a href=#292 id=292 data-nosnippet>292</a>    <span class="doccomment">/// Get extended attribute value (symlink).
+<a href=#293 id=293 data-nosnippet>293</a>    </span><span class="kw">pub const </span>LGETXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">192</span>;
+<a href=#294 id=294 data-nosnippet>294</a>    <span class="doccomment">/// Create hard link.
+<a href=#295 id=295 data-nosnippet>295</a>    </span><span class="kw">pub const </span>LINK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">86</span>;
+<a href=#296 id=296 data-nosnippet>296</a>    <span class="doccomment">/// Create hard link relative to directory fd.
+<a href=#297 id=297 data-nosnippet>297</a>    </span><span class="kw">pub const </span>LINKAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">265</span>;
+<a href=#298 id=298 data-nosnippet>298</a>    <span class="doccomment">/// Listen for connections on socket.
+<a href=#299 id=299 data-nosnippet>299</a>    </span><span class="kw">pub const </span>LISTEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">50</span>;
+<a href=#300 id=300 data-nosnippet>300</a>    <span class="doccomment">/// List extended attribute names.
+<a href=#301 id=301 data-nosnippet>301</a>    </span><span class="kw">pub const </span>LISTXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">194</span>;
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="doccomment">/// List extended attribute names (symlink).
+<a href=#303 id=303 data-nosnippet>303</a>    </span><span class="kw">pub const </span>LLISTXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">195</span>;
+<a href=#304 id=304 data-nosnippet>304</a>    <span class="doccomment">/// Return cookie for DCOP.
+<a href=#305 id=305 data-nosnippet>305</a>    </span><span class="kw">pub const </span>LOOKUP_DCOOKIE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">212</span>;
+<a href=#306 id=306 data-nosnippet>306</a>    <span class="doccomment">/// Remove extended attribute (symlink).
+<a href=#307 id=307 data-nosnippet>307</a>    </span><span class="kw">pub const </span>LREMOVEXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">198</span>;
+<a href=#308 id=308 data-nosnippet>308</a>    <span class="doccomment">/// Reposition read/write file offset.
+<a href=#309 id=309 data-nosnippet>309</a>    </span><span class="kw">pub const </span>LSEEK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">8</span>;
+<a href=#310 id=310 data-nosnippet>310</a>    <span class="doccomment">/// Set extended attribute value (symlink).
+<a href=#311 id=311 data-nosnippet>311</a>    </span><span class="kw">pub const </span>LSETXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">189</span>;
+<a href=#312 id=312 data-nosnippet>312</a>    <span class="doccomment">/// Get file status (symlink).
+<a href=#313 id=313 data-nosnippet>313</a>    </span><span class="kw">pub const </span>LSTAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">6</span>;
+<a href=#314 id=314 data-nosnippet>314</a>    <span class="doccomment">/// Give advice about memory usage.
+<a href=#315 id=315 data-nosnippet>315</a>    </span><span class="kw">pub const </span>MADVISE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">28</span>;
+<a href=#316 id=316 data-nosnippet>316</a>    <span class="doccomment">/// Set NUMA memory policy for range.
+<a href=#317 id=317 data-nosnippet>317</a>    </span><span class="kw">pub const </span>MBIND: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">237</span>;
+<a href=#318 id=318 data-nosnippet>318</a>    <span class="doccomment">/// Issue memory barriers.
+<a href=#319 id=319 data-nosnippet>319</a>    </span><span class="kw">pub const </span>MEMBARRIER: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">324</span>;
+<a href=#320 id=320 data-nosnippet>320</a>    <span class="doccomment">/// Create anonymous file.
+<a href=#321 id=321 data-nosnippet>321</a>    </span><span class="kw">pub const </span>MEMFD_CREATE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">319</span>;
+<a href=#322 id=322 data-nosnippet>322</a>    <span class="doccomment">/// Create secret memory area.
+<a href=#323 id=323 data-nosnippet>323</a>    </span><span class="kw">pub const </span>MEMFD_SECRET: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">447</span>;
+<a href=#324 id=324 data-nosnippet>324</a>    <span class="doccomment">/// Move pages between nodes.
+<a href=#325 id=325 data-nosnippet>325</a>    </span><span class="kw">pub const </span>MIGRATE_PAGES: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">256</span>;
+<a href=#326 id=326 data-nosnippet>326</a>    <span class="doccomment">/// Determine whether pages are resident in memory.
+<a href=#327 id=327 data-nosnippet>327</a>    </span><span class="kw">pub const </span>MINCORE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">27</span>;
+<a href=#328 id=328 data-nosnippet>328</a>    <span class="doccomment">/// Create directory.
+<a href=#329 id=329 data-nosnippet>329</a>    </span><span class="kw">pub const </span>MKDIR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">83</span>;
+<a href=#330 id=330 data-nosnippet>330</a>    <span class="doccomment">/// Create directory relative to directory fd.
+<a href=#331 id=331 data-nosnippet>331</a>    </span><span class="kw">pub const </span>MKDIRAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">258</span>;
+<a href=#332 id=332 data-nosnippet>332</a>    <span class="doccomment">/// Create special or ordinary file.
+<a href=#333 id=333 data-nosnippet>333</a>    </span><span class="kw">pub const </span>MKNOD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">133</span>;
+<a href=#334 id=334 data-nosnippet>334</a>    <span class="doccomment">/// Create special or ordinary file relative to directory fd.
+<a href=#335 id=335 data-nosnippet>335</a>    </span><span class="kw">pub const </span>MKNODAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">259</span>;
+<a href=#336 id=336 data-nosnippet>336</a>    <span class="doccomment">/// Lock memory.
+<a href=#337 id=337 data-nosnippet>337</a>    </span><span class="kw">pub const </span>MLOCK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">149</span>;
+<a href=#338 id=338 data-nosnippet>338</a>    <span class="doccomment">/// Lock memory (extended).
+<a href=#339 id=339 data-nosnippet>339</a>    </span><span class="kw">pub const </span>MLOCK2: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">325</span>;
+<a href=#340 id=340 data-nosnippet>340</a>    <span class="doccomment">/// Lock all current/future memory.
+<a href=#341 id=341 data-nosnippet>341</a>    </span><span class="kw">pub const </span>MLOCKALL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">151</span>;
+<a href=#342 id=342 data-nosnippet>342</a>    <span class="doccomment">/// Map files/devices into memory.
+<a href=#343 id=343 data-nosnippet>343</a>    </span><span class="kw">pub const </span>MMAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">9</span>;
+<a href=#344 id=344 data-nosnippet>344</a>    <span class="doccomment">/// Modify LDT.
+<a href=#345 id=345 data-nosnippet>345</a>    </span><span class="kw">pub const </span>MODIFY_LDT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">154</span>;
+<a href=#346 id=346 data-nosnippet>346</a>    <span class="doccomment">/// Mount filesystem.
+<a href=#347 id=347 data-nosnippet>347</a>    </span><span class="kw">pub const </span>MOUNT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">165</span>;
+<a href=#348 id=348 data-nosnippet>348</a>    <span class="doccomment">/// Change mount attributes.
+<a href=#349 id=349 data-nosnippet>349</a>    </span><span class="kw">pub const </span>MOUNT_SETATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">442</span>;
+<a href=#350 id=350 data-nosnippet>350</a>    <span class="doccomment">/// Move mount from source to destination.
+<a href=#351 id=351 data-nosnippet>351</a>    </span><span class="kw">pub const </span>MOVE_MOUNT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">429</span>;
+<a href=#352 id=352 data-nosnippet>352</a>    <span class="doccomment">/// Move individual pages between processes.
+<a href=#353 id=353 data-nosnippet>353</a>    </span><span class="kw">pub const </span>MOVE_PAGES: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">279</span>;
+<a href=#354 id=354 data-nosnippet>354</a>    <span class="doccomment">/// Control memory protection.
+<a href=#355 id=355 data-nosnippet>355</a>    </span><span class="kw">pub const </span>MPROTECT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">10</span>;
+<a href=#356 id=356 data-nosnippet>356</a>    <span class="doccomment">/// Get/set message queue attributes.
+<a href=#357 id=357 data-nosnippet>357</a>    </span><span class="kw">pub const </span>MQ_GETSETATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">245</span>;
+<a href=#358 id=358 data-nosnippet>358</a>    <span class="doccomment">/// Register for notification of message arrival.
+<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="kw">pub const </span>MQ_NOTIFY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">244</span>;
+<a href=#360 id=360 data-nosnippet>360</a>    <span class="doccomment">/// Create message queue.
+<a href=#361 id=361 data-nosnippet>361</a>    </span><span class="kw">pub const </span>MQ_OPEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">240</span>;
+<a href=#362 id=362 data-nosnippet>362</a>    <span class="doccomment">/// Receive message from queue with timeout.
+<a href=#363 id=363 data-nosnippet>363</a>    </span><span class="kw">pub const </span>MQ_TIMEDRECEIVE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">243</span>;
+<a href=#364 id=364 data-nosnippet>364</a>    <span class="doccomment">/// Send message to queue with timeout.
+<a href=#365 id=365 data-nosnippet>365</a>    </span><span class="kw">pub const </span>MQ_TIMEDSEND: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">242</span>;
+<a href=#366 id=366 data-nosnippet>366</a>    <span class="doccomment">/// Remove message queue.
+<a href=#367 id=367 data-nosnippet>367</a>    </span><span class="kw">pub const </span>MQ_UNLINK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">241</span>;
+<a href=#368 id=368 data-nosnippet>368</a>    <span class="doccomment">/// Remap virtual memory address.
+<a href=#369 id=369 data-nosnippet>369</a>    </span><span class="kw">pub const </span>MREMAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">25</span>;
+<a href=#370 id=370 data-nosnippet>370</a>    <span class="doccomment">/// System V message control.
+<a href=#371 id=371 data-nosnippet>371</a>    </span><span class="kw">pub const </span>MSGCTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">71</span>;
+<a href=#372 id=372 data-nosnippet>372</a>    <span class="doccomment">/// Get System V message queue.
+<a href=#373 id=373 data-nosnippet>373</a>    </span><span class="kw">pub const </span>MSGGET: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">68</span>;
+<a href=#374 id=374 data-nosnippet>374</a>    <span class="doccomment">/// Receive System V message.
+<a href=#375 id=375 data-nosnippet>375</a>    </span><span class="kw">pub const </span>MSGRCV: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">70</span>;
+<a href=#376 id=376 data-nosnippet>376</a>    <span class="doccomment">/// Send System V message.
+<a href=#377 id=377 data-nosnippet>377</a>    </span><span class="kw">pub const </span>MSGSND: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">69</span>;
+<a href=#378 id=378 data-nosnippet>378</a>    <span class="doccomment">/// Synchronize file with memory map.
+<a href=#379 id=379 data-nosnippet>379</a>    </span><span class="kw">pub const </span>MSYNC: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">26</span>;
+<a href=#380 id=380 data-nosnippet>380</a>    <span class="doccomment">/// Unlock memory.
+<a href=#381 id=381 data-nosnippet>381</a>    </span><span class="kw">pub const </span>MUNLOCK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">150</span>;
+<a href=#382 id=382 data-nosnippet>382</a>    <span class="doccomment">/// Unlock all current/future memory.
+<a href=#383 id=383 data-nosnippet>383</a>    </span><span class="kw">pub const </span>MUNLOCKALL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">152</span>;
+<a href=#384 id=384 data-nosnippet>384</a>    <span class="doccomment">/// Unmap files/devices from memory.
+<a href=#385 id=385 data-nosnippet>385</a>    </span><span class="kw">pub const </span>MUNMAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">11</span>;
+<a href=#386 id=386 data-nosnippet>386</a>    <span class="doccomment">/// Translate name to handle and mount ID.
+<a href=#387 id=387 data-nosnippet>387</a>    </span><span class="kw">pub const </span>NAME_TO_HANDLE_AT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">303</span>;
+<a href=#388 id=388 data-nosnippet>388</a>    <span class="doccomment">/// High-resolution sleep.
+<a href=#389 id=389 data-nosnippet>389</a>    </span><span class="kw">pub const </span>NANOSLEEP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">35</span>;
+<a href=#390 id=390 data-nosnippet>390</a>    <span class="doccomment">/// Get file status relative to directory fd.
+<a href=#391 id=391 data-nosnippet>391</a>    </span><span class="kw">pub const </span>NEWFSTATAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">262</span>;
+<a href=#392 id=392 data-nosnippet>392</a>    <span class="doccomment">/// NFS server control.
+<a href=#393 id=393 data-nosnippet>393</a>    </span><span class="kw">pub const </span>NFSSERVCTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">180</span>;
+<a href=#394 id=394 data-nosnippet>394</a>    <span class="doccomment">/// Open file.
+<a href=#395 id=395 data-nosnippet>395</a>    </span><span class="kw">pub const </span>OPEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">2</span>;
+<a href=#396 id=396 data-nosnippet>396</a>    <span class="doccomment">/// Open file relative to directory fd.
+<a href=#397 id=397 data-nosnippet>397</a>    </span><span class="kw">pub const </span>OPENAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">257</span>;
+<a href=#398 id=398 data-nosnippet>398</a>    <span class="doccomment">/// Open file with extended attributes.
+<a href=#399 id=399 data-nosnippet>399</a>    </span><span class="kw">pub const </span>OPENAT2: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">437</span>;
+<a href=#400 id=400 data-nosnippet>400</a>    <span class="doccomment">/// Open file via handle.
+<a href=#401 id=401 data-nosnippet>401</a>    </span><span class="kw">pub const </span>OPEN_BY_HANDLE_AT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">304</span>;
+<a href=#402 id=402 data-nosnippet>402</a>    <span class="doccomment">/// Open mount tree.
+<a href=#403 id=403 data-nosnippet>403</a>    </span><span class="kw">pub const </span>OPEN_TREE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">428</span>;
+<a href=#404 id=404 data-nosnippet>404</a>    <span class="doccomment">/// Suspend process until signal.
+<a href=#405 id=405 data-nosnippet>405</a>    </span><span class="kw">pub const </span>PAUSE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">34</span>;
+<a href=#406 id=406 data-nosnippet>406</a>    <span class="doccomment">/// Set up performance monitoring.
+<a href=#407 id=407 data-nosnippet>407</a>    </span><span class="kw">pub const </span>PERF_EVENT_OPEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">298</span>;
+<a href=#408 id=408 data-nosnippet>408</a>    <span class="doccomment">/// Set process execution domain.
+<a href=#409 id=409 data-nosnippet>409</a>    </span><span class="kw">pub const </span>PERSONALITY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">135</span>;
+<a href=#410 id=410 data-nosnippet>410</a>    <span class="doccomment">/// Get file descriptor from pidfd.
+<a href=#411 id=411 data-nosnippet>411</a>    </span><span class="kw">pub const </span>PIDFD_GETFD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">438</span>;
+<a href=#412 id=412 data-nosnippet>412</a>    <span class="doccomment">/// Obtain file descriptor for process.
+<a href=#413 id=413 data-nosnippet>413</a>    </span><span class="kw">pub const </span>PIDFD_OPEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">434</span>;
+<a href=#414 id=414 data-nosnippet>414</a>    <span class="doccomment">/// Send signal through pidfd.
+<a href=#415 id=415 data-nosnippet>415</a>    </span><span class="kw">pub const </span>PIDFD_SEND_SIGNAL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">424</span>;
+<a href=#416 id=416 data-nosnippet>416</a>    <span class="doccomment">/// Create pipe.
+<a href=#417 id=417 data-nosnippet>417</a>    </span><span class="kw">pub const </span>PIPE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">22</span>;
+<a href=#418 id=418 data-nosnippet>418</a>    <span class="doccomment">/// Create pipe with flags.
+<a href=#419 id=419 data-nosnippet>419</a>    </span><span class="kw">pub const </span>PIPE2: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">293</span>;
+<a href=#420 id=420 data-nosnippet>420</a>    <span class="doccomment">/// Change root filesystem.
+<a href=#421 id=421 data-nosnippet>421</a>    </span><span class="kw">pub const </span>PIVOT_ROOT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">155</span>;
+<a href=#422 id=422 data-nosnippet>422</a>    <span class="doccomment">/// Allocate protection key.
+<a href=#423 id=423 data-nosnippet>423</a>    </span><span class="kw">pub const </span>PKEY_ALLOC: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">330</span>;
+<a href=#424 id=424 data-nosnippet>424</a>    <span class="doccomment">/// Free protection key.
+<a href=#425 id=425 data-nosnippet>425</a>    </span><span class="kw">pub const </span>PKEY_FREE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">331</span>;
+<a href=#426 id=426 data-nosnippet>426</a>    <span class="doccomment">/// Set protection on memory pages.
+<a href=#427 id=427 data-nosnippet>427</a>    </span><span class="kw">pub const </span>PKEY_MPROTECT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">329</span>;
+<a href=#428 id=428 data-nosnippet>428</a>    <span class="doccomment">/// Wait for some event on file descriptors.
+<a href=#429 id=429 data-nosnippet>429</a>    </span><span class="kw">pub const </span>POLL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">7</span>;
+<a href=#430 id=430 data-nosnippet>430</a>    <span class="doccomment">/// Wait for some event with timeout (extended).
+<a href=#431 id=431 data-nosnippet>431</a>    </span><span class="kw">pub const </span>PPOLL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">271</span>;
+<a href=#432 id=432 data-nosnippet>432</a>    <span class="doccomment">/// Process control.
+<a href=#433 id=433 data-nosnippet>433</a>    </span><span class="kw">pub const </span>PRCTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">157</span>;
+<a href=#434 id=434 data-nosnippet>434</a>    <span class="doccomment">/// Read from file descriptor at offset.
+<a href=#435 id=435 data-nosnippet>435</a>    </span><span class="kw">pub const </span>PREAD64: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">17</span>;
+<a href=#436 id=436 data-nosnippet>436</a>    <span class="doccomment">/// Scatter/gather read with offset.
+<a href=#437 id=437 data-nosnippet>437</a>    </span><span class="kw">pub const </span>PREADV: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">295</span>;
+<a href=#438 id=438 data-nosnippet>438</a>    <span class="doccomment">/// Scatter/gather read with offset (extended).
+<a href=#439 id=439 data-nosnippet>439</a>    </span><span class="kw">pub const </span>PREADV2: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">327</span>;
+<a href=#440 id=440 data-nosnippet>440</a>    <span class="doccomment">/// Get/set resource limits.
+<a href=#441 id=441 data-nosnippet>441</a>    </span><span class="kw">pub const </span>PRLIMIT64: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">302</span>;
+<a href=#442 id=442 data-nosnippet>442</a>    <span class="doccomment">/// Provide memory advice for another process.
+<a href=#443 id=443 data-nosnippet>443</a>    </span><span class="kw">pub const </span>PROCESS_MADVISE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">440</span>;
+<a href=#444 id=444 data-nosnippet>444</a>    <span class="doccomment">/// Release memory of another process.
+<a href=#445 id=445 data-nosnippet>445</a>    </span><span class="kw">pub const </span>PROCESS_MRELEASE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">448</span>;
+<a href=#446 id=446 data-nosnippet>446</a>    <span class="doccomment">/// Read memory from another process.
+<a href=#447 id=447 data-nosnippet>447</a>    </span><span class="kw">pub const </span>PROCESS_VM_READV: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">310</span>;
+<a href=#448 id=448 data-nosnippet>448</a>    <span class="doccomment">/// Write memory to another process.
+<a href=#449 id=449 data-nosnippet>449</a>    </span><span class="kw">pub const </span>PROCESS_VM_WRITEV: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">311</span>;
+<a href=#450 id=450 data-nosnippet>450</a>    <span class="doccomment">/// Synchronous I/O multiplexing with timeout.
+<a href=#451 id=451 data-nosnippet>451</a>    </span><span class="kw">pub const </span>PSELECT6: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">270</span>;
+<a href=#452 id=452 data-nosnippet>452</a>    <span class="doccomment">/// Process trace.
+<a href=#453 id=453 data-nosnippet>453</a>    </span><span class="kw">pub const </span>PTRACE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">101</span>;
+<a href=#454 id=454 data-nosnippet>454</a>    <span class="doccomment">/// Put message to STREAMS buffer.
+<a href=#455 id=455 data-nosnippet>455</a>    </span><span class="kw">pub const </span>PUTPMSG: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">182</span>;
+<a href=#456 id=456 data-nosnippet>456</a>    <span class="doccomment">/// Query module information.
+<a href=#457 id=457 data-nosnippet>457</a>    </span><span class="kw">pub const </span>QUERY_MODULE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">178</span>;
+<a href=#458 id=458 data-nosnippet>458</a>    <span class="doccomment">/// Manipulate disk quotas.
+<a href=#459 id=459 data-nosnippet>459</a>    </span><span class="kw">pub const </span>QUOTACTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">179</span>;
+<a href=#460 id=460 data-nosnippet>460</a>    <span class="doccomment">/// Manipulate disk quotas by fd.
+<a href=#461 id=461 data-nosnippet>461</a>    </span><span class="kw">pub const </span>QUOTACTL_FD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">443</span>;
+<a href=#462 id=462 data-nosnippet>462</a>    <span class="doccomment">/// Write to file descriptor at offset.
+<a href=#463 id=463 data-nosnippet>463</a>    </span><span class="kw">pub const </span>PWRITE64: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">18</span>;
+<a href=#464 id=464 data-nosnippet>464</a>    <span class="doccomment">/// Scatter/gather write with offset.
+<a href=#465 id=465 data-nosnippet>465</a>    </span><span class="kw">pub const </span>PWRITEV: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">296</span>;
+<a href=#466 id=466 data-nosnippet>466</a>    <span class="doccomment">/// Scatter/gather write with offset (extended).
+<a href=#467 id=467 data-nosnippet>467</a>    </span><span class="kw">pub const </span>PWRITEV2: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">328</span>;
+<a href=#468 id=468 data-nosnippet>468</a>    <span class="doccomment">/// Read from file descriptor.
+<a href=#469 id=469 data-nosnippet>469</a>    </span><span class="kw">pub const </span>READ: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">0</span>;
+<a href=#470 id=470 data-nosnippet>470</a>    <span class="doccomment">/// Preload file data into page cache.
+<a href=#471 id=471 data-nosnippet>471</a>    </span><span class="kw">pub const </span>READAHEAD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">187</span>;
+<a href=#472 id=472 data-nosnippet>472</a>    <span class="doccomment">/// Read value of symbolic link.
+<a href=#473 id=473 data-nosnippet>473</a>    </span><span class="kw">pub const </span>READLINK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">89</span>;
+<a href=#474 id=474 data-nosnippet>474</a>    <span class="doccomment">/// Read value of symbolic link relative to directory fd.
+<a href=#475 id=475 data-nosnippet>475</a>    </span><span class="kw">pub const </span>READLINKAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">267</span>;
+<a href=#476 id=476 data-nosnippet>476</a>    <span class="doccomment">/// Scatter/gather read.
+<a href=#477 id=477 data-nosnippet>477</a>    </span><span class="kw">pub const </span>READV: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">19</span>;
+<a href=#478 id=478 data-nosnippet>478</a>    <span class="doccomment">/// Reboot system or enable/disable Ctrl-Alt-Del.
+<a href=#479 id=479 data-nosnippet>479</a>    </span><span class="kw">pub const </span>REBOOT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">169</span>;
+<a href=#480 id=480 data-nosnippet>480</a>    <span class="doccomment">/// Receive message from socket.
+<a href=#481 id=481 data-nosnippet>481</a>    </span><span class="kw">pub const </span>RECVFROM: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">45</span>;
+<a href=#482 id=482 data-nosnippet>482</a>    <span class="doccomment">/// Receive multiple messages on socket.
+<a href=#483 id=483 data-nosnippet>483</a>    </span><span class="kw">pub const </span>RECVMMSG: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">299</span>;
+<a href=#484 id=484 data-nosnippet>484</a>    <span class="doccomment">/// Receive message from socket.
+<a href=#485 id=485 data-nosnippet>485</a>    </span><span class="kw">pub const </span>RECVMSG: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">47</span>;
+<a href=#486 id=486 data-nosnippet>486</a>    <span class="doccomment">/// Create nonlinear file mapping.
+<a href=#487 id=487 data-nosnippet>487</a>    </span><span class="kw">pub const </span>REMAP_FILE_PAGES: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">216</span>;
+<a href=#488 id=488 data-nosnippet>488</a>    <span class="doccomment">/// Remove extended attribute.
+<a href=#489 id=489 data-nosnippet>489</a>    </span><span class="kw">pub const </span>REMOVEXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">197</span>;
+<a href=#490 id=490 data-nosnippet>490</a>    <span class="doccomment">/// Rename file.
+<a href=#491 id=491 data-nosnippet>491</a>    </span><span class="kw">pub const </span>RENAME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">82</span>;
+<a href=#492 id=492 data-nosnippet>492</a>    <span class="doccomment">/// Rename file relative to directory fds.
+<a href=#493 id=493 data-nosnippet>493</a>    </span><span class="kw">pub const </span>RENAMEAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">264</span>;
+<a href=#494 id=494 data-nosnippet>494</a>    <span class="doccomment">/// Rename file with flags.
+<a href=#495 id=495 data-nosnippet>495</a>    </span><span class="kw">pub const </span>RENAMEAT2: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">316</span>;
+<a href=#496 id=496 data-nosnippet>496</a>    <span class="doccomment">/// Request key from kernel's key management facility.
+<a href=#497 id=497 data-nosnippet>497</a>    </span><span class="kw">pub const </span>REQUEST_KEY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">249</span>;
+<a href=#498 id=498 data-nosnippet>498</a>    <span class="doccomment">/// Restart system call after interruption.
+<a href=#499 id=499 data-nosnippet>499</a>    </span><span class="kw">pub const </span>RESTART_SYSCALL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">219</span>;
+<a href=#500 id=500 data-nosnippet>500</a>    <span class="doccomment">/// Remove directory.
+<a href=#501 id=501 data-nosnippet>501</a>    </span><span class="kw">pub const </span>RMDIR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">84</span>;
+<a href=#502 id=502 data-nosnippet>502</a>    <span class="doccomment">/// Restartable sequences.
+<a href=#503 id=503 data-nosnippet>503</a>    </span><span class="kw">pub const </span>RSEQ: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">334</span>;
+<a href=#504 id=504 data-nosnippet>504</a>    <span class="doccomment">/// Examine and change signal action.
+<a href=#505 id=505 data-nosnippet>505</a>    </span><span class="kw">pub const </span>RT_SIGACTION: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">13</span>;
+<a href=#506 id=506 data-nosnippet>506</a>    <span class="doccomment">/// Examine pending signals.
+<a href=#507 id=507 data-nosnippet>507</a>    </span><span class="kw">pub const </span>RT_SIGPENDING: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">127</span>;
+<a href=#508 id=508 data-nosnippet>508</a>    <span class="doccomment">/// Examine and change blocked signals.
+<a href=#509 id=509 data-nosnippet>509</a>    </span><span class="kw">pub const </span>RT_SIGPROCMASK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">14</span>;
+<a href=#510 id=510 data-nosnippet>510</a>    <span class="doccomment">/// Queue signal and data.
+<a href=#511 id=511 data-nosnippet>511</a>    </span><span class="kw">pub const </span>RT_SIGQUEUEINFO: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">129</span>;
+<a href=#512 id=512 data-nosnippet>512</a>    <span class="doccomment">/// Return from signal handler.
+<a href=#513 id=513 data-nosnippet>513</a>    </span><span class="kw">pub const </span>RT_SIGRETURN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">15</span>;
+<a href=#514 id=514 data-nosnippet>514</a>    <span class="doccomment">/// Wait for signal.
+<a href=#515 id=515 data-nosnippet>515</a>    </span><span class="kw">pub const </span>RT_SIGSUSPEND: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">130</span>;
+<a href=#516 id=516 data-nosnippet>516</a>    <span class="doccomment">/// Wait for signal with timeout.
+<a href=#517 id=517 data-nosnippet>517</a>    </span><span class="kw">pub const </span>RT_SIGTIMEDWAIT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">128</span>;
+<a href=#518 id=518 data-nosnippet>518</a>    <span class="doccomment">/// Queue signal and data to thread.
+<a href=#519 id=519 data-nosnippet>519</a>    </span><span class="kw">pub const </span>RT_TGSIGQUEUEINFO: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">297</span>;
+<a href=#520 id=520 data-nosnippet>520</a>    <span class="doccomment">/// Get CPU affinity.
+<a href=#521 id=521 data-nosnippet>521</a>    </span><span class="kw">pub const </span>SCHED_GETAFFINITY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">204</span>;
+<a href=#522 id=522 data-nosnippet>522</a>    <span class="doccomment">/// Get scheduling attributes.
+<a href=#523 id=523 data-nosnippet>523</a>    </span><span class="kw">pub const </span>SCHED_GETATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">315</span>;
+<a href=#524 id=524 data-nosnippet>524</a>    <span class="doccomment">/// Get scheduling parameters.
+<a href=#525 id=525 data-nosnippet>525</a>    </span><span class="kw">pub const </span>SCHED_GETPARAM: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">143</span>;
+<a href=#526 id=526 data-nosnippet>526</a>    <span class="doccomment">/// Get static priority max.
+<a href=#527 id=527 data-nosnippet>527</a>    </span><span class="kw">pub const </span>SCHED_GET_PRIORITY_MAX: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">146</span>;
+<a href=#528 id=528 data-nosnippet>528</a>    <span class="doccomment">/// Get static priority min.
+<a href=#529 id=529 data-nosnippet>529</a>    </span><span class="kw">pub const </span>SCHED_GET_PRIORITY_MIN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">147</span>;
+<a href=#530 id=530 data-nosnippet>530</a>    <span class="doccomment">/// Get scheduling policy.
+<a href=#531 id=531 data-nosnippet>531</a>    </span><span class="kw">pub const </span>SCHED_GETSCHEDULER: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">145</span>;
+<a href=#532 id=532 data-nosnippet>532</a>    <span class="doccomment">/// Get SCHED_RR interval.
+<a href=#533 id=533 data-nosnippet>533</a>    </span><span class="kw">pub const </span>SCHED_RR_GET_INTERVAL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">148</span>;
+<a href=#534 id=534 data-nosnippet>534</a>    <span class="doccomment">/// Set CPU affinity.
+<a href=#535 id=535 data-nosnippet>535</a>    </span><span class="kw">pub const </span>SCHED_SETAFFINITY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">203</span>;
+<a href=#536 id=536 data-nosnippet>536</a>    <span class="doccomment">/// Set scheduling attributes.
+<a href=#537 id=537 data-nosnippet>537</a>    </span><span class="kw">pub const </span>SCHED_SETATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">314</span>;
+<a href=#538 id=538 data-nosnippet>538</a>    <span class="doccomment">/// Set scheduling parameters.
+<a href=#539 id=539 data-nosnippet>539</a>    </span><span class="kw">pub const </span>SCHED_SETPARAM: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">142</span>;
+<a href=#540 id=540 data-nosnippet>540</a>    <span class="doccomment">/// Set scheduling policy/parameters.
+<a href=#541 id=541 data-nosnippet>541</a>    </span><span class="kw">pub const </span>SCHED_SETSCHEDULER: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">144</span>;
+<a href=#542 id=542 data-nosnippet>542</a>    <span class="doccomment">/// Yield processor.
+<a href=#543 id=543 data-nosnippet>543</a>    </span><span class="kw">pub const </span>SCHED_YIELD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">24</span>;
+<a href=#544 id=544 data-nosnippet>544</a>    <span class="doccomment">/// Secure computing.
+<a href=#545 id=545 data-nosnippet>545</a>    </span><span class="kw">pub const </span>SECCOMP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">317</span>;
+<a href=#546 id=546 data-nosnippet>546</a>    <span class="doccomment">/// Reserved for security.
+<a href=#547 id=547 data-nosnippet>547</a>    </span><span class="kw">pub const </span>SECURITY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">185</span>;
+<a href=#548 id=548 data-nosnippet>548</a>    <span class="doccomment">/// Synchronous I/O multiplexing.
+<a href=#549 id=549 data-nosnippet>549</a>    </span><span class="kw">pub const </span>SELECT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">23</span>;
+<a href=#550 id=550 data-nosnippet>550</a>    <span class="doccomment">/// System V semaphore control.
+<a href=#551 id=551 data-nosnippet>551</a>    </span><span class="kw">pub const </span>SEMCTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">66</span>;
+<a href=#552 id=552 data-nosnippet>552</a>    <span class="doccomment">/// Get System V semaphore set.
+<a href=#553 id=553 data-nosnippet>553</a>    </span><span class="kw">pub const </span>SEMGET: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">64</span>;
+<a href=#554 id=554 data-nosnippet>554</a>    <span class="doccomment">/// System V semaphore operations.
+<a href=#555 id=555 data-nosnippet>555</a>    </span><span class="kw">pub const </span>SEMOP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">65</span>;
+<a href=#556 id=556 data-nosnippet>556</a>    <span class="doccomment">/// System V semaphore operations with timeout.
+<a href=#557 id=557 data-nosnippet>557</a>    </span><span class="kw">pub const </span>SEMTIMEDOP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">220</span>;
+<a href=#558 id=558 data-nosnippet>558</a>    <span class="doccomment">/// Transfer data between file descriptors.
+<a href=#559 id=559 data-nosnippet>559</a>    </span><span class="kw">pub const </span>SENDFILE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">40</span>;
+<a href=#560 id=560 data-nosnippet>560</a>    <span class="doccomment">/// Send multiple messages on socket.
+<a href=#561 id=561 data-nosnippet>561</a>    </span><span class="kw">pub const </span>SENDMMSG: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">307</span>;
+<a href=#562 id=562 data-nosnippet>562</a>    <span class="doccomment">/// Send message on socket.
+<a href=#563 id=563 data-nosnippet>563</a>    </span><span class="kw">pub const </span>SENDMSG: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">46</span>;
+<a href=#564 id=564 data-nosnippet>564</a>    <span class="doccomment">/// Send message on socket.
+<a href=#565 id=565 data-nosnippet>565</a>    </span><span class="kw">pub const </span>SENDTO: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">44</span>;
+<a href=#566 id=566 data-nosnippet>566</a>    <span class="doccomment">/// Set NIS domain name.
+<a href=#567 id=567 data-nosnippet>567</a>    </span><span class="kw">pub const </span>SETDOMAINNAME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">171</span>;
+<a href=#568 id=568 data-nosnippet>568</a>    <span class="doccomment">/// Set filesystem group ID.
+<a href=#569 id=569 data-nosnippet>569</a>    </span><span class="kw">pub const </span>SETFSGID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">123</span>;
+<a href=#570 id=570 data-nosnippet>570</a>    <span class="doccomment">/// Set filesystem user ID.
+<a href=#571 id=571 data-nosnippet>571</a>    </span><span class="kw">pub const </span>SETFSUID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">122</span>;
+<a href=#572 id=572 data-nosnippet>572</a>    <span class="doccomment">/// Set group identity.
+<a href=#573 id=573 data-nosnippet>573</a>    </span><span class="kw">pub const </span>SETGID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">106</span>;
+<a href=#574 id=574 data-nosnippet>574</a>    <span class="doccomment">/// Set list of supplementary group IDs.
+<a href=#575 id=575 data-nosnippet>575</a>    </span><span class="kw">pub const </span>SETGROUPS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">116</span>;
+<a href=#576 id=576 data-nosnippet>576</a>    <span class="doccomment">/// Set hostname.
+<a href=#577 id=577 data-nosnippet>577</a>    </span><span class="kw">pub const </span>SETHOSTNAME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">170</span>;
+<a href=#578 id=578 data-nosnippet>578</a>    <span class="doccomment">/// Set interval timer.
+<a href=#579 id=579 data-nosnippet>579</a>    </span><span class="kw">pub const </span>SETITIMER: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">38</span>;
+<a href=#580 id=580 data-nosnippet>580</a>    <span class="doccomment">/// Set NUMA memory policy.
+<a href=#581 id=581 data-nosnippet>581</a>    </span><span class="kw">pub const </span>SET_MEMPOLICY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">238</span>;
+<a href=#582 id=582 data-nosnippet>582</a>    <span class="doccomment">/// Reassociate thread with namespace.
+<a href=#583 id=583 data-nosnippet>583</a>    </span><span class="kw">pub const </span>SETNS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">308</span>;
+<a href=#584 id=584 data-nosnippet>584</a>    <span class="doccomment">/// Set process group ID.
+<a href=#585 id=585 data-nosnippet>585</a>    </span><span class="kw">pub const </span>SETPGID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">109</span>;
+<a href=#586 id=586 data-nosnippet>586</a>    <span class="doccomment">/// Set program scheduling priority.
+<a href=#587 id=587 data-nosnippet>587</a>    </span><span class="kw">pub const </span>SETPRIORITY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">141</span>;
+<a href=#588 id=588 data-nosnippet>588</a>    <span class="doccomment">/// Set real and effective group IDs.
+<a href=#589 id=589 data-nosnippet>589</a>    </span><span class="kw">pub const </span>SETREGID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">114</span>;
+<a href=#590 id=590 data-nosnippet>590</a>    <span class="doccomment">/// Set real, effective and saved group IDs.
+<a href=#591 id=591 data-nosnippet>591</a>    </span><span class="kw">pub const </span>SETRESGID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">119</span>;
+<a href=#592 id=592 data-nosnippet>592</a>    <span class="doccomment">/// Set real, effective and saved user IDs.
+<a href=#593 id=593 data-nosnippet>593</a>    </span><span class="kw">pub const </span>SETRESUID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">117</span>;
+<a href=#594 id=594 data-nosnippet>594</a>    <span class="doccomment">/// Set real and effective user IDs.
+<a href=#595 id=595 data-nosnippet>595</a>    </span><span class="kw">pub const </span>SETREUID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">113</span>;
+<a href=#596 id=596 data-nosnippet>596</a>    <span class="doccomment">/// Set resource limits.
+<a href=#597 id=597 data-nosnippet>597</a>    </span><span class="kw">pub const </span>SETRLIMIT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">160</span>;
+<a href=#598 id=598 data-nosnippet>598</a>    <span class="doccomment">/// Set list of robust futexes.
+<a href=#599 id=599 data-nosnippet>599</a>    </span><span class="kw">pub const </span>SET_ROBUST_LIST: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">273</span>;
+<a href=#600 id=600 data-nosnippet>600</a>    <span class="doccomment">/// Create session and set process group ID.
+<a href=#601 id=601 data-nosnippet>601</a>    </span><span class="kw">pub const </span>SETSID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">112</span>;
+<a href=#602 id=602 data-nosnippet>602</a>    <span class="doccomment">/// Set options on sockets.
+<a href=#603 id=603 data-nosnippet>603</a>    </span><span class="kw">pub const </span>SETSOCKOPT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">54</span>;
+<a href=#604 id=604 data-nosnippet>604</a>    <span class="doccomment">/// Set thread area.
+<a href=#605 id=605 data-nosnippet>605</a>    </span><span class="kw">pub const </span>SET_THREAD_AREA: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">205</span>;
+<a href=#606 id=606 data-nosnippet>606</a>    <span class="doccomment">/// Set thread ID for child clear-on-return.
+<a href=#607 id=607 data-nosnippet>607</a>    </span><span class="kw">pub const </span>SET_TID_ADDRESS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">218</span>;
+<a href=#608 id=608 data-nosnippet>608</a>    <span class="doccomment">/// Set time.
+<a href=#609 id=609 data-nosnippet>609</a>    </span><span class="kw">pub const </span>SETTIMEOFDAY: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">164</span>;
+<a href=#610 id=610 data-nosnippet>610</a>    <span class="doccomment">/// Set user identity.
+<a href=#611 id=611 data-nosnippet>611</a>    </span><span class="kw">pub const </span>SETUID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">105</span>;
+<a href=#612 id=612 data-nosnippet>612</a>    <span class="doccomment">/// Set extended attribute value.
+<a href=#613 id=613 data-nosnippet>613</a>    </span><span class="kw">pub const </span>SETXATTR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">188</span>;
+<a href=#614 id=614 data-nosnippet>614</a>    <span class="doccomment">/// System V shared memory attach.
+<a href=#615 id=615 data-nosnippet>615</a>    </span><span class="kw">pub const </span>SHMAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">30</span>;
+<a href=#616 id=616 data-nosnippet>616</a>    <span class="doccomment">/// System V shared memory control.
+<a href=#617 id=617 data-nosnippet>617</a>    </span><span class="kw">pub const </span>SHMCTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">31</span>;
+<a href=#618 id=618 data-nosnippet>618</a>    <span class="doccomment">/// System V shared memory detach.
+<a href=#619 id=619 data-nosnippet>619</a>    </span><span class="kw">pub const </span>SHMDT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">67</span>;
+<a href=#620 id=620 data-nosnippet>620</a>    <span class="doccomment">/// Allocate System V shared memory segment.
+<a href=#621 id=621 data-nosnippet>621</a>    </span><span class="kw">pub const </span>SHMGET: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">29</span>;
+<a href=#622 id=622 data-nosnippet>622</a>    <span class="doccomment">/// Shut down socket send/receive operations.
+<a href=#623 id=623 data-nosnippet>623</a>    </span><span class="kw">pub const </span>SHUTDOWN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">48</span>;
+<a href=#624 id=624 data-nosnippet>624</a>    <span class="doccomment">/// Set and/or get alternate signal stack.
+<a href=#625 id=625 data-nosnippet>625</a>    </span><span class="kw">pub const </span>SIGALTSTACK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">131</span>;
+<a href=#626 id=626 data-nosnippet>626</a>    <span class="doccomment">/// Create file descriptor for signal acceptance.
+<a href=#627 id=627 data-nosnippet>627</a>    </span><span class="kw">pub const </span>SIGNALFD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">282</span>;
+<a href=#628 id=628 data-nosnippet>628</a>    <span class="doccomment">/// Create file descriptor for signal acceptance with flags.
+<a href=#629 id=629 data-nosnippet>629</a>    </span><span class="kw">pub const </span>SIGNALFD4: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">289</span>;
+<a href=#630 id=630 data-nosnippet>630</a>    <span class="doccomment">/// Create socket.
+<a href=#631 id=631 data-nosnippet>631</a>    </span><span class="kw">pub const </span>SOCKET: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">41</span>;
+<a href=#632 id=632 data-nosnippet>632</a>    <span class="doccomment">/// Create pair of connected sockets.
+<a href=#633 id=633 data-nosnippet>633</a>    </span><span class="kw">pub const </span>SOCKETPAIR: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">53</span>;
+<a href=#634 id=634 data-nosnippet>634</a>    <span class="doccomment">/// Splice data to/from pipe.
+<a href=#635 id=635 data-nosnippet>635</a>    </span><span class="kw">pub const </span>SPLICE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">275</span>;
+<a href=#636 id=636 data-nosnippet>636</a>    <span class="doccomment">/// Get file status.
+<a href=#637 id=637 data-nosnippet>637</a>    </span><span class="kw">pub const </span>STAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">4</span>;
+<a href=#638 id=638 data-nosnippet>638</a>    <span class="doccomment">/// Get filesystem statistics.
+<a href=#639 id=639 data-nosnippet>639</a>    </span><span class="kw">pub const </span>STATFS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">137</span>;
+<a href=#640 id=640 data-nosnippet>640</a>    <span class="doccomment">/// Get file attributes (extended).
+<a href=#641 id=641 data-nosnippet>641</a>    </span><span class="kw">pub const </span>STATX: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">332</span>;
+<a href=#642 id=642 data-nosnippet>642</a>    <span class="doccomment">/// Stop swapping to file/device.
+<a href=#643 id=643 data-nosnippet>643</a>    </span><span class="kw">pub const </span>SWAPOFF: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">168</span>;
+<a href=#644 id=644 data-nosnippet>644</a>    <span class="doccomment">/// Start swapping to file/device.
+<a href=#645 id=645 data-nosnippet>645</a>    </span><span class="kw">pub const </span>SWAPON: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">167</span>;
+<a href=#646 id=646 data-nosnippet>646</a>    <span class="doccomment">/// Create symbolic link.
+<a href=#647 id=647 data-nosnippet>647</a>    </span><span class="kw">pub const </span>SYMLINK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">88</span>;
+<a href=#648 id=648 data-nosnippet>648</a>    <span class="doccomment">/// Create symbolic link relative to directory fd.
+<a href=#649 id=649 data-nosnippet>649</a>    </span><span class="kw">pub const </span>SYMLINKAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">266</span>;
+<a href=#650 id=650 data-nosnippet>650</a>    <span class="doccomment">/// Schedule file system sync.
+<a href=#651 id=651 data-nosnippet>651</a>    </span><span class="kw">pub const </span>SYNC: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">162</span>;
+<a href=#652 id=652 data-nosnippet>652</a>    <span class="doccomment">/// Sync a file segment with disk.
+<a href=#653 id=653 data-nosnippet>653</a>    </span><span class="kw">pub const </span>SYNC_FILE_RANGE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">277</span>;
+<a href=#654 id=654 data-nosnippet>654</a>    <span class="doccomment">/// Sync filesystem containing fd.
+<a href=#655 id=655 data-nosnippet>655</a>    </span><span class="kw">pub const </span>SYNCFS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">306</span>;
+<a href=#656 id=656 data-nosnippet>656</a>    <span class="doccomment">/// Read/write system parameters.
+<a href=#657 id=657 data-nosnippet>657</a>    </span><span class="kw">pub const </span>_SYSCTL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">156</span>;
+<a href=#658 id=658 data-nosnippet>658</a>    <span class="doccomment">/// Get filesystem type information.
+<a href=#659 id=659 data-nosnippet>659</a>    </span><span class="kw">pub const </span>SYSFS: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">139</span>;
+<a href=#660 id=660 data-nosnippet>660</a>    <span class="doccomment">/// Return system information.
+<a href=#661 id=661 data-nosnippet>661</a>    </span><span class="kw">pub const </span>SYSINFO: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">99</span>;
+<a href=#662 id=662 data-nosnippet>662</a>    <span class="doccomment">/// Read and/or clear kernel message ring buffer.
+<a href=#663 id=663 data-nosnippet>663</a>    </span><span class="kw">pub const </span>SYSLOG: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">103</span>;
+<a href=#664 id=664 data-nosnippet>664</a>    <span class="doccomment">/// Duplicate pipe content.
+<a href=#665 id=665 data-nosnippet>665</a>    </span><span class="kw">pub const </span>TEE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">276</span>;
+<a href=#666 id=666 data-nosnippet>666</a>    <span class="doccomment">/// Get time in seconds.
+<a href=#667 id=667 data-nosnippet>667</a>    </span><span class="kw">pub const </span>TIME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">201</span>;
+<a href=#668 id=668 data-nosnippet>668</a>    <span class="doccomment">/// Send signal to specific thread.
+<a href=#669 id=669 data-nosnippet>669</a>    </span><span class="kw">pub const </span>TGKILL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">234</span>;
+<a href=#670 id=670 data-nosnippet>670</a>    <span class="doccomment">/// Create POSIX per-process timer.
+<a href=#671 id=671 data-nosnippet>671</a>    </span><span class="kw">pub const </span>TIMER_CREATE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">222</span>;
+<a href=#672 id=672 data-nosnippet>672</a>    <span class="doccomment">/// Delete POSIX per-process timer.
+<a href=#673 id=673 data-nosnippet>673</a>    </span><span class="kw">pub const </span>TIMER_DELETE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">226</span>;
+<a href=#674 id=674 data-nosnippet>674</a>    <span class="doccomment">/// Fetch state of POSIX timer.
+<a href=#675 id=675 data-nosnippet>675</a>    </span><span class="kw">pub const </span>TIMER_GETOVERRUN: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">225</span>;
+<a href=#676 id=676 data-nosnippet>676</a>    <span class="doccomment">/// Fetch state of POSIX timer.
+<a href=#677 id=677 data-nosnippet>677</a>    </span><span class="kw">pub const </span>TIMER_GETTIME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">224</span>;
+<a href=#678 id=678 data-nosnippet>678</a>    <span class="doccomment">/// Arm/disarm POSIX timer.
+<a href=#679 id=679 data-nosnippet>679</a>    </span><span class="kw">pub const </span>TIMER_SETTIME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">223</span>;
+<a href=#680 id=680 data-nosnippet>680</a>    <span class="doccomment">/// Create timerfd timer.
+<a href=#681 id=681 data-nosnippet>681</a>    </span><span class="kw">pub const </span>TIMERFD_CREATE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">283</span>;
+<a href=#682 id=682 data-nosnippet>682</a>    <span class="doccomment">/// Get timerfd timer expiration.
+<a href=#683 id=683 data-nosnippet>683</a>    </span><span class="kw">pub const </span>TIMERFD_GETTIME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">287</span>;
+<a href=#684 id=684 data-nosnippet>684</a>    <span class="doccomment">/// Set timerfd timer expiration.
+<a href=#685 id=685 data-nosnippet>685</a>    </span><span class="kw">pub const </span>TIMERFD_SETTIME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">286</span>;
+<a href=#686 id=686 data-nosnippet>686</a>    <span class="doccomment">/// Get process times.
+<a href=#687 id=687 data-nosnippet>687</a>    </span><span class="kw">pub const </span>TIMES: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">100</span>;
+<a href=#688 id=688 data-nosnippet>688</a>    <span class="doccomment">/// Send signal to specific thread.
+<a href=#689 id=689 data-nosnippet>689</a>    </span><span class="kw">pub const </span>TKILL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">200</span>;
+<a href=#690 id=690 data-nosnippet>690</a>    <span class="doccomment">/// Truncate file to specified length.
+<a href=#691 id=691 data-nosnippet>691</a>    </span><span class="kw">pub const </span>TRUNCATE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">76</span>;
+<a href=#692 id=692 data-nosnippet>692</a>    <span class="doccomment">/// Reserved for tux.
+<a href=#693 id=693 data-nosnippet>693</a>    </span><span class="kw">pub const </span>TUXCALL: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">184</span>;
+<a href=#694 id=694 data-nosnippet>694</a>    <span class="doccomment">/// Set file mode creation mask.
+<a href=#695 id=695 data-nosnippet>695</a>    </span><span class="kw">pub const </span>UMASK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">95</span>;
+<a href=#696 id=696 data-nosnippet>696</a>    <span class="doccomment">/// Unmount filesystem.
+<a href=#697 id=697 data-nosnippet>697</a>    </span><span class="kw">pub const </span>UMOUNT2: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">166</span>;
+<a href=#698 id=698 data-nosnippet>698</a>    <span class="doccomment">/// Get name and information about current kernel.
+<a href=#699 id=699 data-nosnippet>699</a>    </span><span class="kw">pub const </span>UNAME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">63</span>;
+<a href=#700 id=700 data-nosnippet>700</a>    <span class="doccomment">/// Delete name and possibly the file it refers to.
+<a href=#701 id=701 data-nosnippet>701</a>    </span><span class="kw">pub const </span>UNLINK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">87</span>;
+<a href=#702 id=702 data-nosnippet>702</a>    <span class="doccomment">/// Delete name relative to directory fd.
+<a href=#703 id=703 data-nosnippet>703</a>    </span><span class="kw">pub const </span>UNLINKAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">263</span>;
+<a href=#704 id=704 data-nosnippet>704</a>    <span class="doccomment">/// Disassociate parts of process execution context.
+<a href=#705 id=705 data-nosnippet>705</a>    </span><span class="kw">pub const </span>UNSHARE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">272</span>;
+<a href=#706 id=706 data-nosnippet>706</a>    <span class="doccomment">/// Load shared library.
+<a href=#707 id=707 data-nosnippet>707</a>    </span><span class="kw">pub const </span>USELIB: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">134</span>;
+<a href=#708 id=708 data-nosnippet>708</a>    <span class="doccomment">/// Get filesystem statistics (legacy).
+<a href=#709 id=709 data-nosnippet>709</a>    </span><span class="kw">pub const </span>USTAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">136</span>;
+<a href=#710 id=710 data-nosnippet>710</a>    <span class="doccomment">/// Create userfaultfd handle.
+<a href=#711 id=711 data-nosnippet>711</a>    </span><span class="kw">pub const </span>USERFAULTFD: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">323</span>;
+<a href=#712 id=712 data-nosnippet>712</a>    <span class="doccomment">/// Change file last access/modification times.
+<a href=#713 id=713 data-nosnippet>713</a>    </span><span class="kw">pub const </span>UTIME: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">132</span>;
+<a href=#714 id=714 data-nosnippet>714</a>    <span class="doccomment">/// Change file timestamps with nanosecond precision.
+<a href=#715 id=715 data-nosnippet>715</a>    </span><span class="kw">pub const </span>UTIMENSAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">280</span>;
+<a href=#716 id=716 data-nosnippet>716</a>    <span class="doccomment">/// Change file last access/modification times.
+<a href=#717 id=717 data-nosnippet>717</a>    </span><span class="kw">pub const </span>UTIMES: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">235</span>;
+<a href=#718 id=718 data-nosnippet>718</a>    <span class="doccomment">/// Create child process and block parent.
+<a href=#719 id=719 data-nosnippet>719</a>    </span><span class="kw">pub const </span>VFORK: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">58</span>;
+<a href=#720 id=720 data-nosnippet>720</a>    <span class="doccomment">/// Hang up current terminal.
+<a href=#721 id=721 data-nosnippet>721</a>    </span><span class="kw">pub const </span>VHANGUP: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">153</span>;
+<a href=#722 id=722 data-nosnippet>722</a>    <span class="doccomment">/// Splice user pages into pipe.
+<a href=#723 id=723 data-nosnippet>723</a>    </span><span class="kw">pub const </span>VMSPLICE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">278</span>;
+<a href=#724 id=724 data-nosnippet>724</a>    <span class="doccomment">/// Reserved for vsyscall.
+<a href=#725 id=725 data-nosnippet>725</a>    </span><span class="kw">pub const </span>VSERVER: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">236</span>;
+<a href=#726 id=726 data-nosnippet>726</a>    <span class="doccomment">/// Wait for process to change state.
+<a href=#727 id=727 data-nosnippet>727</a>    </span><span class="kw">pub const </span>WAIT4: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">61</span>;
+<a href=#728 id=728 data-nosnippet>728</a>    <span class="doccomment">/// Wait for process to change state (extended).
+<a href=#729 id=729 data-nosnippet>729</a>    </span><span class="kw">pub const </span>WAITID: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">247</span>;
+<a href=#730 id=730 data-nosnippet>730</a>    <span class="doccomment">/// Write to file descriptor.
+<a href=#731 id=731 data-nosnippet>731</a>    </span><span class="kw">pub const </span>WRITE: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">1</span>;
+<a href=#732 id=732 data-nosnippet>732</a>    <span class="doccomment">/// Scatter/gather write.
+<a href=#733 id=733 data-nosnippet>733</a>    </span><span class="kw">pub const </span>WRITEV: <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> = <span class="number">20</span>;
+<a href=#734 id=734 data-nosnippet>734</a>}</code></pre></div></section></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ColorSpace"],"fn":["configuration","license","version"],"mod":["color_space","context","filter","flag","support","vector"],"struct":["Context","Filter","Flags","Vector"]};

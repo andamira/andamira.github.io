@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="An extension trait for miniquad’s `MiniquadEventHandler`."><title>MiniquadEventHandlerExt in devela::ui::back::miniquad - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Miniquad<wbr>Event<wbr>Handler<wbr>Ext</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.init" title="init">init</a></li><li><a href="#tymethod.interpolation" title="interpolation">interpolation</a></li><li><a href="#tymethod.maintain_aspect_ratio" title="maintain_aspect_ratio">maintain_aspect_ratio</a></li><li><a href="#tymethod.set_interpolation" title="set_interpolation">set_interpolation</a></li><li><a href="#tymethod.set_maintain_aspect_ratio" title="set_maintain_aspect_ratio">set_maintain_aspect_ratio</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>ui::<wbr>back::<wbr>miniquad</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">ui</a>::<wbr><a href="../index.html">back</a>::<wbr><a href="index.html">miniquad</a></div><h1>Trait <span class="trait">MiniquadEventHandlerExt</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/ui/back/miniquad/service.rs.html#20-33">Source</a> </span></div><pre class="rust item-decl"><code>pub trait MiniquadEventHandlerExt: <a class="trait" href="../../../all/trait.MiniquadEventHandler.html" title="trait devela::all::MiniquadEventHandler">EventHandler</a> {
+    // Required methods
+    fn <a href="#tymethod.init" class="fn">init</a>(self) -&gt; Self;
+<span class="item-spacer"></span>    fn <a href="#tymethod.interpolation" class="fn">interpolation</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.set_interpolation" class="fn">set_interpolation</a>(&amp;mut self, interpolate: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>);
+<span class="item-spacer"></span>    fn <a href="#tymethod.maintain_aspect_ratio" class="fn">maintain_aspect_ratio</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.set_maintain_aspect_ratio" class="fn">set_maintain_aspect_ratio</a>(&amp;mut self, maintain: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>);
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_miniquad</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An extension trait for miniquad’s <code>MiniquadEventHandler</code>.</p>
+<p>It allows lazy initialization and other methods.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.init" class="method"><a class="src rightside" href="../../../../src/devela/ui/back/miniquad/service.rs.html#22">Source</a><h4 class="code-header">fn <a href="#tymethod.init" class="fn">init</a>(self) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns the event handler initialized.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.interpolation" class="method"><a class="src rightside" href="../../../../src/devela/ui/back/miniquad/service.rs.html#25">Source</a><h4 class="code-header">fn <a href="#tymethod.interpolation" class="fn">interpolation</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Whether it interpolates the scaled pixels.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.set_interpolation" class="method"><a class="src rightside" href="../../../../src/devela/ui/back/miniquad/service.rs.html#27">Source</a><h4 class="code-header">fn <a href="#tymethod.set_interpolation" class="fn">set_interpolation</a>(&amp;mut self, interpolate: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>)</h4></section></summary><div class="docblock"><p>Set whether to <code>interpolate</code> the scaled pixels.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.maintain_aspect_ratio" class="method"><a class="src rightside" href="../../../../src/devela/ui/back/miniquad/service.rs.html#30">Source</a><h4 class="code-header">fn <a href="#tymethod.maintain_aspect_ratio" class="fn">maintain_aspect_ratio</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Whether the aspect ratio is maintained on window resize.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.set_maintain_aspect_ratio" class="method"><a class="src rightside" href="../../../../src/devela/ui/back/miniquad/service.rs.html#32">Source</a><h4 class="code-header">fn <a href="#tymethod.set_maintain_aspect_ratio" class="fn">set_maintain_aspect_ratio</a>(&amp;mut self, maintain: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>)</h4></section></summary><div class="docblock"><p>Set whether to <code>maintain</code> the aspect ratio on window resize.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-MiniquadEventHandlerExt-for-MiniquadPixels" class="impl"><a class="src rightside" href="../../../../src/devela/ui/back/miniquad/pixels.rs.html#138-152">Source</a><a href="#impl-MiniquadEventHandlerExt-for-MiniquadPixels" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../all/trait.MiniquadEventHandlerExt.html" title="trait devela::all::MiniquadEventHandlerExt">MiniquadEventHandlerExt</a> for <a class="struct" href="../../../all/struct.MiniquadPixels.html" title="struct devela::all::MiniquadPixels">MiniquadPixels</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>alloc</code></strong> only.</div></span></section></div><script src="../../../../trait.impl/devela/ui/back/miniquad/service/trait.MiniquadEventHandlerExt.js" async></script></section></div></main></body></html>

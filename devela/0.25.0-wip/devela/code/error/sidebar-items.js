@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BacktraceStatus","ImageError","IoErrorKind","NotAvailable","NumError","TextError"],"macro":["compile_error"],"struct":["Backtrace","FailedErrorConversion","InvalidValue","IoError","NotImplemented","NotSupported"],"trait":["Error"],"type":["ImageResult","IoResult","NumResult","TextResult"]};

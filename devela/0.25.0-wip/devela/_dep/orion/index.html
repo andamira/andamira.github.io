@@ -1,0 +1,130 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`orion` Usable, easy and safe pure-Rust crypto."><title>devela::_dep::orion - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../crates.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate orion</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#authenticated-secret-key-encryption" title="Authenticated secret-key encryption">Authenticated secret-key encryption</a></li><li><a href="#password-hashing-and-verification" title="Password hashing and verification">Password hashing and verification</a></li><li><a href="#key-derivation" title="Key derivation">Key derivation</a></li><li><a href="#message-authentication" title="Message authentication">Message authentication</a></li><li><a href="#hashing" title="Hashing">Hashing</a></li><li><a href="#key-exchange" title="Key exchange">Key exchange</a><ul><li><a href="#a-note-on-no_std" title="A note on `no_std`:">A note on <code>no_std</code>:</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a></div><h1>Crate <span>orion</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_orion</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='re-exported `orion`'><code>orion</code></span>
+Usable, easy and safe pure-Rust crypto.</p>
+<hr />
+<p>A usable pure-Rust cryptography library.</p>
+<h3 id="authenticated-secret-key-encryption"><a class="doc-anchor" href="#authenticated-secret-key-encryption">§</a>Authenticated secret-key encryption</h3>
+<p><a href="aead/index.html" title="mod devela::_dep::orion::aead"><code>orion::aead</code></a> offers authenticated secret-key encryption using
+XChaCha20Poly1305.</p>
+<h3 id="password-hashing-and-verification"><a class="doc-anchor" href="#password-hashing-and-verification">§</a>Password hashing and verification</h3>
+<p><a href="pwhash/index.html" title="mod devela::_dep::orion::pwhash"><code>orion::pwhash</code></a> offers password hashing and verification using Argon2i.</p>
+<h3 id="key-derivation"><a class="doc-anchor" href="#key-derivation">§</a>Key derivation</h3>
+<p><a href="kdf/index.html" title="mod devela::_dep::orion::kdf"><code>orion::kdf</code></a> offers key derivation using Argon2i.</p>
+<h3 id="message-authentication"><a class="doc-anchor" href="#message-authentication">§</a>Message authentication</h3>
+<p><a href="auth/index.html" title="mod devela::_dep::orion::auth"><code>orion::auth</code></a> offers message authentication and verification using BLAKE2b.</p>
+<h3 id="hashing"><a class="doc-anchor" href="#hashing">§</a>Hashing</h3>
+<p><a href="hash/index.html" title="mod devela::_dep::orion::hash"><code>orion::hash</code></a> offers hashing using BLAKE2b.</p>
+<h3 id="key-exchange"><a class="doc-anchor" href="#key-exchange">§</a>Key exchange</h3>
+<p><a href="kex/index.html" title="mod devela::_dep::orion::kex"><code>orion::kex</code></a> offers ephemeral key exchange using X25519 and BLAKE2b.</p>
+<h4 id="a-note-on-no_std"><a class="doc-anchor" href="#a-note-on-no_std">§</a>A note on <code>no_std</code>:</h4>
+<p>When Orion is used in a <code>no_std</code> context, the high-level API is not available, since it relies on access to the systems random number generator.</p>
+<p>More information about Orion is available in the <a href="https://github.com/orion-rs/orion/wiki">wiki</a>.</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="aead/index.html" title="mod devela::_dep::orion::aead">aead</a></dt><dd>Authenticated secret-key encryption.</dd><dt><a class="mod" href="auth/index.html" title="mod devela::_dep::orion::auth">auth</a></dt><dd>Message authentication.</dd><dt><a class="mod" href="errors/index.html" title="mod devela::_dep::orion::errors">errors</a></dt><dd>Errors for Orion’s cryptographic operations.</dd><dt><a class="mod" href="hash/index.html" title="mod devela::_dep::orion::hash">hash</a></dt><dd>Hashing.</dd><dt><a class="mod" href="hazardous/index.html" title="mod devela::_dep::orion::hazardous">hazardous</a></dt><dd>[<strong><strong>Caution</strong></strong>] Low-level API.</dd><dt><a class="mod" href="kdf/index.html" title="mod devela::_dep::orion::kdf">kdf</a></dt><dd>Key derivation.</dd><dt><a class="mod" href="kex/index.html" title="mod devela::_dep::orion::kex">kex</a></dt><dd>Ephemeral key exchange.</dd><dt><a class="mod" href="pwhash/index.html" title="mod devela::_dep::orion::pwhash">pwhash</a></dt><dd>Password hashing and verification.</dd><dt><a class="mod" href="util/index.html" title="mod devela::_dep::orion::util">util</a></dt><dd>Utilities such as constant-time comparison.</dd></dl></section></div></main></body></html>

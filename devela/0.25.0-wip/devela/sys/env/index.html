@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Inspection and manipulation of the process’s environment."><title>devela::sys::env - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module env</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module env</a></h2><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>sys</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">sys</a></div><h1>Module <span>env</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/sys/env/mod.rs.html#3-39">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Inspection and manipulation of the process’s environment.</p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../../_dep/_std/env/index.html" title="mod devela::_dep::_std::env">env</a>}</span><hr/></p>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.env_.html" title="macro devela::sys::env::env_">env_</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Inspects an environment variable at compile time.</dd><dt><a class="macro" href="macro.option_env.html" title="macro devela::sys::env::option_env">option_<wbr>env</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Optionally inspects an environment variable at compile time.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AppApple.html" title="struct devela::sys::env::AppApple">AppApple</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd>Apple enviroment for directories.</dd><dt><a class="struct" href="struct.AppConfig.html" title="struct devela::sys::env::AppConfig">AppConfig</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd>Application specific metadata.</dd><dt><a class="struct" href="struct.AppUnix.html" title="struct devela::sys::env::AppUnix">AppUnix</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd>Unix enviroment for directories.</dd><dt><a class="struct" href="struct.AppWindows.html" title="struct devela::sys::env::AppWindows">AppWindows</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd>Windows enviroment for directories.</dd><dt><a class="struct" href="struct.AppXdg.html" title="struct devela::sys::env::AppXdg">AppXdg</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd>Xdg enviroment for directories.</dd><dt><a class="struct" href="struct.Env.html" title="struct devela::sys::env::Env">Env</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+A namespaced wrapper for <code>std::env</code> functions and constants.</dd><dt><a class="struct" href="struct.IterArgs.html" title="struct devela::sys::env::IterArgs">Iter<wbr>Args</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Iterates over the arguments of a process, yielding them as <a href="../../all/struct.String.html" title="struct devela::all::String"><code>String</code></a>s.</dd><dt><a class="struct" href="struct.IterArgsOs.html" title="struct devela::sys::env::IterArgsOs">Iter<wbr>Args<wbr>Os</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Iterates over the arguments of a process, yielding them as
+<a href="../../all/struct.OsString.html" title="struct devela::all::OsString"><code>OsString</code></a>s.</dd><dt><a class="struct" href="struct.IterArgsOsRef.html" title="struct devela::sys::env::IterArgsOsRef">Iter<wbr>Args<wbr>OsRef</a><wbr><span class="stab portability" title="Available on crate features `std` and `unsafe_ffi` only"><code>std</code> and <code>unsafe_ffi</code></span></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='Fails to compile with Miri.'><code>⚠️</code></span>
+Iterator over references of command line arguments.</dd><dt><a class="struct" href="struct.IterSplitPaths.html" title="struct devela::sys::env::IterSplitPaths">Iter<wbr>Split<wbr>Paths</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An iterator that splits an environment variable into paths.</dd><dt><a class="struct" href="struct.IterVars.html" title="struct devela::sys::env::IterVars">Iter<wbr>Vars</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An iterator over a snapshot of the environment variables of this process.</dd><dt><a class="struct" href="struct.IterVarsOs.html" title="struct devela::sys::env::IterVarsOs">Iter<wbr>Vars<wbr>Os</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An iterator over a snapshot of the environment variables of this process.</dd><dt><a class="struct" href="struct.JoinPathsError.html" title="struct devela::sys::env::JoinPathsError">Join<wbr>Paths<wbr>Error</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Returned from <a href="../../all/struct.Env.html#method.join_paths" title="struct devela::all::Env">Env::join_paths</a>.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.VarError.html" title="enum devela::sys::env::VarError">VarError</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Returned from <a href="../../all/struct.Env.html#method.var" title="struct devela::all::Env"><code>Env::var</code></a>.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.AppEnv.html" title="trait devela::sys::env::AppEnv">AppEnv</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd>Manages directory paths in an environment-aware manner.</dd></dl></section></div></main></body></html>

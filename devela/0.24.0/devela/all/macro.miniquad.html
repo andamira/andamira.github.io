@@ -1,0 +1,162 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A macro for namespaced `miniquad` operations."><title>miniquad in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">miniquad</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#arms" title="Arms">Arms</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Macro <span class="macro">miniquad</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/ui/back/miniquad/namespace.rs.html#34-108">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! miniquad {
+    (
+    /* buffers */
+
+    // Creates a vertex buffer resource object.
+    new_vertices($ctx:expr, $(BufferUsage::)?$usage:ident, $vertices:expr)) =&gt; { ... };
+    (
+    // Creates an index buffer resource object.
+    new_indices($ctx:expr, $usage:ident, $indices:expr)) =&gt; { ... };
+    (
+    // Creates both a vertex and index buffer resource objects.
+    new_vertices_indices($ctx:expr, $usage:ident, $vertices:expr, $indices:expr)) =&gt; { ... };
+    (
+    /* shaders */
+
+    // Creates a OpenGL shader buffer resource object.
+    new_shader_glsl($ctx:expr, $vertex:expr, $fragment:expr, $meta:expr)) =&gt; { ... };
+    (
+    // Creates a Metal shader buffer resource object.
+    new_shader_msl($ctx:expr, $msl:expr, $meta:expr)) =&gt; { ... };
+    (
+    // Creates a Glsl or Metal shader buffer resource object, depending on the backend.
+    new_shader($ctx:expr, $vertex:expr, $fragment:expr, $msl:expr, $meta:expr)) =&gt; { ... };
+    (
+    /* bindings */
+
+    // Constructs Bindings.
+    bindings($vertex_buffers:expr, $index_buffer:expr, $images:expr) ) =&gt; { ... };
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_miniquad</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A macro for namespaced <a href="../_dep/miniquad/index.html" title="mod devela::_dep::miniquad"><code>miniquad</code></a> operations.</p>
+<h2 id="arms"><a class="doc-anchor" href="#arms">§</a>Arms</h2>
+<ul>
+<li><a href="trait.MiniquadRenderingBackend.html#tymethod.new_buffer" title="method devela::all::MiniquadRenderingBackend::new_buffer"><code>new_buffer</code></a> wrappers:
+<ul>
+<li>new_vertices(<a href="trait.MiniquadRenderingBackend.html" title="trait devela::all::MiniquadRenderingBackend"><code>$ctx</code></a>, <a href="../_dep/miniquad/enum.BufferUsage.html" title="enum devela::_dep::miniquad::BufferUsage"><code>$usage</code></a>, <code>&amp;[vertices]</code>) -&gt; <a href="../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId"><code>BufferId</code></a>;</li>
+<li>new_indices(<a href="trait.MiniquadRenderingBackend.html" title="trait devela::all::MiniquadRenderingBackend"><code>$ctx</code></a>, <a href="../_dep/miniquad/enum.BufferUsage.html" title="enum devela::_dep::miniquad::BufferUsage"><code>$usage</code></a>, <code>&amp;[indices]</code>) -&gt; <a href="../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId"><code>BufferId</code></a>;</li>
+<li>new_vertices_indices(<a href="trait.MiniquadRenderingBackend.html" title="trait devela::all::MiniquadRenderingBackend"><code>$ctx</code></a>, <a href="../_dep/miniquad/enum.BufferUsage.html" title="enum devela::_dep::miniquad::BufferUsage"><code>$usage</code></a>, <code>&amp;[vertices]</code>, <code>&amp;[indices]</code>)
+-&gt; (<a href="../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId"><code>BufferId</code></a>, <a href="../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId"><code>BufferId</code></a>);</li>
+</ul>
+</li>
+<li><a href="trait.MiniquadRenderingBackend.html#tymethod.new_shader" title="method devela::all::MiniquadRenderingBackend::new_shader"><code>new_shader</code></a> wrappers:
+<ul>
+<li>new_shader(<a href="trait.MiniquadRenderingBackend.html" title="trait devela::all::MiniquadRenderingBackend"><code>$ctx</code></a>, <code>&amp;str</code>, <code>&amp;str</code>, <code>&amp;str</code>, <a href="../_dep/miniquad/struct.ShaderMeta.html" title="struct devela::_dep::miniquad::ShaderMeta"><code>$meta</code></a>) -&gt; <a href="../_dep/miniquad/struct.ShaderId.html" title="struct devela::_dep::miniquad::ShaderId"><code>ShaderId</code></a>;</li>
+<li>new_shader_glsl(<a href="trait.MiniquadRenderingBackend.html" title="trait devela::all::MiniquadRenderingBackend"><code>$ctx</code></a>, <code>&amp;str</code>, <code>&amp;str</code>, <a href="../_dep/miniquad/struct.ShaderMeta.html" title="struct devela::_dep::miniquad::ShaderMeta"><code>$meta</code></a>) -&gt; <a href="../_dep/miniquad/struct.ShaderId.html" title="struct devela::_dep::miniquad::ShaderId"><code>ShaderId</code></a>;</li>
+<li>new_shader_msl(<a href="trait.MiniquadRenderingBackend.html" title="trait devela::all::MiniquadRenderingBackend"><code>$ctx</code></a>, <code>&amp;str</code>, <a href="../_dep/miniquad/struct.ShaderMeta.html" title="struct devela::_dep::miniquad::ShaderMeta"><code>$meta</code></a>) -&gt; <a href="../_dep/miniquad/struct.ShaderId.html" title="struct devela::_dep::miniquad::ShaderId"><code>ShaderId</code></a>;</li>
+</ul>
+</li>
+<li><a href="../_dep/miniquad/struct.Bindings.html" title="struct devela::_dep::miniquad::Bindings"><code>Bindings</code></a> wrappers:
+<ul>
+<li>bindings(<code>Vec&lt;</code><a href="../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId"><code>BufferId</code></a><code>&gt;</code>, <a href="../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId"><code>BufferId</code></a>, <code>Vec&lt;</code><a href="../_dep/miniquad/struct.ShaderId.html" title="struct devela::_dep::miniquad::ShaderId"><code>ShaderId</code></a><code>&gt;</code>) -&gt; <a href="../_dep/miniquad/struct.Bindings.html" title="struct devela::_dep::miniquad::Bindings"><code>Bindings</code></a>;</li>
+</ul>
+</li>
+</ul>
+</div></details></section></div></main></body></html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Composable external iteration."><title>devela::data::iter - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module iter</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>data</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">data</a></div><h1>Module <span>iter</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/data/iter/mod.rs.html#3-28">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Composable external iteration.</p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../../_core/iter/index.html" title="mod devela::_core::iter">iter</a>}</span><hr/></p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Iter.html" title="struct devela::data::iter::Iter">Iter</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+<span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+Iterator-related namespaced operations.</dd><dt><a class="struct" href="struct.IterChain.html" title="struct devela::data::iter::IterChain">Iter<wbr>Chain</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that links two iterators together, in a chain.</dd><dt><a class="struct" href="struct.IterCloned.html" title="struct devela::data::iter::IterCloned">Iter<wbr>Cloned</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that clones the elements of an underlying iterator.</dd><dt><a class="struct" href="struct.IterCopied.html" title="struct devela::data::iter::IterCopied">Iter<wbr>Copied</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that copies the elements of an underlying iterator.</dd><dt><a class="struct" href="struct.IterCycle.html" title="struct devela::data::iter::IterCycle">Iter<wbr>Cycle</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that repeats endlessly.</dd><dt><a class="struct" href="struct.IterEmpty.html" title="struct devela::data::iter::IterEmpty">Iter<wbr>Empty</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that yields nothing.</dd><dt><a class="struct" href="struct.IterEnumerate.html" title="struct devela::data::iter::IterEnumerate">Iter<wbr>Enumerate</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that yields the current count and the element during iteration.</dd><dt><a class="struct" href="struct.IterFilter.html" title="struct devela::data::iter::IterFilter">Iter<wbr>Filter</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that filters the elements of <code>iter</code> with <code>predicate</code>.</dd><dt><a class="struct" href="struct.IterFilterMap.html" title="struct devela::data::iter::IterFilterMap">Iter<wbr>Filter<wbr>Map</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that uses <code>f</code> to both filter and map elements from <code>iter</code>.</dd><dt><a class="struct" href="struct.IterFlatMap.html" title="struct devela::data::iter::IterFlatMap">Iter<wbr>Flat<wbr>Map</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that maps each element to an iterator, and yields their elements.</dd><dt><a class="struct" href="struct.IterFlatten.html" title="struct devela::data::iter::IterFlatten">Iter<wbr>Flatten</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that flattens one level of nesting in an iterator of iterables.</dd><dt><a class="struct" href="struct.IterFromFn.html" title="struct devela::data::iter::IterFromFn">Iter<wbr>From<wbr>Fn</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator where each iteration calls a closure <code>F: FnMut() -&gt; Option&lt;T&gt;</code>.</dd><dt><a class="struct" href="struct.IterFuse.html" title="struct devela::data::iter::IterFuse">Iter<wbr>Fuse</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that yields <code>None</code> forever after the underlying yields <code>None</code> once.</dd><dt><a class="struct" href="struct.IterInspect.html" title="struct devela::data::iter::IterInspect">Iter<wbr>Inspect</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that calls a fn with a reference to each element before yielding it.</dd><dt><a class="struct" href="struct.IterMap.html" title="struct devela::data::iter::IterMap">IterMap</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that maps the values of iter with <code>f</code>.</dd><dt><a class="struct" href="struct.IterMapWhile.html" title="struct devela::data::iter::IterMapWhile">Iter<wbr>MapWhile</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that only accepts elements while <code>predicate</code> returns <code>Some(_)</code>.</dd><dt><a class="struct" href="struct.IterOnce.html" title="struct devela::data::iter::IterOnce">Iter<wbr>Once</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that yields an element exactly once.</dd><dt><a class="struct" href="struct.IterOnceWith.html" title="struct devela::data::iter::IterOnceWith">Iter<wbr>Once<wbr>With</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that yields a single element <code>A</code> by calling <code>F: FnOnce() -&gt; A</code>.</dd><dt><a class="struct" href="struct.IterPeekable.html" title="struct devela::data::iter::IterPeekable">Iter<wbr>Peekable</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator with a <code>peek()</code> that returns an optional ref to the next element.</dd><dt><a class="struct" href="struct.IterRepeat.html" title="struct devela::data::iter::IterRepeat">Iter<wbr>Repeat</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that repeats an element endlessly.</dd><dt><a class="struct" href="struct.IterRepeatN.html" title="struct devela::data::iter::IterRepeatN">Iter<wbr>RepeatN</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that repeats an element an exact number of times.</dd><dt><a class="struct" href="struct.IterRepeatWith.html" title="struct devela::data::iter::IterRepeatWith">Iter<wbr>Repeat<wbr>With</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that endlessly repeats <code>A</code> by calling <code>F: FnMut() -&gt; A</code>.</dd><dt><a class="struct" href="struct.IterRev.html" title="struct devela::data::iter::IterRev">IterRev</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A double-ended iterator with the direction inverted.</dd><dt><a class="struct" href="struct.IterScan.html" title="struct devela::data::iter::IterScan">Iter<wbr>Scan</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator to maintain state while iterating another iterator.</dd><dt><a class="struct" href="struct.IterSkip.html" title="struct devela::data::iter::IterSkip">Iter<wbr>Skip</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that skips over <code>n</code> elements of <code>iter</code>.</dd><dt><a class="struct" href="struct.IterSkipWhile.html" title="struct devela::data::iter::IterSkipWhile">Iter<wbr>Skip<wbr>While</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that rejects elements while <code>predicate</code> returns <code>true</code>.</dd><dt><a class="struct" href="struct.IterStepBy.html" title="struct devela::data::iter::IterStepBy">Iter<wbr>Step<wbr>By</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator for stepping iterators by a custom amount.</dd><dt><a class="struct" href="struct.IterSuccessors.html" title="struct devela::data::iter::IterSuccessors">Iter<wbr>Successors</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator where each successive item is computed based on the preceding one.</dd><dt><a class="struct" href="struct.IterTake.html" title="struct devela::data::iter::IterTake">Iter<wbr>Take</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that only iterates over the first <code>n</code> iterations of <code>iter</code>.</dd><dt><a class="struct" href="struct.IterTakeWhile.html" title="struct devela::data::iter::IterTakeWhile">Iter<wbr>Take<wbr>While</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that only accepts elements while <code>predicate</code> returns <code>true</code>.</dd><dt><a class="struct" href="struct.IterZip.html" title="struct devela::data::iter::IterZip">IterZip</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that iterates two other iterators simultaneously.</dd><dt><a class="struct" href="struct.IterFromCoroutine.html" title="struct devela::data::iter::IterFromCoroutine">Iter<wbr>From<wbr>Coroutine</a><wbr><span class="stab unstable" title="">Experimental</span><wbr><span class="stab portability" title="Available on `nightly_coro` only"><code>nightly_coro</code></span></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Creates an iterator where each iteration calls the provided coroutine.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Iterator.html" title="trait devela::data::iter::Iterator">Iterator</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A trait for dealing with iterators.</dd><dt><a class="trait" href="trait.IteratorDoubleEnded.html" title="trait devela::data::iter::IteratorDoubleEnded">Iterator<wbr>Double<wbr>Ended</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator able to yield elements from both ends.</dd><dt><a class="trait" href="trait.IteratorExactSize.html" title="trait devela::data::iter::IteratorExactSize">Iterator<wbr>Exact<wbr>Size</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that knows its exact length.</dd><dt><a class="trait" href="trait.IteratorExtend.html" title="trait devela::data::iter::IteratorExtend">Iterator<wbr>Extend</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Extend a collection with the contents of an iterator.</dd><dt><a class="trait" href="trait.IteratorFrom.html" title="trait devela::data::iter::IteratorFrom">Iterator<wbr>From</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Conversion from an <a href="../../all/trait.Iterator.html" title="trait devela::all::Iterator"><code>Iterator</code></a>.</dd><dt><a class="trait" href="trait.IteratorFused.html" title="trait devela::data::iter::IteratorFused">Iterator<wbr>Fused</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator that always continues to yield <code>None</code> when exhausted.</dd><dt><a class="trait" href="trait.IteratorInto.html" title="trait devela::data::iter::IteratorInto">Iterator<wbr>Into</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Conversion into an <a href="../../all/trait.Iterator.html" title="trait devela::all::Iterator"><code>Iterator</code></a>.</dd><dt><a class="trait" href="trait.IteratorMultiUnzip.html" title="trait devela::data::iter::IteratorMultiUnzip">Iterator<wbr>Multi<wbr>Unzip</a><wbr><span class="stab portability" title="Available on crate feature `dep_itertools` only"><code>dep_itertools</code></span></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from the `itertools` crate'><code>itertools</code></span>
+An iterator that can be unzipped into multiple collections.</dd><dt><a class="trait" href="trait.IteratorPeekingNext.html" title="trait devela::data::iter::IteratorPeekingNext">Iterator<wbr>Peeking<wbr>Next</a><wbr><span class="stab portability" title="Available on crate feature `dep_itertools` only"><code>dep_itertools</code></span></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from the `itertools` crate'><code>itertools</code></span>
+An iterator that allows peeking at an element before deciding to accept it.</dd><dt><a class="trait" href="trait.IteratorProduct.html" title="trait devela::data::iter::IteratorProduct">Iterator<wbr>Product</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Represents types that can be created by multiplying elements of an iterator.</dd><dt><a class="trait" href="trait.IteratorSum.html" title="trait devela::data::iter::IteratorSum">Iterator<wbr>Sum</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Represents types that can be created by summing up an iterator.</dd><dt><a class="trait" href="trait.Itertools.html" title="trait devela::data::iter::Itertools">Itertools</a><wbr><span class="stab portability" title="Available on crate feature `dep_itertools` only"><code>dep_itertools</code></span></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from the `itertools` crate'><code>itertools</code></span>
+An <a href="../../all/trait.Iterator.html" title="trait devela::all::Iterator"><code>Iterator</code></a> blanket impl providing extra adaptors and methods.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.iter_from_coroutine.html" title="fn devela::data::iter::iter_from_coroutine">iter_<wbr>from_<wbr>coroutine</a><wbr><span class="stab unstable" title="">Experimental</span><wbr><span class="stab portability" title="Available on `nightly_coro` only"><code>nightly_coro</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Creates an iterator where each iteration calls the provided coroutine.</dd></dl></section></div></main></body></html>

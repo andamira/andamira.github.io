@@ -1,0 +1,228 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A random number generator that can be explicitly seeded."><title>SeedableRng in devela::_dep::rand_core - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">SeedableRng</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Seedable<wbr>Rng</a></h2><h3><a href="#required-associated-types">Required Associated Types</a></h3><ul class="block"><li><a href="#associatedtype.Seed" title="Seed">Seed</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.from_seed" title="from_seed">from_seed</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.from_rng" title="from_rng">from_rng</a></li><li><a href="#method.seed_from_u64" title="seed_from_u64">seed_from_u64</a></li><li><a href="#method.try_from_rng" title="try_from_rng">try_from_rng</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>rand_<wbr>core</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a>::<wbr><a href="index.html">rand_core</a></div><h1>Trait <span class="trait">Seedable<wbr>Rng</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="https://rust-random.github.io/rand/src/rand_core/lib.rs.html#371">Source</a> </span></div><pre class="rust item-decl"><code>pub trait SeedableRng: <a class="trait" href="../../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a> {
+    type <a href="#associatedtype.Seed" class="associatedtype">Seed</a>: <a class="trait" href="../../code/trait.Clone.html" title="trait devela::code::Clone">Clone</a> + <a class="trait" href="../../code/trait.Default.html" title="trait devela::code::Default">Default</a> + <a class="trait" href="../../code/trait.AsRef.html" title="trait devela::code::AsRef">AsRef</a>&lt;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; + <a class="trait" href="../../code/trait.AsMut.html" title="trait devela::code::AsMut">AsMut</a>&lt;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt;;
+
+    // Required method
+    fn <a href="#tymethod.from_seed" class="fn">from_seed</a>(seed: Self::<a class="associatedtype" href="trait.SeedableRng.html#associatedtype.Seed" title="type devela::_dep::rand_core::SeedableRng::Seed">Seed</a>) -&gt; Self;
+
+    // Provided methods
+    fn <a href="#method.seed_from_u64" class="fn">seed_from_u64</a>(state: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; Self { ... }
+<span class="item-spacer"></span>    fn <a href="#method.from_rng" class="fn">from_rng</a>(rng: &amp;mut impl <a class="trait" href="trait.RngCore.html" title="trait devela::_dep::rand_core::RngCore">RngCore</a>) -&gt; Self { ... }
+<span class="item-spacer"></span>    fn <a href="#method.try_from_rng" class="fn">try_from_rng</a>&lt;R&gt;(rng: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut R</a>) -&gt; <a class="enum" href="../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;Self, &lt;R as <a class="trait" href="trait.TryRngCore.html" title="trait devela::_dep::rand_core::TryRngCore">TryRngCore</a>&gt;::<a class="associatedtype" href="trait.TryRngCore.html#associatedtype.Error" title="type devela::_dep::rand_core::TryRngCore::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;Self, &lt;R as TryRngCore&gt;::Error&gt;">ⓘ</a>
+       <span class="where">where R: <a class="trait" href="trait.TryRngCore.html" title="trait devela::_dep::rand_core::TryRngCore">TryRngCore</a></span> { ... }
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_rand_core</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A random number generator that can be explicitly seeded.</p>
+<p>This trait encapsulates the low-level functionality common to all
+pseudo-random number generators (PRNGs, or algorithmic generators).</p>
+<p>A generator implementing <code>SeedableRng</code> will usually be deterministic, but
+beware that portability and reproducibility of results <strong>is not implied</strong>.
+Refer to documentation of the generator, noting that generators named after
+a specific algorithm are usually tested for reproducibility against a
+reference vector, while <code>SmallRng</code> and <code>StdRng</code> specifically opt out of
+reproducibility guarantees.</p>
+</div></details><h2 id="required-associated-types" class="section-header">Required Associated Types<a href="#required-associated-types" class="anchor">§</a></h2><div class="methods"><details class="toggle" open><summary><section id="associatedtype.Seed" class="method"><a class="src rightside" href="https://rust-random.github.io/rand/src/rand_core/lib.rs.html#423">Source</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a>: <a class="trait" href="../../code/trait.Clone.html" title="trait devela::code::Clone">Clone</a> + <a class="trait" href="../../code/trait.Default.html" title="trait devela::code::Default">Default</a> + <a class="trait" href="../../code/trait.AsRef.html" title="trait devela::code::AsRef">AsRef</a>&lt;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; + <a class="trait" href="../../code/trait.AsMut.html" title="trait devela::code::AsMut">AsMut</a>&lt;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt;</h4></section></summary><div class="docblock"><p>Seed type, which is restricted to types mutably-dereferenceable as <code>u8</code>
+arrays (we recommend <code>[u8; N]</code> for some <code>N</code>).</p>
+<p>It is recommended to seed PRNGs with a seed of at least circa 100 bits,
+which means an array of <code>[u8; 12]</code> or greater to avoid picking RNGs with
+partially overlapping periods.</p>
+<p>For cryptographic RNG’s a seed of 256 bits is recommended, <code>[u8; 32]</code>.</p>
+<h5 id="implementing-seedablerng-for-rngs-with-large-seeds"><a class="doc-anchor" href="#implementing-seedablerng-for-rngs-with-large-seeds">§</a>Implementing <code>SeedableRng</code> for RNGs with large seeds</h5>
+<p>Note that <a href="../../code/trait.Default.html" title="trait devela::code::Default"><code>Default</code></a> is not implemented for large arrays <code>[u8; N]</code> with
+<code>N</code> &gt; 32. To be able to implement the traits required by <code>SeedableRng</code>
+for RNGs with such large seeds, the newtype pattern can be used:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rand_core::SeedableRng;
+
+<span class="kw">const </span>N: usize = <span class="number">64</span>;
+<span class="attr">#[derive(Clone)]
+</span><span class="kw">pub struct </span>MyRngSeed(<span class="kw">pub </span>[u8; N]);
+<span class="kw">pub struct </span>MyRng(MyRngSeed);
+
+<span class="kw">impl </span>Default <span class="kw">for </span>MyRngSeed {
+    <span class="kw">fn </span>default() -&gt; MyRngSeed {
+        MyRngSeed([<span class="number">0</span>; N])
+    }
+}
+
+<span class="kw">impl </span>AsRef&lt;[u8]&gt; <span class="kw">for </span>MyRngSeed {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
+}
+
+<span class="kw">impl </span>AsMut&lt;[u8]&gt; <span class="kw">for </span>MyRngSeed {
+    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8] {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0
+    </span>}
+}
+
+<span class="kw">impl </span>SeedableRng <span class="kw">for </span>MyRng {
+    <span class="kw">type </span>Seed = MyRngSeed;
+
+    <span class="kw">fn </span>from_seed(seed: MyRngSeed) -&gt; MyRng {
+        MyRng(seed)
+    }
+}</code></pre></div>
+</div></details></div><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.from_seed" class="method"><a class="src rightside" href="https://rust-random.github.io/rand/src/rand_core/lib.rs.html#450">Source</a><h4 class="code-header">fn <a href="#tymethod.from_seed" class="fn">from_seed</a>(seed: Self::<a class="associatedtype" href="trait.SeedableRng.html#associatedtype.Seed" title="type devela::_dep::rand_core::SeedableRng::Seed">Seed</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Create a new PRNG using the given seed.</p>
+<p>PRNG implementations are allowed to assume that bits in the seed are
+well distributed. That means usually that the number of one and zero
+bits are roughly equal, and values like 0, 1 and (size - 1) are unlikely.
+Note that many non-cryptographic PRNGs will show poor quality output
+if this is not adhered to. If you wish to seed from simple numbers, use
+<code>seed_from_u64</code> instead.</p>
+<p>All PRNG implementations should be reproducible unless otherwise noted:
+given a fixed <code>seed</code>, the same sequence of output should be produced
+on all runs, library versions and architectures (e.g. check endianness).
+Any “value-breaking” changes to the generator should require bumping at
+least the minor version and documentation of the change.</p>
+<p>It is not required that this function yield the same state as a
+reference implementation of the PRNG given equivalent seed; if necessary
+another constructor replicating behaviour from a reference
+implementation can be added.</p>
+<p>PRNG implementations should make sure <code>from_seed</code> never panics. In the
+case that some special values (like an all zero seed) are not viable
+seeds it is preferable to map these to alternative constant value(s),
+for example <code>0xBAD5EEDu32</code> or <code>0x0DDB1A5E5BAD5EEDu64</code> (“odd biases? bad
+seed”). This is assuming only a small number of values must be rejected.</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.seed_from_u64" class="method"><a class="src rightside" href="https://rust-random.github.io/rand/src/rand_core/lib.rs.html#466">Source</a><h4 class="code-header">fn <a href="#method.seed_from_u64" class="fn">seed_from_u64</a>(state: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Create a new PRNG using a <code>u64</code> seed.</p>
+<p>This is a convenience-wrapper around <code>from_seed</code> to allow construction
+of any <code>SeedableRng</code> from a simple <code>u64</code> value. It is designed such that
+low Hamming Weight numbers like 0 and 1 can be used and should still
+result in good, independent seeds to the PRNG which is returned.</p>
+<p>This <strong>is not suitable for cryptography</strong>, as should be clear given that
+the input size is only 64 bits.</p>
+<p>Implementations for PRNGs <em>may</em> provide their own implementations of
+this function, but the default implementation should be good enough for
+all purposes. <em>Changing</em> the implementation of this function should be
+considered a value-breaking change.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.from_rng" class="method"><a class="src rightside" href="https://rust-random.github.io/rand/src/rand_core/lib.rs.html#521">Source</a><h4 class="code-header">fn <a href="#method.from_rng" class="fn">from_rng</a>(rng: &amp;mut impl <a class="trait" href="trait.RngCore.html" title="trait devela::_dep::rand_core::RngCore">RngCore</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Create a new PRNG seeded from an infallible <code>Rng</code>.</p>
+<p>This may be useful when needing to rapidly seed many PRNGs from a master
+PRNG, and to allow forking of PRNGs. It may be considered deterministic.</p>
+<p>The master PRNG should be at least as high quality as the child PRNGs.
+When seeding non-cryptographic child PRNGs, we recommend using a
+different algorithm for the master PRNG (ideally a CSPRNG) to avoid
+correlations between the child PRNGs. If this is not possible (e.g.
+forking using small non-crypto PRNGs) ensure that your PRNG has a good
+mixing function on the output or consider use of a hash function with
+<code>from_seed</code>.</p>
+<p>Note that seeding <code>XorShiftRng</code> from another <code>XorShiftRng</code> provides an
+extreme example of what can go wrong: the new PRNG will be a clone
+of the parent.</p>
+<p>PRNG implementations are allowed to assume that a good RNG is provided
+for seeding, and that it is cryptographically secure when appropriate.
+As of <code>rand</code> 0.7 / <code>rand_core</code> 0.5, implementations overriding this
+method should ensure the implementation satisfies reproducibility
+(in prior versions this was not required).</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.try_from_rng" class="method"><a class="src rightside" href="https://rust-random.github.io/rand/src/rand_core/lib.rs.html#530">Source</a><h4 class="code-header">fn <a href="#method.try_from_rng" class="fn">try_from_rng</a>&lt;R&gt;(rng: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut R</a>) -&gt; <a class="enum" href="../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;Self, &lt;R as <a class="trait" href="trait.TryRngCore.html" title="trait devela::_dep::rand_core::TryRngCore">TryRngCore</a>&gt;::<a class="associatedtype" href="trait.TryRngCore.html#associatedtype.Error" title="type devela::_dep::rand_core::TryRngCore::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;Self, &lt;R as TryRngCore&gt;::Error&gt;">ⓘ</a><div class="where">where
+    R: <a class="trait" href="trait.TryRngCore.html" title="trait devela::_dep::rand_core::TryRngCore">TryRngCore</a>,</div></h4></section></summary><div class="docblock"><p>Create a new PRNG seeded from a potentially fallible <code>Rng</code>.</p>
+<p>See <a href="trait.SeedableRng.html#method.from_rng" title="associated function devela::_dep::rand_core::SeedableRng::from_rng"><code>from_rng</code></a> docs for more information.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-Lgc16" class="impl"><a class="src rightside" href="../../../src/devela/num/rand/lgc/u16.rs.html#145-153">Source</a><a href="#impl-SeedableRng-for-Lgc16" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="../../all/struct.Lgc16.html" title="struct devela::all::Lgc16">Lgc16</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>rand</code></strong> only.</div></span></section></summary><div class="impl-items"><section id="associatedtype.Seed-1" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/num/rand/lgc/u16.rs.html#146">Source</a><a href="#associatedtype.Seed-1" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">2</a>]</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-Xabc" class="impl"><a class="src rightside" href="../../../src/devela/num/rand/xabc.rs.html#180-186">Source</a><a href="#impl-SeedableRng-for-Xabc" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="../../all/struct.Xabc.html" title="struct devela::all::Xabc">Xabc</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>rand</code></strong> only.</div></span></section></summary><div class="impl-items"><section id="associatedtype.Seed-2" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/num/rand/xabc.rs.html#181">Source</a><a href="#associatedtype.Seed-2" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">3</a>]</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-XorShift128" class="impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u128.rs.html#204-225">Source</a><a href="#impl-SeedableRng-for-XorShift128" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="../../all/struct.XorShift128.html" title="struct devela::all::XorShift128">XorShift128</a></h3></section></summary><div class="impl-items"><section id="associatedtype.Seed-3" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u128.rs.html#205">Source</a><a href="#associatedtype.Seed-3" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">16</a>]</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-XorShift128p" class="impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u128p.rs.html#228-253">Source</a><a href="#impl-SeedableRng-for-XorShift128p" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="../../all/struct.XorShift128p.html" title="struct devela::all::XorShift128p">XorShift128p</a></h3></section></summary><div class="impl-items"><section id="associatedtype.Seed-4" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u128p.rs.html#229">Source</a><a href="#associatedtype.Seed-4" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">16</a>]</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-Xoroshiro128pp" class="impl"><a class="src rightside" href="../../../src/devela/num/rand/xoroshiro/u128.rs.html#301-322">Source</a><a href="#impl-SeedableRng-for-Xoroshiro128pp" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="../../all/struct.Xoroshiro128pp.html" title="struct devela::all::Xoroshiro128pp">Xoroshiro128pp</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>rand</code></strong> only.</div></span></section></summary><div class="impl-items"><section id="associatedtype.Seed-5" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/num/rand/xoroshiro/u128.rs.html#302">Source</a><a href="#associatedtype.Seed-5" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">16</a>]</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-Xyza8a" class="impl"><a class="src rightside" href="../../../src/devela/num/rand/xyza8.rs.html#261-266">Source</a><a href="#impl-SeedableRng-for-Xyza8a" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="../../all/struct.Xyza8a.html" title="struct devela::all::Xyza8a">Xyza8a</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>rand</code></strong> only.</div></span></section></summary><div class="impl-items"><section id="associatedtype.Seed-6" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/num/rand/xyza8.rs.html#262">Source</a><a href="#associatedtype.Seed-6" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">4</a>]</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-Xyza8b" class="impl"><a class="src rightside" href="../../../src/devela/num/rand/xyza8.rs.html#292-297">Source</a><a href="#impl-SeedableRng-for-Xyza8b" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="../../all/struct.Xyza8b.html" title="struct devela::all::Xyza8b">Xyza8b</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>rand</code></strong> only.</div></span></section></summary><div class="impl-items"><section id="associatedtype.Seed-7" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/num/rand/xyza8.rs.html#293">Source</a><a href="#associatedtype.Seed-7" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">4</a>]</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-BlockRng64%3CR%3E" class="impl"><a class="src rightside" href="https://rust-random.github.io/rand/src/rand_core/block.rs.html#400">Source</a><a href="#impl-SeedableRng-for-BlockRng64%3CR%3E" class="anchor">§</a><h3 class="code-header">impl&lt;R&gt; <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="block/struct.BlockRng64.html" title="struct devela::_dep::rand_core::block::BlockRng64">BlockRng64</a>&lt;R&gt;<div class="where">where
+    R: <a class="trait" href="block/trait.BlockRngCore.html" title="trait devela::_dep::rand_core::block::BlockRngCore">BlockRngCore</a> + <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a>,</div></h3></section></summary><div class="impl-items"><section id="associatedtype.Seed-8" class="associatedtype trait-impl"><a class="src rightside" href="https://rust-random.github.io/rand/src/rand_core/block.rs.html#401">Source</a><a href="#associatedtype.Seed-8" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = &lt;R as <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a>&gt;::<a class="associatedtype" href="trait.SeedableRng.html#associatedtype.Seed" title="type devela::_dep::rand_core::SeedableRng::Seed">Seed</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-BlockRng%3CR%3E" class="impl"><a class="src rightside" href="https://rust-random.github.io/rand/src/rand_core/block.rs.html#237">Source</a><a href="#impl-SeedableRng-for-BlockRng%3CR%3E" class="anchor">§</a><h3 class="code-header">impl&lt;R&gt; <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="block/struct.BlockRng.html" title="struct devela::_dep::rand_core::block::BlockRng">BlockRng</a>&lt;R&gt;<div class="where">where
+    R: <a class="trait" href="block/trait.BlockRngCore.html" title="trait devela::_dep::rand_core::block::BlockRngCore">BlockRngCore</a> + <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a>,</div></h3></section></summary><div class="impl-items"><section id="associatedtype.Seed-9" class="associatedtype trait-impl"><a class="src rightside" href="https://rust-random.github.io/rand/src/rand_core/block.rs.html#238">Source</a><a href="#associatedtype.Seed-9" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = &lt;R as <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a>&gt;::<a class="associatedtype" href="trait.SeedableRng.html#associatedtype.Seed" title="type devela::_dep::rand_core::SeedableRng::Seed">Seed</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-XorShift8%3CA,+B,+C%3E" class="impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u8.rs.html#149-161">Source</a><a href="#impl-SeedableRng-for-XorShift8%3CA,+B,+C%3E" class="anchor">§</a><h3 class="code-header">impl&lt;const A: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, const B: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, const C: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="../../all/struct.XorShift8.html" title="struct devela::all::XorShift8">XorShift8</a>&lt;A, B, C&gt;</h3></section></summary><div class="impl-items"><section id="associatedtype.Seed-10" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u8.rs.html#150">Source</a><a href="#associatedtype.Seed-10" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">1</a>]</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-XorShift16%3CBASIS,+A,+B,+C%3E" class="impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u16.rs.html#166-180">Source</a><a href="#impl-SeedableRng-for-XorShift16%3CBASIS,+A,+B,+C%3E" class="anchor">§</a><h3 class="code-header">impl&lt;const BASIS: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, const A: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, const B: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, const C: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="../../all/struct.XorShift16.html" title="struct devela::all::XorShift16">XorShift16</a>&lt;BASIS, A, B, C&gt;</h3></section></summary><div class="impl-items"><section id="associatedtype.Seed-11" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u16.rs.html#169">Source</a><a href="#associatedtype.Seed-11" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">2</a>]</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-XorShift32%3CBASIS,+A,+B,+C%3E" class="impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u32.rs.html#169-183">Source</a><a href="#impl-SeedableRng-for-XorShift32%3CBASIS,+A,+B,+C%3E" class="anchor">§</a><h3 class="code-header">impl&lt;const BASIS: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, const A: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, const B: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, const C: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="../../all/struct.XorShift32.html" title="struct devela::all::XorShift32">XorShift32</a>&lt;BASIS, A, B, C&gt;</h3></section></summary><div class="impl-items"><section id="associatedtype.Seed-12" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u32.rs.html#172">Source</a><a href="#associatedtype.Seed-12" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">4</a>]</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-SeedableRng-for-XorShift64%3CBASIS,+A,+B,+C%3E" class="impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u64.rs.html#175-189">Source</a><a href="#impl-SeedableRng-for-XorShift64%3CBASIS,+A,+B,+C%3E" class="anchor">§</a><h3 class="code-header">impl&lt;const BASIS: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, const A: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, const B: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, const C: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a class="trait" href="trait.SeedableRng.html" title="trait devela::_dep::rand_core::SeedableRng">SeedableRng</a> for <a class="struct" href="../../all/struct.XorShift64.html" title="struct devela::all::XorShift64">XorShift64</a>&lt;BASIS, A, B, C&gt;</h3></section></summary><div class="impl-items"><section id="associatedtype.Seed-13" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/num/rand/xorshift/u64.rs.html#178">Source</a><a href="#associatedtype.Seed-13" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Seed" class="associatedtype">Seed</a> = [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">8</a>]</h4></section></div></details></div><script src="../../../trait.impl/rand_core/trait.SeedableRng.js" data-ignore-extern-crates="rand_core" async></script><script type="text/json" id="notable-traits-data">{"Result<Self, <R as TryRngCore>::Error>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>

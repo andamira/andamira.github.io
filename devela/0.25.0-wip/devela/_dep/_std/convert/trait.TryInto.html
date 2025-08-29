@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="An attempted conversion that consumes `self`, which may or may not be expensive."><title>TryInto in devela::_dep::_std::convert - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">TryInto</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">TryInto</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#implementing-tryinto" title="Implementing `TryInto`">Implementing <code>TryInto</code></a></li></ul><h3><a href="#required-associated-types">Required Associated Types</a></h3><ul class="block"><li><a href="#associatedtype.Error" title="Error">Error</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.try_into" title="try_into">try_into</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>_<wbr>std::<wbr>convert</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">_dep</a>::<wbr><a href="../index.html">_std</a>::<wbr><a href="index.html">convert</a></div><h1>Trait <span class="trait">TryInto</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><span class="since" title="Stable since Rust version 1.34.0, const unstable">1.34.0 (const: <a href="https://github.com/rust-lang/rust/issues/143773" title="Tracking issue for const_from">unstable</a>)</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#620">Source</a> </span></div><pre class="rust item-decl"><code>pub trait TryInto&lt;T&gt;: <a class="trait" href="../../../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a> {
+    type <a href="#associatedtype.Error" class="associatedtype">Error</a>;
+
+    // Required method
+    fn <a href="#tymethod.try_into" class="fn">try_into</a>(self) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;T, Self::<a class="associatedtype" href="../../../code/trait.TryInto.html#associatedtype.Error" title="type devela::code::TryInto::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;T, Self::Error&gt;">ⓘ</a>;
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An attempted conversion that consumes <code>self</code>, which may or may not be
+expensive.</p>
+<p>Library authors should usually not directly implement this trait,
+but should prefer implementing the <a href="../../../code/trait.TryFrom.html" title="trait devela::code::TryFrom"><code>TryFrom</code></a> trait, which offers
+greater flexibility and provides an equivalent <code>TryInto</code>
+implementation for free, thanks to a blanket implementation in the
+standard library. For more information on this, see the
+documentation for <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a>.</p>
+<p>Prefer using <a href="../../../code/trait.TryInto.html" title="trait devela::code::TryInto"><code>TryInto</code></a> over <a href="../../../code/trait.TryFrom.html" title="trait devela::code::TryFrom"><code>TryFrom</code></a> when specifying trait bounds on a generic function
+to ensure that types that only implement <a href="../../../code/trait.TryInto.html" title="trait devela::code::TryInto"><code>TryInto</code></a> can be used as well.</p>
+<h2 id="implementing-tryinto"><a class="doc-anchor" href="#implementing-tryinto">§</a>Implementing <code>TryInto</code></h2>
+<p>This suffers the same restrictions and reasoning as implementing
+<a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a>, see there for details.</p>
+</div></details><h2 id="required-associated-types" class="section-header">Required Associated Types<a href="#required-associated-types" class="anchor">§</a></h2><div class="methods"><details class="toggle" open><summary><section id="associatedtype.Error" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.34.0">1.34.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#623">Source</a></span><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a></h4></section></summary><div class="docblock"><p>The type returned in the event of a conversion error.</p>
+</div></details></div><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.try_into" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.34.0">1.34.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#627">Source</a></span><h4 class="code-header">fn <a href="#tymethod.try_into" class="fn">try_into</a>(self) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;T, Self::<a class="associatedtype" href="../../../code/trait.TryInto.html#associatedtype.Error" title="type devela::code::TryInto::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;T, Self::Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Performs the conversion.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><details class="toggle implementors-toggle"><summary><section id="impl-TryInto%3CProcessStdio%3E-for-ChildStderr" class="impl"><a href="#impl-TryInto%3CProcessStdio%3E-for-ChildStderr" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../code/trait.TryInto.html" title="trait devela::code::TryInto">TryInto</a>&lt;<a class="struct" href="../../../all/struct.ProcessStdio.html" title="struct devela::all::ProcessStdio">Stdio</a>&gt; for <a class="struct" href="../../tokio/process/struct.ChildStderr.html" title="struct devela::_dep::tokio::process::ChildStderr">ChildStderr</a></h3></section></summary><div class="impl-items"><section id="associatedtype.Error-1" class="associatedtype trait-impl"><a href="#associatedtype.Error-1" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="struct" href="../../../all/struct.IoError.html" title="struct devela::all::IoError">Error</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TryInto%3CProcessStdio%3E-for-ChildStdin" class="impl"><a href="#impl-TryInto%3CProcessStdio%3E-for-ChildStdin" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../code/trait.TryInto.html" title="trait devela::code::TryInto">TryInto</a>&lt;<a class="struct" href="../../../all/struct.ProcessStdio.html" title="struct devela::all::ProcessStdio">Stdio</a>&gt; for <a class="struct" href="../../tokio/process/struct.ChildStdin.html" title="struct devela::_dep::tokio::process::ChildStdin">ChildStdin</a></h3></section></summary><div class="impl-items"><section id="associatedtype.Error-2" class="associatedtype trait-impl"><a href="#associatedtype.Error-2" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="struct" href="../../../all/struct.IoError.html" title="struct devela::all::IoError">Error</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TryInto%3CProcessStdio%3E-for-ChildStdout" class="impl"><a href="#impl-TryInto%3CProcessStdio%3E-for-ChildStdout" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../code/trait.TryInto.html" title="trait devela::code::TryInto">TryInto</a>&lt;<a class="struct" href="../../../all/struct.ProcessStdio.html" title="struct devela::all::ProcessStdio">Stdio</a>&gt; for <a class="struct" href="../../tokio/process/struct.ChildStdout.html" title="struct devela::_dep::tokio::process::ChildStdout">ChildStdout</a></h3></section></summary><div class="impl-items"><section id="associatedtype.Error-3" class="associatedtype trait-impl"><a href="#associatedtype.Error-3" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="struct" href="../../../all/struct.IoError.html" title="struct devela::all::IoError">Error</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TryInto%3CU%3E-for-T" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.34.0, const unstable">1.34.0 (const: <a href="https://github.com/rust-lang/rust/issues/143773" title="Tracking issue for const_from">unstable</a>)</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#817-819">Source</a></span><a href="#impl-TryInto%3CU%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="../../../code/trait.TryInto.html" title="trait devela::code::TryInto">TryInto</a>&lt;U&gt; for T<div class="where">where
+    U: <a class="trait" href="../../../code/trait.TryFrom.html" title="trait devela::code::TryFrom">TryFrom</a>&lt;T&gt;,</div></h3></section></summary><div class="impl-items"><section id="associatedtype.Error-4" class="associatedtype trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#821">Source</a><a href="#associatedtype.Error-4" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = &lt;U as <a class="trait" href="../../../code/trait.TryFrom.html" title="trait devela::code::TryFrom">TryFrom</a>&lt;T&gt;&gt;::<a class="associatedtype" href="../../../code/trait.TryFrom.html#associatedtype.Error" title="type devela::code::TryFrom::Error">Error</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TryInto%3CBox%3Cdyn+NumVector%3CInner+=+%5BT;+D%5D,+Out+=+Vector%3CT,+D%3E,+Rhs+=+Vector%3CT,+D%3E,+Scalar+=+T%3E%3E%3E-for-Vector%3CT,+D%3E" class="impl"><a class="src rightside" href="../../../../src/devela/num/geom/linear/vector/mod.rs.html#68-79">Source</a><a href="#impl-TryInto%3CBox%3Cdyn+NumVector%3CInner+=+%5BT;+D%5D,+Out+=+Vector%3CT,+D%3E,+Rhs+=+Vector%3CT,+D%3E,+Scalar+=+T%3E%3E%3E-for-Vector%3CT,+D%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T: <a class="trait" href="../../../num/trait.Num.html" title="trait devela::num::Num">Num</a> + 'static, const D: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a class="trait" href="../../../code/trait.TryInto.html" title="trait devela::code::TryInto">TryInto</a>&lt;<a class="struct" href="../../../all/struct.Box.html" title="struct devela::all::Box">Box</a>&lt;dyn <a class="trait" href="../../../all/trait.NumVector.html" title="trait devela::all::NumVector">NumVector</a>&lt;Rhs = <a class="struct" href="../../../all/struct.Vector.html" title="struct devela::all::Vector">Vector</a>&lt;T, D&gt;, Out = <a class="struct" href="../../../all/struct.Vector.html" title="struct devela::all::Vector">Vector</a>&lt;T, D&gt;, Inner = <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">[T; D]</a>, Scalar = T&gt;&gt;&gt; for <a class="struct" href="../../../all/struct.Vector.html" title="struct devela::all::Vector">Vector</a>&lt;T, D&gt;</h3><span class="item-info"><div class="stab portability">Available on <strong>crate features <code>linear</code> and <code>alloc</code></strong> only.</div></span></section></summary><div class="impl-items"><section id="associatedtype.Error-5" class="associatedtype trait-impl"><a class="src rightside" href="../../../../src/devela/num/geom/linear/vector/mod.rs.html#72">Source</a><a href="#associatedtype.Error-5" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="enum" href="../../../num/enum.NumError.html" title="enum devela::num::NumError">NumError</a></h4></section></div></details></div><script src="../../../../trait.impl/core/convert/trait.TryInto.js" data-ignore-extern-crates="tokio" async></script><script type="text/json" id="notable-traits-data">{"Result<T, Self::Error>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>

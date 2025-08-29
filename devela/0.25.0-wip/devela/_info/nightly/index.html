@@ -1,0 +1,297 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Nightly features."><title>devela::_info::nightly - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module nightly</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module nightly</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#190-will-be-stable-on-2025-09-18-nightly_stable_1_90" title="1.90 will be stable on 2025-09-18 (`nightly_stable_1_90`)">1.90 will be stable on 2025-09-18 (<code>nightly_stable_1_90</code>)</a></li><li><a href="#191-will-be-stable-on-2025-10-30-nightly_stable_1_91" title="1.91 will be stable on 2025-10-30 (`nightly_stable_1_91`)">1.91 will be stable on 2025-10-30 (<code>nightly_stable_1_91</code>)</a></li><li><a href="#192-will-be-stable-on-2025-12-11-nightly_stable_1_92" title="1.92 will be stable on 2025-12-11 (`nightly_stable_1_92`)">1.92 will be stable on 2025-12-11 (<code>nightly_stable_1_92</code>)</a></li><li><a href="#193-will-be-stable-on-2026-01-22-nightly_stable_1_93" title="1.93 will be stable on 2026-01-22 (`nightly_stable_1_93`)">1.93 will be stable on 2026-01-22 (<code>nightly_stable_1_93</code>)</a></li><li><a href="#-will-be-stable-later-nightly_stable_later" title="… will be stable later (`nightly_stable_later`)">… will be stable later (<code>nightly_stable_later</code>)</a></li><li><a href="#-may-be-stable-even-later" title="… may be stable even later">… may be stable even later</a></li><li><a href="#experimental-features" title="Experimental features:">Experimental features:</a></li><li><a href="#pitfalls" title="Pitfalls">Pitfalls</a></li><li><a href="#meta-tracking-issues" title="Meta tracking issues:">Meta tracking issues:</a></li><li><a href="#rust-project-goals" title="Rust project Goals:">Rust project Goals:</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>info</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_info</a></div><h1>Module <span>nightly</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/_info/mod.rs.html#34">Source</a> </span></div><span class="item-info"><div class="stab portability">Available on <strong><code>doc</code> or <code>test</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Nightly features.</p>
+<p>Legend:</p>
+<ul>
+<li><code> </code> = not enabled / can’t be enabled</li>
+<li><code>i</code> = not enabled (incomplete_features).</li>
+<li><code>·</code> = enabled by non-specific cfg flag (<code>nightly_stable_[1_89|1_90|later]</code>)</li>
+<li><code>a</code> = enabled by non-specific cfg flag (and depends on <code>alloc</code>)</li>
+<li><code>s</code> = enabled by non-specific cfg flag (and depends on <code>std</code>)</li>
+<li><code>F</code> = enabled by some specific cfg flag, shown afterwards.</li>
+<li><code>D</code> = disabled, feature previously enabled as <code>F</code></li>
+<li><code>✓</code> = enabled already</li>
+</ul>
+<p>Usage example:</p>
+<div class="example-wrap"><pre class="language-sh"><code>RUSTFLAGS=&quot;--cfg nightly_coro --cfg nightly_stable_later&quot; cargo +nightly b</code></pre></div>
+<p>See also</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/nightly/unstable-book/the-unstable-book.html">https://doc.rust-lang.org/nightly/unstable-book/the-unstable-book.html</a></li>
+<li><a href="https://github.com/rust-lang/rust/blob/master/library/core/src/lib.rs">https://github.com/rust-lang/rust/blob/master/library/core/src/lib.rs</a></li>
+<li><a href="https://github.com/rust-lang/rust/blob/master/library/alloc/src/lib.rs">https://github.com/rust-lang/rust/blob/master/library/alloc/src/lib.rs</a></li>
+<li><a href="https://github.com/rust-lang/rust/blob/master/library/std/src/lib.rs">https://github.com/rust-lang/rust/blob/master/library/std/src/lib.rs</a></li>
+</ul>
+<h2 id="190-will-be-stable-on-2025-09-18-nightly_stable_1_90"><a class="doc-anchor" href="#190-will-be-stable-on-2025-09-18-nightly_stable_1_90">§</a>1.90 will be stable on 2025-09-18 (<a href="https://releases.rs/docs/1.90.0/"><code>nightly_stable_1_90</code></a>)</h2>
+<blockquote>
+<ul>
+<li><a href="https://github.com/rust-lang/rust/milestone/134">https://github.com/rust-lang/rust/milestone/134</a></li>
+</ul>
+</blockquote>
+<!-- > - <https://blog.rust-lang.org/2025/09/18/Rust-1.90.0> -->
+<!-- > - <https://github.com/rust-lang/rust/releases/tag/1.90.0> -->
+<ul>
+<li>1.90: <code>s</code><a href="https://github.com/rust-lang/rust/pull/143604">const_float_round_methods</a></li>
+<li>1.90: <code>·</code><a href="https://github.com/rust-lang/rust/pull/143382">const_slice_reverse</a></li>
+<li>1.90: <code>·</code><a href="https://github.com/rust-lang/rust/pull/143236">mixed_integer_ops_unsigned_sub</a></li>
+<li>1.90: <code> </code><a href="https://github.com/rust-lang/rust/pull/131923">Derive Copy and Hash for IntErrorKind</a></li>
+</ul>
+<h2 id="191-will-be-stable-on-2025-10-30-nightly_stable_1_91"><a class="doc-anchor" href="#191-will-be-stable-on-2025-10-30-nightly_stable_1_91">§</a>1.91 will be stable on 2025-10-30 (<a href="https://releases.rs/docs/1.91.0/"><code>nightly_stable_1_91</code></a>)</h2>
+<blockquote>
+<ul>
+<li><a href="https://github.com/rust-lang/rust/milestone/135">https://github.com/rust-lang/rust/milestone/135</a></li>
+</ul>
+</blockquote>
+<!-- > - <https://blog.rust-lang.org/2025/10/30/Rust-1.91.0> -->
+<!-- > - <https://github.com/rust-lang/rust/releases/tag/1.91.0> -->
+<ul>
+<li>1.91: <code>·</code><a href="https://github.com/rust-lang/rust/pull/144054">as_array_of_cells</a></li>
+<li>1.91: <code>·</code><a href="https://github.com/rust-lang/rust/pull/143383">const_array_each_ref</a></li>
+<li>1.91: <code>s</code><a href="https://github.com/rust-lang/rust/pull/145464">const_pathbuf_osstring_new</a></li>
+<li>1.91: <code>·</code><a href="https://github.com/rust-lang/rust/pull/144133">const_type_id</a></li>
+<li>1.91: <code>·</code><a href="https://github.com/rust-lang/rust/pull/145135">duration_constructors_lite</a></li>
+<li>1.91: <code>·</code><a href="https://github.com/rust-lang/rust/pull/141744">ip_from</a></li>
+<li>1.91: <code>·</code><a href="https://github.com/rust-lang/rust/pull/144963">iter_chain</a></li>
+<li>1.91: <code> </code><a href="https://github.com/rust-lang/rust/pull/144402">loongarch32 inline asm</a></li>
+<li>1.91: <code>s</code><a href="https://github.com/rust-lang/rust/issues/125175">panic_payload_as_str</a></li>
+<li>1.91: <code>s</code><a href="https://github.com/rust-lang/rust/pull/144870">path_file_prefix</a> <!-- & 129114 --></li>
+<li>1.91: <code>·</code><a href="https://github.com/rust-lang/rust/pull/144682">strict_overflow_ops</a></li>
+<li>1.91: <code>·</code><a href="https://github.com/rust-lang/rust/pull/144900">unsigned_signed_diff</a></li>
+</ul>
+<h2 id="192-will-be-stable-on-2025-12-11-nightly_stable_1_92"><a class="doc-anchor" href="#192-will-be-stable-on-2025-12-11-nightly_stable_1_92">§</a>1.92 will be stable on 2025-12-11 (<a href="https://releases.rs/docs/1.92.0/"><code>nightly_stable_1_92</code></a>)</h2><!-- > - <https://github.com/rust-lang/rust/milestone/136> -->
+<!-- > - <https://blog.rust-lang.org/2025/12/11/Rust-1.92.0> -->
+<!-- > - <https://github.com/rust-lang/rust/releases/tag/1.92.0> -->
+<h2 id="193-will-be-stable-on-2026-01-22-nightly_stable_1_93"><a class="doc-anchor" href="#193-will-be-stable-on-2026-01-22-nightly_stable_1_93">§</a>1.93 will be stable on 2026-01-22 (<a href="https://releases.rs/docs/1.93.0/"><code>nightly_stable_1_93</code></a>)</h2><!-- > - <https://github.com/rust-lang/rust/milestone/136> -->
+<!-- > - <https://blog.rust-lang.org/2026/01/22/Rust-1.93.0> -->
+<!-- > - <https://github.com/rust-lang/rust/releases/tag/1.93.0> -->
+<h2 id="-will-be-stable-later-nightly_stable_later"><a class="doc-anchor" href="#-will-be-stable-later-nightly_stable_later">§</a>… will be stable later (<a href="https://releases.rs/#ongoing-stabilization-prs"><code>nightly_stable_later</code></a>)</h2>
+<ul>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/issues/126695">array_repeat</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/137487">assert_matches</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/142325">breakpoint</a></li>
+<li>1.??: <code>a</code><a href="https://github.com/rust-lang/rust/pull/144871">btree_entry_insert</a></li>
+<li>1.??: <code>a</code><a href="https://github.com/rust-lang/rust/pull/145471">btree_extract_if</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/issues/115585">cfg_select</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/141766">cfg_version</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/145610">char_max_len</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/issues/90206">const_array_from_ref</a>
+<code>·</code> <code>const_slice_from_ref</code></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/138129">const_char_classify</a>
+<code>·</code> <code>const_sockaddr_setters</code></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/133820">derive_coerce_pointee</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/pull/137096">flags for doctest cross compilation</a></li>
+<li>1.??: <code>a</code><a href="https://github.com/rust-lang/rust/pull/145664">file_with_nul</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/pull/145915">fmt::from_fn</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/pull/140261">fn_align</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/141295">if_let_guard</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/120700">impl_trait_in_assoc_type</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/137026">integer_sign_cast</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/131391">isqrt</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/122808">macro_metavar_expr</a> closed
+<ul>
+<li><a href="https://github.com/rust-lang/rust/issues/137581">decide about macro_metavar_expr</a></li>
+<li><a href="https://github.com/rust-lang/rfcs/pull/3649">[RFC] Named macro capture groups</a></li>
+</ul>
+</li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/141922">more_qualified_paths</a></li>
+<li>1.??: <code>a</code><a href="https://github.com/rust-lang/rust/issues/129396">new_zeroed_alloc</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/issues/143954">offset_of_enum</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/139673">offset_of_slice</a></li>
+<li>1.??: <code>s</code><a href="https://github.com/rust-lang/rust/pull/136360">once_wait</a></li>
+<li>1.??: <code>s</code><a href="https://github.com/rust-lang/rust/pull/145209">path_add_extension</a></li>
+<li>1.??: <code>s</code><a href="https://github.com/rust-lang/rust/pull/143191">rwlock_downgrade</a></li>
+<li>1.??: <code>a</code><a href="https://github.com/rust-lang/rust/pull/145656">stdarch_s390x_feature_detection</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/issues/99108">strict_provenance_atomic_ptr</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/141266">substr_range</a></li>
+<li>1.??: <code>·</code><a href="https://github.com/rust-lang/rust/pull/131261">unsafe_cell_from_mut</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/pull/138424">Return Type Notation</a></li>
+</ul>
+<h2 id="-may-be-stable-even-later"><a class="doc-anchor" href="#-may-be-stable-even-later">§</a>… may be stable even later</h2>
+<ul>
+<li>1.??: <code>F</code><a href="https://github.com/rust-lang/rust/issues/32838">allocator_api</a>
+= <code>nightly_allocator</code> flag</li>
+<li>1.??: <code>D</code><a href="https://github.com/rust-lang/rust/issues/124509">autodiff</a>
+<code>nightly_autodiff</code> flag</li>
+<li>1.??: <code>F</code><a href="https://github.com/rust-lang/rust/issues/85532">bigint_helper_methods</a>
+= <code>nightly_bigint</code> flag</li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/80437">box_into_inner</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/64797">cfg(accessible(::path::to::thing))</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/64796">cfg(version(..))</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/87555">concat_bytes</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/29599">concat_idents</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/85368">const_async_blocks</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/106003">const_closures</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/87575">const_for</a>
+(depends on const_trait_impl)</li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/91006">const_str_from_utf8</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/143874">const_trait_impl</a></li>
+<li>1.??: <code>F</code><a href="https://github.com/rust-lang/rust/issues/43122">coroutines</a>
+= <code>nightly_coro</code> flag</li>
+<li>1.??: <code>F</code><a href="https://github.com/rust-lang/rust/issues/43781">doc_cfg</a>
+= <code>nightly_doc</code> flag</li>
+<li>1.??: <code>F</code><a href="https://github.com/rust-lang/rust/issues/45040">doc_notable_trait</a>
+= <code>nightly_doc</code> flag</li>
+<li>1.??: <code>F</code><a href="https://github.com/rust-lang/rust/issues/116909">f16|f128</a>
+= <code>nightly_float</code> flag</li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/136469">float_algebraic</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/130539">generic_atomic</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/99069">integer_atomics</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/63569">maybe_uninit_slice</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/126840">mpmc_channel</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/cargo/issues/14733">passing unstable flags only on nightly</a></li>
+<li>1.??: <code>F</code><a href="https://github.com/rust-lang/rust/issues/86656">portable_simd</a>
+= <code>nightly_simd</code> flag</li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/133508">slice_as_array</a></li>
+<li>1.??: <code> </code><a href="https://github.com/rust-lang/rust/issues/29594">thread_local</a></li>
+</ul>
+<h2 id="experimental-features"><a class="doc-anchor" href="#experimental-features">§</a>Experimental features:</h2>
+<ul>
+<li><a href="https://github.com/rust-lang/rust/issues/118959">local_waker</a></li>
+<li><a href="https://github.com/rust-lang/rust/issues/81513">ptr_metadata</a>
+<code> </code>- <a href="https://rust-lang.github.io/rfcs/2580-ptr-meta.html">https://rust-lang.github.io/rfcs/2580-ptr-meta.html</a></li>
+<li><a href="https://github.com/rust-lang/rust/issues/15701">stmt_expr_attributes</a></li>
+<li><a href="https://github.com/rust-lang/rust/issues/63063">type_alias_impl_trait|impl_trait_in_assoc_type</a></li>
+</ul>
+<h2 id="pitfalls"><a class="doc-anchor" href="#pitfalls">§</a>Pitfalls</h2>
+<ul>
+<li><a href="https://github.com/rust-lang/rust/issues/76200">const_evaluatable_unchecked</a></li>
+</ul>
+<h2 id="meta-tracking-issues"><a class="doc-anchor" href="#meta-tracking-issues">§</a>Meta tracking issues:</h2>
+<ul>
+<li><a href="https://github.com/rust-lang/rust/issues/44874">arbitrary_self_types</a>
+<ul>
+<li><a href="https://github.com/rust-lang/rust/pull/135881">stabilize arbitrary self types v2</a></li>
+</ul>
+</li>
+<li><a href="https://github.com/rust-lang/cargo/issues/9769">cargo config search</a></li>
+<li><a href="https://github.com/rust-lang/rust/issues/57563">const fn</a></li>
+<li><a href="https://github.com/rust-lang/cargo/issues/14157">feature-metadata</a></li>
+<li><a href="https://github.com/rust-lang/rust/issues/63066">impl Trait</a></li>
+<li><a href="https://github.com/rust-lang/rust/issues/88581">int_roundings</a></li>
+<li><a href="https://github.com/rust-lang/rust/issues/96097">MaybeUninit methods for arrays</a></li>
+<li><a href="https://github.com/rust-lang/rust/issues/110840">num_midpoint</a></li>
+<li><a href="https://github.com/rust-lang/rust/issues/129080">Reproducible Build bugs</a></li>
+<li><a href="https://github.com/rust-lang/rust/issues/85122">unchecked_* on integers</a></li>
+</ul>
+<h2 id="rust-project-goals"><a class="doc-anchor" href="#rust-project-goals">§</a>Rust project Goals:</h2>
+<ul>
+<li><a href="https://rust-lang.github.io/rust-project-goals/">https://rust-lang.github.io/rust-project-goals/</a>
+<ul>
+<li><a href="https://rust-lang.github.io/rust-project-goals/2025h2/">https://rust-lang.github.io/rust-project-goals/2025h2/</a></li>
+</ul>
+</li>
+<li><a href="https://github.com/rust-lang/rust-project-goals/issues/106">const traits</a></li>
+<li><a href="https://github.com/rust-lang/rust-project-goals/issues/100">expanded const generics</a></li>
+<li><a href="https://github.com/rust-lang/rust-project-goals/issues/116">Linux building on stable</a></li>
+<li><a href="https://github.com/rust-lang/rust-project-goals/issues/113">next generation trait solver</a></li>
+<li><a href="https://github.com/rust-lang/rust-project-goals/issues/114">optimize clippy &amp; linting</a></li>
+<li><a href="https://github.com/rust-lang/rust-project-goals/issues/119">stabilize cargo-script</a></li>
+<li><a href="https://github.com/rust-lang/rust-project-goals/issues/120">stabilize doc_cfg</a></li>
+</ul>
+</div></details></section></div></main></body></html>

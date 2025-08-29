@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["alignment_score","edit_distance","edit_distance_bounded","edit_distance_utf8","edit_distance_utf8_bounded","find","find_char_from","find_char_not_from","hamming_distance","hamming_distance_bounded","hamming_distance_utf8","hamming_distance_utf8_bounded","randomize","rfind","rfind_char_from","rfind_char_not_from","unary_substitution_costs"]};

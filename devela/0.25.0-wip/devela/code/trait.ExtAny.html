@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🌐 Extension trait providing convenience methods for `T:``Any`."><title>ExtAny in devela::code - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">ExtAny</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">ExtAny</a></h2><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.as_any_box" title="as_any_box">as_any_box</a></li><li><a href="#method.as_any_mut" title="as_any_mut">as_any_mut</a></li><li><a href="#method.as_any_ref" title="as_any_ref">as_any_ref</a></li><li><a href="#method.downcast_mut" title="downcast_mut">downcast_mut</a></li><li><a href="#method.downcast_ref" title="downcast_ref">downcast_ref</a></li><li><a href="#method.type_hash" title="type_hash">type_hash</a></li><li><a href="#method.type_hash_with" title="type_hash_with">type_hash_with</a></li><li><a href="#method.type_id" title="type_id">type_id</a></li><li><a href="#method.type_is" title="type_is">type_is</a></li><li><a href="#method.type_name" title="type_name">type_name</a></li><li><a href="#method.type_of" title="type_of">type_of</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>code</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">code</a></div><h1>Trait <span class="trait">ExtAny</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/code/any/ext.rs.html#25-212">Source</a> </span></div><pre class="rust item-decl"><code>pub trait ExtAny: <a class="trait" href="trait.Any.html" title="trait devela::code::Any">Any</a> + Sealed {
+    // Provided methods
+    fn <a href="#method.type_id" class="fn">type_id</a>() -&gt; <a class="struct" href="struct.TypeId.html" title="struct devela::code::TypeId">TypeId</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.type_of" class="fn">type_of</a>(&amp;self) -&gt; <a class="struct" href="struct.TypeId.html" title="struct devela::code::TypeId">TypeId</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.type_name" class="fn">type_name</a>(&amp;self) -&gt; &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> <a href="#" class="tooltip" data-notable-ty="&amp;&#39;static str">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.type_is" class="fn">type_is</a>&lt;T: 'static&gt;(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.type_hash" class="fn">type_hash</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.type_hash_with" class="fn">type_hash_with</a>&lt;H: <a class="trait" href="../all/trait.Hasher.html" title="trait devela::all::Hasher">Hasher</a>&gt;(&amp;self, hasher: H) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.as_any_ref" class="fn">as_any_ref</a>(&amp;self) -&gt; &amp;dyn <a class="trait" href="trait.Any.html" title="trait devela::code::Any">Any</a>
+       <span class="where">where Self: <a class="trait" href="../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.as_any_mut" class="fn">as_any_mut</a>(&amp;mut self) -&gt; &amp;mut dyn <a class="trait" href="trait.Any.html" title="trait devela::code::Any">Any</a>
+       <span class="where">where Self: <a class="trait" href="../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.as_any_box" class="fn">as_any_box</a>(self: <a class="struct" href="../all/struct.Box.html" title="struct devela::all::Box">Box</a>&lt;Self&gt;) -&gt; <a class="struct" href="../all/struct.Box.html" title="struct devela::all::Box">Box</a>&lt;dyn <a class="trait" href="trait.Any.html" title="trait devela::code::Any">Any</a>&gt;
+       <span class="where">where Self: <a class="trait" href="../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.downcast_ref" class="fn">downcast_ref</a>&lt;T: 'static&gt;(&amp;self) -&gt; <a class="enum" href="../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;T</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;&amp;T&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.downcast_mut" class="fn">downcast_mut</a>&lt;T: 'static&gt;(&amp;mut self) -&gt; <a class="enum" href="../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut T</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;&amp;mut T&gt;">ⓘ</a> { ... }
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Extension trait providing convenience methods for <code>T:</code><a href="trait.Any.html" title="trait devela::code::Any"><code>Any</code></a>.</p>
+<p>This trait is sealed and cannot be implemented manually.</p>
+</div></details><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.type_id" class="method"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#39">Source</a><h4 class="code-header">fn <a href="#method.type_id" class="fn">type_id</a>() -&gt; <a class="struct" href="struct.TypeId.html" title="struct devela::code::TypeId">TypeId</a></h4></section></summary><div class="docblock"><p>Returns the <code>TypeId</code> of <code>Self</code>.</p>
+<h5 id="example"><a class="doc-anchor" href="#example">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::ExtAny;
+
+<span class="kw">let </span>x = <span class="number">5</span>;
+<span class="macro">assert_eq!</span>(x.type_of(), i32::type_id());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.type_of" class="method"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#51">Source</a><h4 class="code-header">fn <a href="#method.type_of" class="fn">type_of</a>(&amp;self) -&gt; <a class="struct" href="struct.TypeId.html" title="struct devela::code::TypeId">TypeId</a></h4></section></summary><div class="docblock"><p>Returns the <code>TypeId</code> of <code>self</code>.</p>
+<h5 id="example-1"><a class="doc-anchor" href="#example-1">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::ExtAny;
+
+<span class="kw">let </span>x = <span class="number">5</span>;
+<span class="macro">assert_eq!</span>(x.type_of(), i32::type_id());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.type_name" class="method"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#65">Source</a><h4 class="code-header">fn <a href="#method.type_name" class="fn">type_name</a>(&amp;self) -&gt; &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> <a href="#" class="tooltip" data-notable-ty="&amp;&#39;static str">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns the type name of <code>self</code>.</p>
+<h5 id="example-2"><a class="doc-anchor" href="#example-2">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::ExtAny;
+
+<span class="kw">let </span>x = <span class="number">5</span>;
+<span class="macro">assert_eq!</span>(x.type_name(), <span class="string">"i32"</span>);</code></pre></div>
+<p>See also <a href="fn.any_type_name.html" title="fn devela::code::any_type_name"><code>any_type_name</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.type_is" class="method"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#84">Source</a><h4 class="code-header">fn <a href="#method.type_is" class="fn">type_is</a>&lt;T: 'static&gt;(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns <code>true</code> if <code>Self</code> is of type <code>T</code>.</p>
+<h5 id="example-3"><a class="doc-anchor" href="#example-3">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::ExtAny;
+
+<span class="kw">let </span>val = <span class="number">5</span>;
+<span class="macro">assert!</span>(val.type_is::&lt;i32&gt;());
+<span class="macro">assert!</span>(!val.type_is::&lt;u32&gt;());
+
+<span class="comment">// Compared to Any::is():
+</span><span class="kw">let </span>any = val.as_any_ref();
+<span class="comment">// assert!(any.type_is::&lt;i32&gt;()); // doesn't work for &amp;dyn Any
+// assert!(val.is::&lt;i32&gt;()); // doesn't work for T: Any
+</span><span class="macro">assert!</span>(any.is::&lt;i32&gt;()); <span class="comment">// does work for &amp;dyn Any</span></code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.type_hash" class="method"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#87-90">Source</a><h4 class="code-header">fn <a href="#method.type_hash" class="fn">type_hash</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Returns a deterministic hash of the <code>TypeId</code> of <code>Self</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.type_hash_with" class="method"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#93-96">Source</a><h4 class="code-header">fn <a href="#method.type_hash_with" class="fn">type_hash_with</a>&lt;H: <a class="trait" href="../all/trait.Hasher.html" title="trait devela::all::Hasher">Hasher</a>&gt;(&amp;self, hasher: H) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Returns a deterministic hash of the <code>TypeId</code> of <code>Self</code> using a custom hasher.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.as_any_ref" class="method"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#111">Source</a><h4 class="code-header">fn <a href="#method.as_any_ref" class="fn">as_any_ref</a>(&amp;self) -&gt; &amp;dyn <a class="trait" href="trait.Any.html" title="trait devela::code::Any">Any</a><div class="where">where
+    Self: <a class="trait" href="../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a>,</div></h4></section></summary><div class="docblock"><p>Upcasts <code>&amp;self</code> as <code>&amp;dyn Any</code>.</p>
+<h5 id="example-4"><a class="doc-anchor" href="#example-4">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::{Any, ExtAny};
+
+<span class="kw">let </span>val = <span class="number">5</span>;
+<span class="kw">let </span>any: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Any = <span class="kw-2">&amp;</span>val <span class="kw">as </span><span class="kw-2">&amp;</span><span class="kw">dyn </span>Any;
+<span class="macro">assert!</span>(any.is::&lt;i32&gt;()); <span class="comment">// works direcly for dyn Any</span></code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.as_any_mut" class="method"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#124">Source</a><h4 class="code-header">fn <a href="#method.as_any_mut" class="fn">as_any_mut</a>(&amp;mut self) -&gt; &amp;mut dyn <a class="trait" href="trait.Any.html" title="trait devela::code::Any">Any</a><div class="where">where
+    Self: <a class="trait" href="../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a>,</div></h4></section></summary><div class="docblock"><p>Upcasts <code>&amp;mut self</code> as <code>&amp;mut dyn Any</code>.</p>
+<h5 id="example-5"><a class="doc-anchor" href="#example-5">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::{Any, ExtAny};
+
+<span class="kw">let </span><span class="kw-2">mut </span>x = <span class="number">5</span>;
+<span class="kw">let </span>any: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Any = x.as_any_mut();
+<span class="macro">assert!</span>(any.is::&lt;i32&gt;());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.as_any_box" class="method"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#138">Source</a><h4 class="code-header">fn <a href="#method.as_any_box" class="fn">as_any_box</a>(self: <a class="struct" href="../all/struct.Box.html" title="struct devela::all::Box">Box</a>&lt;Self&gt;) -&gt; <a class="struct" href="../all/struct.Box.html" title="struct devela::all::Box">Box</a>&lt;dyn <a class="trait" href="trait.Any.html" title="trait devela::code::Any">Any</a>&gt;<div class="where">where
+    Self: <a class="trait" href="../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a>,</div></h4></section></summary><div class="docblock"><p>Upcasts <code>Box&lt;self&gt;</code> as <code>Box&lt;dyn Any&gt;</code>.</p>
+<h5 id="example-6"><a class="doc-anchor" href="#example-6">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::{Any, ExtAny};
+
+<span class="kw">let </span>x = Box::new(<span class="number">5</span>);
+<span class="kw">let </span>any: Box&lt;<span class="kw">dyn </span>Any&gt; = x.as_any_box();
+<span class="macro">assert!</span>(any.is::&lt;i32&gt;());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.downcast_ref" class="method"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#196-199">Source</a><h4 class="code-header">fn <a href="#method.downcast_ref" class="fn">downcast_ref</a>&lt;T: 'static&gt;(&amp;self) -&gt; <a class="enum" href="../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;T</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;&amp;T&gt;">ⓘ</a></h4></section><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>unsafe_layout</code> and non-crate feature <code>safe_code</code></strong> only.</div></span></summary><div class="docblock"><p>Returns some shared reference to the inner value if it is of type <code>T</code>.</p>
+<p>This method is only needed when not dealing directly with <code>dyn Any</code> trait objects,
+since it’s <a href="trait.Any.html#method.downcast_ref" title="trait devela::code::Any">already implemented for <code>dyn Any</code></a>.</p>
+<h5 id="example-7"><a class="doc-anchor" href="#example-7">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>core::fmt::Display;
+<span class="kw">use </span>devela::{Any, ExtAny};
+
+<span class="kw">trait </span>Trait: Any + Display {}
+<span class="kw">impl </span>Trait <span class="kw">for </span>i32 {}
+<span class="kw">impl </span>Trait <span class="kw">for </span>char {}
+<span class="kw">impl </span>Trait <span class="kw">for </span>bool {}
+
+<span class="comment">// in the heap:
+</span>{
+    <span class="kw">let </span>b: Box&lt;<span class="kw">dyn </span>Trait&gt; = Box::new(<span class="number">5</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = (<span class="kw-2">*</span>b).downcast_ref::&lt;i32&gt;() {
+        <span class="macro">assert_eq!</span>[n, <span class="kw-2">&amp;</span><span class="number">5_i32</span>];
+    }
+
+    <span class="kw">let </span>bb: Vec&lt;Box&lt;<span class="kw">dyn </span>Trait&gt;&gt; = <span class="macro">vec!</span>[Box::new(<span class="bool-val">true</span>), Box::new(<span class="number">6</span>), Box::new(<span class="string">'c'</span>)];
+    <span class="kw">for </span>b <span class="kw">in </span>bb {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = (<span class="kw-2">*</span>b).downcast_ref::&lt;i32&gt;() {
+            <span class="macro">assert_eq!</span>[n, <span class="kw-2">&amp;</span><span class="number">6_i32</span>];
+        }
+    }
+}
+<span class="comment">// in the stack:
+</span>{
+    <span class="kw">use </span>devela::{Any, DstArray, DstStack, DstValue, ExtAny};
+    <span class="kw">let </span>v = DstValue::&lt;<span class="kw">dyn </span>Trait, DstArray&lt;usize, <span class="number">2</span>&gt;&gt;::new(<span class="number">7</span>, |v| v <span class="kw">as _</span>).unwrap();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = (<span class="kw-2">*</span>v).downcast_ref::&lt;i32&gt;() {
+        <span class="macro">assert_eq!</span>[n, <span class="kw-2">&amp;</span><span class="number">7_i32</span>];
+    }
+
+    <span class="kw">let </span><span class="kw-2">mut </span>vv = DstStack::&lt;<span class="kw">dyn </span>Trait, DstArray&lt;u32, <span class="number">12</span>&gt;&gt;::new();
+    vv.push(<span class="bool-val">true</span>, |v| v).unwrap();
+    vv.push(<span class="number">8_i32</span>, |v| v).unwrap();
+    vv.push(<span class="string">'c'</span>, |v| v).unwrap();
+    <span class="kw">for </span>v <span class="kw">in </span>vv.iter() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = (<span class="kw-2">*</span>v).downcast_ref::&lt;i32&gt;() {
+            <span class="macro">assert_eq!</span>[n, <span class="kw-2">&amp;</span><span class="number">8_i32</span>];
+        }
+    }
+}</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.downcast_mut" class="method"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#208-211">Source</a><h4 class="code-header">fn <a href="#method.downcast_mut" class="fn">downcast_mut</a>&lt;T: 'static&gt;(&amp;mut self) -&gt; <a class="enum" href="../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut T</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;&amp;mut T&gt;">ⓘ</a></h4></section><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>unsafe_layout</code> and non-crate feature <code>safe_code</code></strong> only.</div></span></summary><div class="docblock"><p>Returns some exclusive reference to the inner value if it is of type <code>T</code>.</p>
+<p>This method is only needed when not dealing directly with <code>dyn Any</code> trait objects,
+since it’s <a href="trait.Any.html#method.downcast_mut" title="trait devela::code::Any">already implemented for <code>dyn Any</code></a>.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-ExtAny-for-T" class="impl"><a class="src rightside" href="../../src/devela/code/any/ext.rs.html#17">Source</a><a href="#impl-ExtAny-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T: ?<a class="trait" href="../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a> + <a class="trait" href="trait.Any.html" title="trait devela::code::Any">Any</a>&gt; <a class="trait" href="trait.ExtAny.html" title="trait devela::code::ExtAny">ExtAny</a> for T</h3></section></div><script src="../../trait.impl/devela/code/any/ext/trait.ExtAny.js" async></script><script type="text/json" id="notable-traits-data">{"&'static str":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.str.html\">str</a></code></h3><pre><code><div class=\"where\">impl <a class=\"trait\" href=\"../all/trait.ExtStr.html\" title=\"trait devela::all::ExtStr\">ExtStr</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.str.html\">str</a></div>","Option<&T>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../all/trait.ExtOption.html\" title=\"trait devela::all::ExtOption\">ExtOption</a>&lt;T&gt; for <a class=\"enum\" href=\"../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</div>","Option<&mut T>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../all/trait.ExtOption.html\" title=\"trait devela::all::ExtOption\">ExtOption</a>&lt;T&gt; for <a class=\"enum\" href=\"../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</div>"}</script></section></div></main></body></html>

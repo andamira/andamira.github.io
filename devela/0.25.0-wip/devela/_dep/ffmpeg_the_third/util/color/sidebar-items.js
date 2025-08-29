@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Primaries","Range","Space","TransferCharacteristic"],"mod":["primaries","range","space","transfer_characteristic"]};

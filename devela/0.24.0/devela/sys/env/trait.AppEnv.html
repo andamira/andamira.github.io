@@ -1,0 +1,152 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Manages directory paths in an environment-aware manner."><title>AppEnv in devela::sys::env - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">AppEnv</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#vendored" title="Vendored">Vendored</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.app_cache" title="app_cache">app_cache</a></li><li><a href="#tymethod.app_config" title="app_config">app_config</a></li><li><a href="#tymethod.app_data" title="app_data">app_data</a></li><li><a href="#tymethod.app_home" title="app_home">app_home</a></li><li><a href="#tymethod.app_runtime" title="app_runtime">app_runtime</a></li><li><a href="#tymethod.app_state" title="app_state">app_state</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.app_in_cache" title="app_in_cache">app_in_cache</a></li><li><a href="#method.app_in_config" title="app_in_config">app_in_config</a></li><li><a href="#method.app_in_data" title="app_in_data">app_in_data</a></li><li><a href="#method.app_in_runtime" title="app_in_runtime">app_in_runtime</a></li><li><a href="#method.app_in_state" title="app_in_state">app_in_state</a></li><li><a href="#method.app_in_temp" title="app_in_temp">app_in_temp</a></li><li><a href="#method.app_temp" title="app_temp">app_temp</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>sys::<wbr>env</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">sys</a>::<wbr><a href="index.html">env</a></div><h1>Trait <span class="trait">AppEnv</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/sys/env/app.rs.html#105-199">Source</a> </span></div><pre class="rust item-decl"><code>pub trait AppEnv {
+<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 13 methods</span></summary>    // Required methods
+    fn <a href="#tymethod.app_home" class="fn">app_home</a>(&amp;self) -&gt; &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a> <a href="#" class="tooltip" data-notable-ty="&amp;Path">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.app_config" class="fn">app_config</a>(&amp;self) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.app_data" class="fn">app_data</a>(&amp;self) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.app_cache" class="fn">app_cache</a>(&amp;self) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.app_state" class="fn">app_state</a>(&amp;self) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;PathBuf&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.app_runtime" class="fn">app_runtime</a>(&amp;self) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;PathBuf&gt;">ⓘ</a>;
+
+    // Provided methods
+    fn <a href="#method.app_in_config" class="fn">app_in_config</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.app_in_data" class="fn">app_in_data</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.app_in_cache" class="fn">app_in_cache</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.app_in_state" class="fn">app_in_state</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;PathBuf&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.app_in_runtime" class="fn">app_in_runtime</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;PathBuf&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.app_temp" class="fn">app_temp</a>(&amp;self) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.app_in_temp" class="fn">app_in_temp</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a> { ... }
+</details>}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Manages directory paths in an environment-aware manner.</p>
+<h2 id="vendored"><a class="doc-anchor" href="#vendored">§</a>Vendored</h2>
+<p>This is adapted work from <a href="../../_info/vendored/index.html#etcetera" title="mod devela::_info::vendored">etcetera</a>.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.app_home" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#108">Source</a><h4 class="code-header">fn <a href="#tymethod.app_home" class="fn">app_home</a>(&amp;self) -&gt; &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a> <a href="#" class="tooltip" data-notable-ty="&amp;Path">ⓘ</a></h4></section></summary><div class="docblock"><p>Gets the home directory.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.app_config" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#112">Source</a><h4 class="code-header">fn <a href="#tymethod.app_config" class="fn">app_config</a>(&amp;self) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a></h4></section></summary><div class="docblock"><p>Gets the configuration directory.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.app_data" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#116">Source</a><h4 class="code-header">fn <a href="#tymethod.app_data" class="fn">app_data</a>(&amp;self) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a></h4></section></summary><div class="docblock"><p>Gets the data directory.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.app_cache" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#120">Source</a><h4 class="code-header">fn <a href="#tymethod.app_cache" class="fn">app_cache</a>(&amp;self) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a></h4></section></summary><div class="docblock"><p>Gets the cache directory.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.app_state" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#127">Source</a><h4 class="code-header">fn <a href="#tymethod.app_state" class="fn">app_state</a>(&amp;self) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;PathBuf&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Gets the state directory.</p>
+<p>Currently, only the <a href="struct.Xdg.html"><code>Xdg</code></a> &amp; <a href="../../all/struct.AppUnix.html" title="struct devela::all::AppUnix"><code>AppUnix</code></a> environments support this.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.app_runtime" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#139">Source</a><h4 class="code-header">fn <a href="#tymethod.app_runtime" class="fn">app_runtime</a>(&amp;self) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;PathBuf&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Gets the runtime directory.</p>
+<p>Currently, only the <a href="struct.Xdg.html"><code>Xdg</code></a> &amp; <a href="../../all/struct.AppUnix.html" title="struct devela::all::AppUnix"><code>AppUnix</code></a> environments support this.</p>
+<p>Note: The <a href="https://specifications.freedesktop.org/basedir-spec/latest/">XDG Base Directory Specification</a> places additional
+requirements on this directory related to ownership, permissions, and
+persistence. This implementation does not check those requirements.</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.app_in_config" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#148-150">Source</a><h4 class="code-header">fn <a href="#method.app_in_config" class="fn">app_in_config</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a></h4></section></summary><div class="docblock"><p>Constructs a path inside your application’s configuration directory.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.app_in_data" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#154-156">Source</a><h4 class="code-header">fn <a href="#method.app_in_data" class="fn">app_in_data</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a></h4></section></summary><div class="docblock"><p>Constructs a path inside your application’s data directory.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.app_in_cache" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#160-162">Source</a><h4 class="code-header">fn <a href="#method.app_in_cache" class="fn">app_in_cache</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a></h4></section></summary><div class="docblock"><p>Constructs a path inside your application’s cache directory.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.app_in_state" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#168-170">Source</a><h4 class="code-header">fn <a href="#method.app_in_state" class="fn">app_in_state</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;PathBuf&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Constructs a path inside your application’s state directory.</p>
+<p>Currently, only the <a href="struct.Xdg.html"><code>Xdg</code></a> &amp; <a href="../../all/struct.AppUnix.html" title="struct devela::all::AppUnix"><code>AppUnix</code></a> environments support this.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.app_in_runtime" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#176-178">Source</a><h4 class="code-header">fn <a href="#method.app_in_runtime" class="fn">app_in_runtime</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;PathBuf&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Constructs a path inside your application’s runtime directory.</p>
+<p>Currently, only the <a href="struct.Xdg.html"><code>Xdg</code></a> &amp; <a href="../../all/struct.AppUnix.html" title="struct devela::all::AppUnix"><code>AppUnix</code></a> environments support this.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.app_temp" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#185-192">Source</a><h4 class="code-header">fn <a href="#method.app_temp" class="fn">app_temp</a>(&amp;self) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a></h4></section></summary><div class="docblock"><p>Gets the temporary directory.</p>
+<p>Uses the system’s temporary directory if available. Falls back to
+the application cache directory if the temporary directory is unsuitable.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.app_in_temp" class="method"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#196-198">Source</a><h4 class="code-header">fn <a href="#method.app_in_temp" class="fn">app_in_temp</a>(&amp;self, append: &amp;<a class="struct" href="../../all/struct.Path.html" title="struct devela::all::Path">Path</a>) -&gt; <a class="struct" href="../../all/struct.PathBuf.html" title="struct devela::all::PathBuf">PathBuf</a> <a href="#" class="tooltip" data-notable-ty="PathBuf">ⓘ</a></h4></section></summary><div class="docblock"><p>Constructs a path inside the temporary directory.</p>
+</div></details></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-AppEnv-for-AppApple" class="impl"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#317-333">Source</a><a href="#impl-AppEnv-for-AppApple" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../all/trait.AppEnv.html" title="trait devela::all::AppEnv">AppEnv</a> for <a class="struct" href="../../all/struct.AppApple.html" title="struct devela::all::AppApple">AppApple</a></h3></section><section id="impl-AppEnv-for-AppUnix" class="impl"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#287-294">Source</a><a href="#impl-AppEnv-for-AppUnix" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../all/trait.AppEnv.html" title="trait devela::all::AppEnv">AppEnv</a> for <a class="struct" href="../../all/struct.AppUnix.html" title="struct devela::all::AppUnix">AppUnix</a></h3></section><section id="impl-AppEnv-for-AppWindows" class="impl"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#356-372">Source</a><a href="#impl-AppEnv-for-AppWindows" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../all/trait.AppEnv.html" title="trait devela::all::AppEnv">AppEnv</a> for <a class="struct" href="../../all/struct.AppWindows.html" title="struct devela::all::AppWindows">AppWindows</a></h3></section><section id="impl-AppEnv-for-AppXdg" class="impl"><a class="src rightside" href="../../../src/devela/sys/env/app.rs.html#235-259">Source</a><a href="#impl-AppEnv-for-AppXdg" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../all/trait.AppEnv.html" title="trait devela::all::AppEnv">AppEnv</a> for <a class="struct" href="../../all/struct.AppXdg.html" title="struct devela::all::AppXdg">AppXdg</a></h3></section></div><script src="../../../trait.impl/devela/sys/env/app/trait.AppEnv.js" async></script><script type="text/json" id="notable-traits-data">{"&Path":"<h3>Notable traits for <code><a class=\"struct\" href=\"../../all/struct.Path.html\" title=\"struct devela::all::Path\">Path</a></code></h3><pre><code><div class=\"where\">impl <a class=\"trait\" href=\"../../all/trait.ExtPath.html\" title=\"trait devela::all::ExtPath\">ExtPath</a> for <a class=\"struct\" href=\"../../all/struct.Path.html\" title=\"struct devela::all::Path\">Path</a></div>","Option<PathBuf>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.ExtOption.html\" title=\"trait devela::all::ExtOption\">ExtOption</a>&lt;T&gt; for <a class=\"enum\" href=\"../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</div>","PathBuf":"<h3>Notable traits for <code><a class=\"struct\" href=\"../../all/struct.PathBuf.html\" title=\"struct devela::all::PathBuf\">PathBuf</a></code></h3><pre><code><div class=\"where\">impl <a class=\"trait\" href=\"../../all/trait.ExtPath.html\" title=\"trait devela::all::ExtPath\">ExtPath</a> for <a class=\"struct\" href=\"../../all/struct.PathBuf.html\" title=\"struct devela::all::PathBuf\">PathBuf</a></div>"}</script></section></div></main></body></html>

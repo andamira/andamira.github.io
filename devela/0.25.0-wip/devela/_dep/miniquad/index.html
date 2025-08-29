@@ -1,0 +1,260 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`miniquad` Cross-platform window context and rendering library."><title>devela::_dep::miniquad - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../crates.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate miniquad</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#miniquad" title="Miniquad">Miniquad</a><ul><li><a href="#supported-platforms" title="Supported Platforms">Supported Platforms</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul></li><li><a href="#building-examples" title="Building examples">Building examples</a><ul><li><a href="#linux" title="Linux">Linux</a></li><li><a href="#windows" title="Windows">Windows</a></li><li><a href="#wasm" title="WASM">WASM</a></li><li><a href="#android" title="Android">Android</a></li><li><a href="#ios" title="iOS">iOS</a></li><li><a href="#cross-compilation" title="Cross Compilation">Cross Compilation</a></li></ul></li><li><a href="#goals" title="Goals">Goals</a></li><li><a href="#non-goals" title="Non-goals">Non-goals</a></li><li><a href="#platinum-sponsors" title="Platinum sponsors">Platinum sponsors</a></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a></div><h1>Crate <span>miniquad</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_miniquad</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='re-exported `miniquad`'><code>miniquad</code></span>
+Cross-platform window context and rendering library.</p>
+<hr />
+<h2 id="miniquad"><a class="doc-anchor" href="#miniquad">§</a>Miniquad</h2>
+<p><a href="https://github.com/not-fl3/miniquad/actions?query=workflow%3A"><img src="https://github.com/not-fl3/miniquad/workflows/Cross-compile/badge.svg" alt="Github Actions" /></a>
+<a href="https://docs.rs/miniquad/0.3.13/miniquad/index.html"><img src="https://docs.rs/miniquad/badge.svg?version=0.3.13" alt="Docs" /></a>
+<a href="https://crates.io/crates/miniquad"><img src="https://img.shields.io/crates/v/miniquad.svg" alt="Crates.io version" /></a>
+<a href="https://discord.gg/WfEp6ut"><img src="https://img.shields.io/discord/710177966440579103.svg?label=discord%20chat" alt="Discord chat" /></a>
+<a href="https://matrix.to/#/#quad-general:matrix.org"><img src="https://img.shields.io/matrix/quad-general:matrix.org?label=matrix%20chat" alt="Matrix" /></a></p>
+<p>Miniquad is a manifestation of a dream in a world where we do not need a deep dependencies tree and thousands lines of code to draw things with a computer.</p>
+<p>Miniquad aims to provide a graphics abstraction that works the same way on any platform with a GPU, being as light weight as possible while covering as many machines as possible.</p>
+<h3 id="supported-platforms"><a class="doc-anchor" href="#supported-platforms">§</a>Supported Platforms</h3>
+<ul>
+<li>Windows, OpenGL 3, OpenGL 2.2;</li>
+<li>Linux, OpenGL 2.2, OpenGL 3, GLES 2, GLES 3;</li>
+<li>macOS, OpenGL 3, Metal;</li>
+<li>iOS, GLES 2, GLES 3, Metal;</li>
+<li>WASM, WebGL 1 - tested on iOS Safari, Firefox, Chrome;</li>
+<li>Android, GLES 2, GLES 3.</li>
+</ul>
+<h3 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h3>
+<p><img src="https://i.imgur.com/TRI50rk.gif" alt="Imgur" /></p>
+<p><a href="https://github.com/not-fl3/miniquad/blob/master/examples/quad.rs">examples/quad.rs</a>: <a href="https://not-fl3.github.io/miniquad-samples/quad.html">web demo</a><br/>
+<a href="https://github.com/not-fl3/miniquad/blob/master/examples/offscreen.rs">examples/offscreen.rs</a>: <a href="https://not-fl3.github.io/miniquad-samples/offscreen.html">web demo</a><br/></p>
+<p><a href="https://github.com/PonasKovas/miniquad-mandelbrot">PonasKovas/miniquad-mandelbrot</a>: <a href="https://ponaskovas.github.io/miniquad-mandelbrot-wasm-demo/">web demo</a></p>
+<h2 id="building-examples"><a class="doc-anchor" href="#building-examples">§</a>Building examples</h2><h3 id="linux"><a class="doc-anchor" href="#linux">§</a>Linux</h3><div class="example-wrap"><pre class="language-bash"><code>cargo run --example quad</code></pre></div>
+<p>On NixOS Linux you can use <a href="shell.nix"><code>shell.nix</code></a> to start a development
+environment where Miniquad can be built and run.</p>
+<h3 id="windows"><a class="doc-anchor" href="#windows">§</a>Windows</h3><div class="example-wrap"><pre class="language-bash"><code># both MSVC and GNU target is supported:
+rustup target add x86_64-pc-windows-msvc
+# or
+rustup target add x86_64-pc-windows-gnu
+
+cargo run --example quad</code></pre></div><h3 id="wasm"><a class="doc-anchor" href="#wasm">§</a>WASM</h3><div class="example-wrap"><pre class="language-bash"><code>rustup target add wasm32-unknown-unknown
+cargo build --example quad --target wasm32-unknown-unknown</code></pre></div>
+<p>And then use the following .html to load .wasm:</p>
+<details><summary>index.html</summary>
+<div class="example-wrap"><pre class="language-html"><code>&lt;html lang=&quot;en&quot;&gt;
+
+&lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;title&gt;TITLE&lt;/title&gt;
+    &lt;style&gt;
+        html,
+        body,
+        canvas {
+            margin: 0px;
+            padding: 0px;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: absolute;
+            background: black;
+            z-index: 0;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;canvas id=&quot;glcanvas&quot; tabindex=&#39;1&#39;&gt;&lt;/canvas&gt;
+    &lt;!-- Minified and statically hosted version of https://github.com/not-fl3/miniquad/blob/master/native/sapp-wasm/js/gl.js --&gt;
+    &lt;script src=&quot;https://not-fl3.github.io/miniquad-samples/gl.js&quot;&gt;&lt;/script&gt;
+    &lt;script&gt;load(&quot;quad.wasm&quot;);&lt;/script&gt; &lt;!-- Your compiled wasm file --&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div></details>
+<p>One of the ways to server static .wasm and .html:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>cargo install basic-http-server
+basic-http-server .</code></pre></div>
+<h3 id="android"><a class="doc-anchor" href="#android">§</a>Android</h3>
+<p>Recommended way to build for android is using Docker.<br/>
+miniquad uses slightly modifed version of <code>cargo-apk</code></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>docker run --rm -v $(pwd)<span class="string">":/root/src" </span>-w /root/src notfl3/cargo-apk cargo quad-apk build --example quad</code></pre></div>
+<p>APK file will be in <code>target/android-artifacts/(debug|release)/apk</code></p>
+<p>With “log-impl” enabled all log calls will be forwarded to adb console.
+No code modifications for Android required, everything should just works.</p>
+<h3 id="ios"><a class="doc-anchor" href="#ios">§</a>iOS</h3>
+<p>To run on the simulator:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>mkdir MyGame.app
+cargo build --target x86_64-apple-ios --release
+cp target/release/mygame MyGame.app
+cp -r assets MyGame.app
+cat &gt; MyGame.app/Info.plist &lt;&lt; EOF
+&lt;<span class="question-mark">?</span>xml version=<span class="string">"1.0" </span>encoding=<span class="string">"UTF-8"</span><span class="question-mark">?</span>&gt;
+&lt;!DOCTYPE plist PUBLIC <span class="string">"-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"</span>&gt;
+&lt;plist version=<span class="string">"1.0"</span>&gt;
+&lt;dict&gt;
+&lt;key&gt;CFBundleExecutable&lt;/key&gt;
+&lt;string&gt;mygame&lt;/string&gt;
+&lt;key&gt;CFBundleIdentifier&lt;/key&gt;
+&lt;string&gt;com.mygame&lt;/string&gt;
+&lt;key&gt;CFBundleName&lt;/key&gt;
+&lt;string&gt;mygame&lt;/string&gt;
+&lt;key&gt;CFBundleVersion&lt;/key&gt;
+&lt;string&gt;<span class="number">1</span>&lt;/string&gt;
+&lt;key&gt;CFBundleShortVersionString&lt;/key&gt;
+&lt;string&gt;<span class="number">1.0</span>&lt;/string&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;
+EOF
+
+xcrun simctl install booted MyGame.app/
+xcrun simctl launch booted com.mygame</code></pre></div>
+<p>For details and instructions on provisioning for real iphone, check <a href="https://macroquad.rs/articles/ios/">https://macroquad.rs/articles/ios/</a></p>
+<h3 id="cross-compilation"><a class="doc-anchor" href="#cross-compilation">§</a>Cross Compilation</h3><div class="example-wrap"><pre class="language-bash"><code>
+# windows target from linux host:
+# this is how windows builds are tested from linux machine:
+rustup target add x86_64-pc-windows-gnu
+cargo run --example quad --target x86_64-pc-windows-gnu</code></pre></div><h2 id="goals"><a class="doc-anchor" href="#goals">§</a>Goals</h2>
+<ul>
+<li>
+<p>Fast compilation time. Right now it is ~5s from “cargo clean” for both desktop and web.</p>
+</li>
+<li>
+<p>Cross platform. Amount of platform specific user code required should be kept as little as possible.</p>
+</li>
+<li>
+<p>Low-end devices support.</p>
+</li>
+<li>
+<p>Hackability. Working on your own game, highly probable some hardware incompability will be found. Working around that kind of bugs should be easy, implementation details should not be hidden under layers of abstraction.</p>
+</li>
+<li>
+<p>Forkability. Each platform implementation is, usually, just one pure Rust file. And this file is very copy-paste friendly - it doesnt use any miniquad specific abstractions. It is very easy to just copy some part of miniquad’s platform implementation and use it standalone.</p>
+</li>
+</ul>
+<h2 id="non-goals"><a class="doc-anchor" href="#non-goals">§</a>Non-goals</h2>
+<ul>
+<li>
+<p>Ultimate type safety. Library should be entirely safe in Rust’s definition of safe - no UB or memory unsafety. But correct GPU state is not type guaranteed. Feel free to provide safety abstraction in the user code then!</p>
+</li>
+<li>
+<p>High-end API, like Vulkan/DirectX 12. Take a look on <a href="https://github.com/gfx-rs/gfx">gfx-rs</a> or <a href="https://github.com/vulkano-rs/vulkano">vulkano</a> instead!</p>
+</li>
+</ul>
+<h2 id="platinum-sponsors"><a class="doc-anchor" href="#platinum-sponsors">§</a>Platinum sponsors</h2>
+<p>Miniquad is supported by:</p>
+<p><a href="https://www.sourcegear.com/">SourceGear</a></p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="conf/index.html" title="mod devela::_dep::miniquad::conf">conf</a></dt><dd>Context creation configuration</dd><dt><a class="mod" href="date/index.html" title="mod devela::_dep::miniquad::date">date</a></dt><dt><a class="mod" href="fs/index.html" title="mod devela::_dep::miniquad::fs">fs</a></dt><dt><a class="mod" href="graphics/index.html" title="mod devela::_dep::miniquad::graphics">graphics</a></dt><dt><a class="mod" href="log/index.html" title="mod devela::_dep::miniquad::log">log</a></dt><dt><a class="mod" href="native/index.html" title="mod devela::_dep::miniquad::native">native</a></dt><dt><a class="mod" href="window/index.html" title="mod devela::_dep::miniquad::window">window</a></dt><dd>Window and associated to window rendering context related functions.
+in macroquad &lt;= 0.3, it was ctx.screen_size(). Now it is window::screen_size()</dd></dl><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.count.html" title="macro devela::_dep::miniquad::count">count</a></dt><dt><a class="macro" href="macro.debug.html" title="macro devela::_dep::miniquad::debug">debug</a></dt><dt><a class="macro" href="macro.declare_module.html" title="macro devela::_dep::miniquad::declare_module">declare_<wbr>module</a></dt><dt><a class="macro" href="macro.error.html" title="macro devela::_dep::miniquad::error">error</a></dt><dt><a class="macro" href="macro.info.html" title="macro devela::_dep::miniquad::info">info</a></dt><dt><a class="macro" href="macro.log.html" title="macro devela::_dep::miniquad::log">log</a></dt><dt><a class="macro" href="macro.method_consts.html" title="macro devela::_dep::miniquad::method_consts">method_<wbr>consts</a></dt><dt><a class="macro" href="macro.trace.html" title="macro devela::_dep::miniquad::trace">trace</a></dt><dt><a class="macro" href="macro.warn.html" title="macro devela::_dep::miniquad::warn">warn</a></dt><dt><a class="macro" href="macro.wayland_interface.html" title="macro devela::_dep::miniquad::wayland_interface">wayland_<wbr>interface</a></dt><dt><a class="macro" href="macro.wl_listener.html" title="macro devela::_dep::miniquad::wl_listener">wl_<wbr>listener</a></dt><dt><a class="macro" href="macro.wl_request.html" title="macro devela::_dep::miniquad::wl_request">wl_<wbr>request</a></dt><dt><a class="macro" href="macro.wl_request_constructor.html" title="macro devela::_dep::miniquad::wl_request_constructor">wl_<wbr>request_<wbr>constructor</a></dt></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Arg.html" title="struct devela::_dep::miniquad::Arg">Arg</a></dt><dd>A vtable-erased generic argument.
+Basically, the same thing as <code>fn f&lt;U&gt;(a: &amp;U)</code>, but
+trait-object friendly.</dd><dt><a class="struct" href="struct.Bindings.html" title="struct devela::_dep::miniquad::Bindings">Bindings</a></dt><dd>Geometry bindings</dd><dt><a class="struct" href="struct.BlendState.html" title="struct devela::_dep::miniquad::BlendState">Blend<wbr>State</a></dt><dd>Pixel arithmetic description for blending operations.
+Will be used in an equation:
+<code>equation(sfactor * source_color, dfactor * destination_color)</code>
+Where source_color is the new pixel color and destination color is color from the destination buffer.</dd><dt><a class="struct" href="struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">Buffer<wbr>Id</a></dt><dt><a class="struct" href="struct.BufferLayout.html" title="struct devela::_dep::miniquad::BufferLayout">Buffer<wbr>Layout</a></dt><dt><a class="struct" href="struct.ContextInfo.html" title="struct devela::_dep::miniquad::ContextInfo">Context<wbr>Info</a></dt><dt><a class="struct" href="struct.ElapsedQuery.html" title="struct devela::_dep::miniquad::ElapsedQuery">Elapsed<wbr>Query</a></dt><dd><code>ElapsedQuery</code> is used to measure duration of GPU operations.</dd><dt><a class="struct" href="struct.Features.html" title="struct devela::_dep::miniquad::Features">Features</a></dt><dt><a class="struct" href="struct.GlContext.html" title="struct devela::_dep::miniquad::GlContext">GlContext</a></dt><dt><a class="struct" href="struct.GlslSupport.html" title="struct devela::_dep::miniquad::GlslSupport">Glsl<wbr>Support</a></dt><dt><a class="struct" href="struct.KeyMods.html" title="struct devela::_dep::miniquad::KeyMods">KeyMods</a></dt><dt><a class="struct" href="struct.Pipeline.html" title="struct devela::_dep::miniquad::Pipeline">Pipeline</a></dt><dt><a class="struct" href="struct.PipelineLayout.html" title="struct devela::_dep::miniquad::PipelineLayout">Pipeline<wbr>Layout</a></dt><dt><a class="struct" href="struct.PipelineParams.html" title="struct devela::_dep::miniquad::PipelineParams">Pipeline<wbr>Params</a></dt><dt><a class="struct" href="struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">Render<wbr>Pass</a></dt><dt><a class="struct" href="struct.ShaderId.html" title="struct devela::_dep::miniquad::ShaderId">Shader<wbr>Id</a></dt><dt><a class="struct" href="struct.ShaderMeta.html" title="struct devela::_dep::miniquad::ShaderMeta">Shader<wbr>Meta</a></dt><dt><a class="struct" href="struct.StencilFaceState.html" title="struct devela::_dep::miniquad::StencilFaceState">Stencil<wbr>Face<wbr>State</a></dt><dt><a class="struct" href="struct.StencilState.html" title="struct devela::_dep::miniquad::StencilState">Stencil<wbr>State</a></dt><dt><a class="struct" href="struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">Texture<wbr>Id</a></dt><dt><a class="struct" href="struct.TextureParams.html" title="struct devela::_dep::miniquad::TextureParams">Texture<wbr>Params</a></dt><dt><a class="struct" href="struct.Touch.html" title="struct devela::_dep::miniquad::Touch">Touch</a></dt><dt><a class="struct" href="struct.UniformBlockLayout.html" title="struct devela::_dep::miniquad::UniformBlockLayout">Uniform<wbr>Block<wbr>Layout</a></dt><dt><a class="struct" href="struct.UniformDesc.html" title="struct devela::_dep::miniquad::UniformDesc">Uniform<wbr>Desc</a></dt><dt><a class="struct" href="struct.UniformsSource.html" title="struct devela::_dep::miniquad::UniformsSource">Uniforms<wbr>Source</a></dt><dt><a class="struct" href="struct.VertexAttribute.html" title="struct devela::_dep::miniquad::VertexAttribute">Vertex<wbr>Attribute</a></dt></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.Backend.html" title="enum devela::_dep::miniquad::Backend">Backend</a></dt><dt><a class="enum" href="enum.BlendFactor.html" title="enum devela::_dep::miniquad::BlendFactor">Blend<wbr>Factor</a></dt><dd>Blend factors.</dd><dt><a class="enum" href="enum.BlendValue.html" title="enum devela::_dep::miniquad::BlendValue">Blend<wbr>Value</a></dt><dd>Blend values.</dd><dt><a class="enum" href="enum.BufferSource.html" title="enum devela::_dep::miniquad::BufferSource">Buffer<wbr>Source</a></dt><dt><a class="enum" href="enum.BufferType.html" title="enum devela::_dep::miniquad::BufferType">Buffer<wbr>Type</a></dt><dt><a class="enum" href="enum.BufferUsage.html" title="enum devela::_dep::miniquad::BufferUsage">Buffer<wbr>Usage</a></dt><dt><a class="enum" href="enum.CompareFunc.html" title="enum devela::_dep::miniquad::CompareFunc">Compare<wbr>Func</a></dt><dd>Depth and stencil compare function</dd><dt><a class="enum" href="enum.Comparison.html" title="enum devela::_dep::miniquad::Comparison">Comparison</a></dt><dd>A pixel-wise comparison function.</dd><dt><a class="enum" href="enum.CullFace.html" title="enum devela::_dep::miniquad::CullFace">Cull<wbr>Face</a></dt><dd>Specify whether front- or back-facing polygons can be culled.</dd><dt><a class="enum" href="enum.CursorIcon.html" title="enum devela::_dep::miniquad::CursorIcon">Cursor<wbr>Icon</a></dt><dt><a class="enum" href="enum.Equation.html" title="enum devela::_dep::miniquad::Equation">Equation</a></dt><dd>Specifies how incoming RGBA values (source) and the RGBA in framebuffer (destination)
+are combined.</dd><dt><a class="enum" href="enum.FilterMode.html" title="enum devela::_dep::miniquad::FilterMode">Filter<wbr>Mode</a></dt><dt><a class="enum" href="enum.FrontFaceOrder.html" title="enum devela::_dep::miniquad::FrontFaceOrder">Front<wbr>Face<wbr>Order</a></dt><dd>Define front- and back-facing polygons.</dd><dt><a class="enum" href="enum.KeyCode.html" title="enum devela::_dep::miniquad::KeyCode">KeyCode</a></dt><dd>These keycode values are based off of X11’s <code>keysymdef.h</code>.
+Missing keycodes from that list are given the prefix 0x01.</dd><dt><a class="enum" href="enum.MipmapFilterMode.html" title="enum devela::_dep::miniquad::MipmapFilterMode">Mipmap<wbr>Filter<wbr>Mode</a></dt><dt><a class="enum" href="enum.MouseButton.html" title="enum devela::_dep::miniquad::MouseButton">Mouse<wbr>Button</a></dt><dt><a class="enum" href="enum.PassAction.html" title="enum devela::_dep::miniquad::PassAction">Pass<wbr>Action</a></dt><dt><a class="enum" href="enum.PrimitiveType.html" title="enum devela::_dep::miniquad::PrimitiveType">Primitive<wbr>Type</a></dt><dt><a class="enum" href="enum.RawId.html" title="enum devela::_dep::miniquad::RawId">RawId</a></dt><dt><a class="enum" href="enum.ShaderError.html" title="enum devela::_dep::miniquad::ShaderError">Shader<wbr>Error</a></dt><dt><a class="enum" href="enum.ShaderSource.html" title="enum devela::_dep::miniquad::ShaderSource">Shader<wbr>Source</a></dt><dt><a class="enum" href="enum.ShaderType.html" title="enum devela::_dep::miniquad::ShaderType">Shader<wbr>Type</a></dt><dt><a class="enum" href="enum.StencilOp.html" title="enum devela::_dep::miniquad::StencilOp">Stencil<wbr>Op</a></dt><dd>Operations performed on current stencil value when comparison test passes or fails.</dd><dt><a class="enum" href="enum.TextureAccess.html" title="enum devela::_dep::miniquad::TextureAccess">Texture<wbr>Access</a></dt><dt><a class="enum" href="enum.TextureFormat.html" title="enum devela::_dep::miniquad::TextureFormat">Texture<wbr>Format</a></dt><dd>List of all the possible formats of input data when uploading to texture.
+The list is built by intersection of texture formats supported by 3.3 core profile and webgl1.</dd><dt><a class="enum" href="enum.TextureKind.html" title="enum devela::_dep::miniquad::TextureKind">Texture<wbr>Kind</a></dt><dt><a class="enum" href="enum.TextureSource.html" title="enum devela::_dep::miniquad::TextureSource">Texture<wbr>Source</a></dt><dt><a class="enum" href="enum.TextureWrap.html" title="enum devela::_dep::miniquad::TextureWrap">Texture<wbr>Wrap</a></dt><dd>Sets the wrap parameter for texture.</dd><dt><a class="enum" href="enum.TouchPhase.html" title="enum devela::_dep::miniquad::TouchPhase">Touch<wbr>Phase</a></dt><dt><a class="enum" href="enum.UniformType.html" title="enum devela::_dep::miniquad::UniformType">Uniform<wbr>Type</a></dt><dt><a class="enum" href="enum.VertexFormat.html" title="enum devela::_dep::miniquad::VertexFormat">Vertex<wbr>Format</a></dt><dt><a class="enum" href="enum.VertexStep.html" title="enum devela::_dep::miniquad::VertexStep">Vertex<wbr>Step</a></dt></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.MAX_SHADERSTAGE_IMAGES.html" title="constant devela::_dep::miniquad::MAX_SHADERSTAGE_IMAGES">MAX_<wbr>SHADERSTAGE_<wbr>IMAGES</a></dt><dt><a class="constant" href="constant.MAX_VERTEX_ATTRIBUTES.html" title="constant devela::_dep::miniquad::MAX_VERTEX_ATTRIBUTES">MAX_<wbr>VERTEX_<wbr>ATTRIBUTES</a></dt></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.EventHandler.html" title="trait devela::_dep::miniquad::EventHandler">Event<wbr>Handler</a></dt><dd>A trait defining event callbacks.</dd><dt><a class="trait" href="trait.RenderingBackend.html" title="trait devela::_dep::miniquad::RenderingBackend">Rendering<wbr>Backend</a></dt></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.start.html" title="fn devela::_dep::miniquad::start">start</a></dt><dd>Start miniquad.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.Context.html" title="type devela::_dep::miniquad::Context">Context</a></dt></dl></section></div></main></body></html>

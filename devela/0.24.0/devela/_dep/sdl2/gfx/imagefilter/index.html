@@ -1,0 +1,111 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="MMX image filters"><title>devela::_dep::sdl2::gfx::imagefilter - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module imagefilter</a></h2><h3><a href="#functions">Module Items</a></h3><ul class="block"><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep::<wbr>sdl2::<wbr>gfx</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../index.html">devela</a>::<wbr><a href="../../../index.html">_dep</a>::<wbr><a href="../../index.html">sdl2</a>::<wbr><a href="../index.html">gfx</a></div><h1>Module <span>imagefilter</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_sdl2</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>MMX image filters</p>
+</div></details><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.abs_diff.html" title="fn devela::_dep::sdl2::gfx::imagefilter::abs_diff">abs_<wbr>diff</a></dt><dd>Filter using <code>AbsDiff</code>: D = | S1 - S2 |.</dd><dt><a class="fn" href="fn.add.html" title="fn devela::_dep::sdl2::gfx::imagefilter::add">add</a></dt><dd>Filter using Add: D = saturation255(S1 + S2).</dd><dt><a class="fn" href="fn.add_byte.html" title="fn devela::_dep::sdl2::gfx::imagefilter::add_byte">add_<wbr>byte</a></dt><dd>Filter using <code>AddByte</code>: D = saturation255(S + C).</dd><dt><a class="fn" href="fn.add_byte_to_half.html" title="fn devela::_dep::sdl2::gfx::imagefilter::add_byte_to_half">add_<wbr>byte_<wbr>to_<wbr>half</a></dt><dd>Filter using <code>AddByteToHalf</code>: D = saturation255(S/2 + C).</dd><dt><a class="fn" href="fn.add_uint.html" title="fn devela::_dep::sdl2::gfx::imagefilter::add_uint">add_<wbr>uint</a></dt><dd>Filter using <code>AddUint</code>: D = saturation255((S[i] + Cs[i % 4]), Cs=Swap32((uint)C).</dd><dt><a class="fn" href="fn.binarize_using_threshold.html" title="fn devela::_dep::sdl2::gfx::imagefilter::binarize_using_threshold">binarize_<wbr>using_<wbr>threshold</a></dt><dd>Filter using <code>BinarizeUsingThreshold</code>: D = (S &gt;= T) ? 255:0.</dd><dt><a class="fn" href="fn.bit_and.html" title="fn devela::_dep::sdl2::gfx::imagefilter::bit_and">bit_and</a></dt><dd>Filter using <code>BitAnd</code>: D = S1 &amp; S2.</dd><dt><a class="fn" href="fn.bit_negation.html" title="fn devela::_dep::sdl2::gfx::imagefilter::bit_negation">bit_<wbr>negation</a></dt><dd>Filter using <code>BitNegation</code>: D = !S.</dd><dt><a class="fn" href="fn.bit_or.html" title="fn devela::_dep::sdl2::gfx::imagefilter::bit_or">bit_or</a></dt><dd>Filter using <code>BitOr</code>: D = S1 | S2.</dd><dt><a class="fn" href="fn.clip_to_range.html" title="fn devela::_dep::sdl2::gfx::imagefilter::clip_to_range">clip_<wbr>to_<wbr>range</a></dt><dd>Filter using <code>ClipToRange</code>: D = (S &gt;= Tmin) &amp; (S &lt;= Tmax) S:Tmin | Tmax.</dd><dt><a class="fn" href="fn.div.html" title="fn devela::_dep::sdl2::gfx::imagefilter::div">div</a></dt><dd>Filter using Div: D = S1 / S2.</dd><dt><a class="fn" href="fn.mean.html" title="fn devela::_dep::sdl2::gfx::imagefilter::mean">mean</a></dt><dd>Filter using Mean: D = S1/2 + S2/2.</dd><dt><a class="fn" href="fn.mmx_detect.html" title="fn devela::_dep::sdl2::gfx::imagefilter::mmx_detect">mmx_<wbr>detect</a></dt><dd>MMX detection routine (with override flag).</dd><dt><a class="fn" href="fn.mmx_off.html" title="fn devela::_dep::sdl2::gfx::imagefilter::mmx_off">mmx_off</a></dt><dd>Disable MMX check for filter functions and and force to use non-MMX C based code.</dd><dt><a class="fn" href="fn.mmx_on.html" title="fn devela::_dep::sdl2::gfx::imagefilter::mmx_on">mmx_on</a></dt><dd>Enable MMX check for filter functions and use MMX code if available.</dd><dt><a class="fn" href="fn.mult.html" title="fn devela::_dep::sdl2::gfx::imagefilter::mult">mult</a></dt><dd>Filter using Mult: D = saturation255(S1 * S2).</dd><dt><a class="fn" href="fn.mult_by_byte.html" title="fn devela::_dep::sdl2::gfx::imagefilter::mult_by_byte">mult_<wbr>by_<wbr>byte</a></dt><dd>Filter using <code>MultByByte</code>: D = saturation255(S * C).</dd><dt><a class="fn" href="fn.mult_div_by2.html" title="fn devela::_dep::sdl2::gfx::imagefilter::mult_div_by2">mult_<wbr>div_<wbr>by2</a></dt><dd>Filter using <code>MultDivby2</code>: D = saturation255(S1/2 * S2).</dd><dt><a class="fn" href="fn.mult_div_by4.html" title="fn devela::_dep::sdl2::gfx::imagefilter::mult_div_by4">mult_<wbr>div_<wbr>by4</a></dt><dd>Filter using <code>MultDivby4</code>: D = saturation255(S1/2 * S2/2).</dd><dt><a class="fn" href="fn.mult_nor.html" title="fn devela::_dep::sdl2::gfx::imagefilter::mult_nor">mult_<wbr>nor</a></dt><dd>Filter using <code>MultNor</code>: D = S1 * S2.</dd><dt><a class="fn" href="fn.normalize_linear.html" title="fn devela::_dep::sdl2::gfx::imagefilter::normalize_linear">normalize_<wbr>linear</a></dt><dd>Filter using <code>NormalizeLinear</code>: D = saturation255((Nmax - Nmin)/(Cmax - Cmin)*(S - Cmin) + Nmin).</dd><dt><a class="fn" href="fn.shift_left.html" title="fn devela::_dep::sdl2::gfx::imagefilter::shift_left">shift_<wbr>left</a></dt><dd>Filter <code>ShiftLeft</code>: D = saturation255(S &lt;&lt; N).</dd><dt><a class="fn" href="fn.shift_left_byte.html" title="fn devela::_dep::sdl2::gfx::imagefilter::shift_left_byte">shift_<wbr>left_<wbr>byte</a></dt><dd>Filter using <code>ShiftLeftByte</code>: D = (S &lt;&lt; N).</dd><dt><a class="fn" href="fn.shift_left_uint.html" title="fn devela::_dep::sdl2::gfx::imagefilter::shift_left_uint">shift_<wbr>left_<wbr>uint</a></dt><dd>Filter using <code>ShiftLeftUint</code>: D = ((uint)S &lt;&lt; N).</dd><dt><a class="fn" href="fn.shift_right.html" title="fn devela::_dep::sdl2::gfx::imagefilter::shift_right">shift_<wbr>right</a></dt><dd>Filter using <code>ShiftRight</code>: D = saturation0(S &gt;&gt; N).</dd><dt><a class="fn" href="fn.shift_right_and_mult_by_byte.html" title="fn devela::_dep::sdl2::gfx::imagefilter::shift_right_and_mult_by_byte">shift_<wbr>right_<wbr>and_<wbr>mult_<wbr>by_<wbr>byte</a></dt><dd>Filter using <code>ShiftRightAndMultByByte</code>: D = saturation255((S &gt;&gt; N) * C).</dd><dt><a class="fn" href="fn.shift_right_uint.html" title="fn devela::_dep::sdl2::gfx::imagefilter::shift_right_uint">shift_<wbr>right_<wbr>uint</a></dt><dd>Filter using <code>ShiftRightUint</code>: D = saturation0((uint)S[i] &gt;&gt; N).</dd><dt><a class="fn" href="fn.sub.html" title="fn devela::_dep::sdl2::gfx::imagefilter::sub">sub</a></dt><dd>Filter using Sub: D = saturation0(S1 - S2).</dd><dt><a class="fn" href="fn.sub_byte.html" title="fn devela::_dep::sdl2::gfx::imagefilter::sub_byte">sub_<wbr>byte</a></dt><dd>Filter using <code>SubByte</code>: D = saturation0(S - C).</dd><dt><a class="fn" href="fn.sub_uint.html" title="fn devela::_dep::sdl2::gfx::imagefilter::sub_uint">sub_<wbr>uint</a></dt><dd>Filter using <code>SubUint</code>: D = saturation0(S[i] - Cs[i % 4]), Cs=Swap32((uint)C).</dd></dl></section></div></main></body></html>

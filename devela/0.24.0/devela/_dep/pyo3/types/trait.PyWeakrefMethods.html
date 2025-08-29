@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Implementation of functionality for `PyWeakref`."><title>PyWeakrefMethods in devela::_dep::pyo3::types - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">PyWeakref<wbr>Methods</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.upgrade" title="upgrade">upgrade</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.upgrade_as" title="upgrade_as">upgrade_as</a></li><li><a href="#method.upgrade_as_exact" title="upgrade_as_exact">upgrade_as_exact</a></li><li><a href="#method.upgrade_as_unchecked" title="upgrade_as_unchecked">upgrade_as_unchecked</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>pyo3::<wbr>types</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">_dep</a>::<wbr><a href="../index.html">pyo3</a>::<wbr><a href="index.html">types</a></div><h1>Trait <span class="trait">PyWeakrefMethods</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>pub trait PyWeakrefMethods&lt;'py&gt;: Sealed {
+    // Required method
+    fn <a href="#tymethod.upgrade" class="fn">upgrade</a>(&amp;self) -&gt; <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../struct.Bound.html" title="struct devela::_dep::pyo3::Bound">Bound</a>&lt;'py, <a class="struct" href="../struct.PyAny.html" title="struct devela::_dep::pyo3::PyAny">PyAny</a>&gt;&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;Bound&lt;&#39;py, PyAny&gt;&gt;">ⓘ</a>;
+
+    // Provided methods
+    fn <a href="#method.upgrade_as" class="fn">upgrade_as</a>&lt;T&gt;(&amp;self) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../struct.Bound.html" title="struct devela::_dep::pyo3::Bound">Bound</a>&lt;'py, T&gt;&gt;, <a class="struct" href="../struct.PyErr.html" title="struct devela::_dep::pyo3::PyErr">PyErr</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;Option&lt;Bound&lt;&#39;py, T&gt;&gt;, PyErr&gt;">ⓘ</a>
+       <span class="where">where T: <a class="trait" href="../trait.PyTypeCheck.html" title="trait devela::_dep::pyo3::PyTypeCheck">PyTypeCheck</a></span> { ... }
+<span class="item-spacer"></span>    unsafe fn <a href="#method.upgrade_as_unchecked" class="fn">upgrade_as_unchecked</a>&lt;T&gt;(&amp;self) -&gt; <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../struct.Bound.html" title="struct devela::_dep::pyo3::Bound">Bound</a>&lt;'py, T&gt;&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;Bound&lt;&#39;py, T&gt;&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.upgrade_as_exact" class="fn">upgrade_as_exact</a>&lt;T&gt;(&amp;self) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../struct.Bound.html" title="struct devela::_dep::pyo3::Bound">Bound</a>&lt;'py, T&gt;&gt;, <a class="struct" href="../struct.PyErr.html" title="struct devela::_dep::pyo3::PyErr">PyErr</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;Option&lt;Bound&lt;&#39;py, T&gt;&gt;, PyErr&gt;">ⓘ</a>
+       <span class="where">where T: <a class="trait" href="../trait.PyTypeInfo.html" title="trait devela::_dep::pyo3::PyTypeInfo">PyTypeInfo</a></span> { ... }
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate features <code>dep_pyo3</code> and <code>std</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Implementation of functionality for <a href="struct.PyWeakref.html" title="struct devela::_dep::pyo3::types::PyWeakref"><code>PyWeakref</code></a>.</p>
+<p>These methods are defined for the <code>Bound&lt;'py, PyWeakref&gt;</code> smart pointer, so to use method call
+syntax these methods are separated into a trait, because stable Rust does not yet support
+<code>arbitrary_self_types</code>.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.upgrade" class="method"><h4 class="code-header">fn <a href="#tymethod.upgrade" class="fn">upgrade</a>(&amp;self) -&gt; <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../struct.Bound.html" title="struct devela::_dep::pyo3::Bound">Bound</a>&lt;'py, <a class="struct" href="../struct.PyAny.html" title="struct devela::_dep::pyo3::PyAny">PyAny</a>&gt;&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;Bound&lt;&#39;py, PyAny&gt;&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Upgrade the weakref to a Bound <a href="../struct.PyAny.html" title="struct devela::_dep::pyo3::PyAny"><code>PyAny</code></a> reference to the target object if possible.</p>
+<p>It is named <code>upgrade</code> to be inline with <a href="../../../all/struct.RcWeak.html#method.upgrade" title="method devela::all::RcWeak::upgrade">rust’s <code>Weak::upgrade</code></a>.
+This function returns <code>Some(Bound&lt;'py, PyAny&gt;)</code> if the reference still exists, otherwise <code>None</code> will be returned.</p>
+<p>This function gets the optional target of this <a href="https://docs.python.org/3/library/weakref.html#weakref.ReferenceType"><code>weakref.ReferenceType</code></a> (result of calling <a href="https://docs.python.org/3/library/weakref.html#weakref.ref"><code>weakref.ref</code></a>).
+It produces similar results to using <a href="https://docs.python.org/3/c-api/weakref.html#c.PyWeakref_GetRef"><code>PyWeakref_GetRef</code></a> in the C api.</p>
+<h5 id="example"><a class="doc-anchor" href="#example">§</a>Example</h5>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>pyo3::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>pyo3::types::PyWeakrefReference;
+
+<span class="attr">#[pyclass(weakref)]
+</span><span class="kw">struct </span>Foo { <span class="comment">/* fields omitted */ </span>}
+
+<span class="kw">fn </span>parse_data(reference: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, PyWeakrefReference&gt;) -&gt; PyResult&lt;String&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(object) = reference.upgrade() {
+        <span class="prelude-val">Ok</span>(<span class="macro">format!</span>(<span class="string">"The object '{}' refered by this reference still exists."</span>, object.getattr(<span class="string">"__class__"</span>)<span class="question-mark">?</span>.getattr(<span class="string">"__qualname__"</span>)<span class="question-mark">?</span>))
+    } <span class="kw">else </span>{
+        <span class="prelude-val">Ok</span>(<span class="string">"The object, which this reference refered to, no longer exists"</span>.to_owned())
+    }
+}
+
+Python::with_gil(|py| {
+    <span class="kw">let </span>data = Bound::new(py, Foo{})<span class="question-mark">?</span>;
+    <span class="kw">let </span>reference = PyWeakrefReference::new(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
+
+    <span class="macro">assert_eq!</span>(
+        parse_data(reference.as_borrowed())<span class="question-mark">?</span>,
+        <span class="string">"The object 'Foo' refered by this reference still exists."
+    </span>);
+
+    drop(data);
+
+    <span class="macro">assert_eq!</span>(
+        parse_data(reference.as_borrowed())<span class="question-mark">?</span>,
+        <span class="string">"The object, which this reference refered to, no longer exists"
+    </span>);
+
+    <span class="prelude-val">Ok</span>(())
+})</code></pre></div>
+<h5 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics</h5>
+<p>This function panics is the current object is invalid.
+If used properly this is never the case. (NonNull and actually a weakref type)</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.upgrade_as" class="method"><h4 class="code-header">fn <a href="#method.upgrade_as" class="fn">upgrade_as</a>&lt;T&gt;(&amp;self) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../struct.Bound.html" title="struct devela::_dep::pyo3::Bound">Bound</a>&lt;'py, T&gt;&gt;, <a class="struct" href="../struct.PyErr.html" title="struct devela::_dep::pyo3::PyErr">PyErr</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;Option&lt;Bound&lt;&#39;py, T&gt;&gt;, PyErr&gt;">ⓘ</a><div class="where">where
+    T: <a class="trait" href="../trait.PyTypeCheck.html" title="trait devela::_dep::pyo3::PyTypeCheck">PyTypeCheck</a>,</div></h4></section></summary><div class="docblock"><p>Upgrade the weakref to a direct Bound object reference.</p>
+<p>It is named <code>upgrade</code> to be inline with <a href="../../../all/struct.RcWeak.html#method.upgrade" title="method devela::all::RcWeak::upgrade">rust’s <code>Weak::upgrade</code></a>.
+In Python it would be equivalent to <a href="https://docs.python.org/3/c-api/weakref.html#c.PyWeakref_GetRef"><code>PyWeakref_GetRef</code></a>.</p>
+<h5 id="example-1"><a class="doc-anchor" href="#example-1">§</a>Example</h5>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>pyo3::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>pyo3::types::PyWeakrefReference;
+
+<span class="attr">#[pyclass(weakref)]
+</span><span class="kw">struct </span>Foo { <span class="comment">/* fields omitted */ </span>}
+
+<span class="attr">#[pymethods]
+</span><span class="kw">impl </span>Foo {
+    <span class="kw">fn </span>get_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span>str, u32) {
+        (<span class="string">"Dave"</span>, <span class="number">10</span>)
+    }
+}
+
+<span class="kw">fn </span>parse_data(reference: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, PyWeakrefReference&gt;) -&gt; PyResult&lt;String&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(data_src) = reference.upgrade_as::&lt;Foo&gt;()<span class="question-mark">? </span>{
+        <span class="kw">let </span>data = data_src.borrow();
+        <span class="kw">let </span>(name, score) = data.get_data();
+        <span class="prelude-val">Ok</span>(<span class="macro">format!</span>(<span class="string">"Processing '{}': score = {}"</span>, name, score))
+    } <span class="kw">else </span>{
+        <span class="prelude-val">Ok</span>(<span class="string">"The supplied data reference is nolonger relavent."</span>.to_owned())
+    }
+}
+
+Python::with_gil(|py| {
+    <span class="kw">let </span>data = Bound::new(py, Foo{})<span class="question-mark">?</span>;
+    <span class="kw">let </span>reference = PyWeakrefReference::new(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
+
+    <span class="macro">assert_eq!</span>(
+        parse_data(reference.as_borrowed())<span class="question-mark">?</span>,
+        <span class="string">"Processing 'Dave': score = 10"
+    </span>);
+
+    drop(data);
+
+    <span class="macro">assert_eq!</span>(
+        parse_data(reference.as_borrowed())<span class="question-mark">?</span>,
+        <span class="string">"The supplied data reference is nolonger relavent."
+    </span>);
+
+    <span class="prelude-val">Ok</span>(())
+})</code></pre></div>
+<h5 id="panics-1"><a class="doc-anchor" href="#panics-1">§</a>Panics</h5>
+<p>This function panics is the current object is invalid.
+If used propperly this is never the case. (NonNull and actually a weakref type)</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.upgrade_as_unchecked" class="method"><h4 class="code-header">unsafe fn <a href="#method.upgrade_as_unchecked" class="fn">upgrade_as_unchecked</a>&lt;T&gt;(&amp;self) -&gt; <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../struct.Bound.html" title="struct devela::_dep::pyo3::Bound">Bound</a>&lt;'py, T&gt;&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;Bound&lt;&#39;py, T&gt;&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Upgrade the weakref to a direct Bound object reference unchecked. The type of the recovered object is not checked before downcasting, this could lead to unexpected behavior. Use only when absolutely certain the type can be guaranteed. The <code>weakref</code> may still return <code>None</code>.</p>
+<p>It is named <code>upgrade</code> to be inline with <a href="../../../all/struct.RcWeak.html#method.upgrade" title="method devela::all::RcWeak::upgrade">rust’s <code>Weak::upgrade</code></a>.
+In Python it would be equivalent to <a href="https://docs.python.org/3/c-api/weakref.html#c.PyWeakref_GetRef"><code>PyWeakref_GetRef</code></a>.</p>
+<h5 id="safety"><a class="doc-anchor" href="#safety">§</a>Safety</h5>
+<p>Callers must ensure that the type is valid or risk type confusion.
+The <code>weakref</code> is still allowed to be <code>None</code>, if the referenced object has been cleaned up.</p>
+<h5 id="example-2"><a class="doc-anchor" href="#example-2">§</a>Example</h5>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>pyo3::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>pyo3::types::PyWeakrefReference;
+
+<span class="attr">#[pyclass(weakref)]
+</span><span class="kw">struct </span>Foo { <span class="comment">/* fields omitted */ </span>}
+
+<span class="attr">#[pymethods]
+</span><span class="kw">impl </span>Foo {
+    <span class="kw">fn </span>get_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span>str, u32) {
+        (<span class="string">"Dave"</span>, <span class="number">10</span>)
+    }
+}
+
+<span class="kw">fn </span>parse_data(reference: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, PyWeakrefReference&gt;) -&gt; String {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(data_src) = <span class="kw">unsafe </span>{ reference.upgrade_as_unchecked::&lt;Foo&gt;() } {
+        <span class="kw">let </span>data = data_src.borrow();
+        <span class="kw">let </span>(name, score) = data.get_data();
+        <span class="macro">format!</span>(<span class="string">"Processing '{}': score = {}"</span>, name, score)
+    } <span class="kw">else </span>{
+        <span class="string">"The supplied data reference is nolonger relavent."</span>.to_owned()
+    }
+}
+
+Python::with_gil(|py| {
+    <span class="kw">let </span>data = Bound::new(py, Foo{})<span class="question-mark">?</span>;
+    <span class="kw">let </span>reference = PyWeakrefReference::new(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
+
+    <span class="macro">assert_eq!</span>(
+        parse_data(reference.as_borrowed()),
+        <span class="string">"Processing 'Dave': score = 10"
+    </span>);
+
+    drop(data);
+
+    <span class="macro">assert_eq!</span>(
+        parse_data(reference.as_borrowed()),
+        <span class="string">"The supplied data reference is nolonger relavent."
+    </span>);
+
+    <span class="prelude-val">Ok</span>(())
+})</code></pre></div>
+<h5 id="panics-2"><a class="doc-anchor" href="#panics-2">§</a>Panics</h5>
+<p>This function panics is the current object is invalid.
+If used propperly this is never the case. (NonNull and actually a weakref type)</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.upgrade_as_exact" class="method"><h4 class="code-header">fn <a href="#method.upgrade_as_exact" class="fn">upgrade_as_exact</a>&lt;T&gt;(&amp;self) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../struct.Bound.html" title="struct devela::_dep::pyo3::Bound">Bound</a>&lt;'py, T&gt;&gt;, <a class="struct" href="../struct.PyErr.html" title="struct devela::_dep::pyo3::PyErr">PyErr</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;Option&lt;Bound&lt;&#39;py, T&gt;&gt;, PyErr&gt;">ⓘ</a><div class="where">where
+    T: <a class="trait" href="../trait.PyTypeInfo.html" title="trait devela::_dep::pyo3::PyTypeInfo">PyTypeInfo</a>,</div></h4></section></summary><div class="docblock"><p>Upgrade the weakref to a exact direct Bound object reference.</p>
+<p>It is named <code>upgrade</code> to be inline with <a href="../../../all/struct.RcWeak.html#method.upgrade" title="method devela::all::RcWeak::upgrade">rust’s <code>Weak::upgrade</code></a>.
+In Python it would be equivalent to <a href="https://docs.python.org/3/c-api/weakref.html#c.PyWeakref_GetRef"><code>PyWeakref_GetRef</code></a>.</p>
+<h5 id="example-3"><a class="doc-anchor" href="#example-3">§</a>Example</h5>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>pyo3::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>pyo3::types::PyWeakrefReference;
+
+<span class="attr">#[pyclass(weakref)]
+</span><span class="kw">struct </span>Foo { <span class="comment">/* fields omitted */ </span>}
+
+<span class="attr">#[pymethods]
+</span><span class="kw">impl </span>Foo {
+    <span class="kw">fn </span>get_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span>str, u32) {
+        (<span class="string">"Dave"</span>, <span class="number">10</span>)
+    }
+}
+
+<span class="kw">fn </span>parse_data(reference: Borrowed&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, PyWeakrefReference&gt;) -&gt; PyResult&lt;String&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(data_src) = reference.upgrade_as_exact::&lt;Foo&gt;()<span class="question-mark">? </span>{
+        <span class="kw">let </span>data = data_src.borrow();
+        <span class="kw">let </span>(name, score) = data.get_data();
+        <span class="prelude-val">Ok</span>(<span class="macro">format!</span>(<span class="string">"Processing '{}': score = {}"</span>, name, score))
+    } <span class="kw">else </span>{
+        <span class="prelude-val">Ok</span>(<span class="string">"The supplied data reference is nolonger relavent."</span>.to_owned())
+    }
+}
+
+Python::with_gil(|py| {
+    <span class="kw">let </span>data = Bound::new(py, Foo{})<span class="question-mark">?</span>;
+    <span class="kw">let </span>reference = PyWeakrefReference::new(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
+
+    <span class="macro">assert_eq!</span>(
+        parse_data(reference.as_borrowed())<span class="question-mark">?</span>,
+        <span class="string">"Processing 'Dave': score = 10"
+    </span>);
+
+    drop(data);
+
+    <span class="macro">assert_eq!</span>(
+        parse_data(reference.as_borrowed())<span class="question-mark">?</span>,
+        <span class="string">"The supplied data reference is nolonger relavent."
+    </span>);
+
+    <span class="prelude-val">Ok</span>(())
+})</code></pre></div>
+<h5 id="panics-3"><a class="doc-anchor" href="#panics-3">§</a>Panics</h5>
+<p>This function panics is the current object is invalid.
+If used propperly this is never the case. (NonNull and actually a weakref type)</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-PyWeakrefMethods%3C'py%3E-for-Bound%3C'py,+PyWeakref%3E" class="impl"><a href="#impl-PyWeakrefMethods%3C'py%3E-for-Bound%3C'py,+PyWeakref%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'py&gt; <a class="trait" href="trait.PyWeakrefMethods.html" title="trait devela::_dep::pyo3::types::PyWeakrefMethods">PyWeakrefMethods</a>&lt;'py&gt; for <a class="struct" href="../struct.Bound.html" title="struct devela::_dep::pyo3::Bound">Bound</a>&lt;'py, <a class="struct" href="struct.PyWeakref.html" title="struct devela::_dep::pyo3::types::PyWeakref">PyWeakref</a>&gt;</h3></section><section id="impl-PyWeakrefMethods%3C'py%3E-for-Bound%3C'py,+PyWeakrefProxy%3E" class="impl"><a href="#impl-PyWeakrefMethods%3C'py%3E-for-Bound%3C'py,+PyWeakrefProxy%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'py&gt; <a class="trait" href="trait.PyWeakrefMethods.html" title="trait devela::_dep::pyo3::types::PyWeakrefMethods">PyWeakrefMethods</a>&lt;'py&gt; for <a class="struct" href="../struct.Bound.html" title="struct devela::_dep::pyo3::Bound">Bound</a>&lt;'py, <a class="struct" href="struct.PyWeakrefProxy.html" title="struct devela::_dep::pyo3::types::PyWeakrefProxy">PyWeakrefProxy</a>&gt;</h3></section><section id="impl-PyWeakrefMethods%3C'py%3E-for-Bound%3C'py,+PyWeakrefReference%3E" class="impl"><a href="#impl-PyWeakrefMethods%3C'py%3E-for-Bound%3C'py,+PyWeakrefReference%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'py&gt; <a class="trait" href="trait.PyWeakrefMethods.html" title="trait devela::_dep::pyo3::types::PyWeakrefMethods">PyWeakrefMethods</a>&lt;'py&gt; for <a class="struct" href="../struct.Bound.html" title="struct devela::_dep::pyo3::Bound">Bound</a>&lt;'py, <a class="struct" href="struct.PyWeakrefReference.html" title="struct devela::_dep::pyo3::types::PyWeakrefReference">PyWeakrefReference</a>&gt;</h3></section></div><script src="../../../../trait.impl/pyo3/types/weakref/anyref/trait.PyWeakrefMethods.js" data-ignore-extern-crates="pyo3" async></script><script type="text/json" id="notable-traits-data">{"Option<Bound<'py, PyAny>>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../../all/trait.ExtOption.html\" title=\"trait devela::all::ExtOption\">ExtOption</a>&lt;T&gt; for <a class=\"enum\" href=\"../../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</div>","Option<Bound<'py, T>>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../../all/trait.ExtOption.html\" title=\"trait devela::all::ExtOption\">ExtOption</a>&lt;T&gt; for <a class=\"enum\" href=\"../../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</div>","Result<Option<Bound<'py, T>>, PyErr>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AnsiColor3b"],"macro":["ansi"],"struct":["Ansi","AnsiColor8b","TermSize"]};

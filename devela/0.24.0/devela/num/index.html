@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Numerical types and math operations. num::{geom, logic, niche, ord, quant, rand} "><title>devela::num - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module num</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate devela</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a></div><h1>Module <span>num</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/num/mod.rs.html#3-70">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Numerical types and math operations.
+<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::num">num</a>::{<a href="geom/index.html" title="mod devela::num::geom">geom</a>, <a href="logic/index.html" title="mod devela::num::logic">logic</a>, <a href="niche/index.html" title="mod devela::num::niche">niche</a>, <a href="ord/index.html" title="mod devela::num::ord">ord</a>, <a href="quant/index.html" title="mod devela::num::quant">quant</a>, <a href="rand/index.html" title="mod devela::num::rand">rand</a>}</span>
+<br/><br style='display:block;content:"";margin-top:10px;' /></p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../_core/cmp/index.html" title="mod devela::_core::cmp">cmp</a>, <a href="../_dep/_std/num/index.html" title="mod devela::_dep::_std::num">num</a>}</span><hr/></p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="geom/index.html" title="mod devela::num::geom">geom</a></dt><dd>Geometric types and operations, spatial constructs and analysis.
+<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="geom/index.html" title="mod devela::num::geom">geom</a>::{<a href="geom/linear/index.html" title="mod devela::num::geom::linear">linear</a>, <a href="geom/metric/index.html" title="mod devela::num::geom::metric">metric</a>, <a href="geom/shape/index.html" title="mod devela::num::geom::shape">shape</a>}</span></dd><dt><a class="mod" href="logic/index.html" title="mod devela::num::logic">logic</a></dt><dd>Logic related types and functionality.</dd><dt><a class="mod" href="niche/index.html" title="mod devela::num::niche">niche</a></dt><dd>Specialized numeric types and behaviors.</dd><dt><a class="mod" href="ord/index.html" title="mod devela::num::ord">ord</a></dt><dd>Comparing and ordering values.</dd><dt><a class="mod" href="quant/index.html" title="mod devela::num::quant">quant</a></dt><dd>Quantification and periodicity.</dd><dt><a class="mod" href="rand/index.html" title="mod devela::num::rand">rand</a></dt><dd>Random number generation.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Cast.html" title="struct devela::num::Cast">Cast</a><wbr><span class="stab portability" title="Available on `prim··` only"><code>prim··</code></span></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Provides <em>const</em> casting, joining and splitting operations between primitives.</dd><dt><a class="struct" href="struct.Divisor.html" title="struct devela::num::Divisor">Divisor</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+Faster divisor for division and modulo operations.</dd><dt><a class="struct" href="struct.Float.html" title="struct devela::num::Float">Float</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+<span class='stab portability' title='Namespaced functionality'>🌐</span>
+Provides comprehensive floating-point operations for <code>T</code>, most of them <em>const</em>.</dd><dt><a class="struct" href="struct.Frac.html" title="struct devela::num::Frac">Frac</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+<span class='stab portability' title='Namespaced functionality'>🌐</span>
+Provides comprehensive fractional operations on <code>T</code>, most of them <em>const</em>.</dd><dt><a class="struct" href="struct.GcdReturn.html" title="struct devela::num::GcdReturn">GcdReturn</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+<span class='stab portability' title='Resolution or outcome-related item'>⚖️</span>
+A return type for the calculated
+<abbr title="Greatest Common Divisor">GCD</abbr> and the Bézout coeficients.</dd><dt><a class="struct" href="struct.Int.html" title="struct devela::num::Int">Int</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+<span class='stab portability' title='Namespaced functionality'>🌐</span>
+Provides comprehensive integer operations on <code>T</code>, most of them <em>const</em>.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.FloatCategory.html" title="enum devela::num::FloatCategory">Float<wbr>Category</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A classification of floating point numbers.</dd><dt><a class="enum" href="enum.NumError.html" title="enum devela::num::NumError">NumError</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+<span class='stab portability' title='Composite error type'>🚩+</span>
+A numeric-related error.</dd><dt><a class="enum" href="enum.Sign.html" title="enum devela::num::Sign">Sign</a></dt><dd>Represents the sign of a number.</dd><dt><a class="enum" href="enum.UnitBi.html" title="enum devela::num::UnitBi">UnitBi</a><wbr><span class="stab portability" title="Available on crate feature `unit` only"><code>unit</code></span></dt><dd>Binary unit prefixes.</dd><dt><a class="enum" href="enum.UnitSi.html" title="enum devela::num::UnitSi">UnitSi</a><wbr><span class="stab portability" title="Available on crate feature `unit` only"><code>unit</code></span></dt><dd>SI (metric) unit prefixes.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.ExtFloat.html" title="trait devela::num::ExtFloat">ExtFloat</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+<span class='stab portability' title='Namespaced functionality'>🌐</span>
+Extension trait for floating-point types. Associated methods.</dd><dt><a class="trait" href="trait.FloatConst.html" title="trait devela::num::FloatConst">Float<wbr>Const</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+<span class='stab portability' title='Namespaced functionality'>🌐</span>
+Extension trait for floating-point types. Associated constants.</dd><dt><a class="trait" href="trait.Num.html" title="trait devela::num::Num">Num</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+Common trait for numeric types.</dd><dt><a class="trait" href="trait.NumConst.html" title="trait devela::num::NumConst">NumConst</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+Fundamental numeric constants for both integer and floating-point types.</dd><dt><a class="trait" href="trait.NumInt.html" title="trait devela::num::NumInt">NumInt</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+Common trait for integer types.</dd><dt><a class="trait" href="trait.NumRef.html" title="trait devela::num::NumRef">NumRef</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+Common auto-trait for referenced numeric types.</dd><dt><a class="trait" href="trait.NumRefInt.html" title="trait devela::num::NumRefInt">NumRef<wbr>Int</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+Common auto-trait for referenced integer types.</dd><dt><a class="trait" href="trait.PrimitiveCast.html" title="trait devela::num::PrimitiveCast">Primitive<wbr>Cast</a><wbr><span class="stab portability" title="Available on crate feature `cast` only"><code>cast</code></span></dt><dd>Offers methods for casting between primitives.</dd><dt><a class="trait" href="trait.PrimitiveJoin.html" title="trait devela::num::PrimitiveJoin">Primitive<wbr>Join</a><wbr><span class="stab portability" title="Available on crate feature `join` only"><code>join</code></span></dt><dd>Offers methods to construct a primitive from an array or slice of smaller primitives.</dd><dt><a class="trait" href="trait.PrimitiveSplit.html" title="trait devela::num::PrimitiveSplit">Primitive<wbr>Split</a><wbr><span class="stab portability" title="Available on crate feature `split` only"><code>split</code></span></dt><dd>Offers methods to split a primitive into an array of smaller primitives.</dd><dt><a class="trait" href="trait.Unit.html" title="trait devela::num::Unit">Unit</a><wbr><span class="stab portability" title="Available on crate feature `unit` only"><code>unit</code></span></dt><dd>Common trait for unit prefixes.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.prime_number_theorem.html" title="fn devela::num::prime_number_theorem">prime_<wbr>number_<wbr>theorem</a><wbr><span class="stab portability" title="Available on crate features `std` or `_float_f64` only"><code>std</code> or <code>_float_f64</code></span></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+The prime number theorem formula.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.NoNum.html" title="type devela::num::NoNum">NoNum</a></dt><dd><span class='stab portability' title='Absence, emptiness, or a no-op effect'>∅</span>
+<span class='stab portability' title='Numeric value-related item'>𝟙</span>
+Represents the absence of a number.</dd><dt><a class="type" href="type.NumResult.html" title="type devela::num::NumResult">NumResult</a></dt><dd><span class='stab portability' title='Numeric value-related item'>𝟙</span>
+<span class='stab portability' title='Resolution or outcome-related item'>⚖️</span>
+A numeric-related result.</dd><dt><a class="type" href="type.fsize.html" title="type devela::num::fsize">fsize</a></dt><dd><span class='stab portability' title='Rust primitive type'>⚙️</span>
+<span class='stab portability' title='Numeric value-related item'>𝟙</span>
+A pointer-sized floating-point primitive.</dd><dt><a class="type" href="type.isize_down.html" title="type devela::num::isize_down">isize_<wbr>down</a></dt><dd><span class='stab portability' title='Rust primitive type'>⚙️</span>
+<span class='stab portability' title='Numeric value-related item'>𝟙</span>
+A downcasted pointer-sized signed integer primitive.</dd><dt><a class="type" href="type.isize_up.html" title="type devela::num::isize_up">isize_<wbr>up</a></dt><dd><span class='stab portability' title='Rust primitive type'>⚙️</span>
+<span class='stab portability' title='Numeric value-related item'>𝟙</span>
+An upcasted pointer-sized signed integer primitive.</dd><dt><a class="type" href="type.usize_down.html" title="type devela::num::usize_down">usize_<wbr>down</a></dt><dd><span class='stab portability' title='Rust primitive type'>⚙️</span>
+<span class='stab portability' title='Numeric value-related item'>𝟙</span>
+A downcasted pointer-sized unsigned integer primitive.</dd><dt><a class="type" href="type.usize_up.html" title="type devela::num::usize_up">usize_<wbr>up</a></dt><dd><span class='stab portability' title='Rust primitive type'>⚙️</span>
+<span class='stab portability' title='Numeric value-related item'>𝟙</span>
+An upcasted pointer-sized unsigned integer primitive.</dd></dl></section></div></main></body></html>

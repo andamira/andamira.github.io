@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/list/array/d2/definitions.rs`."><title>definitions.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../../../static.files/storage-68b7e25d.js"></script><script defer src="../../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/data/list/array/d2/</div>definitions.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::data::list::array::d2::definitions
+<a href=#2 id=2 data-nosnippet>2</a>//
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//! 2-dimensional array definitions
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
+<a href=#5 id=5 data-nosnippet>5</a>
+<a href=#6 id=6 data-nosnippet>6</a></span><span class="kw">use crate</span>::{<a href="../d1/definitions.rs.html#67-69">Array</a>, <a href="../../../../sys/mem/storage/bare.rs.html#17">Bare</a>, <a href="../../../../sys/mem/storage/mod.rs.html#55-69">Storage</a>};
+<a href=#7 id=7 data-nosnippet>7</a><span class="comment">// #[cfg(feature = "dep_rkyv")] // DEP_DISABLED
+<a href=#8 id=8 data-nosnippet>8</a>// use rkyv::{Archive, Deserialize, Serialize};
+<a href=#9 id=9 data-nosnippet>9</a>
+<a href=#10 id=10 data-nosnippet>10</a></span><span class="attr">#[doc = <span class="macro">crate::TAG_DATA_STRUCTURE!</span>()]
+<a href=#11 id=11 data-nosnippet>11</a></span><span class="doccomment">/// A static 2-dimensional [`Array`].
+<a href=#12 id=12 data-nosnippet>12</a>///
+<a href=#13 id=13 data-nosnippet>13</a>/// It is generic in respect to its:
+<a href=#14 id=14 data-nosnippet>14</a>/// - elements (`T`),
+<a href=#15 id=15 data-nosnippet>15</a>/// - number of columns (`C`),
+<a href=#16 id=16 data-nosnippet>16</a>/// - number of rows (`R`),
+<a href=#17 id=17 data-nosnippet>17</a>/// - total capacity (`CR`),
+<a href=#18 id=18 data-nosnippet>18</a>/// - storage order (`RMAJ`)
+<a href=#19 id=19 data-nosnippet>19</a>/// - storage abstraction (`S`).
+<a href=#20 id=20 data-nosnippet>20</a>///
+<a href=#21 id=21 data-nosnippet>21</a>/// The total lenght `CR` must be equal to the product `C` * `R`.
+<a href=#22 id=22 data-nosnippet>22</a>///
+<a href=#23 id=23 data-nosnippet>23</a>/// The
+<a href=#24 id=24 data-nosnippet>24</a>/// [*storage order*](https://en.wikipedia.org/wiki/Row-_and_column-major_order)
+<a href=#25 id=25 data-nosnippet>25</a>/// is row-major by default (`RMAJ = true`). It can be column-major if set to false.
+<a href=#26 id=26 data-nosnippet>26</a>///
+<a href=#27 id=27 data-nosnippet>27</a>/// ## Methods
+<a href=#28 id=28 data-nosnippet>28</a>///
+<a href=#29 id=29 data-nosnippet>29</a>/// - Construct:
+<a href=#30 id=30 data-nosnippet>30</a>///   [`with_cloned`][Self::with_cloned],
+<a href=#31 id=31 data-nosnippet>31</a>///   [`with_copied`][Self::with_copied].
+<a href=#32 id=32 data-nosnippet>32</a>/// - Deconstruct:
+<a href=#33 id=33 data-nosnippet>33</a>///   [`as_slice`][Self::as_slice],
+<a href=#34 id=34 data-nosnippet>34</a>///   [`as_mut_slice`][Self::as_mut_slice],
+<a href=#35 id=35 data-nosnippet>35</a>///   [`into_array`][Self::into_array]*([`const`][Self::into_array_copy])*,
+<a href=#36 id=36 data-nosnippet>36</a>///   [`into_slice`][Self::into_slice]*(`alloc`)*,
+<a href=#37 id=37 data-nosnippet>37</a>///   [`into_vec`][Self::into_vec]*(`alloc`)*.
+<a href=#38 id=38 data-nosnippet>38</a>/// - Query:
+<a href=#39 id=39 data-nosnippet>39</a>///   [`capacity`][Self::capacity],
+<a href=#40 id=40 data-nosnippet>40</a>///   [`cap_col`][Self::cap_col],
+<a href=#41 id=41 data-nosnippet>41</a>///   [`cap_row`][Self::cap_row],
+<a href=#42 id=42 data-nosnippet>42</a>///   [`contains`][Self::contains].
+<a href=#43 id=43 data-nosnippet>43</a>/// - Indexing and coordinates (for the current order):
+<a href=#44 id=44 data-nosnippet>44</a>///   - [`get_ref`][Self::get_ref]*([`uc`][Self::get_ref_unchecked])*,
+<a href=#45 id=45 data-nosnippet>45</a>///   [`get_mut`][Self::get_mut]*([`uc`][Self::get_mut_unchecked])*,
+<a href=#46 id=46 data-nosnippet>46</a>///   [`set`][Self::set]*([`uc`][Self::set_unchecked])*,
+<a href=#47 id=47 data-nosnippet>47</a>///   [`get_index`][Self::get_index]*([`uc`][Self::get_index_unchecked])*,
+<a href=#48 id=48 data-nosnippet>48</a>///   [`get_coords`][Self::get_coords]*([`uc`][Self::get_coords_unchecked])*.
+<a href=#49 id=49 data-nosnippet>49</a>/// - Indexing and coordinates (specific for the **opposite** order):
+<a href=#50 id=50 data-nosnippet>50</a>///   - row-major:
+<a href=#51 id=51 data-nosnippet>51</a>///   [`get_ref_cmaj`][Self::get_ref_cmaj]*([`uc`][Self::get_ref_cmaj_unchecked])*,
+<a href=#52 id=52 data-nosnippet>52</a>///   [`get_mut_cmaj`][Self::get_mut_cmaj]*([`uc`][Self::get_mut_cmaj_unchecked])*,
+<a href=#53 id=53 data-nosnippet>53</a>///   [`set_cmaj`][Self::set_cmaj]*([`uc`][Self::set_cmaj_unchecked])*,
+<a href=#54 id=54 data-nosnippet>54</a>///   [`get_index_cmaj`][Self::get_index_cmaj]*([`uc`][Self::get_index_cmaj_unchecked])*,
+<a href=#55 id=55 data-nosnippet>55</a>///   [`get_coords_cmaj`][Self::get_coords_cmaj]*([`uc`][Self::get_coords_cmaj_unchecked])*.
+<a href=#56 id=56 data-nosnippet>56</a>///   - column-major:
+<a href=#57 id=57 data-nosnippet>57</a>///   [`get_ref_rmaj`][Self::get_ref_rmaj]*([`uc`][Self::get_ref_rmaj_unchecked])*,
+<a href=#58 id=58 data-nosnippet>58</a>///   [`get_mut_rmaj`][Self::get_mut_rmaj]*([`uc`][Self::get_mut_rmaj_unchecked])*,
+<a href=#59 id=59 data-nosnippet>59</a>///   [`set_rmaj`][Self::set_rmaj]*([`uc`][Self::set_rmaj_unchecked])*,
+<a href=#60 id=60 data-nosnippet>60</a>///   [`get_index_rmaj`][Self::get_index_rmaj]*([`uc`][Self::get_index_rmaj_unchecked])*,
+<a href=#61 id=61 data-nosnippet>61</a>///   [`get_coords_rmaj`][Self::get_coords_rmaj]*([`uc`][Self::get_coords_rmaj_unchecked])*.
+<a href=#62 id=62 data-nosnippet>62</a>///
+<a href=#63 id=63 data-nosnippet>63</a>/// ## Panics
+<a href=#64 id=64 data-nosnippet>64</a>/// Note that the `Default` and `ConstDefault` constructors will panic if `C * R != CR`.
+<a href=#65 id=65 data-nosnippet>65</a></span><span class="comment">//
+<a href=#66 id=66 data-nosnippet>66</a>// WAIT: [adt_const_params](https://github.com/rust-lang/rust/issues/95174)
+<a href=#67 id=67 data-nosnippet>67</a>//       would allow to use enums and arrays as const-generic parameters.
+<a href=#68 id=68 data-nosnippet>68</a>// WAIT: [generic_const_exprs](https://github.com/rust-lang/rust/issues/76560)
+<a href=#69 id=69 data-nosnippet>69</a>//       would allow calculating CR automatically from C and R.
+<a href=#70 id=70 data-nosnippet>70</a>// #[cfg_attr(feature = "dep_rkyv", derive(Archive, Serialize, Deserialize))]
+<a href=#71 id=71 data-nosnippet>71</a>// rkyv(archived = Array2dArchived, attr(doc = crate::TAG_RKYV![])))]
+<a href=#72 id=72 data-nosnippet>72</a>// #[cfg_attr(
+<a href=#73 id=73 data-nosnippet>73</a>//     all(feature = "dep_rkyv", nightly_doc),
+<a href=#74 id=74 data-nosnippet>74</a>//     rkyv(attr(doc(cfg(feature = "dep_rkiv"))))
+<a href=#75 id=75 data-nosnippet>75</a>// )]
+<a href=#76 id=76 data-nosnippet>76</a></span><span class="kw">pub struct </span><a href="../../../../../../devela/all/struct.Array2d.html">Array2d</a>&lt;
+<a href=#77 id=77 data-nosnippet>77</a>    T,
+<a href=#78 id=78 data-nosnippet>78</a>    <span class="kw">const </span>C: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#79 id=79 data-nosnippet>79</a>    <span class="kw">const </span>R: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#80 id=80 data-nosnippet>80</a>    <span class="kw">const </span>CR: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#81 id=81 data-nosnippet>81</a>    <span class="kw">const </span>RMAJ: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> = <span class="bool-val">true</span>,
+<a href=#82 id=82 data-nosnippet>82</a>    S: <a href="../../../../sys/mem/storage/mod.rs.html#55-69">Storage</a> = <a href="../../../../sys/mem/storage/bare.rs.html#17">Bare</a>,
+<a href=#83 id=83 data-nosnippet>83</a>&gt; {
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="kw">pub</span>(<span class="kw">super</span>) data: <a href="../d1/definitions.rs.html#67-69">Array</a>&lt;T, <a href="#80">CR</a>, S&gt;,
+<a href=#85 id=85 data-nosnippet>85</a>}</code></pre></div></section></main></body></html>

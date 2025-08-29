@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AtomicOrdering"],"fn":["atomic_compiler_fence","atomic_fence"],"struct":["Atomic","AtomicBool","AtomicF32","AtomicF64","AtomicI128","AtomicI16","AtomicI32","AtomicI64","AtomicI8","AtomicIsize","AtomicPtr","AtomicU128","AtomicU16","AtomicU32","AtomicU64","AtomicU8","AtomicUsize"]};

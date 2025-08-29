@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["sleep4","thread_local"],"struct":["Thread","ThreadAccessError","ThreadBuilder","ThreadId","ThreadJoinHandle","ThreadLocalKey","ThreadScope","ThreadScopedJoinHandle"],"trait":["ExtThread"],"type":["ThreadResult"]};

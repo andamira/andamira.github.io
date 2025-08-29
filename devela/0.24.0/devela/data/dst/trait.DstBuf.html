@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="📦 Represents the backing buffer for storing dynamically sized types."><title>DstBuf in devela::data::dst - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">DstBuf</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#safety" title="Safety">Safety</a></li></ul><h3><a href="#required-associated-types">Required Associated Types</a></h3><ul class="block"><li><a href="#associatedtype.Inner" title="Inner">Inner</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.as_mut" title="as_mut">as_mut</a></li><li><a href="#tymethod.as_ref" title="as_ref">as_ref</a></li><li><a href="#tymethod.extend" title="extend">extend</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.round_to_words" title="round_to_words">round_to_words</a></li></ul><h3><a href="#foreign-impls">Implementations on Foreign Types</a></h3><ul class="block"><li><a href="#impl-DstBuf-for-%26mut+T" title="&#38;mut T">&#38;mut T</a></li><li><a href="#impl-DstBuf-for-%5BMaybeUninit%3CT%3E;+CAP%5D" title="[MaybeUninit&#60;T&#62;; CAP]">[MaybeUninit&#60;T&#62;; CAP]</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>data::<wbr>dst</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">data</a>::<wbr><a href="index.html">dst</a></div><h1>Trait <span class="trait">DstBuf</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/data/dst/buffer.rs.html#16-33">Source</a> </span></div><pre class="rust item-decl"><code>pub unsafe trait DstBuf {
+    type <a href="#associatedtype.Inner" class="associatedtype">Inner</a>: <a class="trait" href="../../all/trait.MemPod.html" title="trait devela::all::MemPod">MemPod</a>;
+
+    // Required methods
+    fn <a href="#tymethod.as_ref" class="fn">as_ref</a>(&amp;self) -&gt; &amp;[<a class="union" href="../../all/union.MaybeUninit.html" title="union devela::all::MaybeUninit">MaybeUninit</a>&lt;Self::<a class="associatedtype" href="../../all/trait.DstBuf.html#associatedtype.Inner" title="type devela::all::DstBuf::Inner">Inner</a>&gt;] <a href="#" class="tooltip" data-notable-ty="&amp;[MaybeUninit&lt;Self::Inner&gt;]">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.as_mut" class="fn">as_mut</a>(&amp;mut self) -&gt; &amp;mut [<a class="union" href="../../all/union.MaybeUninit.html" title="union devela::all::MaybeUninit">MaybeUninit</a>&lt;Self::<a class="associatedtype" href="../../all/trait.DstBuf.html#associatedtype.Inner" title="type devela::all::DstBuf::Inner">Inner</a>&gt;] <a href="#" class="tooltip" data-notable-ty="&amp;mut [MaybeUninit&lt;Self::Inner&gt;]">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.extend" class="fn">extend</a>(&amp;mut self, len: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="enum" href="../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), ()&gt;">ⓘ</a>;
+
+    // Provided method
+    fn <a href="#method.round_to_words" class="fn">round_to_words</a>(bytes: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { ... }
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>unsafe_layout</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='General-purpose data structure'>📦</span>
+Represents the backing buffer for storing dynamically sized types.</p>
+<h2 id="safety"><a class="doc-anchor" href="#safety">§</a>Safety</h2>
+<p>Must conform to the following rules:</p>
+<ul>
+<li>The <code>as_ref</code>/<code>as_mut</code> methods must return pointers to the same data.</li>
+<li>The pointer returned by <code>as_mut</code> must be stable until either a call to
+<code>extend</code> or the value is moved (i.e. <code>let a = foo.as_mut().as_ptr(); let b = foo.as_mut().as_ptr(); assert!(a == b)</code> always holds).</li>
+<li><code>extend</code> must not change any contained data
+(but may extend with unspecified values).</li>
+</ul>
+</div></details><h2 id="required-associated-types" class="section-header">Required Associated Types<a href="#required-associated-types" class="anchor">§</a></h2><div class="methods"><details class="toggle" open><summary><section id="associatedtype.Inner" class="method"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#18">Source</a><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a>: <a class="trait" href="../../all/trait.MemPod.html" title="trait devela::all::MemPod">MemPod</a></h4></section></summary><div class="docblock"><p>Inner type of the buffer</p>
+</div></details></div><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.as_ref" class="method"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#21">Source</a><h4 class="code-header">fn <a href="#tymethod.as_ref" class="fn">as_ref</a>(&amp;self) -&gt; &amp;[<a class="union" href="../../all/union.MaybeUninit.html" title="union devela::all::MaybeUninit">MaybeUninit</a>&lt;Self::<a class="associatedtype" href="../../all/trait.DstBuf.html#associatedtype.Inner" title="type devela::all::DstBuf::Inner">Inner</a>&gt;] <a href="#" class="tooltip" data-notable-ty="&amp;[MaybeUninit&lt;Self::Inner&gt;]">ⓘ</a></h4></section></summary><div class="docblock"><p>Get the buffer slice as shared reference.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.as_mut" class="method"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#24">Source</a><h4 class="code-header">fn <a href="#tymethod.as_mut" class="fn">as_mut</a>(&amp;mut self) -&gt; &amp;mut [<a class="union" href="../../all/union.MaybeUninit.html" title="union devela::all::MaybeUninit">MaybeUninit</a>&lt;Self::<a class="associatedtype" href="../../all/trait.DstBuf.html#associatedtype.Inner" title="type devela::all::DstBuf::Inner">Inner</a>&gt;] <a href="#" class="tooltip" data-notable-ty="&amp;mut [MaybeUninit&lt;Self::Inner&gt;]">ⓘ</a></h4></section></summary><div class="docblock"><p>Get the buffer slice as an exclusive reference.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.extend" class="method"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#27">Source</a><h4 class="code-header">fn <a href="#tymethod.extend" class="fn">extend</a>(&amp;mut self, len: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="enum" href="../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), ()&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Extend the buffer (fallible).</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.round_to_words" class="method"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#30-32">Source</a><h4 class="code-header">fn <a href="#method.round_to_words" class="fn">round_to_words</a>(bytes: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></h4></section></summary><div class="docblock"><p>Convert a byte count to a word count (rounding up).</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="foreign-impls" class="section-header">Implementations on Foreign Types<a href="#foreign-impls" class="anchor">§</a></h2><details class="toggle implementors-toggle"><summary><section id="impl-DstBuf-for-%26mut+T" class="impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#37-49">Source</a><a href="#impl-DstBuf-for-%26mut+T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="../../all/trait.DstBuf.html" title="trait devela::all::DstBuf">DstBuf</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut T</a><div class="where">where
+    U: <a class="trait" href="../../all/trait.MemPod.html" title="trait devela::all::MemPod">MemPod</a>,
+    T: <a class="trait" href="../../all/trait.DstBuf.html" title="trait devela::all::DstBuf">DstBuf</a>&lt;Inner = U&gt;,</div></h3></section></summary><div class="impl-items"><section id="associatedtype.Inner-1" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#38">Source</a><a href="#associatedtype.Inner-1" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a> = &lt;T as <a class="trait" href="../../all/trait.DstBuf.html" title="trait devela::all::DstBuf">DstBuf</a>&gt;::<a class="associatedtype" href="../../all/trait.DstBuf.html#associatedtype.Inner" title="type devela::all::DstBuf::Inner">Inner</a></h4></section><section id="method.as_ref" class="method trait-impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#40-42">Source</a><a href="#method.as_ref" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.as_ref" class="fn">as_ref</a>(&amp;self) -&gt; &amp;[<a class="union" href="../../all/union.MaybeUninit.html" title="union devela::all::MaybeUninit">MaybeUninit</a>&lt;Self::<a class="associatedtype" href="../../all/trait.DstBuf.html#associatedtype.Inner" title="type devela::all::DstBuf::Inner">Inner</a>&gt;] <a href="#" class="tooltip" data-notable-ty="&amp;[MaybeUninit&lt;Self::Inner&gt;]">ⓘ</a></h4></section><section id="method.as_mut" class="method trait-impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#43-45">Source</a><a href="#method.as_mut" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.as_mut" class="fn">as_mut</a>(&amp;mut self) -&gt; &amp;mut [<a class="union" href="../../all/union.MaybeUninit.html" title="union devela::all::MaybeUninit">MaybeUninit</a>&lt;Self::<a class="associatedtype" href="../../all/trait.DstBuf.html#associatedtype.Inner" title="type devela::all::DstBuf::Inner">Inner</a>&gt;] <a href="#" class="tooltip" data-notable-ty="&amp;mut [MaybeUninit&lt;Self::Inner&gt;]">ⓘ</a></h4></section><section id="method.extend" class="method trait-impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#46-48">Source</a><a href="#method.extend" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.extend" class="fn">extend</a>(&amp;mut self, len: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="enum" href="../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), ()&gt;">ⓘ</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-DstBuf-for-%5BMaybeUninit%3CT%3E;+CAP%5D" class="impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#52-64">Source</a><a href="#impl-DstBuf-for-%5BMaybeUninit%3CT%3E;+CAP%5D" class="anchor">§</a><h3 class="code-header">impl&lt;T: <a class="trait" href="../../all/trait.MemPod.html" title="trait devela::all::MemPod">MemPod</a>, const CAP: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a class="trait" href="../../all/trait.DstBuf.html" title="trait devela::all::DstBuf">DstBuf</a> for [<a class="union" href="../../all/union.MaybeUninit.html" title="union devela::all::MaybeUninit">MaybeUninit</a>&lt;T&gt;; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">CAP</a>]</h3></section></summary><div class="impl-items"><section id="associatedtype.Inner-2" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#53">Source</a><a href="#associatedtype.Inner-2" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a> = T</h4></section><section id="method.as_ref-1" class="method trait-impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#55-57">Source</a><a href="#method.as_ref-1" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.as_ref" class="fn">as_ref</a>(&amp;self) -&gt; &amp;[<a class="union" href="../../all/union.MaybeUninit.html" title="union devela::all::MaybeUninit">MaybeUninit</a>&lt;Self::<a class="associatedtype" href="../../all/trait.DstBuf.html#associatedtype.Inner" title="type devela::all::DstBuf::Inner">Inner</a>&gt;] <a href="#" class="tooltip" data-notable-ty="&amp;[MaybeUninit&lt;Self::Inner&gt;]">ⓘ</a></h4></section><section id="method.as_mut-1" class="method trait-impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#58-60">Source</a><a href="#method.as_mut-1" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.as_mut" class="fn">as_mut</a>(&amp;mut self) -&gt; &amp;mut [<a class="union" href="../../all/union.MaybeUninit.html" title="union devela::all::MaybeUninit">MaybeUninit</a>&lt;Self::<a class="associatedtype" href="../../all/trait.DstBuf.html#associatedtype.Inner" title="type devela::all::DstBuf::Inner">Inner</a>&gt;] <a href="#" class="tooltip" data-notable-ty="&amp;mut [MaybeUninit&lt;Self::Inner&gt;]">ⓘ</a></h4></section><section id="method.extend-1" class="method trait-impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#61-63">Source</a><a href="#method.extend-1" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.extend" class="fn">extend</a>(&amp;mut self, len: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="enum" href="../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), ()&gt;">ⓘ</a></h4></section></div></details><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><details class="toggle implementors-toggle"><summary><section id="impl-DstBuf-for-Vec%3CMaybeUninit%3CT%3E%3E" class="impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#81-97">Source</a><a href="#impl-DstBuf-for-Vec%3CMaybeUninit%3CT%3E%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T: <a class="trait" href="../../all/trait.MemPod.html" title="trait devela::all::MemPod">MemPod</a>&gt; <a class="trait" href="../../all/trait.DstBuf.html" title="trait devela::all::DstBuf">DstBuf</a> for <a class="struct" href="../../all/struct.Vec.html" title="struct devela::all::Vec">Vec</a>&lt;<a class="union" href="../../all/union.MaybeUninit.html" title="union devela::all::MaybeUninit">MaybeUninit</a>&lt;T&gt;&gt;</h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>alloc</code></strong> only.</div></span><div class="docblock"><p>Vector backed structures, can be used to auto-grow the allocation</p>
+</div></section></summary><div class="docblock"><h4 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h4>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>buf = DstQueue::&lt;str, Vec&lt;MaybeUninit&lt;u8&gt;&gt;&gt;::new();
+buf.push_back_str(<span class="string">"Hello world!"</span>);
+buf.push_back_str(<span class="string">"This is a very long string"</span>);
+buf.push_back_str(<span class="string">"The buffer should keep growing as it needs to"</span>);
+<span class="kw">for </span>line <span class="kw">in </span>buf.iter() {
+  <span class="macro">println!</span>(<span class="string">"{}"</span>, line);
+}</code></pre></div>
+</div><div class="impl-items"><section id="associatedtype.Inner-3" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#82">Source</a><a href="#associatedtype.Inner-3" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a> = T</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-DstBuf-for-DstArray%3CT,+CAP%3E" class="impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#127-138">Source</a><a href="#impl-DstBuf-for-DstArray%3CT,+CAP%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T: <a class="trait" href="../../all/trait.MemPod.html" title="trait devela::all::MemPod">MemPod</a>, const CAP: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a class="trait" href="../../all/trait.DstBuf.html" title="trait devela::all::DstBuf">DstBuf</a> for <a class="struct" href="../../all/struct.DstArray.html" title="struct devela::all::DstArray">DstArray</a>&lt;T, CAP&gt;</h3></section></summary><div class="impl-items"><section id="associatedtype.Inner-4" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/data/dst/buffer.rs.html#128">Source</a><a href="#associatedtype.Inner-4" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a> = T</h4></section></div></details></div><script src="../../../trait.impl/devela/data/dst/buffer/trait.DstBuf.js" data-ignore-extern-crates="std,alloc" async></script><script type="text/json" id="notable-traits-data">{"&[MaybeUninit<Self::Inner>]":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.ExtSliceMut.html\" title=\"trait devela::all::ExtSliceMut\">ExtSliceMut</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for &amp;<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div>","&mut [MaybeUninit<Self::Inner>]":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.ExtSliceMut.html\" title=\"trait devela::all::ExtSliceMut\">ExtSliceMut</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for &amp;mut <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.ExtSliceMut.html\" title=\"trait devela::all::ExtSliceMut\">ExtSliceMut</a>&lt;T&gt; for &amp;mut <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div>","Result<(), ()>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Extension trait providing additional methods for `Future`s."><title>ExtFuture in devela::work::future - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">ExtFuture</a></h2><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.block_on" title="block_on">block_on</a></li><li><a href="#method.pending" title="pending">pending</a></li><li><a href="#method.poll_fn" title="poll_fn">poll_fn</a></li><li><a href="#method.ready" title="ready">ready</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>work::<wbr>future</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">work</a>::<wbr><a href="index.html">future</a></div><h1>Trait <span class="trait">ExtFuture</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/work/future/ext.rs.html#37-64">Source</a> </span></div><pre class="rust item-decl"><code>pub trait ExtFuture: <a class="trait" href="../../all/trait.Future.html" title="trait devela::all::Future">Future</a> {
+    // Provided methods
+    fn <a href="#method.block_on" class="fn">block_on</a>(self) -&gt; Self::<a class="associatedtype" href="../../all/trait.Future.html#associatedtype.Output" title="type devela::all::Future::Output">Output</a>
+       <span class="where">where Self: <a class="trait" href="../../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.pending" class="fn">pending</a>&lt;T&gt;() -&gt; <a class="struct" href="../../all/struct.FuturePending.html" title="struct devela::all::FuturePending">FuturePending</a>&lt;T&gt; <a href="#" class="tooltip" data-notable-ty="FuturePending&lt;T&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.poll_fn" class="fn">poll_fn</a>&lt;T, F&gt;(function: F) -&gt; <a class="struct" href="../../all/struct.FuturePollFn.html" title="struct devela::all::FuturePollFn">FuturePollFn</a>&lt;F&gt; <a href="#" class="tooltip" data-notable-ty="FuturePollFn&lt;F&gt;">ⓘ</a>
+       <span class="where">where F: <a class="trait" href="../../all/trait.FnMut.html" title="trait devela::all::FnMut">FnMut</a>(&amp;mut <a class="struct" href="../../all/struct.TaskContext.html" title="struct devela::all::TaskContext">TaskContext</a>&lt;'_&gt;) -&gt; <a class="enum" href="../../all/enum.TaskPoll.html" title="enum devela::all::TaskPoll">TaskPoll</a>&lt;T&gt;</span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.ready" class="fn">ready</a>&lt;T&gt;(value: T) -&gt; <a class="struct" href="../../all/struct.FutureReady.html" title="struct devela::all::FutureReady">FutureReady</a>&lt;T&gt; <a href="#" class="tooltip" data-notable-ty="FutureReady&lt;T&gt;">ⓘ</a> { ... }
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Extension trait providing additional methods for <a href="../../all/trait.Future.html" title="trait devela::all::Future"><code>Future</code></a>s.</p>
+</div></details><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.block_on" class="method"><a class="src rightside" href="../../../src/devela/work/future/ext.rs.html#51-53">Source</a><h4 class="code-header">fn <a href="#method.block_on" class="fn">block_on</a>(self) -&gt; Self::<a class="associatedtype" href="../../all/trait.Future.html#associatedtype.Output" title="type devela::all::Future::Output">Output</a><div class="where">where
+    Self: <a class="trait" href="../../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a>,</div></h4></section><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code> and non-crate feature <code>dep_portable_atomic_util</code></strong> only.</div></span></summary><div class="docblock"><p>Blocks the thread until the future is ready.</p>
+<h5 id="example"><a class="doc-anchor" href="#example">§</a>Example</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>future = <span class="kw">async </span>{};
+<span class="kw">let </span>result = future.block_on();</code></pre></div>
+<h5 id="features"><a class="doc-anchor" href="#features">§</a>Features</h5>
+<p>This method is only available if the <code>dep_portable_atomic_util</code> feature is <strong>disabled</strong>,
+because its <code>Arc</code> type can’t be used as a <code>self</code> type.
+See <a href="https://github.com/rust-lang/rust/issues/44874">arbitrary_self_types</a>.</p>
+<h5 id="vendored"><a class="doc-anchor" href="#vendored">§</a>Vendored</h5>
+<p>This is adapted work from <a href="../../_info/vendored/index.html#pollster" title="mod devela::_info::vendored">pollster</a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.pending" class="method"><a class="src rightside" href="../../../src/devela/work/future/ext.rs.html#56">Source</a><h4 class="code-header">fn <a href="#method.pending" class="fn">pending</a>&lt;T&gt;() -&gt; <a class="struct" href="../../all/struct.FuturePending.html" title="struct devela::all::FuturePending">FuturePending</a>&lt;T&gt; <a href="#" class="tooltip" data-notable-ty="FuturePending&lt;T&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Creates a future which never resolves.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.poll_fn" class="method"><a class="src rightside" href="../../../src/devela/work/future/ext.rs.html#59-60">Source</a><h4 class="code-header">fn <a href="#method.poll_fn" class="fn">poll_fn</a>&lt;T, F&gt;(function: F) -&gt; <a class="struct" href="../../all/struct.FuturePollFn.html" title="struct devela::all::FuturePollFn">FuturePollFn</a>&lt;F&gt; <a href="#" class="tooltip" data-notable-ty="FuturePollFn&lt;F&gt;">ⓘ</a><div class="where">where
+    F: <a class="trait" href="../../all/trait.FnMut.html" title="trait devela::all::FnMut">FnMut</a>(&amp;mut <a class="struct" href="../../all/struct.TaskContext.html" title="struct devela::all::TaskContext">TaskContext</a>&lt;'_&gt;) -&gt; <a class="enum" href="../../all/enum.TaskPoll.html" title="enum devela::all::TaskPoll">TaskPoll</a>&lt;T&gt;,</div></h4></section></summary><div class="docblock"><p>Creates a future that wraps a <code>function</code> returning <a href="../../all/enum.TaskPoll.html" title="enum devela::all::TaskPoll"><code>TaskPoll</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.ready" class="method"><a class="src rightside" href="../../../src/devela/work/future/ext.rs.html#63">Source</a><h4 class="code-header">fn <a href="#method.ready" class="fn">ready</a>&lt;T&gt;(value: T) -&gt; <a class="struct" href="../../all/struct.FutureReady.html" title="struct devela::all::FutureReady">FutureReady</a>&lt;T&gt; <a href="#" class="tooltip" data-notable-ty="FutureReady&lt;T&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Creates a future that is immediately ready with a <code>value</code>.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-ExtFuture-for-F" class="impl"><a class="src rightside" href="../../../src/devela/work/future/ext.rs.html#15">Source</a><a href="#impl-ExtFuture-for-F" class="anchor">§</a><h3 class="code-header">impl&lt;F: <a class="trait" href="../../all/trait.Future.html" title="trait devela::all::Future">Future</a>&gt; <a class="trait" href="../../all/trait.ExtFuture.html" title="trait devela::all::ExtFuture">ExtFuture</a> for F</h3></section></div><script src="../../../trait.impl/devela/work/future/ext/trait.ExtFuture.js" async></script><script type="text/json" id="notable-traits-data">{"FuturePending<T>":"<h3>Notable traits for <code><a class=\"struct\" href=\"../../all/struct.FuturePending.html\" title=\"struct devela::all::FuturePending\">Pending</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.Future.html\" title=\"trait devela::all::Future\">Future</a> for <a class=\"struct\" href=\"../../all/struct.FuturePending.html\" title=\"struct devela::all::FuturePending\">Pending</a>&lt;T&gt;</div><div class=\"where\">    type <a href=\"../../all/trait.Future.html#associatedtype.Output\" class=\"associatedtype\">Output</a> = T;</div>","FuturePollFn<F>":"<h3>Notable traits for <code><a class=\"struct\" href=\"../../all/struct.FuturePollFn.html\" title=\"struct devela::all::FuturePollFn\">PollFn</a>&lt;F&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, F&gt; <a class=\"trait\" href=\"../../all/trait.Future.html\" title=\"trait devela::all::Future\">Future</a> for <a class=\"struct\" href=\"../../all/struct.FuturePollFn.html\" title=\"struct devela::all::FuturePollFn\">PollFn</a>&lt;F&gt;<div class=\"where\">where\n    F: <a class=\"trait\" href=\"../../all/trait.FnMut.html\" title=\"trait devela::all::FnMut\">FnMut</a>(&amp;mut <a class=\"struct\" href=\"../../all/struct.TaskContext.html\" title=\"struct devela::all::TaskContext\">Context</a>&lt;'_&gt;) -&gt; <a class=\"enum\" href=\"../../all/enum.TaskPoll.html\" title=\"enum devela::all::TaskPoll\">Poll</a>&lt;T&gt;,</div></div><div class=\"where\">    type <a href=\"../../all/trait.Future.html#associatedtype.Output\" class=\"associatedtype\">Output</a> = T;</div>","FutureReady<T>":"<h3>Notable traits for <code><a class=\"struct\" href=\"../../all/struct.FutureReady.html\" title=\"struct devela::all::FutureReady\">Ready</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.Future.html\" title=\"trait devela::all::Future\">Future</a> for <a class=\"struct\" href=\"../../all/struct.FutureReady.html\" title=\"struct devela::all::FutureReady\">Ready</a>&lt;T&gt;</div><div class=\"where\">    type <a href=\"../../all/trait.Future.html#associatedtype.Output\" class=\"associatedtype\">Output</a> = T;</div>"}</script></section></div></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Point","Points","VecPoints"],"type":["Point2d","Point3d","Points2d"]};

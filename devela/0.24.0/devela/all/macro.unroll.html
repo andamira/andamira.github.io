@@ -1,0 +1,219 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Unrolls the given for loop."><title>unroll in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">unroll</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li><li><a href="#features" title="Features">Features</a></li><li><a href="#vendored" title="Vendored">Vendored</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Macro <span class="macro">unroll</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/home/joseluis/tmp/andamira.github.io/devela/tmp/debug/build/devela-f9de004a2ace383c/out/build/unroll.rs.html#30-453">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! unroll {
+    (
+    // Base case for ranges with no iterations.
+    for $v:ident in 0..0 $c:block) =&gt; { ... };
+    (
+    // Handles ranges with a step value.
+    for $v:ident &lt; $max:tt in ($start:tt..$end:tt).step_by($val:expr) {$($c:tt)*}) =&gt; { ... };
+    (
+    // Redirects stepped ranges.
+    for $v:ident in ($start:tt..$end:tt).step_by($val:expr) {$($c:tt)*}) =&gt; { ... };
+    (
+    // Simplifies parentheses in ranges.
+    for $v:ident in ($start:tt..$end:tt) {$($c:tt)*}) =&gt; { ... };
+    (
+    // Main handler for unrolling a range.
+    for $v:ident in $start:tt..$end:tt {$($c:tt)*}) =&gt; { ... };
+    (
+    // Validates the range and redirects to internal recursive unrolling with bounds checking.
+    for $v:ident &lt; $max:tt in $start:tt..$end:tt $c:block) =&gt; { ... };
+    (
+    // Special case for ranges starting at zero.
+    for $v:ident in 0..$end:tt {$($statement:tt)*}) =&gt; { ... };
+    (
+    /* private, recursive unrolling cases */
+     @$v:ident, $a:expr, 0, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 1, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 2, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 3, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 4, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 5, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 6, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 7, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 8, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 9, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 10, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 11, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 12, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 13, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 14, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 15, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 16, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 17, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 18, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 19, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 20, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 21, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 22, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 23, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 24, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 25, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 26, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 27, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 28, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 29, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 30, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 31, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 32, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 33, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 34, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 35, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 36, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 37, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 38, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 39, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 40, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 41, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 42, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 43, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 44, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 45, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 46, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 47, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 48, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 49, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 50, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 51, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 52, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 53, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 54, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 55, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 56, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 57, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 58, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 59, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 60, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 61, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 62, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 63, $c:block) =&gt; { ... };
+    (@$v:ident, $a:expr, 64, $c:block) =&gt; { ... };
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>_unroll</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Unrolls the given for loop.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="macro">unroll!</span> {
+  <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">5 </span>{
+    <span class="macro">println!</span>(<span class="string">"Iteration {}"</span>, i);
+  }
+}</code></pre></div>
+<p>will expand into:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code>{ <span class="macro">println!</span>(<span class="string">"Iteration {}"</span>, <span class="number">0</span>); }
+{ <span class="macro">println!</span>(<span class="string">"Iteration {}"</span>, <span class="number">1</span>); }
+{ <span class="macro">println!</span>(<span class="string">"Iteration {}"</span>, <span class="number">2</span>); }
+{ <span class="macro">println!</span>(<span class="string">"Iteration {}"</span>, <span class="number">3</span>); }
+{ <span class="macro">println!</span>(<span class="string">"Iteration {}"</span>, <span class="number">4</span>); }</code></pre></div>
+<h2 id="features"><a class="doc-anchor" href="#features">§</a>Features</h2>
+<p>By default it’s implemented for a maximum recusion of 64 iterations.
+It supports increased limits of 128, 256, 512, 1024 and 2048 by enabling the
+corresponding capability feature: <code>_unroll_[128|256|512|1024|2048]</code>.</p>
+<h2 id="vendored"><a class="doc-anchor" href="#vendored">§</a>Vendored</h2>
+<p>This is adapted work from <a href="../_info/vendored/index.html#crunchy" title="mod devela::_info::vendored">crunchy</a></p>
+</div></details></section></div></main></body></html>

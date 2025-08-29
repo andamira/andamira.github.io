@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="DHKEM(X25519, HKDF-SHA256) as specified in HPKE RFC 9180."><title>devela::_dep::orion::hazardous::kem::x25519_hkdf_sha256 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module x25519_hkdf_sha256</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module x25519_<wbr>hkdf_<wbr>sha256</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#parameters" title="Parameters:">Parameters:</a></li><li><a href="#errors" title="Errors:">Errors:</a></li><li><a href="#panics" title="Panics:">Panics:</a></li><li><a href="#security" title="Security:">Security:</a></li><li><a href="#example" title="Example:">Example:</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep::<wbr>orion::<wbr>hazardous::<wbr>kem</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../../index.html">devela</a>::<wbr><a href="../../../../index.html">_dep</a>::<wbr><a href="../../../index.html">orion</a>::<wbr><a href="../../index.html">hazardous</a>::<wbr><a href="../index.html">kem</a></div><h1>Module <span>x25519_<wbr>hkdf_<wbr>sha256</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_orion</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>DHKEM(X25519, HKDF-SHA256) as specified in HPKE <a href="https://www.rfc-editor.org/rfc/rfc9180.html">RFC 9180</a>.</p>
+<h2 id="parameters"><a class="doc-anchor" href="#parameters">§</a>Parameters:</h2>
+<ul>
+<li><code>public_recipient</code>: The public X25519 key of the recipient.</li>
+<li><code>public_ephemeral</code>: The ephemeral X25519 key for this KEM operation.</li>
+<li><code>secret_recipient</code>: The private X25519 of the recipient.</li>
+<li><code>secret_sender</code>: The private X25519 of the sender.</li>
+<li><code>secret_ephemeral</code>: Ephemeral private key for deterministic encapsulation.</li>
+</ul>
+<h2 id="errors"><a class="doc-anchor" href="#errors">§</a>Errors:</h2>
+<p>An error will be returned if:</p>
+<ul>
+<li>If a shared X25519 secret is all-zero.</li>
+<li>If <code>ikm.len() &lt; 32</code> when calling <a href="struct.DhKem.html#method.derive_keypair" title="associated function devela::_dep::orion::hazardous::kem::x25519_hkdf_sha256::DhKem::derive_keypair"><code>derive_keypair()</code></a>.</li>
+</ul>
+<h2 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics:</h2>
+<p>A panic will occur if:</p>
+<ul>
+<li><a href="../../../kex/struct.PrivateKey.html#method.generate" title="associated function devela::_dep::orion::kex::PrivateKey::generate"><code>generate()</code></a> panics during <a href="struct.DhKem.html#method.encap" title="associated function devela::_dep::orion::hazardous::kem::x25519_hkdf_sha256::DhKem::encap"><code>encap()</code></a>, <a href="struct.DhKem.html#method.auth_encap" title="associated function devela::_dep::orion::hazardous::kem::x25519_hkdf_sha256::DhKem::auth_encap"><code>auth_encap()</code></a>, <a href="struct.DhKem.html#method.decap" title="associated function devela::_dep::orion::hazardous::kem::x25519_hkdf_sha256::DhKem::decap"><code>decap()</code></a> or <a href="struct.DhKem.html#method.auth_decap" title="associated function devela::_dep::orion::hazardous::kem::x25519_hkdf_sha256::DhKem::auth_decap"><code>auth_decap()</code></a>.</li>
+</ul>
+<h2 id="security"><a class="doc-anchor" href="#security">§</a>Security:</h2>
+<ul>
+<li>The <code>ikm</code> used as input for <a href="struct.DhKem.html#method.derive_keypair" title="associated function devela::_dep::orion::hazardous::kem::x25519_hkdf_sha256::DhKem::derive_keypair"><code>derive_keypair()</code></a> must never be reused.</li>
+<li>The <code>secret_ephemeral</code> must never be reused.</li>
+<li>This KEM is vulnerable to key-compromise impersonation attacks (KCI), meaning
+that if the recipients private key <code>secret_recipient</code> is leaked at any point, sender authentication
+no longer holds. See <a href="https://www.rfc-editor.org/rfc/rfc9180.html#section-9.1.1">KCI section</a> of the RFC
+on recommendations on how to mitigate this.</li>
+<li>Please refer to the RFC for a detailed description of all security properties provided: <a href="https://www.rfc-editor.org/rfc/rfc9180.html#section-9">https://www.rfc-editor.org/rfc/rfc9180.html#section-9</a>.</li>
+</ul>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example:</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>orion::hazardous::kem::x25519_hkdf_sha256::DhKem;
+
+<span class="kw">let </span>(sender_secret, sender_public) = DhKem::generate_keypair()<span class="question-mark">?</span>;
+<span class="kw">let </span>(recipient_secret, recipient_public) = DhKem::generate_keypair()<span class="question-mark">?</span>;
+
+<span class="kw">let </span>(sender_shared_secret, public_eph) =
+    DhKem::auth_encap(<span class="kw-2">&amp;</span>recipient_public, <span class="kw-2">&amp;</span>sender_secret)<span class="question-mark">?</span>;
+<span class="kw">let </span>recipient_shared_secret = DhKem::auth_decap(<span class="kw-2">&amp;</span>public_eph, <span class="kw-2">&amp;</span>recipient_secret, <span class="kw-2">&amp;</span>sender_public)<span class="question-mark">?</span>;
+
+<span class="macro">assert_eq!</span>(sender_shared_secret, recipient_shared_secret);</code></pre></div>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.DhKem.html" title="struct devela::_dep::orion::hazardous::kem::x25519_hkdf_sha256::DhKem">DhKem</a></dt><dd>DHKEM(X25519, HKDF-SHA256) as specified in HPKE <a href="https://www.rfc-editor.org/rfc/rfc9180.html">RFC 9180</a>.</dd><dt><a class="struct" href="struct.PrivateKey.html" title="struct devela::_dep::orion::hazardous::kem::x25519_hkdf_sha256::PrivateKey">Private<wbr>Key</a></dt><dd>A type to represent the <code>PrivateKey</code> that X25519 uses.</dd><dt><a class="struct" href="struct.PublicKey.html" title="struct devela::_dep::orion::hazardous::kem::x25519_hkdf_sha256::PublicKey">Public<wbr>Key</a></dt><dd>A type that represents a <code>PublicKey</code> that X25519 uses.</dd><dt><a class="struct" href="struct.SharedSecret.html" title="struct devela::_dep::orion::hazardous::kem::x25519_hkdf_sha256::SharedSecret">Shared<wbr>Secret</a></dt><dd>A type to represent the <code>SharedSecret</code> that DH-KEM(X25519, HKDF-SHA256) produces.</dd></dl></section></div></main></body></html>

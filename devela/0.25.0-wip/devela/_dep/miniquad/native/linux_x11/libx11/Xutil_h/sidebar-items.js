@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["IconicState","NormalState","PMaxSize","PMinSize","PWinGravity","WithdrawnState"],"struct":["C2RustUnnamed_2","XClassHint","XSizeHints","XVisualInfo","XWMHints","_XComposeStatus"],"type":["XComposeStatus"]};

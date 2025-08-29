@@ -1,0 +1,188 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="AEAD ChaCha20Poly1305 as specified in the RFC 8439."><title>devela::_dep::orion::hazardous::aead::chacha20poly1305 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module chacha20poly1305</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#parameters" title="Parameters:">Parameters:</a></li><li><a href="#errors" title="Errors:">Errors:</a></li><li><a href="#panics" title="Panics:">Panics:</a></li><li><a href="#security" title="Security:">Security:</a></li><li><a href="#recommendation" title="Recommendation:">Recommendation:</a></li><li><a href="#example" title="Example:">Example:</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep::<wbr>orion::<wbr>hazardous::<wbr>aead</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../../index.html">devela</a>::<wbr><a href="../../../../index.html">_dep</a>::<wbr><a href="../../../index.html">orion</a>::<wbr><a href="../../index.html">hazardous</a>::<wbr><a href="../index.html">aead</a></div><h1>Module <span>chacha20poly1305</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_orion</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>AEAD ChaCha20Poly1305 as specified in the <a href="https://tools.ietf.org/html/rfc8439">RFC 8439</a>.</p>
+<h2 id="parameters"><a class="doc-anchor" href="#parameters">§</a>Parameters:</h2>
+<ul>
+<li><code>secret_key</code>: The secret key.</li>
+<li><code>nonce</code>: The nonce value.</li>
+<li><code>ad</code>: Additional data to authenticate (this is not encrypted and can be <a href="../../../../../all/enum.Option.html#variant.None" title="variant devela::all::Option::None"><code>None</code></a>).</li>
+<li><code>ciphertext_with_tag</code>: The encrypted data with the corresponding 16 byte
+Poly1305 tag appended to it.</li>
+<li><code>plaintext</code>: The data to be encrypted.</li>
+<li><code>dst_out</code>: Destination array that will hold the
+<code>ciphertext_with_tag</code>/<code>plaintext</code> after encryption/decryption.</li>
+</ul>
+<p><code>ad</code>: “A typical use for these data is to authenticate version numbers,
+timestamps or monotonically increasing counters in order to discard previous
+messages and prevent replay attacks.” See <a href="https://download.libsodium.org/doc/secret-key_cryptography/aead#additional-data">libsodium docs</a> for more information.</p>
+<p><code>nonce</code>: “Counters and LFSRs are both acceptable ways of generating unique
+nonces, as is encrypting a counter using a block cipher with a 64-bit block
+size such as DES.  Note that it is not acceptable to use a truncation of a
+counter encrypted with block ciphers with 128-bit or 256-bit blocks,
+because such a truncation may repeat after a short time.” See <a href="https://tools.ietf.org/html/rfc8439#section-3">RFC</a> for more information.</p>
+<p><code>dst_out</code>: The output buffer may have a capacity greater than the input. If this is the case,
+only the first input length amount of bytes in <code>dst_out</code> are modified, while the rest remain untouched.</p>
+<h2 id="errors"><a class="doc-anchor" href="#errors">§</a>Errors:</h2>
+<p>An error will be returned if:</p>
+<ul>
+<li>The length of <code>dst_out</code> is less than <code>plaintext</code> + <a href="../../mac/poly1305/constant.POLY1305_OUTSIZE.html" title="constant devela::_dep::orion::hazardous::mac::poly1305::POLY1305_OUTSIZE"><code>POLY1305_OUTSIZE</code></a> when calling <a href="fn.seal.html" title="fn devela::_dep::orion::hazardous::aead::chacha20poly1305::seal"><code>seal()</code></a>.</li>
+<li>The length of <code>dst_out</code> is less than <code>ciphertext_with_tag</code> - <a href="../../mac/poly1305/constant.POLY1305_OUTSIZE.html" title="constant devela::_dep::orion::hazardous::mac::poly1305::POLY1305_OUTSIZE"><code>POLY1305_OUTSIZE</code></a> when
+calling <a href="fn.open.html" title="fn devela::_dep::orion::hazardous::aead::chacha20poly1305::open"><code>open()</code></a>.</li>
+<li>The length of <code>ciphertext_with_tag</code> is not at least <a href="../../mac/poly1305/constant.POLY1305_OUTSIZE.html" title="constant devela::_dep::orion::hazardous::mac::poly1305::POLY1305_OUTSIZE"><code>POLY1305_OUTSIZE</code></a>.</li>
+<li>The received tag does not match the calculated tag when  calling <a href="fn.open.html" title="fn devela::_dep::orion::hazardous::aead::chacha20poly1305::open"><code>open()</code></a>.</li>
+<li><code>plaintext.len()</code> + <a href="../../mac/poly1305/constant.POLY1305_OUTSIZE.html" title="constant devela::_dep::orion::hazardous::mac::poly1305::POLY1305_OUTSIZE"><code>POLY1305_OUTSIZE</code></a> overflows when  calling <a href="fn.seal.html" title="fn devela::_dep::orion::hazardous::aead::chacha20poly1305::seal"><code>seal()</code></a>.</li>
+<li>Converting <code>usize</code> to <code>u64</code> would be a lossy conversion.</li>
+<li><code>plaintext.len() &gt;</code> <a href="constant.P_MAX.html" title="constant devela::_dep::orion::hazardous::aead::chacha20poly1305::P_MAX"><code>P_MAX</code></a></li>
+<li><code>ad.len() &gt;</code> <a href="constant.A_MAX.html" title="constant devela::_dep::orion::hazardous::aead::chacha20poly1305::A_MAX"><code>A_MAX</code></a></li>
+<li><code>ciphertext_with_tag.len() &gt;</code> <a href="constant.C_MAX.html" title="constant devela::_dep::orion::hazardous::aead::chacha20poly1305::C_MAX"><code>C_MAX</code></a></li>
+</ul>
+<h2 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics:</h2>
+<p>A panic will occur if:</p>
+<ul>
+<li>More than <code>2^32-1 * 64</code> bytes of data are processed.</li>
+</ul>
+<h2 id="security"><a class="doc-anchor" href="#security">§</a>Security:</h2>
+<ul>
+<li>It is critical for security that a given nonce is not re-used with a given
+key. Should this happen, the security of all data that has been encrypted
+with that given key is compromised.</li>
+<li>Only a nonce for XChaCha20Poly1305 is big enough to be randomly generated
+using a CSPRNG.</li>
+<li>To securely generate a strong key, use <a href="struct.SecretKey.html#method.generate" title="associated function devela::_dep::orion::hazardous::aead::chacha20poly1305::SecretKey::generate"><code>SecretKey::generate()</code></a>.</li>
+<li>The length of the <code>plaintext</code> is not hidden, only its contents.</li>
+</ul>
+<h2 id="recommendation"><a class="doc-anchor" href="#recommendation">§</a>Recommendation:</h2>
+<ul>
+<li>It is recommended to use <a href="../xchacha20poly1305/index.html" title="mod devela::_dep::orion::hazardous::aead::xchacha20poly1305"><code>XChaCha20Poly1305</code></a> when possible.</li>
+</ul>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example:</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>orion::hazardous::aead;
+
+<span class="kw">let </span>secret_key = aead::chacha20poly1305::SecretKey::generate();
+
+<span class="comment">// WARNING: This nonce is only meant for demonstration and should not
+// be repeated. Please read the security section.
+</span><span class="kw">let </span>nonce = aead::chacha20poly1305::Nonce::from([<span class="number">0u8</span>; <span class="number">12</span>]);
+<span class="kw">let </span>ad = <span class="string">"Additional data"</span>.as_bytes();
+<span class="kw">let </span>message = <span class="string">"Data to protect"</span>.as_bytes();
+
+<span class="comment">// Length of the above message is 15 and then we accommodate 16 for the Poly1305
+// tag.
+
+</span><span class="kw">let </span><span class="kw-2">mut </span>dst_out_ct = [<span class="number">0u8</span>; <span class="number">15 </span>+ <span class="number">16</span>];
+<span class="kw">let </span><span class="kw-2">mut </span>dst_out_pt = [<span class="number">0u8</span>; <span class="number">15</span>];
+<span class="comment">// Encrypt and place ciphertext + tag in dst_out_ct
+</span>aead::chacha20poly1305::seal(<span class="kw-2">&amp;</span>secret_key, <span class="kw-2">&amp;</span>nonce, message, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>ad), <span class="kw-2">&amp;mut </span>dst_out_ct)<span class="question-mark">?</span>;
+<span class="comment">// Verify tag, if correct then decrypt and place message in dst_out_pt
+</span>aead::chacha20poly1305::open(<span class="kw-2">&amp;</span>secret_key, <span class="kw-2">&amp;</span>nonce, <span class="kw-2">&amp;</span>dst_out_ct, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>ad), <span class="kw-2">&amp;mut </span>dst_out_pt)<span class="question-mark">?</span>;
+
+<span class="macro">assert_eq!</span>(dst_out_pt.as_ref(), message.as_ref());</code></pre></div>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Nonce.html" title="struct devela::_dep::orion::hazardous::aead::chacha20poly1305::Nonce">Nonce</a></dt><dd>A type that represents a <code>Nonce</code> that ChaCha20 and ChaCha20-Poly1305 use.</dd><dt><a class="struct" href="struct.SecretKey.html" title="struct devela::_dep::orion::hazardous::aead::chacha20poly1305::SecretKey">Secret<wbr>Key</a></dt><dd>A type to represent the <code>SecretKey</code> that Chacha20, XChaCha20, ChaCha20-Poly1305 and
+XChaCha20-Poly1305 use.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.A_MAX.html" title="constant devela::_dep::orion::hazardous::aead::chacha20poly1305::A_MAX">A_MAX</a></dt><dd>The maximum size of the associated data (see <a href="https://www.rfc-editor.org/rfc/rfc8439#section-2.8">RFC 8439</a>).</dd><dt><a class="constant" href="constant.C_MAX.html" title="constant devela::_dep::orion::hazardous::aead::chacha20poly1305::C_MAX">C_MAX</a></dt><dd>The maximum size of the ciphertext (see <a href="https://www.rfc-editor.org/rfc/rfc8439#section-2.8">RFC 8439</a>).</dd><dt><a class="constant" href="constant.P_MAX.html" title="constant devela::_dep::orion::hazardous::aead::chacha20poly1305::P_MAX">P_MAX</a></dt><dd>The maximum size of the plaintext (see <a href="https://www.rfc-editor.org/rfc/rfc8439#section-2.8">RFC 8439</a>).</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.open.html" title="fn devela::_dep::orion::hazardous::aead::chacha20poly1305::open">open</a></dt><dd>AEAD ChaCha20Poly1305 decryption and authentication as specified in the <a href="https://tools.ietf.org/html/rfc8439">RFC 8439</a>.</dd><dt><a class="fn" href="fn.seal.html" title="fn devela::_dep::orion::hazardous::aead::chacha20poly1305::seal">seal</a></dt><dd>AEAD ChaCha20Poly1305 encryption and authentication as specified in the <a href="https://tools.ietf.org/html/rfc8439">RFC 8439</a>.</dd></dl></section></div></main></body></html>

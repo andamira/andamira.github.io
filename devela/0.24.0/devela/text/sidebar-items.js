@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AsciiChar","InvalidText","TextError"],"mod":["fmt","parse","str"],"struct":["Ascii","Char","GraphemeNonul","GraphemeString","GraphemeU8","InvalidChar","InvalidUtf8","IterChars","char16","char7","char8"],"trait":["Grapheme","UnicodeScalar"],"type":["TextResult","char"]};

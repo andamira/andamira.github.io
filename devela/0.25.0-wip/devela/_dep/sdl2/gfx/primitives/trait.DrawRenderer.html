@@ -1,0 +1,522 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="For drawing with rust-sdl2 Renderer"><title>DrawRenderer in devela::_dep::sdl2::gfx::primitives - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">DrawRenderer</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Draw<wbr>Renderer</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.aa_circle" title="aa_circle">aa_circle</a></li><li><a href="#tymethod.aa_ellipse" title="aa_ellipse">aa_ellipse</a></li><li><a href="#tymethod.aa_line" title="aa_line">aa_line</a></li><li><a href="#tymethod.aa_polygon" title="aa_polygon">aa_polygon</a></li><li><a href="#tymethod.aa_trigon" title="aa_trigon">aa_trigon</a></li><li><a href="#tymethod.arc" title="arc">arc</a></li><li><a href="#tymethod.bezier" title="bezier">bezier</a></li><li><a href="#tymethod.box_" title="box_">box_</a></li><li><a href="#tymethod.character" title="character">character</a></li><li><a href="#tymethod.circle" title="circle">circle</a></li><li><a href="#tymethod.ellipse" title="ellipse">ellipse</a></li><li><a href="#tymethod.filled_circle" title="filled_circle">filled_circle</a></li><li><a href="#tymethod.filled_ellipse" title="filled_ellipse">filled_ellipse</a></li><li><a href="#tymethod.filled_pie" title="filled_pie">filled_pie</a></li><li><a href="#tymethod.filled_polygon" title="filled_polygon">filled_polygon</a></li><li><a href="#tymethod.filled_trigon" title="filled_trigon">filled_trigon</a></li><li><a href="#tymethod.hline" title="hline">hline</a></li><li><a href="#tymethod.line" title="line">line</a></li><li><a href="#tymethod.pie" title="pie">pie</a></li><li><a href="#tymethod.pixel" title="pixel">pixel</a></li><li><a href="#tymethod.polygon" title="polygon">polygon</a></li><li><a href="#tymethod.rectangle" title="rectangle">rectangle</a></li><li><a href="#tymethod.rounded_box" title="rounded_box">rounded_box</a></li><li><a href="#tymethod.rounded_rectangle" title="rounded_rectangle">rounded_rectangle</a></li><li><a href="#tymethod.string" title="string">string</a></li><li><a href="#tymethod.textured_polygon" title="textured_polygon">textured_polygon</a></li><li><a href="#tymethod.thick_line" title="thick_line">thick_line</a></li><li><a href="#tymethod.trigon" title="trigon">trigon</a></li><li><a href="#tymethod.vline" title="vline">vline</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>sdl2::<wbr>gfx::<wbr>primitives</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../index.html">devela</a>::<wbr><a href="../../../index.html">_dep</a>::<wbr><a href="../../index.html">sdl2</a>::<wbr><a href="../index.html">gfx</a>::<wbr><a href="index.html">primitives</a></div><h1>Trait <span class="trait">Draw<wbr>Renderer</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>pub trait DrawRenderer {
+<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 29 methods</span></summary>    // Required methods
+    fn <a href="#tymethod.pixel" class="fn">pixel</a>&lt;C&gt;(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.hline" class="fn">hline</a>&lt;C&gt;(&amp;self, x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.vline" class="fn">vline</a>&lt;C&gt;(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.rectangle" class="fn">rectangle</a>&lt;C&gt;(
+        &amp;self,
+        x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.rounded_rectangle" class="fn">rounded_rectangle</a>&lt;C&gt;(
+        &amp;self,
+        x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.box_" class="fn">box_</a>&lt;C&gt;(
+        &amp;self,
+        x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.rounded_box" class="fn">rounded_box</a>&lt;C&gt;(
+        &amp;self,
+        x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.line" class="fn">line</a>&lt;C&gt;(
+        &amp;self,
+        x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.aa_line" class="fn">aa_line</a>&lt;C&gt;(
+        &amp;self,
+        x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.thick_line" class="fn">thick_line</a>&lt;C&gt;(
+        &amp;self,
+        x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.circle" class="fn">circle</a>&lt;C&gt;(
+        &amp;self,
+        x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.aa_circle" class="fn">aa_circle</a>&lt;C&gt;(
+        &amp;self,
+        x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.filled_circle" class="fn">filled_circle</a>&lt;C&gt;(
+        &amp;self,
+        x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.arc" class="fn">arc</a>&lt;C&gt;(
+        &amp;self,
+        x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        end: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.ellipse" class="fn">ellipse</a>&lt;C&gt;(
+        &amp;self,
+        x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        rx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        ry: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.aa_ellipse" class="fn">aa_ellipse</a>&lt;C&gt;(
+        &amp;self,
+        x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        rx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        ry: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.filled_ellipse" class="fn">filled_ellipse</a>&lt;C&gt;(
+        &amp;self,
+        x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        rx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        ry: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.pie" class="fn">pie</a>&lt;C&gt;(
+        &amp;self,
+        x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        end: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.filled_pie" class="fn">filled_pie</a>&lt;C&gt;(
+        &amp;self,
+        x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        end: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.trigon" class="fn">trigon</a>&lt;C&gt;(
+        &amp;self,
+        x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.aa_trigon" class="fn">aa_trigon</a>&lt;C&gt;(
+        &amp;self,
+        x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.filled_trigon" class="fn">filled_trigon</a>&lt;C&gt;(
+        &amp;self,
+        x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        x3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.polygon" class="fn">polygon</a>&lt;C&gt;(&amp;self, vx: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>], vy: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>], color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.aa_polygon" class="fn">aa_polygon</a>&lt;C&gt;(
+        &amp;self,
+        vx: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+        vy: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.filled_polygon" class="fn">filled_polygon</a>&lt;C&gt;(
+        &amp;self,
+        vx: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+        vy: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.textured_polygon" class="fn">textured_polygon</a>&lt;C&gt;(
+        &amp;self,
+        vx: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+        vy: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+        texture: &amp;<a class="struct" href="../../surface/struct.Surface.html" title="struct devela::_dep::sdl2::surface::Surface">Surface</a>&lt;'_&gt;,
+        texture_dx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        texture_dy: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.bezier" class="fn">bezier</a>&lt;C&gt;(
+        &amp;self,
+        vx: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+        vy: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+        s: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.character" class="fn">character</a>&lt;C&gt;(
+        &amp;self,
+        x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+        c: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>,
+        color: C,
+    ) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.string" class="fn">string</a>&lt;C&gt;(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, s: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a>
+       <span class="where">where C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a></span>;
+</details>}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_sdl2</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>For drawing with rust-sdl2 Renderer</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><section id="tymethod.pixel" class="method"><h4 class="code-header">fn <a href="#tymethod.pixel" class="fn">pixel</a>&lt;C&gt;(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.hline" class="method"><h4 class="code-header">fn <a href="#tymethod.hline" class="fn">hline</a>&lt;C&gt;(&amp;self, x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.vline" class="method"><h4 class="code-header">fn <a href="#tymethod.vline" class="fn">vline</a>&lt;C&gt;(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.rectangle" class="method"><h4 class="code-header">fn <a href="#tymethod.rectangle" class="fn">rectangle</a>&lt;C&gt;(
+    &amp;self,
+    x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.rounded_rectangle" class="method"><h4 class="code-header">fn <a href="#tymethod.rounded_rectangle" class="fn">rounded_rectangle</a>&lt;C&gt;(
+    &amp;self,
+    x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.box_" class="method"><h4 class="code-header">fn <a href="#tymethod.box_" class="fn">box_</a>&lt;C&gt;(
+    &amp;self,
+    x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.rounded_box" class="method"><h4 class="code-header">fn <a href="#tymethod.rounded_box" class="fn">rounded_box</a>&lt;C&gt;(
+    &amp;self,
+    x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.line" class="method"><h4 class="code-header">fn <a href="#tymethod.line" class="fn">line</a>&lt;C&gt;(
+    &amp;self,
+    x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.aa_line" class="method"><h4 class="code-header">fn <a href="#tymethod.aa_line" class="fn">aa_line</a>&lt;C&gt;(
+    &amp;self,
+    x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.thick_line" class="method"><h4 class="code-header">fn <a href="#tymethod.thick_line" class="fn">thick_line</a>&lt;C&gt;(
+    &amp;self,
+    x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.circle" class="method"><h4 class="code-header">fn <a href="#tymethod.circle" class="fn">circle</a>&lt;C&gt;(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.aa_circle" class="method"><h4 class="code-header">fn <a href="#tymethod.aa_circle" class="fn">aa_circle</a>&lt;C&gt;(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.filled_circle" class="method"><h4 class="code-header">fn <a href="#tymethod.filled_circle" class="fn">filled_circle</a>&lt;C&gt;(
+    &amp;self,
+    x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.arc" class="method"><h4 class="code-header">fn <a href="#tymethod.arc" class="fn">arc</a>&lt;C&gt;(
+    &amp;self,
+    x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    end: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.ellipse" class="method"><h4 class="code-header">fn <a href="#tymethod.ellipse" class="fn">ellipse</a>&lt;C&gt;(
+    &amp;self,
+    x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    rx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    ry: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.aa_ellipse" class="method"><h4 class="code-header">fn <a href="#tymethod.aa_ellipse" class="fn">aa_ellipse</a>&lt;C&gt;(
+    &amp;self,
+    x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    rx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    ry: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.filled_ellipse" class="method"><h4 class="code-header">fn <a href="#tymethod.filled_ellipse" class="fn">filled_ellipse</a>&lt;C&gt;(
+    &amp;self,
+    x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    rx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    ry: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.pie" class="method"><h4 class="code-header">fn <a href="#tymethod.pie" class="fn">pie</a>&lt;C&gt;(
+    &amp;self,
+    x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    end: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.filled_pie" class="method"><h4 class="code-header">fn <a href="#tymethod.filled_pie" class="fn">filled_pie</a>&lt;C&gt;(
+    &amp;self,
+    x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    rad: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    end: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.trigon" class="method"><h4 class="code-header">fn <a href="#tymethod.trigon" class="fn">trigon</a>&lt;C&gt;(
+    &amp;self,
+    x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.aa_trigon" class="method"><h4 class="code-header">fn <a href="#tymethod.aa_trigon" class="fn">aa_trigon</a>&lt;C&gt;(
+    &amp;self,
+    x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.filled_trigon" class="method"><h4 class="code-header">fn <a href="#tymethod.filled_trigon" class="fn">filled_trigon</a>&lt;C&gt;(
+    &amp;self,
+    x1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    x3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    y3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.polygon" class="method"><h4 class="code-header">fn <a href="#tymethod.polygon" class="fn">polygon</a>&lt;C&gt;(&amp;self, vx: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>], vy: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>], color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.aa_polygon" class="method"><h4 class="code-header">fn <a href="#tymethod.aa_polygon" class="fn">aa_polygon</a>&lt;C&gt;(&amp;self, vx: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>], vy: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>], color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.filled_polygon" class="method"><h4 class="code-header">fn <a href="#tymethod.filled_polygon" class="fn">filled_polygon</a>&lt;C&gt;(
+    &amp;self,
+    vx: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+    vy: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.textured_polygon" class="method"><h4 class="code-header">fn <a href="#tymethod.textured_polygon" class="fn">textured_polygon</a>&lt;C&gt;(
+    &amp;self,
+    vx: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+    vy: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+    texture: &amp;<a class="struct" href="../../surface/struct.Surface.html" title="struct devela::_dep::sdl2::surface::Surface">Surface</a>&lt;'_&gt;,
+    texture_dx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    texture_dy: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.bezier" class="method"><h4 class="code-header">fn <a href="#tymethod.bezier" class="fn">bezier</a>&lt;C&gt;(
+    &amp;self,
+    vx: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+    vy: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>],
+    s: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+    color: C,
+) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.character" class="method"><h4 class="code-header">fn <a href="#tymethod.character" class="fn">character</a>&lt;C&gt;(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, c: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>, color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section><section id="tymethod.string" class="method"><h4 class="code-header">fn <a href="#tymethod.string" class="fn">string</a>&lt;C&gt;(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, s: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, color: C) -&gt; <a class="enum" href="../../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../../all/struct.String.html" title="struct devela::all::String">String</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), String&gt;">ⓘ</a><div class="where">where
+    C: <a class="trait" href="trait.ToColor.html" title="trait devela::_dep::sdl2::gfx::primitives::ToColor">ToColor</a>,</div></h4></section></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-DrawRenderer-for-Canvas%3CT%3E" class="impl"><a href="#impl-DrawRenderer-for-Canvas%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="trait.DrawRenderer.html" title="trait devela::_dep::sdl2::gfx::primitives::DrawRenderer">DrawRenderer</a> for <a class="struct" href="../../render/struct.Canvas.html" title="struct devela::_dep::sdl2::render::Canvas">Canvas</a>&lt;T&gt;<div class="where">where
+    T: <a class="trait" href="../../render/trait.RenderTarget.html" title="trait devela::_dep::sdl2::render::RenderTarget">RenderTarget</a>,</div></h3></section></div><script src="../../../../../trait.impl/sdl2/gfx/primitives/trait.DrawRenderer.js" data-ignore-extern-crates="sdl2" async></script><script type="text/json" id="notable-traits-data">{"Result<(), String>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>

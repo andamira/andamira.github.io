@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A trait defining event callbacks."><title>EventHandler in devela::_dep::miniquad - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Event<wbr>Handler</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.draw" title="draw">draw</a></li><li><a href="#tymethod.update" title="update">update</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.char_event" title="char_event">char_event</a></li><li><a href="#method.files_dropped_event" title="files_dropped_event">files_dropped_event</a></li><li><a href="#method.key_down_event" title="key_down_event">key_down_event</a></li><li><a href="#method.key_up_event" title="key_up_event">key_up_event</a></li><li><a href="#method.mouse_button_down_event" title="mouse_button_down_event">mouse_button_down_event</a></li><li><a href="#method.mouse_button_up_event" title="mouse_button_up_event">mouse_button_up_event</a></li><li><a href="#method.mouse_motion_event" title="mouse_motion_event">mouse_motion_event</a></li><li><a href="#method.mouse_wheel_event" title="mouse_wheel_event">mouse_wheel_event</a></li><li><a href="#method.quit_requested_event" title="quit_requested_event">quit_requested_event</a></li><li><a href="#method.raw_mouse_motion" title="raw_mouse_motion">raw_mouse_motion</a></li><li><a href="#method.resize_event" title="resize_event">resize_event</a></li><li><a href="#method.touch_event" title="touch_event">touch_event</a></li><li><a href="#method.window_minimized_event" title="window_minimized_event">window_minimized_event</a></li><li><a href="#method.window_restored_event" title="window_restored_event">window_restored_event</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>miniquad</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a>::<wbr><a href="index.html">miniquad</a></div><h1>Trait <span class="trait">EventHandler</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>pub trait EventHandler {
+<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 16 methods</span></summary>    // Required methods
+    fn <a href="#tymethod.update" class="fn">update</a>(&amp;mut self);
+<span class="item-spacer"></span>    fn <a href="#tymethod.draw" class="fn">draw</a>(&amp;mut self);
+
+    // Provided methods
+    fn <a href="#method.resize_event" class="fn">resize_event</a>(&amp;mut self, _width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, _height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mouse_motion_event" class="fn">mouse_motion_event</a>(&amp;mut self, _x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, _y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mouse_wheel_event" class="fn">mouse_wheel_event</a>(&amp;mut self, _x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, _y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mouse_button_down_event" class="fn">mouse_button_down_event</a>(
+        &amp;mut self,
+        _button: <a class="enum" href="enum.MouseButton.html" title="enum devela::_dep::miniquad::MouseButton">MouseButton</a>,
+        _x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>,
+        _y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>,
+    ) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mouse_button_up_event" class="fn">mouse_button_up_event</a>(&amp;mut self, _button: <a class="enum" href="enum.MouseButton.html" title="enum devela::_dep::miniquad::MouseButton">MouseButton</a>, _x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, _y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.char_event" class="fn">char_event</a>(&amp;mut self, _character: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>, _keymods: <a class="struct" href="struct.KeyMods.html" title="struct devela::_dep::miniquad::KeyMods">KeyMods</a>, _repeat: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.key_down_event" class="fn">key_down_event</a>(
+        &amp;mut self,
+        _keycode: <a class="enum" href="enum.KeyCode.html" title="enum devela::_dep::miniquad::KeyCode">KeyCode</a>,
+        _keymods: <a class="struct" href="struct.KeyMods.html" title="struct devela::_dep::miniquad::KeyMods">KeyMods</a>,
+        _repeat: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+    ) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.key_up_event" class="fn">key_up_event</a>(&amp;mut self, _keycode: <a class="enum" href="enum.KeyCode.html" title="enum devela::_dep::miniquad::KeyCode">KeyCode</a>, _keymods: <a class="struct" href="struct.KeyMods.html" title="struct devela::_dep::miniquad::KeyMods">KeyMods</a>) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.touch_event" class="fn">touch_event</a>(&amp;mut self, phase: <a class="enum" href="enum.TouchPhase.html" title="enum devela::_dep::miniquad::TouchPhase">TouchPhase</a>, _id: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.raw_mouse_motion" class="fn">raw_mouse_motion</a>(&amp;mut self, _dx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, _dy: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.window_minimized_event" class="fn">window_minimized_event</a>(&amp;mut self) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.window_restored_event" class="fn">window_restored_event</a>(&amp;mut self) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.quit_requested_event" class="fn">quit_requested_event</a>(&amp;mut self) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.files_dropped_event" class="fn">files_dropped_event</a>(&amp;mut self) { ... }
+</details>}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_miniquad</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A trait defining event callbacks.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.update" class="method"><h4 class="code-header">fn <a href="#tymethod.update" class="fn">update</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>On most platforms update() and draw() are called each frame, sequentially,
+draw right after update.
+But on Android (and maybe some other platforms in the future) update might
+be called without draw.
+When the app is in background, Android destroys the rendering surface,
+while app is still alive and can do some usefull calculations.
+Note that in this case drawing from update may lead to crashes.</p>
+</div></details><section id="tymethod.draw" class="method"><h4 class="code-header">fn <a href="#tymethod.draw" class="fn">draw</a>(&amp;mut self)</h4></section></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><section id="method.resize_event" class="method"><h4 class="code-header">fn <a href="#method.resize_event" class="fn">resize_event</a>(&amp;mut self, _width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, _height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)</h4></section><section id="method.mouse_motion_event" class="method"><h4 class="code-header">fn <a href="#method.mouse_motion_event" class="fn">mouse_motion_event</a>(&amp;mut self, _x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, _y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)</h4></section><section id="method.mouse_wheel_event" class="method"><h4 class="code-header">fn <a href="#method.mouse_wheel_event" class="fn">mouse_wheel_event</a>(&amp;mut self, _x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, _y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)</h4></section><section id="method.mouse_button_down_event" class="method"><h4 class="code-header">fn <a href="#method.mouse_button_down_event" class="fn">mouse_button_down_event</a>(&amp;mut self, _button: <a class="enum" href="enum.MouseButton.html" title="enum devela::_dep::miniquad::MouseButton">MouseButton</a>, _x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, _y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)</h4></section><section id="method.mouse_button_up_event" class="method"><h4 class="code-header">fn <a href="#method.mouse_button_up_event" class="fn">mouse_button_up_event</a>(&amp;mut self, _button: <a class="enum" href="enum.MouseButton.html" title="enum devela::_dep::miniquad::MouseButton">MouseButton</a>, _x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, _y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)</h4></section><section id="method.char_event" class="method"><h4 class="code-header">fn <a href="#method.char_event" class="fn">char_event</a>(&amp;mut self, _character: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>, _keymods: <a class="struct" href="struct.KeyMods.html" title="struct devela::_dep::miniquad::KeyMods">KeyMods</a>, _repeat: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>)</h4></section><section id="method.key_down_event" class="method"><h4 class="code-header">fn <a href="#method.key_down_event" class="fn">key_down_event</a>(
+    &amp;mut self,
+    _keycode: <a class="enum" href="enum.KeyCode.html" title="enum devela::_dep::miniquad::KeyCode">KeyCode</a>,
+    _keymods: <a class="struct" href="struct.KeyMods.html" title="struct devela::_dep::miniquad::KeyMods">KeyMods</a>,
+    _repeat: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+)</h4></section><details class="toggle method-toggle" open><summary><section id="method.key_up_event" class="method"><h4 class="code-header">fn <a href="#method.key_up_event" class="fn">key_up_event</a>(&amp;mut self, _keycode: <a class="enum" href="enum.KeyCode.html" title="enum devela::_dep::miniquad::KeyCode">KeyCode</a>, _keymods: <a class="struct" href="struct.KeyMods.html" title="struct devela::_dep::miniquad::KeyMods">KeyMods</a>)</h4></section></summary><div class="docblock"><p>Note: you are not always guaranteed to receive a key_up event. For example on
+Wayland when leaving the focused window, the key_up event will not be caught.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.touch_event" class="method"><h4 class="code-header">fn <a href="#method.touch_event" class="fn">touch_event</a>(&amp;mut self, phase: <a class="enum" href="enum.TouchPhase.html" title="enum devela::_dep::miniquad::TouchPhase">TouchPhase</a>, _id: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)</h4></section></summary><div class="docblock"><p>Default implementation emulates mouse clicks</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.raw_mouse_motion" class="method"><h4 class="code-header">fn <a href="#method.raw_mouse_motion" class="fn">raw_mouse_motion</a>(&amp;mut self, _dx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, _dy: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)</h4></section></summary><div class="docblock"><p>Represents raw hardware mouse motion event
+Note that these events are delivered regardless of input focus and not in pixels, but in
+hardware units instead. And those units may be different from pixels depending on the target platform</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.window_minimized_event" class="method"><h4 class="code-header">fn <a href="#method.window_minimized_event" class="fn">window_minimized_event</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>Window has been minimized
+Right now is only implemented on Android, X11 and wasm,
+On Andoid window_minimized_event is called on a Pause ndk callback
+On X11 and wasm it will be called on focus change events.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.window_restored_event" class="method"><h4 class="code-header">fn <a href="#method.window_restored_event" class="fn">window_restored_event</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>Window has been restored
+Right now is only implemented on Android, X11 and wasm,
+On Andoid window_minimized_event is called on a Pause ndk callback
+On X11 and wasm it will be called on focus change events.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.quit_requested_event" class="method"><h4 class="code-header">fn <a href="#method.quit_requested_event" class="fn">quit_requested_event</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>This event is sent when the userclicks the window’s close button
+or application code calls the ctx.request_quit() function. The event
+handler callback code can handle this event by calling
+ctx.cancel_quit() to cancel the quit.
+If the event is ignored, the application will quit as usual.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.files_dropped_event" class="method"><h4 class="code-header">fn <a href="#method.files_dropped_event" class="fn">files_dropped_event</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>A file has been dropped over the application.
+Applications can request the number of dropped files with
+<code>ctx.dropped_file_count()</code>, path of an individual file with
+<code>ctx.dropped_file_path()</code>, and for wasm targets the file bytes
+can be requested with <code>ctx.dropped_file_bytes()</code>.</p>
+</div></details></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-EventHandler-for-MiniquadPixels" class="impl"><a class="src rightside" href="../../../src/devela/ui/back/miniquad/pixels.rs.html#153-219">Source</a><a href="#impl-EventHandler-for-MiniquadPixels" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../all/trait.MiniquadEventHandler.html" title="trait devela::all::MiniquadEventHandler">EventHandler</a> for <a class="struct" href="../../all/struct.MiniquadPixels.html" title="struct devela::all::MiniquadPixels">MiniquadPixels</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>alloc</code></strong> only.</div></span></section></div><script src="../../../trait.impl/miniquad/event/trait.EventHandler.js" async></script></section></div></main></body></html>

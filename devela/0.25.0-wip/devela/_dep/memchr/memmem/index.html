@@ -1,0 +1,162 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This module provides forward and reverse substring search routines."><title>devela::_dep::memchr::memmem - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module memmem</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module memmem</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example-iterating-over-substring-matches" title="Example: iterating over substring matches">Example: iterating over substring matches</a></li><li><a href="#example-iterating-over-substring-matches-in-reverse" title="Example: iterating over substring matches in reverse">Example: iterating over substring matches in reverse</a></li><li><a href="#example-repeating-a-search-for-the-same-needle" title="Example: repeating a search for the same needle">Example: repeating a search for the same needle</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep::<wbr>memchr</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">_dep</a>::<wbr><a href="../index.html">memchr</a></div><h1>Module <span>memmem</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_memchr</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This module provides forward and reverse substring search routines.</p>
+<p>Unlike the standard library’s substring search routines, these work on
+arbitrary bytes. For all non-empty needles, these routines will report exactly
+the same values as the corresponding routines in the standard library. For
+the empty needle, the standard library reports matches only at valid UTF-8
+boundaries, where as these routines will report matches at every position.</p>
+<p>Other than being able to work on arbitrary bytes, the primary reason to prefer
+these routines over the standard library routines is that these will generally
+be faster. In some cases, significantly so.</p>
+<h2 id="example-iterating-over-substring-matches"><a class="doc-anchor" href="#example-iterating-over-substring-matches">§</a>Example: iterating over substring matches</h2>
+<p>This example shows how to use <a href="fn.find_iter.html" title="fn devela::_dep::memchr::memmem::find_iter"><code>find_iter</code></a> to find occurrences of a substring
+in a haystack.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>memchr::memmem;
+
+<span class="kw">let </span>haystack = <span class="string">b"foo bar foo baz foo"</span>;
+
+<span class="kw">let </span><span class="kw-2">mut </span>it = memmem::find_iter(haystack, <span class="string">"foo"</span>);
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), it.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">8</span>), it.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">16</span>), it.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, it.next());</code></pre></div>
+<h2 id="example-iterating-over-substring-matches-in-reverse"><a class="doc-anchor" href="#example-iterating-over-substring-matches-in-reverse">§</a>Example: iterating over substring matches in reverse</h2>
+<p>This example shows how to use <a href="fn.rfind_iter.html" title="fn devela::_dep::memchr::memmem::rfind_iter"><code>rfind_iter</code></a> to find occurrences of a substring
+in a haystack starting from the end of the haystack.</p>
+<p><strong>NOTE:</strong> This module does not implement double ended iterators, so reverse
+searches aren’t done by calling <code>rev</code> on a forward iterator.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>memchr::memmem;
+
+<span class="kw">let </span>haystack = <span class="string">b"foo bar foo baz foo"</span>;
+
+<span class="kw">let </span><span class="kw-2">mut </span>it = memmem::rfind_iter(haystack, <span class="string">"foo"</span>);
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">16</span>), it.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">8</span>), it.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), it.next());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, it.next());</code></pre></div>
+<h2 id="example-repeating-a-search-for-the-same-needle"><a class="doc-anchor" href="#example-repeating-a-search-for-the-same-needle">§</a>Example: repeating a search for the same needle</h2>
+<p>It may be possible for the overhead of constructing a substring searcher to be
+measurable in some workloads. In cases where the same needle is used to search
+many haystacks, it is possible to do construction once and thus to avoid it for
+subsequent searches. This can be done with a <a href="struct.Finder.html" title="struct devela::_dep::memchr::memmem::Finder"><code>Finder</code></a> (or a <a href="struct.FinderRev.html" title="struct devela::_dep::memchr::memmem::FinderRev"><code>FinderRev</code></a> for
+reverse searches).</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>memchr::memmem;
+
+<span class="kw">let </span>finder = memmem::Finder::new(<span class="string">"foo"</span>);
+
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">4</span>), finder.find(<span class="string">b"baz foo quux"</span>));
+<span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, finder.find(<span class="string">b"quux baz bar"</span>));</code></pre></div>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.FindIter.html" title="struct devela::_dep::memchr::memmem::FindIter">Find<wbr>Iter</a></dt><dd>An iterator over non-overlapping substring matches.</dd><dt><a class="struct" href="struct.FindRevIter.html" title="struct devela::_dep::memchr::memmem::FindRevIter">Find<wbr>RevIter</a></dt><dd>An iterator over non-overlapping substring matches in reverse.</dd><dt><a class="struct" href="struct.Finder.html" title="struct devela::_dep::memchr::memmem::Finder">Finder</a></dt><dd>A single substring searcher fixed to a particular needle.</dd><dt><a class="struct" href="struct.FinderBuilder.html" title="struct devela::_dep::memchr::memmem::FinderBuilder">Finder<wbr>Builder</a></dt><dd>A builder for constructing non-default forward or reverse memmem finders.</dd><dt><a class="struct" href="struct.FinderRev.html" title="struct devela::_dep::memchr::memmem::FinderRev">Finder<wbr>Rev</a></dt><dd>A single substring reverse searcher fixed to a particular needle.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.Prefilter.html" title="enum devela::_dep::memchr::memmem::Prefilter">Prefilter</a></dt><dd>Prefilter controls whether heuristics are used to accelerate searching.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.find.html" title="fn devela::_dep::memchr::memmem::find">find</a></dt><dd>Returns the index of the first occurrence of the given needle.</dd><dt><a class="fn" href="fn.find_iter.html" title="fn devela::_dep::memchr::memmem::find_iter">find_<wbr>iter</a></dt><dd>Returns an iterator over all non-overlapping occurrences of a substring in
+a haystack.</dd><dt><a class="fn" href="fn.rfind.html" title="fn devela::_dep::memchr::memmem::rfind">rfind</a></dt><dd>Returns the index of the last occurrence of the given needle.</dd><dt><a class="fn" href="fn.rfind_iter.html" title="fn devela::_dep::memchr::memmem::rfind_iter">rfind_<wbr>iter</a></dt><dd>Returns a reverse iterator over all non-overlapping occurrences of a
+substring in a haystack.</dd></dl></section></div></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PathComponent","PathPrefix"],"struct":["DirBuilder","DirEntry","File","FileMetadata","FileOpenOptions","FilePermissions","FileTimes","FileType","Fs","FsPath","IterDirRead","IterPath","IterPathAncestors","IterPathComponents","Path","PathBuf","PathDisplay","PathPrefixComponent","PathStripPrefixError"],"trait":["ExtPath"]};

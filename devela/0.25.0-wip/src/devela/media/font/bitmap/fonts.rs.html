@@ -1,0 +1,243 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/media/font/bitmap/fonts.rs`."><title>fonts.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/media/font/bitmap/</div>fonts.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::media::bitmap::fonts
+<a href=#2 id=2 data-nosnippet>2</a>//
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//! Defines bitmap fonts.
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
+<a href=#5 id=5 data-nosnippet>5</a>// TOC
+<a href=#6 id=6 data-nosnippet>6</a>// - FONT_3_3
+<a href=#7 id=7 data-nosnippet>7</a>// - FONT_3_5
+<a href=#8 id=8 data-nosnippet>8</a>// - FONT_5_6
+<a href=#9 id=9 data-nosnippet>9</a>//
+<a href=#10 id=10 data-nosnippet>10</a>// FIX
+<a href=#11 id=11 data-nosnippet>11</a>// - https://github.com/azmr/blit-fonts/issues/1
+<a href=#12 id=12 data-nosnippet>12</a>//
+<a href=#13 id=13 data-nosnippet>13</a>// TODO
+<a href=#14 id=14 data-nosnippet>14</a>// - add extra glyphs.
+<a href=#15 id=15 data-nosnippet>15</a>
+<a href=#16 id=16 data-nosnippet>16</a></span><span class="kw">use </span><a href="bitmap.rs.html#24-43"><span class="kw">super</span>::BitmapFont</a>;
+<a href=#17 id=17 data-nosnippet>17</a>
+<a href=#18 id=18 data-nosnippet>18</a><span class="attr">#[doc = <span class="macro">crate::TAG_FONT!</span>()]
+<a href=#19 id=19 data-nosnippet>19</a></span><span class="doccomment">/// A simple 3x3 bitmap font.
+<a href=#20 id=20 data-nosnippet>20</a>///
+<a href=#21 id=21 data-nosnippet>21</a>/// Notes:
+<a href=#22 id=22 data-nosnippet>22</a>/// - It includes all 95 ASCII characters from space `' '` to tilde `'~'`.
+<a href=#23 id=23 data-nosnippet>23</a>/// - upper and lower case characters are the same.
+<a href=#24 id=24 data-nosnippet>24</a>/// - 'S' == '5' and  'Z' == '2'.
+<a href=#25 id=25 data-nosnippet>25</a></span><span class="kw">pub const </span><a href="../../../../../devela/all/constant.FONT_3_3.html">FONT_3_3</a>: <a href="bitmap.rs.html#24-43">BitmapFont</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt; = <a href="bitmap.rs.html#24-43">BitmapFont</a> {
+<a href=#26 id=26 data-nosnippet>26</a>    glyphs: <span class="kw-2">&amp;</span><a href="#38-58">FONT_3_3_GLYPHS</a>,
+<a href=#27 id=27 data-nosnippet>27</a>    first_glyph: <span class="string">' '</span>,
+<a href=#28 id=28 data-nosnippet>28</a>    extra_glyphs: <span class="kw-2">&amp;</span>[],
+<a href=#29 id=29 data-nosnippet>29</a>    width: <span class="number">3</span>,
+<a href=#30 id=30 data-nosnippet>30</a>    height: <span class="number">3</span>,
+<a href=#31 id=31 data-nosnippet>31</a>    baseline: <span class="number">2</span>,
+<a href=#32 id=32 data-nosnippet>32</a>    advance_x: <span class="number">4</span>,
+<a href=#33 id=33 data-nosnippet>33</a>    advance_y: <span class="number">4</span>,
+<a href=#34 id=34 data-nosnippet>34</a>};
+<a href=#35 id=35 data-nosnippet>35</a><span class="comment">// The question mark glyph is also used for when there's no specific glyph.
+<a href=#36 id=36 data-nosnippet>36</a></span><span class="kw">const </span>FONT_3_3_QUE: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> = <span class="number">0b_010_110_111</span>;
+<a href=#37 id=37 data-nosnippet>37</a><span class="attr">#[allow(clippy::unreadable_literal)] #[rustfmt::skip]
+<a href=#38 id=38 data-nosnippet>38</a></span><span class="kw">const </span>FONT_3_3_GLYPHS: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>; <span class="number">95</span>] = [
+<a href=#39 id=39 data-nosnippet>39</a>    <span class="number">0b_000000000</span>, <span class="number">0b_010010010</span>, <span class="number">0b_000000101</span>, <span class="number">0b_111111111</span>, <a href="#36">FONT_3_3_QUE</a>, <span class="comment">//   ! " # $
+<a href=#40 id=40 data-nosnippet>40</a>    </span><a href="#36">FONT_3_3_QUE</a>, <a href="#36">FONT_3_3_QUE</a>, <span class="number">0b_000000010</span>, <span class="number">0b_010001010</span>, <span class="number">0b_010100010</span>, <span class="comment">// % &amp; ' ( )
+<a href=#41 id=41 data-nosnippet>41</a>    </span><span class="number">0b_000000001</span>, <span class="number">0b_010111010</span>, <span class="number">0b_001010000</span>, <span class="number">0b_000111000</span>, <span class="number">0b_010000000</span>, <span class="comment">// * + , - .
+<a href=#42 id=42 data-nosnippet>42</a>    </span><span class="number">0b_001010100</span>, <span class="number">0b_111101111</span>, <span class="number">0b_010010011</span>, <span class="number">0b_110010011</span>, <span class="number">0b_100110011</span>, <span class="comment">// / 0 1 2 3
+<a href=#43 id=43 data-nosnippet>43</a>    </span><span class="number">0b_100111101</span>, <span class="number">0b_011010110</span>, <span class="number">0b_111111001</span>, <span class="number">0b_100100111</span>, <span class="number">0b_111111010</span>, <span class="comment">// 4 5 6 7 8
+<a href=#44 id=44 data-nosnippet>44</a>    </span><span class="number">0b_100111111</span>, <span class="number">0b_010000010</span>, <span class="number">0b_011000010</span>, <span class="number">0b_110001110</span>, <span class="number">0b_111000111</span>, <span class="comment">// 9 : ; &lt; =
+<a href=#45 id=45 data-nosnippet>45</a>    </span><span class="number">0b_011100011</span>, <a href="#36">FONT_3_3_QUE</a>, <span class="number">0b_111111111</span>, <span class="number">0b_101101010</span>, <span class="number">0b_011111011</span>, <span class="comment">// &gt; ? @ A B
+<a href=#46 id=46 data-nosnippet>46</a>    </span><span class="number">0b_110001110</span>, <span class="number">0b_011101011</span>, <span class="number">0b_111011001</span>, <span class="number">0b_001011111</span>, <span class="number">0b_111101011</span>, <span class="comment">// C D E F G
+<a href=#47 id=47 data-nosnippet>47</a>    </span><span class="number">0b_101111101</span>, <span class="number">0b_111010111</span>, <span class="number">0b_111101100</span>, <span class="number">0b_101011101</span>, <span class="number">0b_111001001</span>, <span class="comment">// H I J K L
+<a href=#48 id=48 data-nosnippet>48</a>    </span><span class="number">0b_101111111</span>, <span class="number">0b_101101011</span>, <span class="number">0b_010101010</span>, <span class="number">0b_001111111</span>, <span class="number">0b_110101010</span>, <span class="comment">// M N O P Q
+<a href=#49 id=49 data-nosnippet>49</a>    </span><span class="number">0b_101011011</span>, <span class="number">0b_011010110</span>, <span class="number">0b_010010111</span>, <span class="number">0b_111101101</span>, <span class="number">0b_010101101</span>, <span class="comment">// R S T U V
+<a href=#50 id=50 data-nosnippet>50</a>    </span><span class="number">0b_111111101</span>, <span class="number">0b_101010101</span>, <span class="number">0b_010111101</span>, <span class="number">0b_110010011</span>, <span class="number">0b_011001011</span>, <span class="comment">// W X Y Z [
+<a href=#51 id=51 data-nosnippet>51</a>    </span><span class="number">0b_100010001</span>, <span class="number">0b_110100110</span>, <span class="number">0b_000101010</span>, <span class="number">0b_111000000</span>, <span class="number">0b_000000010</span>, <span class="comment">// \ ] ^ _ `
+<a href=#52 id=52 data-nosnippet>52</a>    </span><span class="number">0b_101101010</span>, <span class="number">0b_011111011</span>, <span class="number">0b_110001110</span>, <span class="number">0b_011101011</span>, <span class="number">0b_111011001</span>, <span class="comment">// a b c d e
+<a href=#53 id=53 data-nosnippet>53</a>    </span><span class="number">0b_001011111</span>, <span class="number">0b_111101011</span>, <span class="number">0b_101111101</span>, <span class="number">0b_111010111</span>, <span class="number">0b_111101100</span>, <span class="comment">// f g h i j
+<a href=#54 id=54 data-nosnippet>54</a>    </span><span class="number">0b_101011101</span>, <span class="number">0b_111001001</span>, <span class="number">0b_101111111</span>, <span class="number">0b_101101011</span>, <span class="number">0b_010101010</span>, <span class="comment">// k l m n o
+<a href=#55 id=55 data-nosnippet>55</a>    </span><span class="number">0b_001111111</span>, <span class="number">0b_110101010</span>, <span class="number">0b_101011011</span>, <span class="number">0b_011010110</span>, <span class="number">0b_010010111</span>, <span class="comment">// p q r s t
+<a href=#56 id=56 data-nosnippet>56</a>    </span><span class="number">0b_111101101</span>, <span class="number">0b_010101101</span>, <span class="number">0b_111111101</span>, <span class="number">0b_101010101</span>, <span class="number">0b_010111101</span>, <span class="comment">// u v w x y
+<a href=#57 id=57 data-nosnippet>57</a>    </span><span class="number">0b_110010011</span>, <span class="number">0b_110011110</span>, <span class="number">0b_010010010</span>, <span class="number">0b_011110011</span>, <span class="number">0b_000110011</span>, <span class="comment">// z { | } ~
+<a href=#58 id=58 data-nosnippet>58</a></span>];
+<a href=#59 id=59 data-nosnippet>59</a>
+<a href=#60 id=60 data-nosnippet>60</a><span class="attr">#[doc = <span class="macro">crate::TAG_FONT!</span>()]
+<a href=#61 id=61 data-nosnippet>61</a></span><span class="doccomment">/// A simple 3x5 bitmap font.
+<a href=#62 id=62 data-nosnippet>62</a>///
+<a href=#63 id=63 data-nosnippet>63</a>/// It includes all 95 ASCII characters from space `' '` to tilde `'~'`.
+<a href=#64 id=64 data-nosnippet>64</a></span><span class="attr">#[doc = <span class="macro">crate::_doc!</span>(vendor: <span class="string">"blit-fonts"</span>)]
+<a href=#65 id=65 data-nosnippet>65</a></span><span class="kw">pub const </span><a href="../../../../../devela/all/constant.FONT_3_5.html">FONT_3_5</a>: <a href="bitmap.rs.html#24-43">BitmapFont</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt; = <a href="bitmap.rs.html#24-43">BitmapFont</a> {
+<a href=#66 id=66 data-nosnippet>66</a>    glyphs: <span class="kw-2">&amp;</span><a href="#76-96">FONT_3_5_GLYPHS</a>,
+<a href=#67 id=67 data-nosnippet>67</a>    first_glyph: <span class="string">' '</span>,
+<a href=#68 id=68 data-nosnippet>68</a>    extra_glyphs: <span class="kw-2">&amp;</span>[],
+<a href=#69 id=69 data-nosnippet>69</a>    width: <span class="number">3</span>,
+<a href=#70 id=70 data-nosnippet>70</a>    height: <span class="number">5</span>,
+<a href=#71 id=71 data-nosnippet>71</a>    baseline: <span class="number">4</span>,
+<a href=#72 id=72 data-nosnippet>72</a>    advance_x: <span class="number">4</span>,
+<a href=#73 id=73 data-nosnippet>73</a>    advance_y: <span class="number">6</span>,
+<a href=#74 id=74 data-nosnippet>74</a>};
+<a href=#75 id=75 data-nosnippet>75</a><span class="attr">#[allow(clippy::unreadable_literal)] #[rustfmt::skip]
+<a href=#76 id=76 data-nosnippet>76</a></span><span class="kw">const </span>FONT_3_5_GLYPHS: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>; <span class="number">95</span>] = [
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="number">0x_0000</span>, <span class="number">0x_2092</span>, <span class="number">0x_002d</span>, <span class="number">0x_5f7d</span>, <span class="number">0x_279e</span>, <span class="comment">//   ! " # $
+<a href=#78 id=78 data-nosnippet>78</a>    </span><span class="number">0x_52a5</span>, <span class="number">0x_7ad6</span>, <span class="number">0x_0012</span>, <span class="number">0x_4494</span>, <span class="number">0x_1491</span>, <span class="comment">// % &amp; ' ( )
+<a href=#79 id=79 data-nosnippet>79</a>    </span><span class="number">0x_0aba</span>, <span class="number">0x_05d0</span>, <span class="number">0x_1400</span>, <span class="number">0x_01c0</span>, <span class="number">0x_0400</span>, <span class="comment">// * + , - .
+<a href=#80 id=80 data-nosnippet>80</a>    </span><span class="number">0x_12a4</span>, <span class="number">0x_2b6a</span>, <span class="number">0x_749a</span>, <span class="number">0x_752a</span>, <span class="number">0x_38a3</span>, <span class="comment">// / 0 1 2 3
+<a href=#81 id=81 data-nosnippet>81</a>    </span><span class="number">0x_4f4a</span>, <span class="number">0x_38cf</span>, <span class="number">0x_3bce</span>, <span class="number">0x_12a7</span>, <span class="number">0x_3aae</span>, <span class="comment">// 4 5 6 7 8
+<a href=#82 id=82 data-nosnippet>82</a>    </span><span class="number">0x_49ae</span>, <span class="number">0x_0410</span>, <span class="number">0x_1410</span>, <span class="number">0x_4454</span>, <span class="number">0x_0e38</span>, <span class="comment">// 9 : ; &lt; =
+<a href=#83 id=83 data-nosnippet>83</a>    </span><span class="number">0x_1511</span>, <span class="number">0x_10e3</span>, <span class="number">0x_73ee</span>, <span class="number">0x_5f7a</span>, <span class="number">0x_3beb</span>, <span class="comment">// &gt; ? @ A B
+<a href=#84 id=84 data-nosnippet>84</a>    </span><span class="number">0x_624e</span>, <span class="number">0x_3b6b</span>, <span class="number">0x_73cf</span>, <span class="number">0x_13cf</span>, <span class="number">0x_6b4e</span>, <span class="comment">// C D E F G
+<a href=#85 id=85 data-nosnippet>85</a>    </span><span class="number">0x_5bed</span>, <span class="number">0x_7497</span>, <span class="number">0x_2b27</span>, <span class="number">0x_5add</span>, <span class="number">0x_7249</span>, <span class="comment">// H I J K L
+<a href=#86 id=86 data-nosnippet>86</a>    </span><span class="number">0x_5b7d</span>, <span class="number">0x_5b6b</span>, <span class="number">0x_3b6e</span>, <span class="number">0x_12eb</span>, <span class="number">0x_4f6b</span>, <span class="comment">// M N O P Q
+<a href=#87 id=87 data-nosnippet>87</a>    </span><span class="number">0x_5aeb</span>, <span class="number">0x_388e</span>, <span class="number">0x_2497</span>, <span class="number">0x_6b6d</span>, <span class="number">0x_256d</span>, <span class="comment">// R S T U V
+<a href=#88 id=88 data-nosnippet>88</a>    </span><span class="number">0x_5f6d</span>, <span class="number">0x_5aad</span>, <span class="number">0x_24ad</span>, <span class="number">0x_72a7</span>, <span class="number">0x_6496</span>, <span class="comment">// W X Y Z [
+<a href=#89 id=89 data-nosnippet>89</a>    </span><span class="number">0x_4889</span>, <span class="number">0x_3493</span>, <span class="number">0x_002a</span>, <span class="number">0x_f000</span>, <span class="number">0x_0011</span>, <span class="comment">// \ ] ^ _ `
+<a href=#90 id=90 data-nosnippet>90</a>    </span><span class="number">0x_6b98</span>, <span class="number">0x_3b79</span>, <span class="number">0x_7270</span>, <span class="number">0x_7b74</span>, <span class="number">0x_6750</span>, <span class="comment">// a b c d e
+<a href=#91 id=91 data-nosnippet>91</a>    </span><span class="number">0x_95d6</span>, <span class="number">0x_b9ee</span>, <span class="number">0x_5b59</span>, <span class="number">0x_6410</span>, <span class="number">0x_b482</span>, <span class="comment">// f g h i j
+<a href=#92 id=92 data-nosnippet>92</a>    </span><span class="number">0x_56e8</span>, <span class="number">0x_6492</span>, <span class="number">0x_5be8</span>, <span class="number">0x_5b58</span>, <span class="number">0x_3b70</span>, <span class="comment">// k l m n o
+<a href=#93 id=93 data-nosnippet>93</a>    </span><span class="number">0x_976a</span>, <span class="number">0x_cd6a</span>, <span class="number">0x_1370</span>, <span class="number">0x_38f0</span>, <span class="number">0x_64ba</span>, <span class="comment">// p q r s t
+<a href=#94 id=94 data-nosnippet>94</a>    </span><span class="number">0x_3b68</span>, <span class="number">0x_2568</span>, <span class="number">0x_5f68</span>, <span class="number">0x_54a8</span>, <span class="number">0x_b9ad</span>, <span class="comment">// u v w x y
+<a href=#95 id=95 data-nosnippet>95</a>    </span><span class="number">0x_73b8</span>, <span class="number">0x_64d6</span>, <span class="number">0x_2492</span>, <span class="number">0x_3593</span>, <span class="number">0x_03e0</span>, <span class="comment">// z { | } ~
+<a href=#96 id=96 data-nosnippet>96</a></span>];
+<a href=#97 id=97 data-nosnippet>97</a>
+<a href=#98 id=98 data-nosnippet>98</a><span class="attr">#[doc = <span class="macro">crate::TAG_FONT!</span>()]
+<a href=#99 id=99 data-nosnippet>99</a></span><span class="doccomment">/// A simple 5x6 bitmap font.
+<a href=#100 id=100 data-nosnippet>100</a>///
+<a href=#101 id=101 data-nosnippet>101</a>/// It includes all 95 ASCII characters from space `' '` to tilde `'~'`.
+<a href=#102 id=102 data-nosnippet>102</a></span><span class="attr">#[doc = <span class="macro">crate::_doc!</span>(vendor: <span class="string">"blit-fonts"</span>)]
+<a href=#103 id=103 data-nosnippet>103</a></span><span class="kw">pub const </span><a href="../../../../../devela/all/constant.FONT_5_6.html">FONT_5_6</a>: <a href="bitmap.rs.html#24-43">BitmapFont</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; = <a href="bitmap.rs.html#24-43">BitmapFont</a> {
+<a href=#104 id=104 data-nosnippet>104</a>    glyphs: <span class="kw-2">&amp;</span><a href="#114-134">FONT_5_6_GLYPHS</a>,
+<a href=#105 id=105 data-nosnippet>105</a>    first_glyph: <span class="string">' '</span>,
+<a href=#106 id=106 data-nosnippet>106</a>    extra_glyphs: <span class="kw-2">&amp;</span>[],
+<a href=#107 id=107 data-nosnippet>107</a>    width: <span class="number">5</span>,
+<a href=#108 id=108 data-nosnippet>108</a>    height: <span class="number">6</span>,
+<a href=#109 id=109 data-nosnippet>109</a>    baseline: <span class="number">5</span>,
+<a href=#110 id=110 data-nosnippet>110</a>    advance_x: <span class="number">6</span>,
+<a href=#111 id=111 data-nosnippet>111</a>    advance_y: <span class="number">8</span>,
+<a href=#112 id=112 data-nosnippet>112</a>};
+<a href=#113 id=113 data-nosnippet>113</a><span class="attr">#[allow(clippy::unreadable_literal)] #[rustfmt::skip]
+<a href=#114 id=114 data-nosnippet>114</a></span><span class="kw">const </span>FONT_5_6_GLYPHS: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>; <span class="number">95</span>] = [
+<a href=#115 id=115 data-nosnippet>115</a>    <span class="number">0x_00000000</span>, <span class="number">0x_08021084</span>, <span class="number">0x_0000294a</span>, <span class="number">0x_15f52bea</span>, <span class="number">0x_08fa38be</span>, <span class="comment">//   ! " # $
+<a href=#116 id=116 data-nosnippet>116</a>    </span><span class="number">0x_33a22e60</span>, <span class="number">0x_2e94d8a6</span>, <span class="number">0x_00001084</span>, <span class="number">0x_10421088</span>, <span class="number">0x_04421082</span>, <span class="comment">// % &amp; ' ( )
+<a href=#117 id=117 data-nosnippet>117</a>    </span><span class="number">0x_00a23880</span>, <span class="number">0x_00471000</span>, <span class="number">0x_04420000</span>, <span class="number">0x_00070000</span>, <span class="number">0x_0c600000</span>, <span class="comment">// * + , - .
+<a href=#118 id=118 data-nosnippet>118</a>    </span><span class="number">0x_02222200</span>, <span class="number">0x_1d3ad72e</span>, <span class="number">0x_3e4214c4</span>, <span class="number">0x_3e22222e</span>, <span class="number">0x_1d18320f</span>, <span class="comment">// / 0 1 2 3
+<a href=#119 id=119 data-nosnippet>119</a>    </span><span class="number">0x_810f0888</span>, <span class="number">0x_1d183c3f</span>, <span class="number">0x_1d17844c</span>, <span class="number">0x_0222221f</span>, <span class="number">0x_1d18ba2e</span>, <span class="comment">// 4 5 6 7 8
+<a href=#120 id=120 data-nosnippet>120</a>    </span><span class="number">0x_210f463e</span>, <span class="number">0x_0c6018c0</span>, <span class="number">0x_04401000</span>, <span class="number">0x_10411100</span>, <span class="number">0x_00e03800</span>, <span class="comment">// 9 : ; &lt; =
+<a href=#121 id=121 data-nosnippet>121</a>    </span><span class="number">0x_04441040</span>, <span class="number">0x_0802322e</span>, <span class="number">0x_3c1ef62e</span>, <span class="number">0x_231fc544</span>, <span class="number">0x_1f18be2f</span>, <span class="comment">// &gt; ? @ A B
+<a href=#122 id=122 data-nosnippet>122</a>    </span><span class="number">0x_3c10862e</span>, <span class="number">0x_1f18c62f</span>, <span class="number">0x_3e10bc3f</span>, <span class="number">0x_0210bc3f</span>, <span class="number">0x_1d1c843e</span>, <span class="comment">// C D E F G
+<a href=#123 id=123 data-nosnippet>123</a>    </span><span class="number">0x_2318fe31</span>, <span class="number">0x_3e42109f</span>, <span class="number">0x_0c94211f</span>, <span class="number">0x_23149d31</span>, <span class="number">0x_3e108421</span>, <span class="comment">// H I J K L
+<a href=#124 id=124 data-nosnippet>124</a>    </span><span class="number">0x_231ad6bb</span>, <span class="number">0x_239cd671</span>, <span class="number">0x_1d18c62e</span>, <span class="number">0x_0217c62f</span>, <span class="number">0x_30eac62e</span>, <span class="comment">// M N O P Q
+<a href=#125 id=125 data-nosnippet>125</a>    </span><span class="number">0x_2297c62f</span>, <span class="number">0x_1d141a2e</span>, <span class="number">0x_0842109f</span>, <span class="number">0x_1d18c631</span>, <span class="number">0x_08454631</span>, <span class="comment">// R S T U V
+<a href=#126 id=126 data-nosnippet>126</a>    </span><span class="number">0x_375ad631</span>, <span class="number">0x_22a21151</span>, <span class="number">0x_08421151</span>, <span class="number">0x_3e22221f</span>, <span class="number">0x_1842108c</span>, <span class="comment">// W X Y Z [
+<a href=#127 id=127 data-nosnippet>127</a>    </span><span class="number">0x_20820820</span>, <span class="number">0x_0c421086</span>, <span class="number">0x_00004544</span>, <span class="number">0x_be000000</span>, <span class="number">0x_00000082</span>, <span class="comment">// \ ] ^ _ `
+<a href=#128 id=128 data-nosnippet>128</a>    </span><span class="number">0x_1c97b000</span>, <span class="number">0x_0e949c21</span>, <span class="number">0x_1c10b800</span>, <span class="number">0x_1c94b908</span>, <span class="number">0x_3c1fc5c0</span>, <span class="comment">// a b c d e
+<a href=#129 id=129 data-nosnippet>129</a>    </span><span class="number">0x_42211c4c</span>, <span class="number">0x_4e87252e</span>, <span class="number">0x_12949c21</span>, <span class="number">0x_0c210040</span>, <span class="number">0x_8c421004</span>, <span class="comment">// f g h i j
+<a href=#130 id=130 data-nosnippet>130</a>    </span><span class="number">0x_12519521</span>, <span class="number">0x_0c210842</span>, <span class="number">0x_235aac00</span>, <span class="number">0x_12949c00</span>, <span class="number">0x_0c949800</span>, <span class="comment">// k l m n o
+<a href=#131 id=131 data-nosnippet>131</a>    </span><span class="number">0x_4213a526</span>, <span class="number">0x_7087252e</span>, <span class="number">0x_02149800</span>, <span class="number">0x_0e837000</span>, <span class="number">0x_0c213c42</span>, <span class="comment">// p q r s t
+<a href=#132 id=132 data-nosnippet>132</a>    </span><span class="number">0x_0e94a400</span>, <span class="number">0x_0464a400</span>, <span class="number">0x_155ac400</span>, <span class="number">0x_36426c00</span>, <span class="number">0x_4e872529</span>, <span class="comment">// u v w x y
+<a href=#133 id=133 data-nosnippet>133</a>    </span><span class="number">0x_1e223c00</span>, <span class="number">0x_1843188c</span>, <span class="number">0x_08421084</span>, <span class="number">0x_0c463086</span>, <span class="number">0x_0006d800</span>, <span class="comment">// z { | } ~
+<a href=#134 id=134 data-nosnippet>134</a></span>];</code></pre></div></section></main></body></html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Asynchronous functionality."><title>devela::work::future - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module future</a></h2><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>work</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">work</a></div><h1>Module <span>future</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/work/future/mod.rs.html#3-44">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Asynchronous functionality.</p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../../_core/future/index.html" title="mod devela::_core::future">future</a>, <a href="../../_dep/_std/task/index.html" title="mod devela::_dep::_std::task">task</a>}</span><hr/></p>
+<p>See also the fundamental <a href="https://doc.rust-lang.org/std/keyword.async.html"><code>async</code></a> and <a href="https://doc.rust-lang.org/std/keyword.await.html"><code>await</code></a> keywords and the
+<a href="https://rust-lang.github.io/async-book/">async book</a>.</p>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.task_ready.html" title="macro devela::work::future::task_ready">task_<wbr>ready</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Extracts the successful type of a <a href="../../all/enum.TaskPoll.html" title="enum devela::all::TaskPoll"><code>TaskPoll&lt;T&gt;</code></a>.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.CoroManager.html" title="struct devela::work::future::CoroManager">Coro<wbr>Manager</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd>A managed dynamic collection of single-thread <a href="../../all/struct.CoroWorker.html" title="struct devela::all::CoroWorker"><code>CoroWorker</code></a> coroutines.</dd><dt><a class="struct" href="struct.CoroWork.html" title="struct devela::work::future::CoroWork">Coro<wbr>Work</a></dt><dd>A future that alternates between <a href="../../all/enum.TaskPoll.html#variant.Ready" title="variant devela::all::TaskPoll::Ready"><code>Ready</code></a> and
+<a href="../../all/enum.TaskPoll.html#variant.Pending" title="variant devela::all::TaskPoll::Pending"><code>Pending</code></a> status each time it’s polled.</dd><dt><a class="struct" href="struct.CoroWorker.html" title="struct devela::work::future::CoroWorker">Coro<wbr>Worker</a></dt><dd>Represents a single-thread stackless coroutine worker.</dd><dt><a class="struct" href="struct.FuturePending.html" title="struct devela::work::future::FuturePending">Future<wbr>Pending</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A future which never resolves, representing a computation that never finishes.</dd><dt><a class="struct" href="struct.FuturePollFn.html" title="struct devela::work::future::FuturePollFn">Future<wbr>Poll<wbr>Fn</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A Future that wraps a function returning <a href="../../all/enum.TaskPoll.html" title="enum devela::all::TaskPoll"><code>TaskPoll</code></a>.</dd><dt><a class="struct" href="struct.FutureReady.html" title="struct devela::work::future::FutureReady">Future<wbr>Ready</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A future that is immediately ready with a value.</dd><dt><a class="struct" href="struct.TaskContext.html" title="struct devela::work::future::TaskContext">Task<wbr>Context</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The context of an asynchronous task.</dd><dt><a class="struct" href="struct.TaskRawWaker.html" title="struct devela::work::future::TaskRawWaker">Task<wbr>RawWaker</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Allows the implementor of a task executor to create a <a href="../../all/struct.TaskWaker.html" title="struct devela::all::TaskWaker"><code>TaskWaker</code></a>.</dd><dt><a class="struct" href="struct.TaskRawWakerVTable.html" title="struct devela::work::future::TaskRawWakerVTable">Task<wbr>RawWakerV<wbr>Table</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A virtual function pointer table that specifies the behavior of a <a href="../../all/struct.TaskRawWaker.html" title="struct devela::all::TaskRawWaker"><code>TaskRawWaker</code></a>.</dd><dt><a class="struct" href="struct.TaskWaker.html" title="struct devela::work::future::TaskWaker">Task<wbr>Waker</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A handle for waking up a task by notifying its executor that it is ready to be run.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.TaskPoll.html" title="enum devela::work::future::TaskPoll">Task<wbr>Poll</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Indicates whether a value is ready or if the current task is still pending.</dd><dt><a class="enum" href="enum.CoroutineState.html" title="enum devela::work::future::CoroutineState">Coroutine<wbr>State</a><wbr><span class="stab unstable" title="">Experimental</span><wbr><span class="stab portability" title="Available on `nightly_coro` only"><code>nightly_coro</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The result of a coroutine resumption.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.ExtFuture.html" title="trait devela::work::future::ExtFuture">ExtFuture</a></dt><dd>Extension trait providing additional methods for <a href="../../all/trait.Future.html" title="trait devela::all::Future"><code>Future</code></a>s.</dd><dt><a class="trait" href="trait.Future.html" title="trait devela::work::future::Future">Future</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An asynchronous computation obtained by use of
+<a href="https://doc.rust-lang.org/std/keyword.async.html"><code>async</code></a>.</dd><dt><a class="trait" href="trait.IntoFuture.html" title="trait devela::work::future::IntoFuture">Into<wbr>Future</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Conversion into a <code>Future</code>.</dd><dt><a class="trait" href="trait.TaskWake.html" title="trait devela::work::future::TaskWake">Task<wbr>Wake</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Atomic-related item'>⚛️</span>
+<span class='stab portability' title='re-exported either from `alloc` or from the `portable-atomic-util` crate'><code>?alloc</code></span>
+The implementation of waking a task on an executor.</dd><dt><a class="trait" href="trait.Coroutine.html" title="trait devela::work::future::Coroutine">Coroutine</a><wbr><span class="stab unstable" title="">Experimental</span><wbr><span class="stab portability" title="Available on `nightly_coro` only"><code>nightly_coro</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The trait implemented by builtin coroutine types.</dd></dl></section></div></main></body></html>

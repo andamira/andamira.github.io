@@ -1,0 +1,185 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🌐 Extension trait for type memory information and manipulation."><title>ExtMem in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">ExtMem</a></h2><h3><a href="#provided-associated-consts">Provided Associated Constants</a></h3><ul class="block"><li><a href="#associatedconstant.NEEDS_DROP" title="NEEDS_DROP">NEEDS_DROP</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.mem_align_of" title="mem_align_of">mem_align_of</a></li><li><a href="#method.mem_align_of_val" title="mem_align_of_val">mem_align_of_val</a></li><li><a href="#method.mem_as_bytes" title="mem_as_bytes">mem_as_bytes</a></li><li><a href="#method.mem_as_bytes_mut" title="mem_as_bytes_mut">mem_as_bytes_mut</a></li><li><a href="#method.mem_copy" title="mem_copy">mem_copy</a></li><li><a href="#method.mem_drop" title="mem_drop">mem_drop</a></li><li><a href="#method.mem_forget" title="mem_forget">mem_forget</a></li><li><a href="#method.mem_needs_drop" title="mem_needs_drop">mem_needs_drop</a></li><li><a href="#method.mem_replace" title="mem_replace">mem_replace</a></li><li><a href="#method.mem_size_of" title="mem_size_of">mem_size_of</a></li><li><a href="#method.mem_size_of_val" title="mem_size_of_val">mem_size_of_val</a></li><li><a href="#method.mem_swap" title="mem_swap">mem_swap</a></li><li><a href="#method.mem_take" title="mem_take">mem_take</a></li><li><a href="#method.mem_transmute_copy" title="mem_transmute_copy">mem_transmute_copy</a></li><li><a href="#method.mem_zeroed" title="mem_zeroed">mem_zeroed</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Trait <span class="trait">ExtMem</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/sys/mem/ext.rs.html#16-122">Source</a> </span></div><pre class="rust item-decl"><code>pub trait ExtMem {
+    const <a href="#associatedconstant.NEEDS_DROP" class="constant">NEEDS_DROP</a>: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> = _;
+<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 15 methods</span></summary>
+    // Provided methods
+    fn <a href="#method.mem_align_of" class="fn">mem_align_of</a>&lt;T&gt;() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_align_of_val" class="fn">mem_align_of_val</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_size_of" class="fn">mem_size_of</a>&lt;T&gt;() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_size_of_val" class="fn">mem_size_of_val</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_copy" class="fn">mem_copy</a>(&amp;self) -&gt; Self
+       <span class="where">where Self: <a class="trait" href="trait.Copy.html" title="trait devela::all::Copy">Copy</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_needs_drop" class="fn">mem_needs_drop</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_drop" class="fn">mem_drop</a>(self)
+       <span class="where">where Self: <a class="trait" href="trait.Sized.html" title="trait devela::all::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_forget" class="fn">mem_forget</a>(self)
+       <span class="where">where Self: <a class="trait" href="trait.Sized.html" title="trait devela::all::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_replace" class="fn">mem_replace</a>(&amp;mut self, other: Self) -&gt; Self
+       <span class="where">where Self: <a class="trait" href="trait.Sized.html" title="trait devela::all::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_take" class="fn">mem_take</a>(&amp;mut self) -&gt; Self
+       <span class="where">where Self: <a class="trait" href="../code/trait.Default.html" title="trait devela::code::Default">Default</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_swap" class="fn">mem_swap</a>(&amp;mut self, other: &amp;mut Self)
+       <span class="where">where Self: <a class="trait" href="trait.Sized.html" title="trait devela::all::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    unsafe fn <a href="#method.mem_zeroed" class="fn">mem_zeroed</a>&lt;T&gt;() -&gt; T { ... }
+<span class="item-spacer"></span>    unsafe fn <a href="#method.mem_transmute_copy" class="fn">mem_transmute_copy</a>&lt;Src, Dst&gt;(src: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;Src</a>) -&gt; Dst { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_as_bytes" class="fn">mem_as_bytes</a>(&amp;self) -&gt; &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] <a href="#" class="tooltip" data-notable-ty="&amp;[u8]">ⓘ</a>
+       <span class="where">where Self: <a class="trait" href="trait.Sync.html" title="trait devela::all::Sync">Sync</a> + <a class="trait" href="trait.Unpin.html" title="trait devela::all::Unpin">Unpin</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.mem_as_bytes_mut" class="fn">mem_as_bytes_mut</a>(&amp;mut self) -&gt; &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] <a href="#" class="tooltip" data-notable-ty="&amp;mut [u8]">ⓘ</a>
+       <span class="where">where Self: <a class="trait" href="trait.Sync.html" title="trait devela::all::Sync">Sync</a> + <a class="trait" href="trait.Unpin.html" title="trait devela::all::Unpin">Unpin</a></span> { ... }
+</details>}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Extension trait for type memory information and manipulation.</p>
+<p>This trait is automatically implemented for every <code>?Sized</code> type,
+although most methods are only available where <code>Self: Sized</code>.</p>
+</div></details><h2 id="provided-associated-consts" class="section-header">Provided Associated Constants<a href="#provided-associated-consts" class="anchor">§</a></h2><div class="methods"><details class="toggle" open><summary><section id="associatedconstant.NEEDS_DROP" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#18">Source</a><h4 class="code-header">const <a href="#associatedconstant.NEEDS_DROP" class="constant">NEEDS_DROP</a>: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> = _</h4></section></summary><div class="docblock"><p>Know whether dropping values of this type matters, in compile-time.</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.mem_align_of" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#24">Source</a><h4 class="code-header">fn <a href="#method.mem_align_of" class="fn">mem_align_of</a>&lt;T&gt;() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></h4></section></summary><div class="docblock"><p>Returns the minimum alignment of the type in bytes.</p>
+<p>See <a href="struct.Mem.html#method.align_of" title="associated function devela::all::Mem::align_of"><code>Mem::align_of</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_align_of_val" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#30">Source</a><h4 class="code-header">fn <a href="#method.mem_align_of_val" class="fn">mem_align_of_val</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></h4></section></summary><div class="docblock"><p>Returns the alignment of the pointed-to value in bytes.</p>
+<p>See <a href="struct.Mem.html#method.align_of_val" title="associated function devela::all::Mem::align_of_val"><code>Mem::align_of_val</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_size_of" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#36">Source</a><h4 class="code-header">fn <a href="#method.mem_size_of" class="fn">mem_size_of</a>&lt;T&gt;() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></h4></section></summary><div class="docblock"><p>Returns the size of a type in bytes.</p>
+<p>See <a href="struct.Mem.html#method.size_of" title="associated function devela::all::Mem::size_of"><code>Mem::size_of</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_size_of_val" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#42">Source</a><h4 class="code-header">fn <a href="#method.mem_size_of_val" class="fn">mem_size_of_val</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></h4></section></summary><div class="docblock"><p>Returns the size of the pointed-to value in bytes.</p>
+<p>See <a href="struct.Mem.html#method.size_of_val" title="associated function devela::all::Mem::size_of_val"><code>Mem::size_of_val</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_copy" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#51">Source</a><h4 class="code-header">fn <a href="#method.mem_copy" class="fn">mem_copy</a>(&amp;self) -&gt; Self<div class="where">where
+    Self: <a class="trait" href="trait.Copy.html" title="trait devela::all::Copy">Copy</a>,</div></h4></section></summary><div class="docblock"><p>Bitwise-copies a value.</p>
+<p>It is useful when you want to pass a function pointer to a combinator,
+rather than defining a new closure.</p>
+<p>See <a href="struct.Mem.html#method.copy" title="associated function devela::all::Mem::copy"><code>Mem::copy</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_needs_drop" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#57">Source</a><h4 class="code-header">fn <a href="#method.mem_needs_drop" class="fn">mem_needs_drop</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns <code>true</code> if dropping values of this type matters.</p>
+<p>See <a href="struct.Mem.html#method.needs_drop" title="associated function devela::all::Mem::needs_drop"><code>Mem::needs_drop</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_drop" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#62">Source</a><h4 class="code-header">fn <a href="#method.mem_drop" class="fn">mem_drop</a>(self)<div class="where">where
+    Self: <a class="trait" href="trait.Sized.html" title="trait devela::all::Sized">Sized</a>,</div></h4></section></summary><div class="docblock"><p>Drops <code>self</code> by running its destructor.</p>
+<p>See <a href="struct.Mem.html#method.drop" title="associated function devela::all::Mem::drop"><code>Mem::drop</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_forget" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#67">Source</a><h4 class="code-header">fn <a href="#method.mem_forget" class="fn">mem_forget</a>(self)<div class="where">where
+    Self: <a class="trait" href="trait.Sized.html" title="trait devela::all::Sized">Sized</a>,</div></h4></section></summary><div class="docblock"><p>Forgets about <code>self</code> <em>without running its destructor</em>.</p>
+<p>See <a href="struct.Mem.html#method.forget" title="associated function devela::all::Mem::forget"><code>Mem::forget</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_replace" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#73">Source</a><h4 class="code-header">fn <a href="#method.mem_replace" class="fn">mem_replace</a>(&amp;mut self, other: Self) -&gt; Self<div class="where">where
+    Self: <a class="trait" href="trait.Sized.html" title="trait devela::all::Sized">Sized</a>,</div></h4></section></summary><div class="docblock"><p>Replaces <code>self</code> with other, returning the previous value of <code>self</code>.</p>
+<p>See <a href="struct.Mem.html#method.replace" title="associated function devela::all::Mem::replace"><code>Mem::replace</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_take" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#79">Source</a><h4 class="code-header">fn <a href="#method.mem_take" class="fn">mem_take</a>(&amp;mut self) -&gt; Self<div class="where">where
+    Self: <a class="trait" href="../code/trait.Default.html" title="trait devela::code::Default">Default</a>,</div></h4></section></summary><div class="docblock"><p>Replaces <code>self</code> with its default value, returning the previous value of <code>self</code>.</p>
+<p>See <a href="struct.Mem.html#method.take" title="associated function devela::all::Mem::take"><code>Mem::take</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_swap" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#84">Source</a><h4 class="code-header">fn <a href="#method.mem_swap" class="fn">mem_swap</a>(&amp;mut self, other: &amp;mut Self)<div class="where">where
+    Self: <a class="trait" href="trait.Sized.html" title="trait devela::all::Sized">Sized</a>,</div></h4></section></summary><div class="docblock"><p>Swaps the value of <code>self</code> and <code>other</code> without deinitializing either one.</p>
+<p>See <a href="struct.Mem.html#method.swap" title="associated function devela::all::Mem::swap"><code>Mem::swap</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_zeroed" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#93">Source</a><h4 class="code-header">unsafe fn <a href="#method.mem_zeroed" class="fn">mem_zeroed</a>&lt;T&gt;() -&gt; T</h4></section><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>unsafe_layout</code></strong> only.</div></span></summary><div class="docblock"><p>Returns the value of type <code>T</code> represented by the all-zero byte-pattern.</p>
+<h5 id="safety"><a class="doc-anchor" href="#safety">§</a>Safety</h5>
+<p>See <a href="struct.Mem.html#method.zeroed" title="associated function devela::all::Mem::zeroed"><code>Mem::zeroed</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_transmute_copy" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#102-104">Source</a><h4 class="code-header">unsafe fn <a href="#method.mem_transmute_copy" class="fn">mem_transmute_copy</a>&lt;Src, Dst&gt;(src: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;Src</a>) -&gt; Dst</h4></section><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>unsafe_layout</code></strong> only.</div></span></summary><div class="docblock"><p>Returns the value of type <code>T</code> represented by the all-zero byte-pattern.</p>
+<h5 id="safety-1"><a class="doc-anchor" href="#safety-1">§</a>Safety</h5>
+<p>See <a href="struct.Mem.html#method.transmute_copy" title="associated function devela::all::Mem::transmute_copy"><code>Mem::transmute_copy</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_as_bytes" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#113">Source</a><h4 class="code-header">fn <a href="#method.mem_as_bytes" class="fn">mem_as_bytes</a>(&amp;self) -&gt; &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] <a href="#" class="tooltip" data-notable-ty="&amp;[u8]">ⓘ</a><div class="where">where
+    Self: <a class="trait" href="trait.Sync.html" title="trait devela::all::Sync">Sync</a> + <a class="trait" href="trait.Unpin.html" title="trait devela::all::Unpin">Unpin</a>,</div></h4></section><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>unsafe_slice</code></strong> only.</div></span></summary><div class="docblock"><p>View a <code>Sync + Unpin</code> <code>self</code> as <code>&amp;[u8]</code>.</p>
+<p>See <a href="struct.Mem.html#method.as_bytes" title="associated function devela::all::Mem::as_bytes"><code>Mem::as_bytes</code></a>, and for the <code>const</code> version for sized types
+see <a href="struct.Mem.html#method.as_bytes_sized" title="associated function devela::all::Mem::as_bytes_sized"><code>Mem::as_bytes_sized</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.mem_as_bytes_mut" class="method"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#121">Source</a><h4 class="code-header">fn <a href="#method.mem_as_bytes_mut" class="fn">mem_as_bytes_mut</a>(&amp;mut self) -&gt; &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>] <a href="#" class="tooltip" data-notable-ty="&amp;mut [u8]">ⓘ</a><div class="where">where
+    Self: <a class="trait" href="trait.Sync.html" title="trait devela::all::Sync">Sync</a> + <a class="trait" href="trait.Unpin.html" title="trait devela::all::Unpin">Unpin</a>,</div></h4></section><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>unsafe_slice</code></strong> only.</div></span></summary><div class="docblock"><p>View a <code>Sync + Unpin</code> <code>self</code> as <code>&amp;mut [u8]</code>.</p>
+<p>See <a href="struct.Mem.html#method.as_bytes_mut" title="associated function devela::all::Mem::as_bytes_mut"><code>Mem::as_bytes_mut</code></a>.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-ExtMem-for-T" class="impl"><a class="src rightside" href="../../src/devela/sys/mem/ext.rs.html#8">Source</a><a href="#impl-ExtMem-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T: ?<a class="trait" href="trait.Sized.html" title="trait devela::all::Sized">Sized</a>&gt; <a class="trait" href="trait.ExtMem.html" title="trait devela::all::ExtMem">ExtMem</a> for T</h3></section></div><script src="../../trait.impl/devela/sys/mem/ext/trait.ExtMem.js" async></script><script type="text/json" id="notable-traits-data">{"&[u8]":"<h3>Notable traits for <code>&amp;[<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u8.html\">u8</a>]</code></h3><pre><code><div class=\"where\">impl <a class=\"trait\" href=\"trait.IoRead.html\" title=\"trait devela::all::IoRead\">Read</a> for &amp;[<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u8.html\">u8</a>]</div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"trait.ExtSliceMut.html\" title=\"trait devela::all::ExtSliceMut\">ExtSliceMut</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for &amp;<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div>","&mut [u8]":"<h3>Notable traits for <code>&amp;mut [<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u8.html\">u8</a>]</code></h3><pre><code><div class=\"where\">impl <a class=\"trait\" href=\"trait.IoWrite.html\" title=\"trait devela::all::IoWrite\">Write</a> for &amp;mut [<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u8.html\">u8</a>]</div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"trait.ExtSliceMut.html\" title=\"trait devela::all::ExtSliceMut\">ExtSliceMut</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for &amp;mut <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"trait.ExtSliceMut.html\" title=\"trait devela::all::ExtSliceMut\">ExtSliceMut</a>&lt;T&gt; for &amp;mut <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div>"}</script></section></div></main></body></html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Helper for defining individual and composite error types."><title>define_error in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">define_error</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">define_<wbr>error</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Macro <span class="macro">define_<wbr>error</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>macro_rules! define_error {
+    (
+    // Defines a standalone error struct with optional tuple or field variants.
+    //
+    // # Arguments
+    // - `attributes`  :   Optional attributes applied to struct and implementations
+    // - `struct_vis`  :   Struct visibility (e.g., `pub`, `pub(crate)`)
+    // - `struct_name` :   Name of the error struct
+    //
+    // ## Struct Body (choose one):
+    // - Unit variant  :  No body (just struct name)
+    // - Tuple variant : `(vis1 Type1, vis2 Type2, ...)`
+    // - Field variant : `{ #[attr] vis1 field1: Type1, #[attr] vis2 field2: Type2, ... }`
+    //
+    // ## Documentation:
+    // - `+tag: &quot;tag text&quot;,`              : Optional additional doc tag
+    // - `DOC_CONST_NAME = &quot;doc string&quot;,` : Constant name and documentation string
+    //
+    // ## Display Implementation:
+    // - `self_var + fmt_var =&gt; expression`: Display implementation where:
+    //   - `self_var`   : Name for self reference in display method
+    //   - `fmt_var`    : Name for formatter in display method
+    //   - `expression` : Expression writing to formatter
+    individual:
+        $(#[$attributes:meta])*
+        $struct_vis:vis struct $struct_name:ident
+        $(( $($e_vis:vis $e_ty:ty),+ $(,)? ))? $(;$($_a:lifetime)?)?              // tuple-struct↓
+        $({ $($(#[$f_attr:meta])* $f_vis:vis $f_name:ident: $f_ty:ty),+ $(,)? })? // field-struct↑
+        $(+tag: $tag:expr ,)?
+        $DOC_NAME:ident = $doc_str:literal,
+        $self:ident + $fmt:ident =&gt; $display_expr:expr
+        $(,)?
+    ) =&gt; { ... };
+    (
+    // Defines a composite error enum that aggregates multiple individual error types.
+    //
+    // # Arguments
+    // - `fmt($fmt:ident)`      : Display formatter variable name for the Display implementation
+    // - `enum_attr`            : Optional attributes applied to the enum declaration
+    // - `vis`                  : Enum visibility (e.g., `pub`, `pub(crate)`)
+    // - `composite_error_name` : Name of the composite error enum
+    //
+    // ## Variant Definitions (one or more):
+    // For each variant:
+    // - `+tag: &quot;tag text&quot;,` : Optional additional doc tag for the variant
+    // - `variant_attr`      : Optional attributes for the variant
+    // - `DOC_VARIANT`       : Constant name for variant documentation
+    // - `+const`            : Optional flag to generate const conversion methods
+    // - `variant_name`      : Name of the variant
+    //
+    // ## Variant Data (choose one per variant):
+    // - Unit variant  : No data (just the variant name)
+    // - Tuple variant : `(field_name|index: field_type, ...)`
+    // - Field variant : `{ #[attr] field_name: field_type, ... }`
+    //
+    // ## Conversion Mapping:
+    // - `=&gt; individual_error_name`: Individual error type this variant maps to
+    // - Display expression mapping (matches variant data structure):
+    //   - Unit  : No mapping needed
+    //   - Tuple : `(expression_for_field1, expression_for_field2, ...)`
+    //   - Field : `{ field_name: expression_for_field, ... }`
+    //
+    // # Generates:
+    // - Composite enum with specified variants (unit, tuple or field)
+    // - Error and Display implementations
+    // - From/TryFrom implementations for each individual error type
+    // - Optional const conversion methods for variants marked with +const
+    composite: fmt($fmt:ident)
+        $(+tag: $tag:expr ,)?
+        $(#[$enum_attr:meta])*
+        $vis:vis enum $composite_error_name:ident { $(
+            $(+tag: $tag_variant:expr ,)?
+            $(#[$variant_attr:meta])*
+            $DOC_VARIANT:ident:
+            $(+const$($_c:lifetime)?)?
+            $variant_name:ident
+                $(( $($e_name:ident| $e_numb:literal: $e_ty:ty),+ ))?             // tuple-struct↓
+                $({ $($(#[$f_attr:meta])* $f_name:ident: $f_ty:ty),+ })?          // field-struct↑
+                =&gt; $individual_error_name:ident
+                    $(( $($e_display_expr:expr),+ ))?                             // tuple-struct↓
+                    $({ $($f_display_name:ident: $f_display_exp:expr),+ })?       // field-struct↑
+        ),+ $(,)? }
+    ) =&gt; { ... };
+    (
+    // Implements `From` an individual error type to a composite error containing it, and
+    // implements `TryFrom` in reverse. Optionally implements a `const fn from_individual` method.
+    $(+const$($_c:lifetime)?)?
+    from($fn_arg:ident): $from_individual:ident, for: $for_composite:ident
+    =&gt; $variant_name:ident
+        $(( $($e_name:ident, $e_expr:expr),+ ))?                                  // tuple-struct↓
+        $({ $($f_name:ident,  $f_expr:expr),+ })?                                 // field-struct↑
+    $(,)? ) =&gt; { ... };
+    (
+    // Implements `From` a composite error type and a composite error superset of it,
+    // as well as implementing `TryFrom` in the inverse direction.
+    // E.g. from(f): DataNotEnough for: DataError
+    composite: from($fn_arg:ident): $from_subset:ident, for: $for_superset:ident { $(
+        $from_variant:ident
+            $(( $($from_elem:ident),+ ))?                                         // tuple-struct↓
+            $({ $($from_field:ident),+ })?                                        // field-struct↑
+                =&gt; $for_variant:ident
+                    $(( $($for_elem:ident),+ ))?                                  // tuple-struct↓
+                    $({ $($for_field:ident),+ })?                                 // field-struct↑
+    ),+ $(,)? }
+    ) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Helper for defining individual and composite error types.</p>
+<p>It can also implement <code>From</code> and <code>TryFrom</code> traits between them.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Define simple individual error types
+</span><span class="macro">define_error!</span> {
+    individual:
+    <span class="doccomment">/// A basic error with a code
+    </span><span class="kw">pub struct </span>ErrorCode(<span class="kw">pub </span>u32);
+    DOC_ERROR_CODE = <span class="string">"An error with a numeric code"</span>,
+    <span class="self">self </span>+ f =&gt; <span class="macro">write!</span>(f, <span class="string">"Error code: {}"</span>, <span class="self">self</span>.<span class="number">0</span>)
+}
+<span class="macro">define_error!</span> {
+    individual:
+    <span class="doccomment">/// An error with message details
+    </span><span class="kw">pub struct </span>ErrorDetails {
+        <span class="kw">pub </span>code: u32,
+        <span class="kw">pub </span>message: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
+    }
+    DOC_ERROR_DETAILS = <span class="string">"An error with code and message details"</span>,
+    <span class="self">self </span>+ f =&gt; <span class="macro">write!</span>(f, <span class="string">"Error {}: {}"</span>, <span class="self">self</span>.code, <span class="self">self</span>.message)
+}
+
+<span class="comment">// Define a composite error
+</span><span class="macro">define_error!</span> {
+    composite: fmt(f)
+    <span class="doccomment">/// Container for multiple error types
+    </span><span class="kw">pub enum </span>CompositeError {
+        DOC_ERROR_CODE: +<span class="kw">const </span>CodeVariant(code|<span class="number">0</span>: u32) =&gt; ErrorCode(<span class="kw-2">*</span>code),
+        DOC_ERROR_DETAILS: <span class="comment">// ← this variant won't have const conversion
+            </span>DetailsVariant { code: u32, message: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str } =&gt;
+                ErrorDetails { code: <span class="kw-2">*</span>code, message: <span class="kw-2">*</span>message }
+    }
+}
+
+<span class="comment">// Create individual errors
+</span><span class="kw">let </span>code_error = ErrorCode(<span class="number">42</span>);
+<span class="kw">let </span>details_error = ErrorDetails {
+    code: <span class="number">100</span>,
+    message: <span class="string">"Example error"</span>,
+};
+
+<span class="comment">// Automatic conversion to composite error
+</span><span class="kw">let </span>composite_from_code: CompositeError = code_error.into();
+<span class="kw">let </span>composite_from_details: CompositeError = details_error.into();
+
+<span class="comment">// Try to convert back (only works for matching variants)
+</span><span class="kw">match </span>ErrorCode::try_from(composite_from_code) {
+    <span class="prelude-val">Ok</span>(original) =&gt; <span class="macro">println!</span>(<span class="string">"Successfully converted back: {}"</span>, original),
+    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">println!</span>(<span class="string">"Conversion failed - wrong variant"</span>),
+}
+
+<span class="comment">// Const conversion available for +const variants
+</span><span class="kw">const </span>CONST_ERROR: CompositeError = CompositeError::from_error_code(ErrorCode(<span class="number">99</span>));</code></pre></div>
+</div></details></section></div></main></body></html>

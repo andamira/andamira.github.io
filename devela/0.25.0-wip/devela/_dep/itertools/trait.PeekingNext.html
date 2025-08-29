@@ -1,0 +1,137 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="An iterator that allows peeking at an element before deciding to accept it."><title>PeekingNext in devela::_dep::itertools - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">PeekingNext</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Peeking<wbr>Next</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.peeking_next" title="peeking_next">peeking_next</a></li></ul><h3><a href="#foreign-impls">Implementations on Foreign Types</a></h3><ul class="block"><li><a href="#impl-PeekingNext-for-%26mut+I" title="&#38;mut I">&#38;mut I</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>itertools</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a>::<wbr><a href="index.html">itertools</a></div><h1>Trait <span class="trait">Peeking<wbr>Next</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>pub trait PeekingNext: <a class="trait" href="../../all/trait.Iterator.html" title="trait devela::all::Iterator">Iterator</a> {
+    // Required method
+    fn <a href="#tymethod.peeking_next" class="fn">peeking_next</a>&lt;F&gt;(&amp;mut self, accept: F) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;Self::<a class="associatedtype" href="../../all/trait.Iterator.html#associatedtype.Item" title="type devela::all::Iterator::Item">Item</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;Self::Item&gt;">ⓘ</a>
+       <span class="where">where Self: <a class="trait" href="../../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a>,
+             F: <a class="trait" href="../../all/trait.FnOnce.html" title="trait devela::all::FnOnce">FnOnce</a>(&amp;Self::<a class="associatedtype" href="../../all/trait.Iterator.html#associatedtype.Item" title="type devela::all::Iterator::Item">Item</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></span>;
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_itertools</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An iterator that allows peeking at an element before deciding to accept it.</p>
+<p>See <a href="../../all/trait.Itertools.html#method.peeking_take_while" title="method devela::all::Itertools::peeking_take_while"><code>.peeking_take_while()</code></a>
+for more information.</p>
+<p>This is implemented by peeking adaptors like peekable and put back,
+but also by a few iterators that can be peeked natively, like the slice’s
+by reference iterator (<a href="../../_core/slice/struct.Iter.html" title="struct devela::_core::slice::Iter"><code>std::slice::Iter</code></a>).</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.peeking_next" class="method"><h4 class="code-header">fn <a href="#tymethod.peeking_next" class="fn">peeking_next</a>&lt;F&gt;(&amp;mut self, accept: F) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;Self::<a class="associatedtype" href="../../all/trait.Iterator.html#associatedtype.Item" title="type devela::all::Iterator::Item">Item</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;Self::Item&gt;">ⓘ</a><div class="where">where
+    Self: <a class="trait" href="../../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a>,
+    F: <a class="trait" href="../../all/trait.FnOnce.html" title="trait devela::all::FnOnce">FnOnce</a>(&amp;Self::<a class="associatedtype" href="../../all/trait.Iterator.html#associatedtype.Item" title="type devela::all::Iterator::Item">Item</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,</div></h4></section></summary><div class="docblock"><p>Pass a reference to the next iterator element to the closure <code>accept</code>;
+if <code>accept</code> returns <code>true</code>, return it as the next element,
+else <code>None</code>.</p>
+</div></details></div><h2 id="foreign-impls" class="section-header">Implementations on Foreign Types<a href="#foreign-impls" class="anchor">§</a></h2><details class="toggle implementors-toggle"><summary><section id="impl-PeekingNext-for-%26mut+I" class="impl"><a href="#impl-PeekingNext-for-%26mut+I" class="anchor">§</a><h3 class="code-header">impl&lt;I&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut I</a><div class="where">where
+    I: <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a>,</div></h3></section></summary><div class="impl-items"><section id="method.peeking_next" class="method trait-impl"><a href="#method.peeking_next" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.peeking_next" class="fn">peeking_next</a>&lt;F&gt;(&amp;mut self, accept: F) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut I</a> as <a class="trait" href="../../all/trait.Iterator.html" title="trait devela::all::Iterator">Iterator</a>&gt;::<a class="associatedtype" href="../../all/trait.Iterator.html#associatedtype.Item" title="type devela::all::Iterator::Item">Item</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;&lt;&amp;mut I as Iterator&gt;::Item&gt;">ⓘ</a><div class="where">where
+    F: <a class="trait" href="../../all/trait.FnOnce.html" title="trait devela::all::FnOnce">FnOnce</a>(&amp;&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut I</a> as <a class="trait" href="../../all/trait.Iterator.html" title="trait devela::all::Iterator">Iterator</a>&gt;::<a class="associatedtype" href="../../all/trait.Iterator.html#associatedtype.Item" title="type devela::all::Iterator::Item">Item</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,</div></h4></section></div></details><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-PeekingNext-for-Bytes%3C'a%3E" class="impl"><a href="#impl-PeekingNext-for-Bytes%3C'a%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="../../_core/str/struct.Bytes.html" title="struct devela::_core::str::Bytes">Bytes</a>&lt;'a&gt;</h3></section><section id="impl-PeekingNext-for-CharIndices%3C'a%3E" class="impl"><a href="#impl-PeekingNext-for-CharIndices%3C'a%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="../../_core/str/struct.CharIndices.html" title="struct devela::_core::str::CharIndices">CharIndices</a>&lt;'a&gt;</h3></section><section id="impl-PeekingNext-for-Chars%3C'a%3E" class="impl"><a href="#impl-PeekingNext-for-Chars%3C'a%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="../../text/struct.IterChars.html" title="struct devela::text::IterChars">Chars</a>&lt;'a&gt;</h3></section><section id="impl-PeekingNext-for-Iter%3C'a,+T%3E" class="impl"><a href="#impl-PeekingNext-for-Iter%3C'a,+T%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a, T&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for devela::_core::slice::<a class="struct" href="../../_core/slice/struct.Iter.html" title="struct devela::_core::slice::Iter">Iter</a>&lt;'a, T&gt;</h3></section><section id="impl-PeekingNext-for-OptionIter%3C'a,+T%3E" class="impl"><a href="#impl-PeekingNext-for-OptionIter%3C'a,+T%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a, T&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for devela::all::<a class="struct" href="../../all/struct.OptionIter.html" title="struct devela::all::OptionIter">OptionIter</a>&lt;'a, T&gt;</h3></section><section id="impl-PeekingNext-for-ResultIter%3C'a,+T%3E" class="impl"><a href="#impl-PeekingNext-for-ResultIter%3C'a,+T%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a, T&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for devela::all::<a class="struct" href="../../all/struct.ResultIter.html" title="struct devela::all::ResultIter">ResultIter</a>&lt;'a, T&gt;</h3></section><section id="impl-PeekingNext-for-Iter%3C'a,+T%3E-1" class="impl"><a href="#impl-PeekingNext-for-Iter%3C'a,+T%3E-1" class="anchor">§</a><h3 class="code-header">impl&lt;'a, T&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for devela::_dep::_alloc::collections::linked_list::<a class="struct" href="../_alloc/collections/linked_list/struct.Iter.html" title="struct devela::_dep::_alloc::collections::linked_list::Iter">Iter</a>&lt;'a, T&gt;</h3></section><section id="impl-PeekingNext-for-Iter%3C'a,+T%3E-2" class="impl"><a href="#impl-PeekingNext-for-Iter%3C'a,+T%3E-2" class="anchor">§</a><h3 class="code-header">impl&lt;'a, T&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for devela::_dep::_alloc::collections::vec_deque::<a class="struct" href="../_alloc/collections/vec_deque/struct.Iter.html" title="struct devela::_dep::_alloc::collections::vec_deque::Iter">Iter</a>&lt;'a, T&gt;</h3></section><section id="impl-PeekingNext-for-IterPeekable%3CI%3E" class="impl"><a href="#impl-PeekingNext-for-IterPeekable%3CI%3E" class="anchor">§</a><h3 class="code-header">impl&lt;I&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="../../all/struct.IterPeekable.html" title="struct devela::all::IterPeekable">Peekable</a>&lt;I&gt;<div class="where">where
+    I: <a class="trait" href="../../all/trait.Iterator.html" title="trait devela::all::Iterator">Iterator</a>,</div></h3></section><section id="impl-PeekingNext-for-IterRev%3CI%3E" class="impl"><a href="#impl-PeekingNext-for-IterRev%3CI%3E" class="anchor">§</a><h3 class="code-header">impl&lt;I&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="../../all/struct.IterRev.html" title="struct devela::all::IterRev">Rev</a>&lt;I&gt;<div class="where">where
+    I: <a class="trait" href="../../code/trait.Clone.html" title="trait devela::code::Clone">Clone</a> + <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> + <a class="trait" href="../../all/trait.IteratorDoubleEnded.html" title="trait devela::all::IteratorDoubleEnded">DoubleEndedIterator</a>,</div></h3></section><section id="impl-PeekingNext-for-MultiPeek%3CI%3E" class="impl"><a href="#impl-PeekingNext-for-MultiPeek%3CI%3E" class="anchor">§</a><h3 class="code-header">impl&lt;I&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="struct.MultiPeek.html" title="struct devela::_dep::itertools::MultiPeek">MultiPeek</a>&lt;I&gt;<div class="where">where
+    I: <a class="trait" href="../../all/trait.Iterator.html" title="trait devela::all::Iterator">Iterator</a>,</div></h3></section><section id="impl-PeekingNext-for-PeekNth%3CI%3E" class="impl"><a href="#impl-PeekingNext-for-PeekNth%3CI%3E" class="anchor">§</a><h3 class="code-header">impl&lt;I&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="struct.PeekNth.html" title="struct devela::_dep::itertools::PeekNth">PeekNth</a>&lt;I&gt;<div class="where">where
+    I: <a class="trait" href="../../all/trait.Iterator.html" title="trait devela::all::Iterator">Iterator</a>,</div></h3></section><section id="impl-PeekingNext-for-PutBack%3CI%3E" class="impl"><a href="#impl-PeekingNext-for-PutBack%3CI%3E" class="anchor">§</a><h3 class="code-header">impl&lt;I&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="struct.PutBack.html" title="struct devela::_dep::itertools::PutBack">PutBack</a>&lt;I&gt;<div class="where">where
+    I: <a class="trait" href="../../all/trait.Iterator.html" title="trait devela::all::Iterator">Iterator</a>,</div></h3></section><section id="impl-PeekingNext-for-PutBackN%3CI%3E" class="impl"><a href="#impl-PeekingNext-for-PutBackN%3CI%3E" class="anchor">§</a><h3 class="code-header">impl&lt;I&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="struct.PutBackN.html" title="struct devela::_dep::itertools::PutBackN">PutBackN</a>&lt;I&gt;<div class="where">where
+    I: <a class="trait" href="../../all/trait.Iterator.html" title="trait devela::all::Iterator">Iterator</a>,</div></h3></section><section id="impl-PeekingNext-for-PeekingTakeWhile%3C'_,+I,+F%3E" class="impl"><a href="#impl-PeekingNext-for-PeekingTakeWhile%3C'_,+I,+F%3E" class="anchor">§</a><h3 class="code-header">impl&lt;I, F&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="struct.PeekingTakeWhile.html" title="struct devela::_dep::itertools::PeekingTakeWhile">PeekingTakeWhile</a>&lt;'_, I, F&gt;<div class="where">where
+    I: <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a>,
+    F: <a class="trait" href="../../all/trait.FnMut.html" title="trait devela::all::FnMut">FnMut</a>(&amp;&lt;I as <a class="trait" href="../../all/trait.Iterator.html" title="trait devela::all::Iterator">Iterator</a>&gt;::<a class="associatedtype" href="../../all/trait.Iterator.html#associatedtype.Item" title="type devela::all::Iterator::Item">Item</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,</div></h3></section><section id="impl-PeekingNext-for-IterEmpty%3CT%3E" class="impl"><a href="#impl-PeekingNext-for-IterEmpty%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="../../all/struct.IterEmpty.html" title="struct devela::all::IterEmpty">Empty</a>&lt;T&gt;</h3></section><section id="impl-PeekingNext-for-RepeatN%3CT%3E" class="impl"><a href="#impl-PeekingNext-for-RepeatN%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="../../all/trait.IteratorPeekingNext.html" title="trait devela::all::IteratorPeekingNext">PeekingNext</a> for <a class="struct" href="struct.RepeatN.html" title="struct devela::_dep::itertools::RepeatN">RepeatN</a>&lt;T&gt;<div class="where">where
+    T: <a class="trait" href="../../code/trait.Clone.html" title="trait devela::code::Clone">Clone</a>,</div></h3></section></div><script src="../../../trait.impl/itertools/peeking_take_while/trait.PeekingNext.js" data-ignore-extern-crates="itertools,core,alloc" async></script><script type="text/json" id="notable-traits-data">{"Option<<&mut I as Iterator>::Item>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.ExtOption.html\" title=\"trait devela::all::ExtOption\">ExtOption</a>&lt;T&gt; for <a class=\"enum\" href=\"../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</div>","Option<Self::Item>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.ExtOption.html\" title=\"trait devela::all::ExtOption\">ExtOption</a>&lt;T&gt; for <a class=\"enum\" href=\"../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</div>"}</script></section></div></main></body></html>

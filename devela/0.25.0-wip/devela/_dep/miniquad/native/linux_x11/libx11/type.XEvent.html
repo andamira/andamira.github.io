@@ -1,0 +1,146 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `XEvent` type in crate `devela`."><title>XEvent in devela::_dep::miniquad::native::linux_x11::libx11 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc type"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">XEvent</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">XEvent</a></h2><h3><a href="#aliased-type">Aliased Type</a></h3><h3><a href="#fields">Fields</a></h3><ul class="block field"><li><a href="#structfield.pad" title="pad">pad</a></li><li><a href="#structfield.type_0" title="type_0">type_0</a></li><li><a href="#structfield.xany" title="xany">xany</a></li><li><a href="#structfield.xbutton" title="xbutton">xbutton</a></li><li><a href="#structfield.xcirculate" title="xcirculate">xcirculate</a></li><li><a href="#structfield.xcirculaterequest" title="xcirculaterequest">xcirculaterequest</a></li><li><a href="#structfield.xclient" title="xclient">xclient</a></li><li><a href="#structfield.xcolormap" title="xcolormap">xcolormap</a></li><li><a href="#structfield.xconfigure" title="xconfigure">xconfigure</a></li><li><a href="#structfield.xconfigurerequest" title="xconfigurerequest">xconfigurerequest</a></li><li><a href="#structfield.xcookie" title="xcookie">xcookie</a></li><li><a href="#structfield.xcreatewindow" title="xcreatewindow">xcreatewindow</a></li><li><a href="#structfield.xcrossing" title="xcrossing">xcrossing</a></li><li><a href="#structfield.xdestroywindow" title="xdestroywindow">xdestroywindow</a></li><li><a href="#structfield.xerror" title="xerror">xerror</a></li><li><a href="#structfield.xexpose" title="xexpose">xexpose</a></li><li><a href="#structfield.xfocus" title="xfocus">xfocus</a></li><li><a href="#structfield.xgeneric" title="xgeneric">xgeneric</a></li><li><a href="#structfield.xgraphicsexpose" title="xgraphicsexpose">xgraphicsexpose</a></li><li><a href="#structfield.xgravity" title="xgravity">xgravity</a></li><li><a href="#structfield.xkey" title="xkey">xkey</a></li><li><a href="#structfield.xkeymap" title="xkeymap">xkeymap</a></li><li><a href="#structfield.xmap" title="xmap">xmap</a></li><li><a href="#structfield.xmapping" title="xmapping">xmapping</a></li><li><a href="#structfield.xmaprequest" title="xmaprequest">xmaprequest</a></li><li><a href="#structfield.xmotion" title="xmotion">xmotion</a></li><li><a href="#structfield.xnoexpose" title="xnoexpose">xnoexpose</a></li><li><a href="#structfield.xproperty" title="xproperty">xproperty</a></li><li><a href="#structfield.xreparent" title="xreparent">xreparent</a></li><li><a href="#structfield.xresizerequest" title="xresizerequest">xresizerequest</a></li><li><a href="#structfield.xselection" title="xselection">xselection</a></li><li><a href="#structfield.xselectionclear" title="xselectionclear">xselectionclear</a></li><li><a href="#structfield.xselectionrequest" title="xselectionrequest">xselectionrequest</a></li><li><a href="#structfield.xunmap" title="xunmap">xunmap</a></li><li><a href="#structfield.xvisibility" title="xvisibility">xvisibility</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>miniquad::<wbr>native::<wbr>linux_<wbr>x11::<wbr>libx11</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../../index.html">devela</a>::<wbr><a href="../../../../index.html">_dep</a>::<wbr><a href="../../../index.html">miniquad</a>::<wbr><a href="../../index.html">native</a>::<wbr><a href="../index.html">linux_x11</a>::<wbr><a href="index.html">libx11</a></div><h1>Type Alias <span class="type">XEvent</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>pub type XEvent = <a class="union" href="union._XEvent.html" title="union devela::_dep::miniquad::native::linux_x11::libx11::_XEvent">_XEvent</a>;</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_miniquad</code></strong> only.</div></span><h2 id="aliased-type" class="section-header">Aliased Type<a href="#aliased-type" class="anchor">§</a></h2><pre class="rust item-decl"><code><div class="code-attribute">#[repr(C)]</div>pub union XEvent {
+<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 35 fields</span></summary>    pub type_0: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+    pub xany: <a class="struct" href="struct.XAnyEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XAnyEvent">XAnyEvent</a>,
+    pub xkey: <a class="struct" href="struct.XKeyEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XKeyEvent">XKeyEvent</a>,
+    pub xbutton: <a class="struct" href="struct.XButtonEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XButtonEvent">XButtonEvent</a>,
+    pub xmotion: <a class="struct" href="struct.XMotionEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XMotionEvent">XMotionEvent</a>,
+    pub xcrossing: <a class="struct" href="struct.XCrossingEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XCrossingEvent">XCrossingEvent</a>,
+    pub xfocus: <a class="struct" href="struct.XFocusChangeEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XFocusChangeEvent">XFocusChangeEvent</a>,
+    pub xexpose: <a class="struct" href="struct.XExposeEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XExposeEvent">XExposeEvent</a>,
+    pub xgraphicsexpose: <a class="struct" href="struct.XGraphicsExposeEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XGraphicsExposeEvent">XGraphicsExposeEvent</a>,
+    pub xnoexpose: <a class="struct" href="struct.XNoExposeEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XNoExposeEvent">XNoExposeEvent</a>,
+    pub xvisibility: <a class="struct" href="struct.XVisibilityEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XVisibilityEvent">XVisibilityEvent</a>,
+    pub xcreatewindow: <a class="struct" href="struct.XCreateWindowEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XCreateWindowEvent">XCreateWindowEvent</a>,
+    pub xdestroywindow: <a class="struct" href="struct.XDestroyWindowEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XDestroyWindowEvent">XDestroyWindowEvent</a>,
+    pub xunmap: <a class="struct" href="struct.XUnmapEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XUnmapEvent">XUnmapEvent</a>,
+    pub xmap: <a class="struct" href="struct.XMapEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XMapEvent">XMapEvent</a>,
+    pub xmaprequest: <a class="struct" href="struct.XMapRequestEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XMapRequestEvent">XMapRequestEvent</a>,
+    pub xreparent: <a class="struct" href="struct.XReparentEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XReparentEvent">XReparentEvent</a>,
+    pub xconfigure: <a class="struct" href="struct.XConfigureEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XConfigureEvent">XConfigureEvent</a>,
+    pub xgravity: <a class="struct" href="struct.XGravityEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XGravityEvent">XGravityEvent</a>,
+    pub xresizerequest: <a class="struct" href="struct.XResizeRequestEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XResizeRequestEvent">XResizeRequestEvent</a>,
+    pub xconfigurerequest: <a class="struct" href="struct.XConfigureRequestEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XConfigureRequestEvent">XConfigureRequestEvent</a>,
+    pub xcirculate: <a class="struct" href="struct.XCirculateEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XCirculateEvent">XCirculateEvent</a>,
+    pub xcirculaterequest: <a class="struct" href="struct.XCirculateRequestEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XCirculateRequestEvent">XCirculateRequestEvent</a>,
+    pub xproperty: <a class="struct" href="struct.XPropertyEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XPropertyEvent">XPropertyEvent</a>,
+    pub xselectionclear: <a class="struct" href="struct.XSelectionClearEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XSelectionClearEvent">XSelectionClearEvent</a>,
+    pub xselectionrequest: <a class="struct" href="struct.XSelectionRequestEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XSelectionRequestEvent">XSelectionRequestEvent</a>,
+    pub xselection: <a class="struct" href="struct.XSelectionEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XSelectionEvent">XSelectionEvent</a>,
+    pub xcolormap: <a class="struct" href="struct.XColormapEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XColormapEvent">XColormapEvent</a>,
+    pub xclient: <a class="struct" href="struct.XClientMessageEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XClientMessageEvent">XClientMessageEvent</a>,
+    pub xmapping: <a class="struct" href="struct.XMappingEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XMappingEvent">XMappingEvent</a>,
+    pub xerror: <a class="struct" href="struct.XErrorEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XErrorEvent">XErrorEvent</a>,
+    pub xkeymap: <a class="struct" href="struct.XKeymapEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XKeymapEvent">XKeymapEvent</a>,
+    pub xgeneric: <a class="struct" href="struct.XGenericEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XGenericEvent">XGenericEvent</a>,
+    pub xcookie: <a class="struct" href="struct.XGenericEventCookie.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XGenericEventCookie">XGenericEventCookie</a>,
+    pub pad: [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">24</a>],
+</details>}</code></pre><h2 id="fields" class="fields section-header">Fields<a href="#fields" class="anchor">§</a></h2><span id="structfield.type_0" class="structfield section-header"><a href="#structfield.type_0" class="anchor field">§</a><code>type_0: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code></span><span id="structfield.xany" class="structfield section-header"><a href="#structfield.xany" class="anchor field">§</a><code>xany: <a class="struct" href="struct.XAnyEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XAnyEvent">XAnyEvent</a></code></span><span id="structfield.xkey" class="structfield section-header"><a href="#structfield.xkey" class="anchor field">§</a><code>xkey: <a class="struct" href="struct.XKeyEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XKeyEvent">XKeyEvent</a></code></span><span id="structfield.xbutton" class="structfield section-header"><a href="#structfield.xbutton" class="anchor field">§</a><code>xbutton: <a class="struct" href="struct.XButtonEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XButtonEvent">XButtonEvent</a></code></span><span id="structfield.xmotion" class="structfield section-header"><a href="#structfield.xmotion" class="anchor field">§</a><code>xmotion: <a class="struct" href="struct.XMotionEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XMotionEvent">XMotionEvent</a></code></span><span id="structfield.xcrossing" class="structfield section-header"><a href="#structfield.xcrossing" class="anchor field">§</a><code>xcrossing: <a class="struct" href="struct.XCrossingEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XCrossingEvent">XCrossingEvent</a></code></span><span id="structfield.xfocus" class="structfield section-header"><a href="#structfield.xfocus" class="anchor field">§</a><code>xfocus: <a class="struct" href="struct.XFocusChangeEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XFocusChangeEvent">XFocusChangeEvent</a></code></span><span id="structfield.xexpose" class="structfield section-header"><a href="#structfield.xexpose" class="anchor field">§</a><code>xexpose: <a class="struct" href="struct.XExposeEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XExposeEvent">XExposeEvent</a></code></span><span id="structfield.xgraphicsexpose" class="structfield section-header"><a href="#structfield.xgraphicsexpose" class="anchor field">§</a><code>xgraphicsexpose: <a class="struct" href="struct.XGraphicsExposeEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XGraphicsExposeEvent">XGraphicsExposeEvent</a></code></span><span id="structfield.xnoexpose" class="structfield section-header"><a href="#structfield.xnoexpose" class="anchor field">§</a><code>xnoexpose: <a class="struct" href="struct.XNoExposeEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XNoExposeEvent">XNoExposeEvent</a></code></span><span id="structfield.xvisibility" class="structfield section-header"><a href="#structfield.xvisibility" class="anchor field">§</a><code>xvisibility: <a class="struct" href="struct.XVisibilityEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XVisibilityEvent">XVisibilityEvent</a></code></span><span id="structfield.xcreatewindow" class="structfield section-header"><a href="#structfield.xcreatewindow" class="anchor field">§</a><code>xcreatewindow: <a class="struct" href="struct.XCreateWindowEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XCreateWindowEvent">XCreateWindowEvent</a></code></span><span id="structfield.xdestroywindow" class="structfield section-header"><a href="#structfield.xdestroywindow" class="anchor field">§</a><code>xdestroywindow: <a class="struct" href="struct.XDestroyWindowEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XDestroyWindowEvent">XDestroyWindowEvent</a></code></span><span id="structfield.xunmap" class="structfield section-header"><a href="#structfield.xunmap" class="anchor field">§</a><code>xunmap: <a class="struct" href="struct.XUnmapEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XUnmapEvent">XUnmapEvent</a></code></span><span id="structfield.xmap" class="structfield section-header"><a href="#structfield.xmap" class="anchor field">§</a><code>xmap: <a class="struct" href="struct.XMapEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XMapEvent">XMapEvent</a></code></span><span id="structfield.xmaprequest" class="structfield section-header"><a href="#structfield.xmaprequest" class="anchor field">§</a><code>xmaprequest: <a class="struct" href="struct.XMapRequestEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XMapRequestEvent">XMapRequestEvent</a></code></span><span id="structfield.xreparent" class="structfield section-header"><a href="#structfield.xreparent" class="anchor field">§</a><code>xreparent: <a class="struct" href="struct.XReparentEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XReparentEvent">XReparentEvent</a></code></span><span id="structfield.xconfigure" class="structfield section-header"><a href="#structfield.xconfigure" class="anchor field">§</a><code>xconfigure: <a class="struct" href="struct.XConfigureEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XConfigureEvent">XConfigureEvent</a></code></span><span id="structfield.xgravity" class="structfield section-header"><a href="#structfield.xgravity" class="anchor field">§</a><code>xgravity: <a class="struct" href="struct.XGravityEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XGravityEvent">XGravityEvent</a></code></span><span id="structfield.xresizerequest" class="structfield section-header"><a href="#structfield.xresizerequest" class="anchor field">§</a><code>xresizerequest: <a class="struct" href="struct.XResizeRequestEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XResizeRequestEvent">XResizeRequestEvent</a></code></span><span id="structfield.xconfigurerequest" class="structfield section-header"><a href="#structfield.xconfigurerequest" class="anchor field">§</a><code>xconfigurerequest: <a class="struct" href="struct.XConfigureRequestEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XConfigureRequestEvent">XConfigureRequestEvent</a></code></span><span id="structfield.xcirculate" class="structfield section-header"><a href="#structfield.xcirculate" class="anchor field">§</a><code>xcirculate: <a class="struct" href="struct.XCirculateEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XCirculateEvent">XCirculateEvent</a></code></span><span id="structfield.xcirculaterequest" class="structfield section-header"><a href="#structfield.xcirculaterequest" class="anchor field">§</a><code>xcirculaterequest: <a class="struct" href="struct.XCirculateRequestEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XCirculateRequestEvent">XCirculateRequestEvent</a></code></span><span id="structfield.xproperty" class="structfield section-header"><a href="#structfield.xproperty" class="anchor field">§</a><code>xproperty: <a class="struct" href="struct.XPropertyEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XPropertyEvent">XPropertyEvent</a></code></span><span id="structfield.xselectionclear" class="structfield section-header"><a href="#structfield.xselectionclear" class="anchor field">§</a><code>xselectionclear: <a class="struct" href="struct.XSelectionClearEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XSelectionClearEvent">XSelectionClearEvent</a></code></span><span id="structfield.xselectionrequest" class="structfield section-header"><a href="#structfield.xselectionrequest" class="anchor field">§</a><code>xselectionrequest: <a class="struct" href="struct.XSelectionRequestEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XSelectionRequestEvent">XSelectionRequestEvent</a></code></span><span id="structfield.xselection" class="structfield section-header"><a href="#structfield.xselection" class="anchor field">§</a><code>xselection: <a class="struct" href="struct.XSelectionEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XSelectionEvent">XSelectionEvent</a></code></span><span id="structfield.xcolormap" class="structfield section-header"><a href="#structfield.xcolormap" class="anchor field">§</a><code>xcolormap: <a class="struct" href="struct.XColormapEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XColormapEvent">XColormapEvent</a></code></span><span id="structfield.xclient" class="structfield section-header"><a href="#structfield.xclient" class="anchor field">§</a><code>xclient: <a class="struct" href="struct.XClientMessageEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XClientMessageEvent">XClientMessageEvent</a></code></span><span id="structfield.xmapping" class="structfield section-header"><a href="#structfield.xmapping" class="anchor field">§</a><code>xmapping: <a class="struct" href="struct.XMappingEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XMappingEvent">XMappingEvent</a></code></span><span id="structfield.xerror" class="structfield section-header"><a href="#structfield.xerror" class="anchor field">§</a><code>xerror: <a class="struct" href="struct.XErrorEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XErrorEvent">XErrorEvent</a></code></span><span id="structfield.xkeymap" class="structfield section-header"><a href="#structfield.xkeymap" class="anchor field">§</a><code>xkeymap: <a class="struct" href="struct.XKeymapEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XKeymapEvent">XKeymapEvent</a></code></span><span id="structfield.xgeneric" class="structfield section-header"><a href="#structfield.xgeneric" class="anchor field">§</a><code>xgeneric: <a class="struct" href="struct.XGenericEvent.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XGenericEvent">XGenericEvent</a></code></span><span id="structfield.xcookie" class="structfield section-header"><a href="#structfield.xcookie" class="anchor field">§</a><code>xcookie: <a class="struct" href="struct.XGenericEventCookie.html" title="struct devela::_dep::miniquad::native::linux_x11::libx11::XGenericEventCookie">XGenericEventCookie</a></code></span><span id="structfield.pad" class="structfield section-header"><a href="#structfield.pad" class="anchor field">§</a><code>pad: [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">24</a>]</code></span><script src="../../../../../../type.impl/devela/_dep/miniquad/native/linux_x11/libx11/union._XEvent.js" data-self-path="devela::_dep::miniquad::native::linux_x11::libx11::XEvent" async></script></section></div></main></body></html>

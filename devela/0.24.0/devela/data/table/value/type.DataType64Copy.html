@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="64-bit data type, restricted to `Copy` variants."><title>DataType64Copy in devela::data::table::value - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc type"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Data<wbr>Type64<wbr>Copy</a></h2><h3><a href="#aliased-type">Aliased Type</a></h3><h3><a href="#variants">Variants</a></h3><ul class="block variant"><li><a href="#variant.Bool" title="Bool">Bool</a></li><li><a href="#variant.ByteArray1B" title="ByteArray1B">ByteArray1B</a></li><li><a href="#variant.ByteArray2B" title="ByteArray2B">ByteArray2B</a></li><li><a href="#variant.ByteArray4B" title="ByteArray4B">ByteArray4B</a></li><li><a href="#variant.ByteArray8B" title="ByteArray8B">ByteArray8B</a></li><li><a href="#variant.Char" title="Char">Char</a></li><li><a href="#variant.Extra" title="Extra">Extra</a></li><li><a href="#variant.F32" title="F32">F32</a></li><li><a href="#variant.F64" title="F64">F64</a></li><li><a href="#variant.I8" title="I8">I8</a></li><li><a href="#variant.I16" title="I16">I16</a></li><li><a href="#variant.I32" title="I32">I32</a></li><li><a href="#variant.I64" title="I64">I64</a></li><li><a href="#variant.Isize" title="Isize">Isize</a></li><li><a href="#variant.None" title="None">None</a></li><li><a href="#variant.U8" title="U8">U8</a></li><li><a href="#variant.U16" title="U16">U16</a></li><li><a href="#variant.U32" title="U32">U32</a></li><li><a href="#variant.U64" title="U64">U64</a></li><li><a href="#variant.Usize" title="Usize">Usize</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>data::<wbr>table::<wbr>value</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">data</a>::<wbr><a href="../index.html">table</a>::<wbr><a href="index.html">value</a></div><h1>Type Alias <span class="type">DataType64Copy</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/data/table/value/build.rs.html#21-160">Source</a> </span></div><pre class="rust item-decl"><code>pub type DataType64Copy = <a class="enum" href="../../../all/enum.DataType64CopyWith.html" title="enum devela::all::DataType64CopyWith">DataType64CopyWith</a>&lt;<a class="type" href="../../type.NoData.html" title="type devela::data::NoData">NoData</a>&gt;;</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>_value64</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>64-bit data <em>type</em>, restricted to <code>Copy</code> variants.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../../../all/type.DataValue64Copy.html" title="type devela::all::DataValue64Copy">DataValue64Copy</a></li>
+<li><a href="../../../all/type.DataType64.html" title="type devela::all::DataType64">DataType64</a> -Copy</li>
+<li><a href="../../../all/enum.DataType64CopyWith.html" title="enum devela::all::DataType64CopyWith">DataType64CopyWith</a> +With</li>
+<li><a href="../../../all/enum.DataType64With.html" title="enum devela::all::DataType64With">DataType64With</a> -Copy +With</li>
+</ul>
+</div></details><h2 id="aliased-type" class="section-header">Aliased Type<a href="#aliased-type" class="anchor">§</a></h2><pre class="rust item-decl"><code>pub enum DataType64Copy {
+<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 20 variants</span></summary>    None,
+    Extra(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>),
+    I8,
+    U8,
+    ByteArray1B,
+    Bool,
+    I16,
+    U16,
+    ByteArray2B,
+    I32,
+    U32,
+    F32,
+    ByteArray4B,
+    Char,
+    I64,
+    U64,
+    F64,
+    ByteArray8B,
+    Isize,
+    Usize,
+</details>}</code></pre><h2 id="variants" class="variants section-header">Variants<a href="#variants" class="anchor">§</a></h2><div class="variants"><section id="variant.None" class="variant"><a href="#variant.None" class="anchor">§</a><h3 class="code-header">None</h3></section><div class="docblock"><p>Represents the absence of <em>data</em>.</p>
+</div><section id="variant.Extra" class="variant"><a href="#variant.Extra" class="anchor">§</a><h3 class="code-header">Extra(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>)</h3></section><div class="docblock"><p>A custom <em>data type</em> extension.</p>
+</div><section id="variant.I8" class="variant"><a href="#variant.I8" class="anchor">§</a><h3 class="code-header">I8</h3></section><div class="docblock"><p>8-bit signed integer</p>
+</div><section id="variant.U8" class="variant"><a href="#variant.U8" class="anchor">§</a><h3 class="code-header">U8</h3></section><div class="docblock"><p>8-bit unsigned integer</p>
+</div><section id="variant.ByteArray1B" class="variant"><a href="#variant.ByteArray1B" class="anchor">§</a><h3 class="code-header">ByteArray1B</h3></section><div class="docblock"><p>1-Byte byte array</p>
+</div><section id="variant.Bool" class="variant"><a href="#variant.Bool" class="anchor">§</a><h3 class="code-header">Bool</h3></section><div class="docblock"><p>Boolean value</p>
+</div><section id="variant.I16" class="variant"><a href="#variant.I16" class="anchor">§</a><h3 class="code-header">I16</h3></section><div class="docblock"><p>16-bit signed integer</p>
+</div><section id="variant.U16" class="variant"><a href="#variant.U16" class="anchor">§</a><h3 class="code-header">U16</h3></section><div class="docblock"><p>16-bit unsigned integer</p>
+</div><section id="variant.ByteArray2B" class="variant"><a href="#variant.ByteArray2B" class="anchor">§</a><h3 class="code-header">ByteArray2B</h3></section><div class="docblock"><p>2-Byte byte array</p>
+</div><section id="variant.I32" class="variant"><a href="#variant.I32" class="anchor">§</a><h3 class="code-header">I32</h3></section><div class="docblock"><p>32-bit signed integer</p>
+</div><section id="variant.U32" class="variant"><a href="#variant.U32" class="anchor">§</a><h3 class="code-header">U32</h3></section><div class="docblock"><p>32-bit unsigned integer</p>
+</div><section id="variant.F32" class="variant"><a href="#variant.F32" class="anchor">§</a><h3 class="code-header">F32</h3></section><div class="docblock"><p>32-bit floating-point number</p>
+</div><section id="variant.ByteArray4B" class="variant"><a href="#variant.ByteArray4B" class="anchor">§</a><h3 class="code-header">ByteArray4B</h3></section><div class="docblock"><p>4-Byte byte array</p>
+</div><section id="variant.Char" class="variant"><a href="#variant.Char" class="anchor">§</a><h3 class="code-header">Char</h3></section><div class="docblock"><p>32-bit char</p>
+</div><section id="variant.I64" class="variant"><a href="#variant.I64" class="anchor">§</a><h3 class="code-header">I64</h3></section><div class="docblock"><p>64-bit signed integer</p>
+</div><section id="variant.U64" class="variant"><a href="#variant.U64" class="anchor">§</a><h3 class="code-header">U64</h3></section><div class="docblock"><p>64-bit unsigned integer</p>
+</div><section id="variant.F64" class="variant"><a href="#variant.F64" class="anchor">§</a><h3 class="code-header">F64</h3></section><div class="docblock"><p>64-bit floating-point number</p>
+</div><section id="variant.ByteArray8B" class="variant"><a href="#variant.ByteArray8B" class="anchor">§</a><h3 class="code-header">ByteArray8B</h3></section><div class="docblock"><p>8-Byte byte array</p>
+</div><section id="variant.Isize" class="variant"><a href="#variant.Isize" class="anchor">§</a><h3 class="code-header">Isize</h3></section><div class="docblock"><p>64-bit isize</p>
+</div><section id="variant.Usize" class="variant"><a href="#variant.Usize" class="anchor">§</a><h3 class="code-header">Usize</h3></section><div class="docblock"><p>64-bit usize</p>
+</div></div><script src="../../../../type.impl/devela/all/enum.DataType64CopyWith.js" data-self-path="devela::data::table::value::build::DataType64Copy" async></script></section></div></main></body></html>

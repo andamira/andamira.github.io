@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The basic `Parser` trait for errors"><title>ParserError in devela::_dep::winnow::error - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">ParserError</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Parser<wbr>Error</a></h2><h3><a href="#required-associated-types">Required Associated Types</a></h3><ul class="block"><li><a href="#associatedtype.Inner" title="Inner">Inner</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.from_input" title="from_input">from_input</a></li><li><a href="#tymethod.into_inner" title="into_inner">into_inner</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.append" title="append">append</a></li><li><a href="#method.assert" title="assert">assert</a></li><li><a href="#method.incomplete" title="incomplete">incomplete</a></li><li><a href="#method.is_backtrack" title="is_backtrack">is_backtrack</a></li><li><a href="#method.is_incomplete" title="is_incomplete">is_incomplete</a></li><li><a href="#method.needed" title="needed">needed</a></li><li><a href="#method.or" title="or">or</a></li></ul><h3><a href="#foreign-impls">Implementations on Foreign Types</a></h3><ul class="block"><li><a href="#impl-ParserError%3CI%3E-for-()" title="()">()</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>winnow::<wbr>error</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">_dep</a>::<wbr><a href="../index.html">winnow</a>::<wbr><a href="index.html">error</a></div><h1>Trait <span class="trait">Parser<wbr>Error</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>pub trait ParserError&lt;I&gt;: <a class="trait" href="../../../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a><div class="where">where
+    I: <a class="trait" href="../stream/trait.Stream.html" title="trait devela::_dep::winnow::stream::Stream">Stream</a>,</div>{
+    type <a href="#associatedtype.Inner" class="associatedtype">Inner</a>;
+
+    // Required methods
+    fn <a href="#tymethod.from_input" class="fn">from_input</a>(input: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;I</a>) -&gt; Self;
+<span class="item-spacer"></span>    fn <a href="#tymethod.into_inner" class="fn">into_inner</a>(self) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;Self::<a class="associatedtype" href="trait.ParserError.html#associatedtype.Inner" title="type devela::_dep::winnow::error::ParserError::Inner">Inner</a>, Self&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;Self::Inner, Self&gt;">ⓘ</a>;
+
+    // Provided methods
+    fn <a href="#method.assert" class="fn">assert</a>(input: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;I</a>, _message: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; Self
+       <span class="where">where I: <a class="trait" href="../../../all/trait.Debug.html" title="trait devela::all::Debug">Debug</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.incomplete" class="fn">incomplete</a>(input: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;I</a>, _needed: <a class="enum" href="enum.Needed.html" title="enum devela::_dep::winnow::error::Needed">Needed</a>) -&gt; Self { ... }
+<span class="item-spacer"></span>    fn <a href="#method.append" class="fn">append</a>(
+        self,
+        _input: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;I</a>,
+        _token_start: &amp;&lt;I as <a class="trait" href="../stream/trait.Stream.html" title="trait devela::_dep::winnow::stream::Stream">Stream</a>&gt;::<a class="associatedtype" href="../stream/trait.Stream.html#associatedtype.Checkpoint" title="type devela::_dep::winnow::stream::Stream::Checkpoint">Checkpoint</a>,
+    ) -&gt; Self { ... }
+<span class="item-spacer"></span>    fn <a href="#method.or" class="fn">or</a>(self, other: Self) -&gt; Self { ... }
+<span class="item-spacer"></span>    fn <a href="#method.is_backtrack" class="fn">is_backtrack</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.is_incomplete" class="fn">is_incomplete</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.needed" class="fn">needed</a>(&amp;self) -&gt; <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="enum" href="enum.Needed.html" title="enum devela::_dep::winnow::error::Needed">Needed</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;Needed&gt;">ⓘ</a> { ... }
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_winnow</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The basic <a href="../trait.Parser.html" title="trait devela::_dep::winnow::Parser"><code>Parser</code></a> trait for errors</p>
+<p>It provides methods to create an error from some combinators,
+and combine existing errors in combinators like <code>alt</code>.</p>
+</div></details><h2 id="required-associated-types" class="section-header">Required Associated Types<a href="#required-associated-types" class="anchor">§</a></h2><div class="methods"><details class="toggle" open><summary><section id="associatedtype.Inner" class="method"><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a></h4></section></summary><div class="docblock"><p>Generally, <code>Self</code></p>
+<p>Mostly used for <a href="enum.ErrMode.html" title="enum devela::_dep::winnow::error::ErrMode"><code>ErrMode</code></a></p>
+</div></details></div><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.from_input" class="method"><h4 class="code-header">fn <a href="#tymethod.from_input" class="fn">from_input</a>(input: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;I</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Creates an error from the input position</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.into_inner" class="method"><h4 class="code-header">fn <a href="#tymethod.into_inner" class="fn">into_inner</a>(self) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;Self::<a class="associatedtype" href="trait.ParserError.html#associatedtype.Inner" title="type devela::_dep::winnow::error::ParserError::Inner">Inner</a>, Self&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;Self::Inner, Self&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Unwrap the mode, returning the underlying error, if present</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.assert" class="method"><h4 class="code-header">fn <a href="#method.assert" class="fn">assert</a>(input: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;I</a>, _message: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; Self<div class="where">where
+    I: <a class="trait" href="../../../all/trait.Debug.html" title="trait devela::all::Debug">Debug</a>,</div></h4></section></summary><div class="docblock"><p>Process a parser assertion</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.incomplete" class="method"><h4 class="code-header">fn <a href="#method.incomplete" class="fn">incomplete</a>(input: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;I</a>, _needed: <a class="enum" href="enum.Needed.html" title="enum devela::_dep::winnow::error::Needed">Needed</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>There was not enough data to determine the appropriate action</p>
+<p>More data needs to be buffered before retrying the parse.</p>
+<p>This must only be set when the <a href="../stream/trait.Stream.html" title="trait devela::_dep::winnow::stream::Stream"><code>Stream</code></a> is <a href="../stream/trait.StreamIsPartial.html" title="trait devela::_dep::winnow::stream::StreamIsPartial">partial</a>, like with
+<a href="../struct.Partial.html" title="struct devela::_dep::winnow::Partial"><code>Partial</code></a></p>
+<p>Convert this into an <code>Backtrack</code> with <a href="../trait.Parser.html#method.complete_err" title="method devela::_dep::winnow::Parser::complete_err"><code>Parser::complete_err</code></a></p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.append" class="method"><h4 class="code-header">fn <a href="#method.append" class="fn">append</a>(self, _input: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;I</a>, _token_start: &amp;&lt;I as <a class="trait" href="../stream/trait.Stream.html" title="trait devela::_dep::winnow::stream::Stream">Stream</a>&gt;::<a class="associatedtype" href="../stream/trait.Stream.html#associatedtype.Checkpoint" title="type devela::_dep::winnow::stream::Stream::Checkpoint">Checkpoint</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Like <a href="trait.ParserError.html#tymethod.from_input" title="associated function devela::_dep::winnow::error::ParserError::from_input"><code>ParserError::from_input</code></a> but merges it with the existing error.</p>
+<p>This is useful when backtracking through a parse tree, accumulating error context on the
+way.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.or" class="method"><h4 class="code-header">fn <a href="#method.or" class="fn">or</a>(self, other: Self) -&gt; Self</h4></section></summary><div class="docblock"><p>Combines errors from two different parse branches.</p>
+<p>For example, this would be used by <a href="../combinator/fn.alt.html" title="fn devela::_dep::winnow::combinator::alt"><code>alt</code></a> to report the error from
+each case.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.is_backtrack" class="method"><h4 class="code-header">fn <a href="#method.is_backtrack" class="fn">is_backtrack</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Is backtracking and trying new parse branches allowed?</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.is_incomplete" class="method"><h4 class="code-header">fn <a href="#method.is_incomplete" class="fn">is_incomplete</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Is more data <a href="enum.Needed.html" title="enum devela::_dep::winnow::error::Needed"><code>Needed</code></a></p>
+<p>This must be the same as <a href="trait.ParserError.html#method.needed" title="method devela::_dep::winnow::error::ParserError::needed"><code>err.needed().is_some()</code></a></p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.needed" class="method"><h4 class="code-header">fn <a href="#method.needed" class="fn">needed</a>(&amp;self) -&gt; <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="enum" href="enum.Needed.html" title="enum devela::_dep::winnow::error::Needed">Needed</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;Needed&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Extract the <a href="enum.Needed.html" title="enum devela::_dep::winnow::error::Needed"><code>Needed</code></a> data, if present</p>
+<p><code>Self::needed().is_some()</code> must be the same as
+<a href="trait.ParserError.html#method.is_incomplete" title="method devela::_dep::winnow::error::ParserError::is_incomplete"><code>err.is_incomplete()</code></a></p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="foreign-impls" class="section-header">Implementations on Foreign Types<a href="#foreign-impls" class="anchor">§</a></h2><details class="toggle implementors-toggle"><summary><section id="impl-ParserError%3CI%3E-for-()" class="impl"><a href="#impl-ParserError%3CI%3E-for-()" class="anchor">§</a><h3 class="code-header">impl&lt;I&gt; <a class="trait" href="trait.ParserError.html" title="trait devela::_dep::winnow::error::ParserError">ParserError</a>&lt;I&gt; for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a><div class="where">where
+    I: <a class="trait" href="../stream/trait.Stream.html" title="trait devela::_dep::winnow::stream::Stream">Stream</a>,</div></h3></section></summary><div class="impl-items"><section id="associatedtype.Inner-1" class="associatedtype trait-impl"><a href="#associatedtype.Inner-1" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a> = <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a></h4></section><section id="method.from_input" class="method trait-impl"><a href="#method.from_input" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.from_input" class="fn">from_input</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;I</a>)</h4></section><section id="method.into_inner" class="method trait-impl"><a href="#method.into_inner" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.into_inner" class="fn">into_inner</a>(self) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a> as <a class="trait" href="trait.ParserError.html" title="trait devela::_dep::winnow::error::ParserError">ParserError</a>&lt;I&gt;&gt;::<a class="associatedtype" href="trait.ParserError.html#associatedtype.Inner" title="type devela::_dep::winnow::error::ParserError::Inner">Inner</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;&lt;() as ParserError&lt;I&gt;&gt;::Inner, ()&gt;">ⓘ</a></h4></section></div></details><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><details class="toggle implementors-toggle"><summary><section id="impl-ParserError%3CI%3E-for-EmptyError" class="impl"><a href="#impl-ParserError%3CI%3E-for-EmptyError" class="anchor">§</a><h3 class="code-header">impl&lt;I&gt; <a class="trait" href="trait.ParserError.html" title="trait devela::_dep::winnow::error::ParserError">ParserError</a>&lt;I&gt; for <a class="struct" href="struct.EmptyError.html" title="struct devela::_dep::winnow::error::EmptyError">EmptyError</a><div class="where">where
+    I: <a class="trait" href="../stream/trait.Stream.html" title="trait devela::_dep::winnow::stream::Stream">Stream</a>,</div></h3></section></summary><div class="impl-items"><section id="associatedtype.Inner-2" class="associatedtype trait-impl"><a href="#associatedtype.Inner-2" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a> = <a class="struct" href="struct.EmptyError.html" title="struct devela::_dep::winnow::error::EmptyError">EmptyError</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-ParserError%3CI%3E-for-InputError%3CI%3E" class="impl"><a href="#impl-ParserError%3CI%3E-for-InputError%3CI%3E" class="anchor">§</a><h3 class="code-header">impl&lt;I&gt; <a class="trait" href="trait.ParserError.html" title="trait devela::_dep::winnow::error::ParserError">ParserError</a>&lt;I&gt; for <a class="struct" href="struct.InputError.html" title="struct devela::_dep::winnow::error::InputError">InputError</a>&lt;I&gt;<div class="where">where
+    I: <a class="trait" href="../stream/trait.Stream.html" title="trait devela::_dep::winnow::stream::Stream">Stream</a> + <a class="trait" href="../../../code/trait.Clone.html" title="trait devela::code::Clone">Clone</a>,</div></h3></section></summary><div class="impl-items"><section id="associatedtype.Inner-3" class="associatedtype trait-impl"><a href="#associatedtype.Inner-3" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a> = <a class="struct" href="struct.InputError.html" title="struct devela::_dep::winnow::error::InputError">InputError</a>&lt;I&gt;</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-ParserError%3CI%3E-for-TreeError%3CI,+C%3E" class="impl"><a href="#impl-ParserError%3CI%3E-for-TreeError%3CI,+C%3E" class="anchor">§</a><h3 class="code-header">impl&lt;I, C&gt; <a class="trait" href="trait.ParserError.html" title="trait devela::_dep::winnow::error::ParserError">ParserError</a>&lt;I&gt; for <a class="enum" href="enum.TreeError.html" title="enum devela::_dep::winnow::error::TreeError">TreeError</a>&lt;I, C&gt;<div class="where">where
+    I: <a class="trait" href="../stream/trait.Stream.html" title="trait devela::_dep::winnow::stream::Stream">Stream</a> + <a class="trait" href="../../../code/trait.Clone.html" title="trait devela::code::Clone">Clone</a>,</div></h3></section></summary><div class="impl-items"><section id="associatedtype.Inner-4" class="associatedtype trait-impl"><a href="#associatedtype.Inner-4" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a> = <a class="enum" href="enum.TreeError.html" title="enum devela::_dep::winnow::error::TreeError">TreeError</a>&lt;I, C&gt;</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-ParserError%3CI%3E-for-ContextError%3CC%3E" class="impl"><a href="#impl-ParserError%3CI%3E-for-ContextError%3CC%3E" class="anchor">§</a><h3 class="code-header">impl&lt;I, C&gt; <a class="trait" href="trait.ParserError.html" title="trait devela::_dep::winnow::error::ParserError">ParserError</a>&lt;I&gt; for <a class="struct" href="struct.ContextError.html" title="struct devela::_dep::winnow::error::ContextError">ContextError</a>&lt;C&gt;<div class="where">where
+    I: <a class="trait" href="../stream/trait.Stream.html" title="trait devela::_dep::winnow::stream::Stream">Stream</a>,</div></h3></section></summary><div class="impl-items"><section id="associatedtype.Inner-5" class="associatedtype trait-impl"><a href="#associatedtype.Inner-5" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a> = <a class="struct" href="struct.ContextError.html" title="struct devela::_dep::winnow::error::ContextError">ContextError</a>&lt;C&gt;</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-ParserError%3CI%3E-for-ErrMode%3CE%3E" class="impl"><a href="#impl-ParserError%3CI%3E-for-ErrMode%3CE%3E" class="anchor">§</a><h3 class="code-header">impl&lt;I, E&gt; <a class="trait" href="trait.ParserError.html" title="trait devela::_dep::winnow::error::ParserError">ParserError</a>&lt;I&gt; for <a class="enum" href="enum.ErrMode.html" title="enum devela::_dep::winnow::error::ErrMode">ErrMode</a>&lt;E&gt;<div class="where">where
+    I: <a class="trait" href="../stream/trait.Stream.html" title="trait devela::_dep::winnow::stream::Stream">Stream</a>,
+    E: <a class="trait" href="trait.ParserError.html" title="trait devela::_dep::winnow::error::ParserError">ParserError</a>&lt;I&gt;,</div></h3></section></summary><div class="impl-items"><section id="associatedtype.Inner-6" class="associatedtype trait-impl"><a href="#associatedtype.Inner-6" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Inner" class="associatedtype">Inner</a> = E</h4></section></div></details></div><script src="../../../../trait.impl/winnow/error/trait.ParserError.js" data-ignore-extern-crates="winnow,std" async></script><script type="text/json" id="notable-traits-data">{"Option<Needed>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../../all/trait.ExtOption.html\" title=\"trait devela::all::ExtOption\">ExtOption</a>&lt;T&gt; for <a class=\"enum\" href=\"../../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</div>","Result<<() as ParserError<I>>::Inner, ()>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>","Result<Self::Inner, Self>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>

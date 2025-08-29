@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Converts a string slice to a specified case. Non-ascii characters are not affected."><title>convert_ascii_case in devela::_dep::const_str - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">convert_ascii_case</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">convert_<wbr>ascii_<wbr>case</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>const_<wbr>str</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a>::<wbr><a href="index.html">const_str</a></div><h1>Macro <span class="macro">convert_<wbr>ascii_<wbr>case</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>macro_rules! convert_ascii_case {
+    (lower, $s: expr) =&gt; { ... };
+    (upper, $s: expr) =&gt; { ... };
+    (lower_camel, $s: expr) =&gt; { ... };
+    (upper_camel, $s: expr) =&gt; { ... };
+    (title, $s: expr) =&gt; { ... };
+    (train, $s: expr) =&gt; { ... };
+    (snake, $s: expr) =&gt; { ... };
+    (kebab, $s: expr) =&gt; { ... };
+    (shouty_snake, $s: expr) =&gt; { ... };
+    (shouty_kebab, $s: expr) =&gt; { ... };
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_const_str</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Converts a string slice to a specified case. Non-ascii characters are not affected.</p>
+<p>This macro is <a href="./index.html#const-context-only">const-context only</a>.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>const_str::convert_ascii_case;
+
+<span class="kw">const </span>S1: <span class="kw-2">&amp;</span>str = <span class="macro">convert_ascii_case!</span>(lower, <span class="string">"Lower Case"</span>);
+<span class="kw">const </span>S2: <span class="kw-2">&amp;</span>str = <span class="macro">convert_ascii_case!</span>(upper, <span class="string">"Upper Case"</span>);
+<span class="kw">const </span>S3: <span class="kw-2">&amp;</span>str = <span class="macro">convert_ascii_case!</span>(lower_camel, <span class="string">"lower camel case"</span>);
+<span class="kw">const </span>S4: <span class="kw-2">&amp;</span>str = <span class="macro">convert_ascii_case!</span>(upper_camel, <span class="string">"upper camel case"</span>);
+<span class="kw">const </span>S5: <span class="kw-2">&amp;</span>str = <span class="macro">convert_ascii_case!</span>(title, <span class="string">"title case"</span>);
+<span class="kw">const </span>S6: <span class="kw-2">&amp;</span>str = <span class="macro">convert_ascii_case!</span>(train, <span class="string">"train case"</span>);
+<span class="kw">const </span>S7: <span class="kw-2">&amp;</span>str = <span class="macro">convert_ascii_case!</span>(snake, <span class="string">"snake case"</span>);
+<span class="kw">const </span>S8: <span class="kw-2">&amp;</span>str = <span class="macro">convert_ascii_case!</span>(kebab, <span class="string">"kebab case"</span>);
+<span class="kw">const </span>S9: <span class="kw-2">&amp;</span>str = <span class="macro">convert_ascii_case!</span>(shouty_snake, <span class="string">"shouty snake case"</span>);
+<span class="kw">const </span>S10: <span class="kw-2">&amp;</span>str = <span class="macro">convert_ascii_case!</span>(shouty_kebab, <span class="string">"shouty kebab case"</span>);
+
+<span class="macro">assert_eq!</span>(S1, <span class="string">"lower case"</span>);
+<span class="macro">assert_eq!</span>(S2, <span class="string">"UPPER CASE"</span>);
+<span class="macro">assert_eq!</span>(S3, <span class="string">"lowerCamelCase"</span>);
+<span class="macro">assert_eq!</span>(S4, <span class="string">"UpperCamelCase"</span>);
+<span class="macro">assert_eq!</span>(S5, <span class="string">"Title Case"</span>);
+<span class="macro">assert_eq!</span>(S6, <span class="string">"Train-Case"</span>);
+<span class="macro">assert_eq!</span>(S7, <span class="string">"snake_case"</span>);
+<span class="macro">assert_eq!</span>(S8, <span class="string">"kebab-case"</span>);
+<span class="macro">assert_eq!</span>(S9, <span class="string">"SHOUTY_SNAKE_CASE"</span>);
+<span class="macro">assert_eq!</span>(S10, <span class="string">"SHOUTY-KEBAB-CASE"</span>);</code></pre></div>
+</div></details></section></div></main></body></html>

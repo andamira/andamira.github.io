@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="𝐓 Extension trait providing additional methods for `&#38;str`."><title>ExtStr in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">ExtStr</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">ExtStr</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.new_counter" title="new_counter">new_counter</a></li><li><a href="#tymethod.repeat_into" title="repeat_into">repeat_into</a></li><li><a href="#tymethod.to_arc" title="to_arc">to_arc</a></li><li><a href="#tymethod.to_box" title="to_box">to_box</a></li><li><a href="#tymethod.to_rc" title="to_rc">to_rc</a></li></ul><h3><a href="#foreign-impls">Implementations on Foreign Types</a></h3><ul class="block"><li><a href="#impl-ExtStr-for-str" title="str">str</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Trait <span class="trait">ExtStr</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/text/str/ext_str.rs.html#22-88">Source</a> </span></div><pre class="rust item-decl"><code>pub trait ExtStr: Sealed {
+    // Required methods
+    fn <a href="#tymethod.to_box" class="fn">to_box</a>(&amp;self) -&gt; <a class="struct" href="struct.Box.html" title="struct devela::all::Box">Box</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;;
+<span class="item-spacer"></span>    fn <a href="#tymethod.to_rc" class="fn">to_rc</a>(&amp;self) -&gt; <a class="struct" href="struct.Rc.html" title="struct devela::all::Rc">Rc</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;;
+<span class="item-spacer"></span>    fn <a href="#tymethod.to_arc" class="fn">to_arc</a>(&amp;self) -&gt; <a class="struct" href="struct.Arc.html" title="struct devela::all::Arc">Arc</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;;
+<span class="item-spacer"></span>    fn <a href="#tymethod.repeat_into" class="fn">repeat_into</a>&lt;'input, const CAP: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;(
+        &amp;self,
+        n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+        buffer: &amp;'input mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">CAP</a>],
+    ) -&gt; &amp;'input <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> <a href="#" class="tooltip" data-notable-ty="&amp;&#39;input str">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.new_counter" class="fn">new_counter</a>(buffer: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], length: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, separator: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> <a href="#" class="tooltip" data-notable-ty="&amp;str">ⓘ</a>;
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>str</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Text-related type'>𝐓</span>
+Extension trait providing additional methods for <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a>.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.to_box" class="method"><a class="src rightside" href="../../src/devela/text/str/ext_str.rs.html#28">Source</a><h4 class="code-header">fn <a href="#tymethod.to_box" class="fn">to_box</a>(&amp;self) -&gt; <a class="struct" href="struct.Box.html" title="struct devela::all::Box">Box</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;</h4></section></summary><div class="docblock"><p>Converts the string slice into a <code>Box&lt;str&gt;</code>.</p>
+<p>Allows single ownership with exact allocation,
+for when you don’t need to clone or share.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.to_rc" class="method"><a class="src rightside" href="../../src/devela/text/str/ext_str.rs.html#35">Source</a><h4 class="code-header">fn <a href="#tymethod.to_rc" class="fn">to_rc</a>(&amp;self) -&gt; <a class="struct" href="struct.Rc.html" title="struct devela::all::Rc">Rc</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;</h4></section></summary><div class="docblock"><p>Converts the string slice into an <code>Rc&lt;str&gt;</code>.</p>
+<p>Allows shared ownership with reference counting,
+reducing memory duplication in single-threaded scenarios.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.to_arc" class="method"><a class="src rightside" href="../../src/devela/text/str/ext_str.rs.html#41">Source</a><h4 class="code-header">fn <a href="#tymethod.to_arc" class="fn">to_arc</a>(&amp;self) -&gt; <a class="struct" href="struct.Arc.html" title="struct devela::all::Arc">Arc</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;</h4></section></summary><div class="docblock"><p>Converts the string slice into an <code>Arc&lt;str&gt;</code>.</p>
+<p>When you need shared ownership of a string slice across multiple threads.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.repeat_into" class="method"><a class="src rightside" href="../../src/devela/text/str/ext_str.rs.html#58-62">Source</a><h4 class="code-header">fn <a href="#tymethod.repeat_into" class="fn">repeat_into</a>&lt;'input, const CAP: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;(
+    &amp;self,
+    n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+    buffer: &amp;'input mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">CAP</a>],
+) -&gt; &amp;'input <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> <a href="#" class="tooltip" data-notable-ty="&amp;&#39;input str">ⓘ</a></h4></section></summary><div class="docblock"><p>Repeats a string a given number of times into the provided <code>buffer</code>.
+and returns a reference to the new <code>&amp;str</code>.</p>
+<h5 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::ExtStr;
+
+<span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0_u8</span>; <span class="number">12</span>];
+<span class="kw">let </span>repeated = <span class="string">"ay"</span>.repeat_into(<span class="number">3</span>, <span class="kw-2">&amp;mut </span>buf);
+<span class="macro">assert_eq!</span>[repeated, <span class="string">"ayayay"</span>];</code></pre></div>
+<h5 id="features"><a class="doc-anchor" href="#features">§</a>Features</h5>
+<p>Makes use of the <code>unsafe_str</code> feature if enabled.</p>
+<p>For the <em>const</em> version see <a href="struct.Str.html#method.repeat_into" title="associated function devela::all::Str::repeat_into"><code>Str::repeat_into</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.new_counter" class="method"><a class="src rightside" href="../../src/devela/text/str/ext_str.rs.html#87">Source</a><h4 class="code-header">fn <a href="#tymethod.new_counter" class="fn">new_counter</a>(buffer: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], length: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, separator: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> <a href="#" class="tooltip" data-notable-ty="&amp;str">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> backed by a <code>buffer</code>, where you always know each
+character’s position.</p>
+<p>A <a href="https://www.satisfice.com/blog/archives/22"><em>counter string</em></a> is a graduated string of arbitrary <code>length</code>,
+with a <code>separator</code> positioned after the immediately preceding number.</p>
+<h5 id="examples-1"><a class="doc-anchor" href="#examples-1">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::ExtStr;
+
+<span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0</span>; <span class="number">15</span>];
+<span class="macro">assert_eq!</span>(<span class="string">"2*4*6*8*11*14*"</span>, str::new_counter(<span class="kw-2">&amp;mut </span>buf, <span class="number">14</span>, <span class="string">'*'</span>));
+<span class="macro">assert_eq!</span>(<span class="string">"_3_5_7_9_12_15_"</span>, str::new_counter(<span class="kw-2">&amp;mut </span>buf, <span class="number">15</span>, <span class="string">'_'</span>));</code></pre></div>
+<h5 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics</h5>
+<p>Panics if <code>buffer.len() &lt; length</code>, or if <code>!char.is_ascii()</code>.</p>
+<h5 id="features-1"><a class="doc-anchor" href="#features-1">§</a>Features</h5>
+<p>Makes use of the <code>unsafe_str</code> feature if enabled.</p>
+<p>For the <em>const</em> version see <a href="struct.Str.html#method.new_counter" title="associated function devela::all::Str::new_counter"><code>Str::new_counter</code></a>.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="foreign-impls" class="section-header">Implementations on Foreign Types<a href="#foreign-impls" class="anchor">§</a></h2><details class="toggle implementors-toggle"><summary><section id="impl-ExtStr-for-str" class="impl"><a class="src rightside" href="../../src/devela/text/str/ext_str.rs.html#90-174">Source</a><a href="#impl-ExtStr-for-str" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.ExtStr.html" title="trait devela::all::ExtStr">ExtStr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></h3></section></summary><div class="impl-items"><section id="method.to_box" class="method trait-impl"><a class="src rightside" href="../../src/devela/text/str/ext_str.rs.html#92-94">Source</a><a href="#method.to_box" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.to_box" class="fn">to_box</a>(&amp;self) -&gt; <a class="struct" href="struct.Box.html" title="struct devela::all::Box">Box</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;</h4></section><section id="method.to_rc" class="method trait-impl"><a class="src rightside" href="../../src/devela/text/str/ext_str.rs.html#96-98">Source</a><a href="#method.to_rc" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.to_rc" class="fn">to_rc</a>(&amp;self) -&gt; <a class="struct" href="struct.Rc.html" title="struct devela::all::Rc">Rc</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;</h4></section><section id="method.to_arc" class="method trait-impl"><a class="src rightside" href="../../src/devela/text/str/ext_str.rs.html#100-102">Source</a><a href="#method.to_arc" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.to_arc" class="fn">to_arc</a>(&amp;self) -&gt; <a class="struct" href="struct.Arc.html" title="struct devela::all::Arc">Arc</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;</h4></section><section id="method.repeat_into" class="method trait-impl"><a class="src rightside" href="../../src/devela/text/str/ext_str.rs.html#104-127">Source</a><a href="#method.repeat_into" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.repeat_into" class="fn">repeat_into</a>&lt;'input, const CAP: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;(
+    &amp;self,
+    n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+    buffer: &amp;'input mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">CAP</a>],
+) -&gt; &amp;'input <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> <a href="#" class="tooltip" data-notable-ty="&amp;&#39;input str">ⓘ</a></h4></section><section id="method.new_counter" class="method trait-impl"><a class="src rightside" href="../../src/devela/text/str/ext_str.rs.html#129-173">Source</a><a href="#method.new_counter" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.new_counter" class="fn">new_counter</a>(buffer: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], length: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, separator: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> <a href="#" class="tooltip" data-notable-ty="&amp;str">ⓘ</a></h4></section></div></details><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"></div><script src="../../trait.impl/devela/text/str/ext_str/trait.ExtStr.js" data-ignore-extern-crates="std" async></script><script type="text/json" id="notable-traits-data">{"&'input str":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.str.html\">str</a></code></h3><pre><code><div class=\"where\">impl <a class=\"trait\" href=\"trait.ExtStr.html\" title=\"trait devela::all::ExtStr\">ExtStr</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.str.html\">str</a></div>","&str":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.str.html\">str</a></code></h3><pre><code><div class=\"where\">impl <a class=\"trait\" href=\"trait.ExtStr.html\" title=\"trait devela::all::ExtStr\">ExtStr</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.str.html\">str</a></div>"}</script></section></div></main></body></html>

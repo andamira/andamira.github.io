@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`wide` SIMD-compatible data types."><title>devela::_dep::wide - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../crates.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate wide</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#crate-features" title="Crate Features">Crate Features</a></li></ul><h3><a href="#structs">Crate Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a></div><h1>Crate <span>wide</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_wide</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='re-exported `wide`'><code>wide</code></span>
+SIMD-compatible data types.</p>
+<hr />
+<p>A crate to help you go wide.</p>
+<p>This crate provides SIMD-compatible data types.</p>
+<p>When possible, explicit SIMD is used with all the math operations here. As a
+fallback, the fact that all the lengths of a fixed length array are doing
+the same thing will often make LLVM notice that it should use SIMD
+instructions to complete the task. In the worst case, the code just becomes
+totally scalar (though the math is still correct, at least).</p>
+<h3 id="crate-features"><a class="doc-anchor" href="#crate-features">§</a>Crate Features</h3>
+<ul>
+<li><code>std</code>: This causes the feature to link to <code>std</code>.
+<ul>
+<li>Currently this just improves the performance of <code>sqrt</code> when an explicit
+SIMD <code>sqrt</code> isn’t available.</li>
+</ul>
+</li>
+</ul>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.f32x4.html" title="struct devela::_dep::wide::f32x4">f32x4</a></dt><dt><a class="struct" href="struct.f32x8.html" title="struct devela::_dep::wide::f32x8">f32x8</a></dt><dt><a class="struct" href="struct.f64x2.html" title="struct devela::_dep::wide::f64x2">f64x2</a></dt><dt><a class="struct" href="struct.f64x4.html" title="struct devela::_dep::wide::f64x4">f64x4</a></dt><dt><a class="struct" href="struct.i8x16.html" title="struct devela::_dep::wide::i8x16">i8x16</a></dt><dt><a class="struct" href="struct.i8x32.html" title="struct devela::_dep::wide::i8x32">i8x32</a></dt><dt><a class="struct" href="struct.i16x8.html" title="struct devela::_dep::wide::i16x8">i16x8</a></dt><dt><a class="struct" href="struct.i16x16.html" title="struct devela::_dep::wide::i16x16">i16x16</a></dt><dt><a class="struct" href="struct.i32x4.html" title="struct devela::_dep::wide::i32x4">i32x4</a></dt><dt><a class="struct" href="struct.i32x8.html" title="struct devela::_dep::wide::i32x8">i32x8</a></dt><dt><a class="struct" href="struct.i64x2.html" title="struct devela::_dep::wide::i64x2">i64x2</a></dt><dt><a class="struct" href="struct.i64x4.html" title="struct devela::_dep::wide::i64x4">i64x4</a></dt><dt><a class="struct" href="struct.u8x16.html" title="struct devela::_dep::wide::u8x16">u8x16</a></dt><dt><a class="struct" href="struct.u8x32.html" title="struct devela::_dep::wide::u8x32">u8x32</a></dt><dt><a class="struct" href="struct.u16x8.html" title="struct devela::_dep::wide::u16x8">u16x8</a></dt><dt><a class="struct" href="struct.u16x16.html" title="struct devela::_dep::wide::u16x16">u16x16</a></dt><dt><a class="struct" href="struct.u32x4.html" title="struct devela::_dep::wide::u32x4">u32x4</a></dt><dt><a class="struct" href="struct.u32x8.html" title="struct devela::_dep::wide::u32x8">u32x8</a></dt><dt><a class="struct" href="struct.u64x2.html" title="struct devela::_dep::wide::u64x2">u64x2</a></dt><dt><a class="struct" href="struct.u64x4.html" title="struct devela::_dep::wide::u64x4">u64x4</a></dt></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.CmpEq.html" title="trait devela::_dep::wide::CmpEq">CmpEq</a></dt><dt><a class="trait" href="trait.CmpGe.html" title="trait devela::_dep::wide::CmpGe">CmpGe</a></dt><dt><a class="trait" href="trait.CmpGt.html" title="trait devela::_dep::wide::CmpGt">CmpGt</a></dt><dt><a class="trait" href="trait.CmpLe.html" title="trait devela::_dep::wide::CmpLe">CmpLe</a></dt><dt><a class="trait" href="trait.CmpLt.html" title="trait devela::_dep::wide::CmpLt">CmpLt</a></dt><dt><a class="trait" href="trait.CmpNe.html" title="trait devela::_dep::wide::CmpNe">CmpNe</a></dt></dl></section></div></main></body></html>

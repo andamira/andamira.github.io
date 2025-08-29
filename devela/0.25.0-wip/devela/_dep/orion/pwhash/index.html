@@ -1,0 +1,174 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Password hashing and verification."><title>devela::_dep::orion::pwhash - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module pwhash</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module pwhash</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#use-case" title="Use case:">Use case:</a></li><li><a href="#about" title="About:">About:</a></li><li><a href="#note" title="Note:">Note:</a></li><li><a href="#parameters" title="Parameters:">Parameters:</a></li><li><a href="#errors" title="Errors:">Errors:</a></li><li><a href="#panics" title="Panics:">Panics:</a></li><li><a href="#security" title="Security:">Security:</a></li><li><a href="#example" title="Example:">Example:</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep::<wbr>orion</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">_dep</a>::<wbr><a href="../index.html">orion</a></div><h1>Module <span>pwhash</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_orion</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Password hashing and verification.</p>
+<h2 id="use-case"><a class="doc-anchor" href="#use-case">§</a>Use case:</h2>
+<p><code>orion::pwhash</code> is suitable for securely storing passwords.</p>
+<p>An example of this would be needing to store user passwords (from a sign-up
+at a webstore) in a server database,
+where a potential disclosure of the data in this database should not result
+in the user’s actual passwords being disclosed as well.</p>
+<h2 id="about"><a class="doc-anchor" href="#about">§</a>About:</h2>
+<ul>
+<li>Uses Argon2i.</li>
+<li>A salt of 16 bytes is automatically generated.</li>
+<li>The password hash length is set to 32.</li>
+</ul>
+<p><a href="struct.PasswordHash.html" title="struct devela::_dep::orion::pwhash::PasswordHash"><code>PasswordHash</code></a> provides two ways of retrieving the hashed password:</p>
+<ul>
+<li><a href="struct.PasswordHash.html#method.unprotected_as_encoded" title="method devela::_dep::orion::pwhash::PasswordHash::unprotected_as_encoded"><code>PasswordHash::unprotected_as_encoded()</code></a> returns the hashed password in an encoded form.
+The encoding specifies the settings used to hash the password.</li>
+<li><a href="struct.PasswordHash.html#method.unprotected_as_bytes" title="method devela::_dep::orion::pwhash::PasswordHash::unprotected_as_bytes"><code>PasswordHash::unprotected_as_bytes()</code></a> returns only the hashed password in raw bytes.</li>
+</ul>
+<p>The following is an example of how the encoded password hash might look:</p>
+<div class="example-wrap"><pre class="language-text"><code>$argon2i$v=19$m=8192,t=3,p=1$c21hbGxzYWx0$lmO1aPPy3x0CcvrKpFLi1TL/uSVJ/eO5hPHiWZFaWvY</code></pre></div>
+<p>See a more detailed description of the <a href="https://github.com/P-H-C/phc-string-format/blob/master/phc-sf-spec.md">encoding format here</a>.</p>
+<h2 id="note"><a class="doc-anchor" href="#note">§</a>Note:</h2>
+<p>This implementation only supports a single thread/lane.</p>
+<h2 id="parameters"><a class="doc-anchor" href="#parameters">§</a>Parameters:</h2>
+<ul>
+<li><code>password</code>: The password to be hashed.</li>
+<li><code>expected</code>: The expected password hash.</li>
+<li><code>iterations</code>: Iterations cost parameter for Argon2i.</li>
+<li><code>memory</code>: Memory (in kibibytes (KiB)) cost parameter for Argon2i.</li>
+</ul>
+<h2 id="errors"><a class="doc-anchor" href="#errors">§</a>Errors:</h2>
+<p>An error will be returned if:</p>
+<ul>
+<li><code>memory</code> is less than 8.</li>
+<li><code>iterations</code> is less than 3.</li>
+<li>The length of the <code>password</code> is greater than <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html#associatedconstant.MAX" title="associated constant isize::MAX"><code>isize::MAX</code></a>.</li>
+<li>The password hash does not match <code>expected</code>.</li>
+</ul>
+<h2 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics:</h2>
+<p>A panic will occur if:</p>
+<ul>
+<li>Failure to generate random bytes securely.</li>
+</ul>
+<h2 id="security"><a class="doc-anchor" href="#security">§</a>Security:</h2>
+<ul>
+<li><a href="struct.PasswordHash.html#method.unprotected_as_encoded" title="method devela::_dep::orion::pwhash::PasswordHash::unprotected_as_encoded"><code>PasswordHash::unprotected_as_encoded()</code></a> and <a href="struct.PasswordHash.html#method.unprotected_as_bytes" title="method devela::_dep::orion::pwhash::PasswordHash::unprotected_as_bytes"><code>PasswordHash::unprotected_as_bytes()</code></a> should never
+be used to compare password hashes, as these will not run in constant-time.
+Either use <a href="fn.hash_password_verify.html" title="fn devela::_dep::orion::pwhash::hash_password_verify"><code>hash_password_verify()</code></a> or compare two <a href="struct.PasswordHash.html" title="struct devela::_dep::orion::pwhash::PasswordHash"><code>PasswordHash</code></a>es.</li>
+<li>Choosing the correct cost parameters is important for security. Please refer to <a href="https://download.libsodium.org/doc/password_hashing/default_phf#guidelines-for-choosing-the-parameters">libsodium’s docs</a>
+for a description of how to do this.</li>
+</ul>
+<p>If the concrete cost parameters needed are unclear, please refer to <a href="https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html">OWASP</a> for recommended minimum values.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example:</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>orion::pwhash;
+
+<span class="kw">let </span>password = pwhash::Password::from_slice(<span class="string">b"Secret password"</span>)<span class="question-mark">?</span>;
+
+<span class="kw">let </span>hash = pwhash::hash_password(<span class="kw-2">&amp;</span>password, <span class="number">3</span>, <span class="number">1</span>&lt;&lt;<span class="number">16</span>)<span class="question-mark">?</span>;
+<span class="macro">assert!</span>(pwhash::hash_password_verify(<span class="kw-2">&amp;</span>hash, <span class="kw-2">&amp;</span>password).is_ok());</code></pre></div>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Password.html" title="struct devela::_dep::orion::pwhash::Password">Password</a></dt><dd>A type to represent the <code>Password</code> that Argon2i hashes and uses for key derivation.</dd><dt><a class="struct" href="struct.PasswordHash.html" title="struct devela::_dep::orion::pwhash::PasswordHash">Password<wbr>Hash</a></dt><dd>A type to represent the <code>PasswordHash</code> that Argon2i returns when used for password hashing.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.PWHASH_LENGTH.html" title="constant devela::_dep::orion::pwhash::PWHASH_LENGTH">PWHASH_<wbr>LENGTH</a></dt><dd>The length of the hashed password.</dd><dt><a class="constant" href="constant.SALT_LENGTH.html" title="constant devela::_dep::orion::pwhash::SALT_LENGTH">SALT_<wbr>LENGTH</a></dt><dd>The length of the salt used for password hashing.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.hash_password.html" title="fn devela::_dep::orion::pwhash::hash_password">hash_<wbr>password</a></dt><dd>Hash a password using Argon2i.</dd><dt><a class="fn" href="fn.hash_password_verify.html" title="fn devela::_dep::orion::pwhash::hash_password_verify">hash_<wbr>password_<wbr>verify</a></dt><dd>Hash and verify a password using Argon2i. The Argon2i parameters <code>iterations</code>
+and <code>memory</code> will be pulled from the <code>expected: &amp;PasswordHash</code> argument. If
+you want to manually specify the iterations and memory for Argon2i to use in
+hashing the <code>password</code> argument, see the
+<a href="../hazardous/kdf/argon2i/index.html" title="mod devela::_dep::orion::hazardous::kdf::argon2i"><code>hazardous::kdf</code></a> module.</dd></dl></section></div></main></body></html>

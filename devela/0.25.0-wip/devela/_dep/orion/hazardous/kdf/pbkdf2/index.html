@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="PBKDF2(Password-Based Key Derivation Function 2) as specified in the RFC 8018."><title>devela::_dep::orion::hazardous::kdf::pbkdf2 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module pbkdf2</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module pbkdf2</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#parameters" title="Parameters:">Parameters:</a></li><li><a href="#errors" title="Errors:">Errors:</a></li><li><a href="#panics" title="Panics:">Panics:</a></li><li><a href="#security" title="Security:">Security:</a></li><li><a href="#example" title="Example:">Example:</a></li></ul><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep::<wbr>orion::<wbr>hazardous::<wbr>kdf</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../../index.html">devela</a>::<wbr><a href="../../../../index.html">_dep</a>::<wbr><a href="../../../index.html">orion</a>::<wbr><a href="../../index.html">hazardous</a>::<wbr><a href="../index.html">kdf</a></div><h1>Module <span>pbkdf2</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_orion</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>PBKDF2(Password-Based Key Derivation Function 2) as specified in the <a href="https://tools.ietf.org/html/rfc8018">RFC 8018</a>.</p>
+<h2 id="parameters"><a class="doc-anchor" href="#parameters">§</a>Parameters:</h2>
+<ul>
+<li><code>password</code>: Password.</li>
+<li><code>salt</code>: Salt value.</li>
+<li><code>iterations</code>: Iteration count.</li>
+<li><code>dst_out</code>: Destination buffer for the derived key. The length of the
+derived key is implied by the length of <code>dst_out</code>.</li>
+<li><code>expected</code>: The expected derived key.</li>
+</ul>
+<h2 id="errors"><a class="doc-anchor" href="#errors">§</a>Errors:</h2>
+<p>An error will be returned if:</p>
+<ul>
+<li>The length of <code>dst_out</code> is less than 1.</li>
+<li>The specified iteration count is less than 1.</li>
+<li>The hashed password does not match the expected when verifying.</li>
+</ul>
+<h2 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics:</h2>
+<p>A panic will occur if:</p>
+<ul>
+<li>The length of <code>dst_out</code> is greater than (2^32 - 1) * SHA(256/384/512)_OUTSIZE.</li>
+</ul>
+<h2 id="security"><a class="doc-anchor" href="#security">§</a>Security:</h2>
+<ul>
+<li>Use <a href="sha512/struct.Password.html#method.generate" title="associated function devela::_dep::orion::hazardous::kdf::pbkdf2::sha512::Password::generate"><code>Password::generate()</code></a> to randomly generate a password of the same length as
+the underlying SHA2 hash functions blocksize.</li>
+<li>Salts should always be generated using a CSPRNG.
+<a href="../../../util/fn.secure_rand_bytes.html" title="fn devela::_dep::orion::util::secure_rand_bytes"><code>secure_rand_bytes()</code></a> can be used for this.</li>
+<li>The recommended length for a salt is 64 bytes.</li>
+<li>The iteration count should be set as high as feasible. Please check <a href="https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html">OWASP</a> for
+the recommended minimum amount (600000 at the time of writing).</li>
+<li>Please note that when verifying, a copy of the computed password hash is placed into
+<code>dst_out</code>. If the derived hash is considered sensitive and you want to provide defense
+in depth against an attacker reading your application’s private memory, then you as
+the user are responsible for zeroing out this buffer (see the <a href="https://crates.io/crates/zeroize"><code>zeroize</code> crate</a>).</li>
+</ul>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example:</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>orion::{hazardous::kdf::pbkdf2, util};
+
+<span class="kw">let </span><span class="kw-2">mut </span>salt = [<span class="number">0u8</span>; <span class="number">64</span>];
+util::secure_rand_bytes(<span class="kw-2">&amp;mut </span>salt)<span class="question-mark">?</span>;
+<span class="kw">let </span>password = pbkdf2::sha512::Password::from_slice(<span class="string">"Secret password"</span>.as_bytes())<span class="question-mark">?</span>;
+<span class="kw">let </span><span class="kw-2">mut </span>dst_out = [<span class="number">0u8</span>; <span class="number">64</span>];
+
+pbkdf2::sha512::derive_key(<span class="kw-2">&amp;</span>password, <span class="kw-2">&amp;</span>salt, <span class="number">10000</span>, <span class="kw-2">&amp;mut </span>dst_out)<span class="question-mark">?</span>;
+
+<span class="kw">let </span>expected_dk = dst_out;
+
+<span class="macro">assert!</span>(pbkdf2::sha512::verify(<span class="kw-2">&amp;</span>expected_dk, <span class="kw-2">&amp;</span>password, <span class="kw-2">&amp;</span>salt, <span class="number">10000</span>, <span class="kw-2">&amp;mut </span>dst_out).is_ok());</code></pre></div>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="sha256/index.html" title="mod devela::_dep::orion::hazardous::kdf::pbkdf2::sha256">sha256</a></dt><dd>PBKDF2-HMAC-SHA256 (Password-Based Key Derivation Function 2) as specified in the <a href="https://tools.ietf.org/html/rfc8018">RFC 8018</a>.</dd><dt><a class="mod" href="sha384/index.html" title="mod devela::_dep::orion::hazardous::kdf::pbkdf2::sha384">sha384</a></dt><dd>PBKDF2-HMAC-SHA384 (Password-Based Key Derivation Function 2) as specified in the <a href="https://tools.ietf.org/html/rfc8018">RFC 8018</a>.</dd><dt><a class="mod" href="sha512/index.html" title="mod devela::_dep::orion::hazardous::kdf::pbkdf2::sha512">sha512</a></dt><dd>PBKDF2-HMAC-SHA512 (Password-Based Key Derivation Function 2) as specified in the <a href="https://tools.ietf.org/html/rfc8018">RFC 8018</a>.</dd></dl></section></div></main></body></html>

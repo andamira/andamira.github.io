@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CoroutineState","TaskPoll"],"macro":["task_ready"],"struct":["CoroManager","CoroWork","CoroWorker","FuturePending","FuturePollFn","FutureReady","TaskContext","TaskRawWaker","TaskRawWakerVTable","TaskWaker"],"trait":["Coroutine","ExtFuture","Future","IntoFuture","TaskWake"]};

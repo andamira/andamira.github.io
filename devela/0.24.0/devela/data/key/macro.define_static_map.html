@@ -1,0 +1,213 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Build a custom static hashmap."><title>define_static_map in devela::data::key - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">define_<wbr>static_<wbr>map</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#arguments" title="Arguments">Arguments</a></li><li><a href="#notes" title="Notes">Notes</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>data::<wbr>key</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">data</a>::<wbr><a href="index.html">key</a></div><h1>Macro <span class="macro">define_static_map</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/data/key/static_map/define.rs.html#93-929">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! define_static_map {
+    (const // Default constructor
+        $NAME:ident, KEY:$KEY:ty $(,)?
+    ) =&gt; { ... };
+    (const // Custom Empty/Tomb, Default Hasher
+        $NAME:ident, KEY:$KEY:ty, EMPTY:$EMPTY:expr, TOMB:$TOMB:expr $(,)?
+    ) =&gt; { ... };
+    (const // Custom Hasher, Default Empty/Tomb
+        $NAME:ident, KEY:$KEY:ty, HASHER: | $HASH_ARG:ident | $HASH_EXPR:expr $(,)?
+    ) =&gt; { ... };
+    (const // Fully customizable
+        $NAME:ident, KEY:$KEY:ty, EMPTY:$EMPTY:expr, TOMB:$TOMB:expr,
+        HASHER: | $HASH_ARG:ident | $HASH_EXPR:expr $(,)?
+    ) =&gt; { ... };
+    ( // Default constructor
+        $NAME:ident, KEY:$KEY:ty $(,)?
+    ) =&gt; { ... };
+    ( // Custom Empty/Tomb, Default Hasher
+        $NAME:ident, KEY:$KEY:ty, EMPTY:$EMPTY:expr, TOMB:$TOMB:expr $(,)?
+    ) =&gt; { ... };
+    ( // Custom Hasher, Default Empty/Tomb
+        $NAME:ident, KEY:$KEY:ty, HASHER: | $HASH_ARG:ident | $HASH_EXPR:expr $(,)?
+    ) =&gt; { ... };
+    ( // Fully customizable
+        $NAME:ident, KEY:$KEY:ty, EMPTY:$EMPTY:expr, TOMB:$TOMB:expr,
+        HASHER: | $HASH_ARG:ident | $HASH_EXPR:expr $(,)?
+    ) =&gt; { ... };
+    (typeid // uses 64-bit hashes of `TypeId`s for the keys
+     $NAME:ident $(,)?) =&gt; { ... };
+    (@shared $NAME:ident, KEY:$KEY:ty, HASHER: | $HASH_ARG:ident | $HASH_EXPR:expr $(,)?) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Build a custom static hashmap.</p>
+<h2 id="arguments"><a class="doc-anchor" href="#arguments">§</a>Arguments</h2>
+<ul>
+<li><code>$NAME</code>:      the name of the new hashmap.</li>
+<li><code>$KEY</code>:       the integer primitive type for the keys.</li>
+</ul>
+<p>optional:</p>
+<ul>
+<li><code>$EMPTY</code>:     the <code>$KEY</code> value for empty entries.</li>
+<li><code>$TOMB</code>:      the <code>$KEY</code> value for deleted entries.</li>
+<li><code>$HASH_ARG</code>:  the argument representing the byte slice.</li>
+<li><code>$HASH_EXPR</code>: the const hasher expression using <code>$HASH_ARG</code>.</li>
+</ul>
+<h2 id="notes"><a class="doc-anchor" href="#notes">§</a>Notes</h2>
+<ul>
+<li>values <code>V</code> have to be <code>Copy</code> + <code>ConstDefault</code>.</li>
+<li>keys <code>$KEY</code> can be any primitive integers, floats or <code>char</code>.</li>
+<li>Two specific <code>$KEY</code> values are reserved to indicate empty deleted keys.
+They default to <code>MIN</code> and <code>MAX</code>, respectively, but can be customized.</li>
+<li>The default hasher is <a href="../../all/struct.HasherFx.html" title="struct devela::all::HasherFx"><code>HasherFx</code></a>.</li>
+</ul>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>See the example type: <a href="../../all/struct.ExampleStaticMapU16.html" title="struct devela::all::ExampleStaticMapU16"><code>ExampleStaticMapU16</code></a>.</p>
+<p>Basic usage</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Define a static hashmap with `u16` keys and default hasher
+</span><span class="macro">define_static_map!</span>[<span class="kw">const </span>ExampleMap, KEY: u16];
+
+<span class="kw">let </span><span class="kw-2">mut </span>map = ExampleMap::&lt;u16, u32, <span class="number">8</span>&gt;::new();
+
+<span class="comment">// Insert key-value pairs
+</span>map.insert(<span class="number">1</span>, <span class="number">100</span>).unwrap();
+map.insert(<span class="number">2</span>, <span class="number">200</span>).unwrap();
+
+<span class="comment">// Retrieve values
+</span><span class="macro">assert_eq!</span>(map.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">100</span>));
+<span class="macro">assert_eq!</span>(map.get(<span class="number">2</span>), <span class="prelude-val">Some</span>(<span class="number">200</span>));
+<span class="macro">assert_eq!</span>(map.get(<span class="number">3</span>), <span class="prelude-val">None</span>); <span class="comment">// Key not found
+
+// Delete a key
+</span><span class="macro">assert!</span>(map.remove(<span class="number">1</span>));
+<span class="macro">assert_eq!</span>(map.get(<span class="number">1</span>), <span class="prelude-val">None</span>);
+
+<span class="comment">// Check introspection methods
+</span><span class="macro">assert_eq!</span>(map.len(), <span class="number">1</span>);
+<span class="macro">assert!</span>(!map.is_empty());
+<span class="macro">assert!</span>(!map.is_full());
+
+<span class="comment">// Rebuild after deletions to optimize probing
+</span><span class="kw">if </span>map.should_rebuild() {
+    map.rebuild();
+}</code></pre></div>
+<p>Custom hashers</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Define a static hashmap using `HasherFx` with a custom seed
+</span><span class="macro">define_static_map!</span>[<span class="kw">const </span>ExampleMapFxSeeded, KEY: u16,
+    HASHER: |b| HasherFx::&lt;usize&gt;::hash_bytes_with_seed(<span class="number">123</span>, b)
+];
+<span class="kw">let </span><span class="kw-2">mut </span>map = ExampleMapFxSeeded::&lt;u16, u32, <span class="number">8</span>&gt;::new();
+map.insert(<span class="number">1</span>, <span class="number">100</span>).unwrap();
+<span class="macro">assert_eq!</span>(map.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">100</span>));
+
+<span class="comment">// Define a static hashmap using a stateful pengy hasher
+</span><span class="macro">define_static_map!</span>[<span class="kw">const </span>ExampleMapPengy, KEY: u16,
+    HASHER: |b| {
+        <span class="kw">let </span><span class="kw-2">mut </span>p = HasherPengy::new();
+        p.process(b);
+        p.digest() <span class="kw">as </span>usize
+    }
+];
+<span class="kw">let </span><span class="kw-2">mut </span>map = ExampleMapPengy::&lt;u16, u32, <span class="number">8</span>&gt;::new();
+map.insert(<span class="number">1</span>, <span class="number">100</span>).unwrap();
+<span class="macro">assert_eq!</span>(map.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">100</span>));</code></pre></div>
+</div></details></section></div></main></body></html>

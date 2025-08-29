@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Memory management. mem::{cell} "><title>devela::sys::mem - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module mem</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li><li><a href="#unions" title="Unions">Unions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>sys</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">sys</a></div><h1>Module <span>mem</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/sys/mem/mod.rs.html#3-72">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Memory management.
+<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::sys::mem">mem</a>::{<a href="cell/index.html" title="mod devela::sys::mem::cell">cell</a>}</span>
+<br/><br style='display:block;content:"";margin-top:10px;' /></p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../../_dep/_std/alloc/index.html" title="mod devela::_dep::_std::alloc">alloc</a>, <a href="../../_dep/_alloc/borrow/index.html" title="mod devela::_dep::_alloc::borrow">borrow</a>, <a href="../../_dep/_alloc/boxed/index.html" title="mod devela::_dep::_alloc::boxed">boxed</a>, <a href="../../_core/cell/index.html" title="mod devela::_core::cell">cell</a>, <a href="../../_core/mem/index.html" title="mod devela::_core::mem">mem</a>, <a href="../../_core/pin/index.html" title="mod devela::_core::pin">pin</a>, <a href="../../_core/ptr/index.html" title="mod devela::_core::ptr">ptr</a>, <a href="../../_dep/_alloc/rc/index.html" title="mod devela::_dep::_alloc::rc">rc</a>, <a href="../../_dep/_alloc/slice/index.html" title="mod devela::_dep::_alloc::slice">slice</a>}</span><hr/></p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="cell/index.html" title="mod devela::sys::mem::cell">cell</a></dt><dd>Shareable mutable containers.</dd></dl><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.cswap.html" title="macro devela::sys::mem::cswap">cswap</a></dt><dd>Swaps two mutable variables in a <em>compile-time</em> friendly manner.</dd><dt><a class="macro" href="macro.join.html" title="macro devela::sys::mem::join">join</a></dt><dd><span class='stab portability' title='Text-related type'>𝐓</span>
+Joins multiple byte slices or string slices in compile-time.</dd><dt><a class="macro" href="macro.offset_of.html" title="macro devela::sys::mem::offset_of">offset_<wbr>of</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Expands to the offset in bytes of a field from the beginning of the given type.</dd><dt><a class="macro" href="macro.pin.html" title="macro devela::sys::mem::pin">pin</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Constructs a <code><a href="../../all/struct.Pin.html" title="struct devela::all::Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.reference.html" title="primitive reference">&amp;mut</a> T&gt;</code>, by pinning a <code>value: T</code> locally.</dd><dt><a class="macro" href="macro.size_of_expr.html" title="macro devela::sys::mem::size_of_expr">size_<wbr>of_<wbr>expr</a></dt><dd>Returns the size of an expression in bytes.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Alloc.html" title="struct devela::sys::mem::Alloc">Alloc</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Memory-allocation-related operations.</dd><dt><a class="struct" href="struct.BareBox.html" title="struct devela::sys::mem::BareBox">BareBox</a></dt><dd>A no-op pointer type, like a <a href="../../all/struct.Box.html" title="struct devela::all::Box"><code>Box</code></a> but without affecting how <code>T</code> is stored.</dd><dt><a class="struct" href="struct.Box.html" title="struct devela::sys::mem::Box">Box</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+A pointer type that uniquely owns a heap allocation of type <code>T</code>.</dd><dt><a class="struct" href="struct.Boxed.html" title="struct devela::sys::mem::Boxed">Boxed</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd>A zero-sized marker for a <a href="../../all/trait.Storage.html" title="trait devela::all::Storage"><code>Storage</code></a> type that wraps its data in a <a href="../../all/struct.Box.html" title="struct devela::all::Box"><code>Box</code></a>.</dd><dt><a class="struct" href="struct.BumpAlloc.html" title="struct devela::sys::mem::BumpAlloc">Bump<wbr>Alloc</a><wbr><span class="stab portability" title="Available on crate features `alloc` and `unsafe_layout` only"><code>alloc</code> and <code>unsafe_layout</code></span></dt><dd><span class='stab portability' title='Allocator-related item'>🧺</span>
+A simple, single-threaded bump allocator.</dd><dt><a class="struct" href="struct.CacheAlign.html" title="struct devela::sys::mem::CacheAlign">Cache<wbr>Align</a></dt><dd>Aligns and pads a value to the length of a cache line.</dd><dt><a class="struct" href="struct.Current.html" title="struct devela::sys::mem::Current">Current</a><wbr><span class="stab portability" title="Available on crate features `std` and `unsafe_layout` only"><code>std</code> and <code>unsafe_layout</code></span></dt><dd>A marker object representing the current instance of a type <code>T</code>.</dd><dt><a class="struct" href="struct.CurrentGuard.html" title="struct devela::sys::mem::CurrentGuard">Current<wbr>Guard</a><wbr><span class="stab portability" title="Available on crate features `std` and `unsafe_layout` only"><code>std</code> and <code>unsafe_layout</code></span></dt><dd>A guard that temporarily sets a global current pointer for <code>T</code>, restoring the old one on drop.</dd><dt><a class="struct" href="struct.Discriminant.html" title="struct devela::sys::mem::Discriminant">Discriminant</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Opaque type representing the discriminant of an enum.</dd><dt><a class="struct" href="struct.FatPtr.html" title="struct devela::sys::mem::FatPtr">FatPtr</a></dt><dd>Represents a fat pointer with separate data and metadata pointers.</dd><dt><a class="struct" href="struct.ManuallyDrop.html" title="struct devela::sys::mem::ManuallyDrop">Manually<wbr>Drop</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A wrapper to inhibit compiler from automatically calling <code>T</code>’s destructor.</dd><dt><a class="struct" href="struct.Mem.html" title="struct devela::sys::mem::Mem">Mem</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Memory-related operations.</dd><dt><a class="struct" href="struct.MemLayout.html" title="struct devela::sys::mem::MemLayout">MemLayout</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+Layout of a block of memory.</dd><dt><a class="struct" href="struct.MemLayoutError.html" title="struct devela::sys::mem::MemLayoutError">MemLayout<wbr>Error</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+The <a href="../../all/struct.MemLayout.html" title="struct devela::all::MemLayout"><code>MemLayout</code></a> parameters violated constraints.</dd><dt><a class="struct" href="struct.Pin.html" title="struct devela::sys::mem::Pin">Pin</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A pointer which pins its pointee in place.</dd><dt><a class="struct" href="struct.Pinned.html" title="struct devela::sys::mem::Pinned">Pinned</a><wbr><span class="stab portability" title="Available on crate feature `unsafe_ptr` only"><code>unsafe_ptr</code></span></dt><dd>A wrapper for structurally pinned data.</dd><dt><a class="struct" href="struct.Ptr.html" title="struct devela::sys::mem::Ptr">Ptr</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Pointer-related operations.</dd><dt><a class="struct" href="struct.PtrNonNull.html" title="struct devela::sys::mem::PtrNonNull">PtrNon<wbr>Null</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+<code>*mut T</code> but non-zero and <em>covariant</em>.</dd><dt><a class="struct" href="struct.Rc.html" title="struct devela::sys::mem::Rc">Rc</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+A single-threaded reference-counting pointer.</dd><dt><a class="struct" href="struct.RcWeak.html" title="struct devela::sys::mem::RcWeak">RcWeak</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+A version of <code>Rc</code> that holds a non-owning reference to the managed allocation.</dd><dt><a class="struct" href="struct.Slice.html" title="struct devela::sys::mem::Slice">Slice</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Slice-related operations, most of them <em>const</em>.</dd><dt><a class="struct" href="struct.SystemAlloc.html" title="struct devela::sys::mem::SystemAlloc">System<wbr>Alloc</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+The default memory allocator provided by the operating system.</dd><dt><a class="struct" href="struct.WasmAlloc.html" title="struct devela::sys::mem::WasmAlloc">Wasm<wbr>Alloc</a><wbr><span class="stab portability" title="Available on crate feature `alloc` and crate feature `unsafe_layout` and WebAssembly only"><code>alloc</code> and <code>unsafe_layout</code> and WebAssembly</span></dt><dd><span class='stab portability' title='Allocator-related item'>🧺</span>
+A WebAssembly global memory allocator that uses a bump allocation strategy.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.Backing.html" title="enum devela::sys::mem::Backing">Backing</a></dt><dd>Controls how memory is provided for a value.</dd><dt><a class="enum" href="enum.Cow.html" title="enum devela::sys::mem::Cow">Cow</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+A clone-on-write smart pointer.</dd><dt><a class="enum" href="enum.MaybeOwned.html" title="enum devela::sys::mem::MaybeOwned">Maybe<wbr>Owned</a></dt><dd>A container that may hold either a borrowed or owned value.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.BitSized.html" title="trait devela::sys::mem::BitSized">BitSized</a></dt><dd>Type size information in bits.</dd><dt><a class="trait" href="trait.Borrow.html" title="trait devela::sys::mem::Borrow">Borrow</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A trait for borrowing data.</dd><dt><a class="trait" href="trait.BorrowMut.html" title="trait devela::sys::mem::BorrowMut">Borrow<wbr>Mut</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A trait for mutably borrowing data.</dd><dt><a class="trait" href="trait.ByteSized.html" title="trait devela::sys::mem::ByteSized">Byte<wbr>Sized</a></dt><dd>Type size information in bytes.</dd><dt><a class="trait" href="trait.ExtMem.html" title="trait devela::sys::mem::ExtMem">ExtMem</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Extension trait for type memory information and manipulation.</dd><dt><a class="trait" href="trait.ExtSlice.html" title="trait devela::sys::mem::ExtSlice">ExtSlice</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Extension trait providing additional methods for <a href="https://doc.rust-lang.org/nightly/std/primitive.slice.html" title="primitive slice"><code>&amp;[T]</code></a>.</dd><dt><a class="trait" href="trait.ExtSliceMut.html" title="trait devela::sys::mem::ExtSliceMut">ExtSlice<wbr>Mut</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Extension trait providing additional methods for <a href="https://doc.rust-lang.org/nightly/std/primitive.slice.html" title="primitive slice"><code>&amp;mut [T]</code></a>.</dd><dt><a class="trait" href="trait.GlobalAlloc.html" title="trait devela::sys::mem::GlobalAlloc">Global<wbr>Alloc</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+A memory allocator that can be registered as the standard library’s default.</dd><dt><a class="trait" href="trait.MemAligned.html" title="trait devela::sys::mem::MemAligned">MemAligned</a></dt><dd>Marker trait to verify memory alignment between two types.</dd><dt><a class="trait" href="trait.MemPod.html" title="trait devela::sys::mem::MemPod">MemPod</a><wbr><span class="stab portability" title="Available on crate feature `unsafe_layout` only"><code>unsafe_layout</code></span></dt><dd>Indicates a type is Plain Old Data, and meets specific memory layout guarantees.</dd><dt><a class="trait" href="trait.Ownership.html" title="trait devela::sys::mem::Ownership">Ownership</a></dt><dd>Defines the relationship between a borrowed type and its owned counterpart.</dd><dt><a class="trait" href="trait.Sized.html" title="trait devela::sys::mem::Sized">Sized</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Types with a constant size known at compile time.</dd><dt><a class="trait" href="trait.Storage.html" title="trait devela::sys::mem::Storage">Storage</a></dt><dd>Allows to be generic in respect of the data storage.</dd><dt><a class="trait" href="trait.ToOwned.html" title="trait devela::sys::mem::ToOwned">ToOwned</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+A generalization of Clone to borrowed data.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.fn_addr_eq.html" title="fn devela::sys::mem::fn_addr_eq">fn_<wbr>addr_<wbr>eq</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Compares the addresses of the two function pointers for equality.</dd><dt><a class="fn" href="fn.transmute.html" title="fn devela::sys::mem::transmute">transmute</a><sup title="unsafe function">⚠</sup><wbr><span class="stab deprecated" title="">Deprecated</span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Reinterprets the bits of a value of one type as another type.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.Bare.html" title="type devela::sys::mem::Bare">Bare</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A zero-sized marker for a <a href="../../all/trait.Storage.html" title="trait devela::all::Storage"><code>Storage</code></a> type that wraps its data in a <a href="../../all/struct.BareBox.html" title="struct devela::all::BareBox"><code>BareBox</code></a>.</dd></dl><h2 id="unions" class="section-header">Unions<a href="#unions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="union" href="union.MaybeUninit.html" title="union devela::sys::mem::MaybeUninit">Maybe<wbr>Uninit</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A wrapper type to construct uninitialized instances of <code>T</code>.</dd></dl></section></div></main></body></html>

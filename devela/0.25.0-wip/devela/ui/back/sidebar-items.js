@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["crossterm","miniquad"],"struct":["UiCap","UiCapImage","UiCapInput","UiCapSound","UiCapSystem","UiCapWindow"],"trait":["UiService"]};

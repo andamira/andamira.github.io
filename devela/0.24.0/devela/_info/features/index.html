@@ -1,0 +1,483 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Library features."><title>devela::_info::features - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module features</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#features-and-flags" title="Features and Flags">Features and Flags</a><ul><li><a href="#development-features" title="Development features">Development features</a></li><li><a href="#environment-features" title="Environment features">Environment features</a></li><li><a href="#module-features" title="Module features">Module features</a></li><li><a href="#safety-features" title="Safety features">Safety features</a></li><li><a href="#capability-features" title="Capability features">Capability features</a></li><li><a href="#dependency-features" title="Dependency features">Dependency features</a></li><li><a href="#nightly-flags" title="Nightly flags">Nightly flags</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>info</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_info</a></div><h1>Module <span>features</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/_info/mod.rs.html#24">Source</a> </span></div><span class="item-info"><div class="stab portability">Available on <strong><code>doc</code> or <code>test</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Library features.</p>
+<h3 id="features-and-flags"><a class="doc-anchor" href="#features-and-flags">§</a>Features and Flags</h3>
+<p>Features are grouped in the following categories:</p>
+<ul>
+<li><a href="#development-features"><em>Development</em></a> (<code>__*</code>)</li>
+<li><a href="#environment-features"><em>Environment</em></a> (<code>alloc</code>, <code>std</code>, <code>no_std</code>)</li>
+<li><a href="#module-features"><em>Module</em></a> (<code>all</code>, <code>code</code>, <code>data</code>, <code>lang</code>, <code>media</code>, <code>num</code>, …)</li>
+<li><a href="#safety-features"><em>Safety</em></a> (<code>safe*</code>, <code>unsafe*</code>)</li>
+<li><a href="#capability-features"><em>Capability</em></a>  (<code>_*</code>)</li>
+<li><a href="#dependency-features"><em>Dependency</em></a> (<code>dep_*</code>)</li>
+</ul>
+<p>Flags are grouped in the following categories:</p>
+<ul>
+<li><a href="#nightly-flags"><em>Nightly</em></a> (<code>nightly_*</code>)</li>
+<li><em>reflection</em> (<code>*··</code>)</li>
+</ul>
+<p>There are no features enabled by default.</p>
+<p>Features from <em>different categories</em> are designed to be (for the most part)
+<em>independent from each other</em>, to be orthogonally composable.</p>
+<p>Note however that not all features are additive,
+e.g. it’s not possible to enable at the same time <code>std</code> and <code>no_std</code>,
+nor <code>safe</code> and <code>unsafe</code>.</p>
+<h4 id="development-features"><a class="doc-anchor" href="#development-features">§</a>Development features</h4>
+<p>Intended for development and internal purposes, like debugging and maintenance.</p>
+<ul>
+<li><code>__dbg</code>: for debugging purposes, shows enabled features and reflection flags.</li>
+<li><code>__no_test</code>: allows excluding examples from being tested.</li>
+</ul>
+<h4 id="environment-features"><a class="doc-anchor" href="#environment-features">§</a>Environment features</h4>
+<p>By default the crate is <code>no_std</code> compatible without allocation.</p>
+<ul>
+<li><code>std</code>: disables <code>no_std</code> compatibility and enables <code>std</code> functionality.</li>
+<li><code>alloc</code>: enables <code>alloc</code> functionality.</li>
+<li><code>no_std</code>: enables functionality incompatible with or substitute of <code>std</code>.</li>
+</ul>
+<h4 id="module-features"><a class="doc-anchor" href="#module-features">§</a>Module features</h4>
+<p>Enabling a parent module enables all its sub-modules,
+except for <code>os</code>.</p>
+<p>They set automatic compile flags named <code>*··</code>, used for reflection.
+For example, <code>num··</code> will be set if any num submodule feature is enabled.</p>
+<ul>
+<li><code>all</code>: enables all the root modules and extra submodules.</li>
+</ul>
+<!-- NOTE some links only work with inlined notation -->
+<p>Root modules &amp; public sub-modules features:</p>
+<ul>
+<li><a href="../../code/index.html" title="mod devela::code"><code>code</code></a>
+<ul>
+<li><a href="../../code/error/index.html" title="mod devela::code::error"><code>error</code></a>:</li>
+</ul>
+</li>
+<li><a href="../../data/index.html" title="mod devela::data"><code>data</code></a>
+<ul>
+<li><a href="../../data/codec/hash/index.html" title="mod devela::data::codec::hash"><code>hash</code></a>:</li>
+</ul>
+</li>
+<li><a href="../../game/index.html" title="mod devela::game"><code>game</code></a>:</li>
+<li><a href="../../lang/index.html" title="mod devela::lang"><code>lang</code></a>:
+<ul>
+<li><code>dsl</code>:</li>
+<li><code>ffi</code>: c, glsl, js.</li>
+<li><code>i18n</code>:</li>
+<li><code>ling</code>: Linguistics.</li>
+</ul>
+</li>
+<li><a href="../../media/index.html" title="mod devela::media"><code>media</code></a>
+<ul>
+<li><a href="../../media/audio/index.html" title="mod devela::media::audio"><code>audio</code></a>:</li>
+<li><a href="../../media/color/index.html" title="mod devela::media::color"><code>color</code></a>:</li>
+<li><a href="../../media/draw/index.html" title="mod devela::media::draw"><code>draw</code></a>:</li>
+<li><a href="../../media/font/index.html" title="mod devela::media::font"><code>font</code></a>:</li>
+<li><a href="../../media/image/index.html" title="mod devela::media::image"><code>image</code></a>:</li>
+<li><a href="../../media/midi/index.html" title="mod devela::media::midi"><code>midi</code></a>:</li>
+<li><a href="../../media/video/index.html" title="mod devela::media::video"><code>video</code></a>:</li>
+</ul>
+</li>
+<li><a href="../../num/index.html" title="mod devela::num"><code>num</code></a>:
+<ul>
+<li><a href="../../num/geom/index.html" title="mod devela::num::geom"><code>geom</code></a>: geometry.
+<ul>
+<li><code>linear</code>: linear algebra</li>
+<li><code>metric</code>:</li>
+<li><code>shape</code>:</li>
+</ul>
+</li>
+<li><a href="../../num/logic/index.html" title="mod devela::num::logic"><code>logic</code></a>:</li>
+<li><code>prim</code>:
+<ul>
+<li><code>cast</code>: <code>PrimitiveCast</code>.</li>
+<li><code>join</code>: <code>PrimitiveJoin</code>.</li>
+<li><code>split</code>: <code>PrimitiveSplit</code>.</li>
+</ul>
+</li>
+<li><a href="../../num/rand/index.html" title="mod devela::num::rand"><code>rand</code></a>: random number generators.</li>
+<li><code>unit</code>: unit prefixes.</li>
+</ul>
+</li>
+<li><a href="../../phys/index.html" title="mod devela::phys"><code>phys</code></a>:
+<ul>
+<li><code>bio</code>:</li>
+<li><code>chem</code>:</li>
+<li><code>elec</code>:</li>
+<li><code>mech</code>:</li>
+<li><a href="../../phys/time/index.html" title="mod devela::phys::time"><code>time</code></a></li>
+<li><code>unit</code>:</li>
+<li><a href="../../phys/wave/index.html" title="mod devela::phys::wave"><code>wave</code></a>: wavelets.</li>
+</ul>
+</li>
+<li><a href="../../sys/index.html" title="mod devela::sys"><code>sys</code></a>: enables all <code>sys</code> sub-features (except for <code>os</code>).
+<ul>
+<li><a href="../../sys/io/index.html" title="mod devela::sys::io"><code>io</code></a>: no_std <code>io</code> implementations.</li>
+<li><a href="../../sys/mem/index.html" title="mod devela::sys::mem"><code>mem</code></a>
+<ul>
+<li><code>bit</code>: <code>BitSize</code>.</li>
+</ul>
+</li>
+<li><a href="../../sys/os/index.html" title="mod devela::sys::os"><code>os</code></a>:
+<ul>
+<li><a href="../../sys/os/linux/index.html" title="mod devela::sys::os::linux"><code>linux</code></a></li>
+<li><code>windows</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../../text/index.html" title="mod devela::text"><code>text</code></a>
+<ul>
+<li><code>ascii</code>: <code>AsciiChar</code>.</li>
+<li><a href="../../text/fmt/index.html" title="mod devela::text::fmt"><code>fmt</code></a>: <code>NumToStr</code>.</li>
+<li><a href="../../text/str/index.html" title="mod devela::text::str"><code>str</code></a>: <code>ExtStr</code>, <code>ExtString</code>.</li>
+</ul>
+</li>
+<li><a href="../../ui/index.html" title="mod devela::ui"><code>ui</code></a>
+<ul>
+<li><a href="../../ui/layout/index.html" title="mod devela::ui::layout"><code>layout</code></a></li>
+</ul>
+</li>
+<li><a href="../../work/index.html" title="mod devela::work"><code>work</code></a>
+<ul>
+<li><code>future</code>:</li>
+<li><code>process</code>:</li>
+<li><code>sync</code>:</li>
+</ul>
+</li>
+</ul>
+<h4 id="safety-features"><a class="doc-anchor" href="#safety-features">§</a>Safety features</h4>
+<p>They offer a convenient way to opt in and out of safety in a granular fashion.</p>
+<ul>
+<li><code>unsafe_*</code> features enable the use of unsafe by <em>purpose</em>.</li>
+<li><code>safe_*</code> features disable the use of unsafe per <em>module</em>.</li>
+</ul>
+<p>Enabling any of them sets either the <code>safe··</code> or <code>unsafe··</code> flag.</p>
+<p>To be able to use any unsafe functionality it’s necessary to:</p>
+<ol>
+<li>enable the corresponding <code>unsafe</code> feature.</li>
+<li>don’t enable that module’s <code>safe</code> feature.</li>
+</ol>
+<ul>
+<li>
+<p><code>safe</code>: forbids <code>unsafe</code> (and overrides unsafe features), including</p>
+<ul>
+<li><code>safe_code</code></li>
+<li><code>safe_data</code></li>
+<li><code>safe_lang</code></li>
+<li><code>safe_media</code>
+<ul>
+<li><code>safe_audio</code></li>
+<li><code>safe_color</code></li>
+<li><code>safe_draw</code></li>
+<li><code>safe_font</code></li>
+<li><code>safe_image</code></li>
+</ul>
+</li>
+<li><code>safe_num</code></li>
+<li><code>safe_phys</code>
+<ul>
+<li><code>safe_time</code></li>
+</ul>
+</li>
+<li><code>safe_sys</code>
+<ul>
+<li><code>safe_io</code></li>
+<li><code>safe_mem</code></li>
+</ul>
+</li>
+<li><code>safe_text</code></li>
+<li><code>safe_work</code></li>
+<li><code>safe_ui</code>
+<ul>
+<li><code>safe_layout</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>unsafe</code>: enables <code>unsafe</code> (as long as it isn’t forbidden for that module), including:</p>
+<ul>
+<li><code>unsafe_array</code>: faster array initialization, <code>UninitArray</code>.</li>
+<li><code>unsafe_ffi</code>: unsafe foreign function calls (WASM, OS, external C).</li>
+<li><code>unsafe_hint</code>: unreachable_unchecked, assert_unchecked.</li>
+<li><code>unsafe_layout</code>: <code>MemPod</code>, DSTs in the stack, <code>ExtAny::downcast*</code>.</li>
+<li><code>unsafe_niche</code>: unchecked niche constructors.</li>
+<li><code>unsafe_ptr</code>: <code>Pinned</code>, pop methods without <code>Clone</code>.</li>
+<li><code>unsafe_slice</code>: extra slice methods, avoid bound checks.</li>
+<li><code>unsafe_str</code>: unchecked utf-8 <code>char</code> and <code>&amp;str</code> conversions.</li>
+<li><code>unsafe_sync</code>: <code>SpinLock</code>, implement <code>Send</code> and <code>Sync</code>.</li>
+<li><code>unsafe_syscall</code>: os syscalls.</li>
+<li><code>unsafe_thread</code>: <code>Logging::set_logger_racy</code>, <code>Env::{remove_var, set_var}</code>.</li>
+</ul>
+</li>
+<li>
+<p><code>safest</code>: forbids <code>unsafe</code> even in dependencies (except for the standard library).</p>
+</li>
+</ul>
+<h4 id="capability-features"><a class="doc-anchor" href="#capability-features">§</a>Capability features</h4>
+<p>These semi-hidden features allows to fine-tune extra capabilities.
+Enabling them will likely worsen compilation times.</p>
+<p>Documentation capabilities:</p>
+<ul>
+<li><code>_docsrs[_stable][_min|_nodep]</code>: enables the most complete (or custom) version
+of the documentation, for <a href="https://docs.rs">docs.rs</a>.</li>
+<li>…</li>
+</ul>
+<h5 id="data-capabilities"><a class="doc-anchor" href="#data-capabilities">§</a><code>data</code> capabilities</h5>
+<p>Enable specific implementations for <a href="../../all/struct.Bitwise.html" title="struct devela::all::Bitwise"><code>Bitwise</code></a>, <a href="../../all/macro.bitfield.html" title="macro devela::all::bitfield"><code>bitfield</code></a>, <a href="../../all/macro.enumset.html" title="macro devela::all::enumset"><code>enumset</code></a>:</p>
+<ul>
+<li><code>_bit_all</code>:
+<ul>
+<li><code>_bit_i8</code>, <code>_bit_i16</code>, <code>_bit_i32</code>, <code>_bit_i64</code>, <code>_bit_i128</code>, <code>_bit_isize</code>.</li>
+<li><code>_bit_u8</code>, <code>_bit_u16</code>, <code>_bit_u32</code>, <code>_bit_u64</code>, <code>_bit_u128</code>, <code>_bit_usize</code>.</li>
+</ul>
+</li>
+</ul>
+<p>They also set the corresponding flag:
+<code>_bit··</code>.</p>
+<p>Enable specific implementations of data collections
+<a href="../../all/struct.Destaque.html" title="struct devela::all::Destaque"><code>Destaque</code></a>, <a href="../../all/struct.Stack.html" title="struct devela::all::Stack"><code>Stack</code></a>:</p>
+<ul>
+<li><code>_collections_all</code>:
+<ul>
+<li><code>_destaque_all</code>:
+<ul>
+<li><code>_destaque_u8</code>, <code>_destaque_u16</code>, <code>_destaque_u32</code>, <code>_destaque_usize</code>.
+<code>_stack_all</code>:
+<code>_stack_u8</code>, <code>_stack_u16</code>, <code>_stack_u32</code>, <code>_stack_usize</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>They also set the corresponding flags:
+<code>_destaque··</code>, <code>_graph··</code>, <code>_node··</code>, <code>_stack··</code>.</p>
+<p>Enable specific implementations for <a href="../../data/struct.Sort.html" title="struct devela::data::Sort"><code>Sort</code></a>.
+<code>_sort_all</code>:
+<code>_sort_u8</code>, <code>_sort_u16</code>, <code>_sort_u32</code>, <code>_sort_u64</code>, <code>_sort_u128</code>, <code>_sort_usize</code>,
+<code>_sort_i8</code>, <code>_sort_i16</code>, <code>_sort_i32</code>, <code>_sort_i64</code>, <code>_sort_i128</code>, <code>_sort_isize</code>,
+<code>_sort_f32</code>, <code>_sort_f64</code>.</p>
+<p>They also set the corresponding flags:
+<code>_sort··</code>, <code>_sort_int··</code>, <code>_sort_float··</code>.</p>
+<p>Implement the <a href="../../all/trait.Tuple.html" title="trait devela::all::Tuple"><code>Tuple</code></a> trait for some maximum arity (12 by default).</p>
+<ul>
+<li><code>_tuple[_24|_36|_48|_72]</code>.</li>
+</ul>
+<h5 id="num-capabilities"><a class="doc-anchor" href="#num-capabilities">§</a><code>num</code> capabilities</h5>
+<p>Enable specific implementations for <a href="../../all/struct.Compare.html" title="struct devela::all::Compare"><code>Compare</code></a>:</p>
+<ul>
+<li><code>_cmp_all</code>:
+<ul>
+<li><code>_cmp_f32</code>, <code>_cmp_f64</code>.</li>
+<li><code>_cmp_f16</code>, <code>_cmp_f128</code>. ←(needs <code>nightly_float</code>)</li>
+<li><code>_cmp_i8</code>, <code>_cmp_i16</code>, <code>_cmp_i32</code>, <code>_cmp_i64</code>, <code>_cmp_i128</code>, <code>_cmp_isize</code>.</li>
+<li><code>_cmp_u8</code>, <code>_cmp_u16</code>, <code>_cmp_u32</code>, <code>_cmp_u64</code>, <code>_cmp_u128</code>,</li>
+</ul>
+</li>
+</ul>
+<p>They also set the corresponding flag:
+<code>_cmp··</code>.</p>
+<p>Enable specific implementations for <a href="../../num/struct.Int.html" title="struct devela::num::Int"><code>Int</code></a>, <a href="../../num/struct.Float.html" title="struct devela::num::Float"><code>Float</code></a>, <a href="../../num/struct.Frac.html" title="struct devela::num::Frac"><code>Frac</code></a>, <a href="../../num/struct.Divisor.html" title="struct devela::num::Divisor"><code>Divisor</code></a>, <a href="../../all/struct.Vector.html" title="struct devela::all::Vector"><code>Vector</code></a>:</p>
+<ul>
+<li><code>_num_all</code>:
+<ul>
+<li><code>_float_all</code>:
+<ul>
+<li><code>_float_f32</code>, <code>_float_f64</code>.</li>
+<li><code>_float_f16</code>, <code>_float_f128</code>. ←(needs <code>nightly_float</code>)</li>
+</ul>
+</li>
+<li><code>_int_all</code>:
+<ul>
+<li><code>_int_iall</code>:
+<ul>
+<li><code>_int_i8</code>, <code>_int_i16</code>, <code>_int_i32</code>, <code>_int_i64</code>, <code>_int_i128</code>, <code>_int_isize</code>.</li>
+</ul>
+</li>
+<li><code>_int_uall</code>:
+<ul>
+<li><code>_int_u8</code>, <code>_int_u16</code>, <code>_int_u32</code>, <code>_int_u64</code>, <code>_int_u128</code>, <code>_int_usize</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>They also set the corresponding flags:
+<code>_nums··</code>, <code>_float··</code>, <code>_int··</code>, <code>_int_i··</code>, <code>_int_u··</code>.</p>
+<h5 id="text-capabilities"><a class="doc-anchor" href="#text-capabilities">§</a><code>text</code> capabilities</h5>
+<p>Enable specific implementations for <a href="../../text/struct.char8.html" title="struct devela::text::char8"><code>char*</code></a>:</p>
+<ul>
+<li><code>_char7</code>, <code>_char8</code>, <code>_char16</code>.</li>
+</ul>
+<p>Enable specific implementations for <a href="../../all/struct.StringU8.html" title="struct devela::all::StringU8"><code>StringU*</code></a>*, <a href="../../all/struct.StringNonul.html" title="struct devela::all::StringNonul"><code>StringNonul</code></a>:</p>
+<ul>
+<li><code>_str_all</code>:
+<ul>
+<li><code>_str_uall</code>:
+<ul>
+<li><code>_str_u8</code>, <code>_str_u16</code>, <code>_str_u32</code>, <code>_str_usize</code>.</li>
+</ul>
+</li>
+<li><code>_str_nonul</code>.</li>
+</ul>
+</li>
+</ul>
+<p>They also set the corresponding flags:
+<code>_char··</code>, <code>_str··</code>, <code>_str_u··</code>.</p>
+<h4 id="dependency-features"><a class="doc-anchor" href="#dependency-features">§</a>Dependency features</h4>
+<ul>
+<li>
+<p>Optional dependencies are re-exported from the <a href="../../_dep/index.html" title="mod devela::_dep"><code>_dep</code></a> root module.</p>
+</li>
+<li>
+<p>Can be enabled with the <code>dep_crate_name</code> feature in snake_case.</p>
+</li>
+<li>
+<p>Enabling any of them sets the <code>_dep··</code> flag.</p>
+</li>
+<li>
+<p><code>dep_all</code>: enables all the optional dependencies.</p>
+</li>
+</ul>
+<p>There are also the following groups of dependencies:</p>
+<ul>
+<li><code>alloc_deps</code>: enables: <code>alloc</code>, <code>dep_allocator_api2</code>.</li>
+<li><code>linux_deps</code>: enables: <code>linux</code>, <code>dep_atomic</code>, <code>dep_bytemuck</code>, <code>dep_nc</code>, <code>dep_rustix</code>.</li>
+<li><code>text_deps</code>: enables: <code>text</code>, <code>dep_const_str</code>, <code>dep_memchr</code>, <code>dep_regex_lite</code>, <code>dep_stringzilla</code>, <code>dep_unicode_segmentation</code>, <code>dep_unicode_width</code>.</li>
+<li><code>work_deps</code>: enables <code>work</code>, <code>dep_atomic</code>, <code>dep_portable_atomic</code>, <code>dep_rayon</code>, <code>dep_tokio</code>.</li>
+</ul>
+<h4 id="nightly-flags"><a class="doc-anchor" href="#nightly-flags">§</a>Nightly flags</h4>
+<p>Enabling any of them sets the <code>nightly··</code> reflection flag.</p>
+<p>Usage example:</p>
+<div class="example-wrap"><pre class="language-sh"><code>RUSTFLAGS=&quot;--cfg nightly_coro --cfg nightly_stable_next1&quot; cargo +nightly build</code></pre></div>
+<ul>
+<li><code>nightly</code>: enables the nightly cfg flags:
+<ul>
+<li><code>nightly_allocator</code>: enables <a href="https://github.com/rust-lang/rust/issues/32838"><code>allocator_api</code></a>.</li>
+</ul>
+<!-- - `nightly_autodiff`: enables [`autodiff`]. FEATURE_DISABLED:nightly_autodiff -->
+<ul>
+<li><code>nightly_bigint</code>: enables <a href="https://github.com/rust-lang/rust/issues/85532"><code>bigint_helper_methods</code></a>.</li>
+<li><code>nightly_coro</code>: enables <a href="https://github.com/rust-lang/rust/issues/43122"><code>coroutines</code></a>, <code>coroutine_trait</code>, <code>iter_from_coroutine</code>.</li>
+<li><code>nightly_doc</code>: enables <a href="https://github.com/rust-lang/rust/issues/43781"><code>doc_cfg</code></a>, <a href="https://github.com/rust-lang/rust/issues/45040"><code>doc_notable_trait</code></a>.</li>
+<li><code>nightly_float</code>: enables <a href="https://github.com/rust-lang/rust/issues/116909"><code>f16</code>, <code>f128</code></a>.</li>
+<li><code>nightly_simd</code>: enables <a href="https://github.com/rust-lang/rust/issues/86656"><code>portable_simd</code></a>.</li>
+<li><code>nightly_stable</code>: enables stabilized features marked to be released <em>soon</em>:
+<ul>
+<li><code>nightly_stable_next1</code>: in the next version.</li>
+<li><code>nightly_stable_next2</code>: in the version after that.</li>
+<li><code>nightly_stable_later</code>: later than that but <em>soon enough</em>.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div></details></section></div></main></body></html>

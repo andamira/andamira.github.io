@@ -1,0 +1,178 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="⚠️ Dynamically-sized types stored without need of heap allocation."><title>devela::data::dst - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module dst</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module dst</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a><ul><li><a href="#an-unboxed-any" title="An unboxed any">An unboxed any</a></li><li><a href="#stack-allocated-closures" title="Stack-allocated closures">Stack-allocated closures</a></li><li><a href="#custom-allocation-sizestypes" title="Custom allocation sizes/types">Custom allocation sizes/types</a></li></ul></li><li><a href="#vendored" title="Vendored">Vendored</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>data</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">data</a></div><h1>Module <span>dst</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/data/dst/mod.rs.html#3-42">Source</a> </span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>unsafe_layout</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Fails to compile with Miri.'><code>⚠️</code></span>
+Dynamically-sized types stored without need of heap allocation.</p>
+<div class='warning'>Fails to compile with Miri.<p><em>See <a href = 'https://github.com/thepowersgang/stack_dst-rs/issues/14'>https://github.com/thepowersgang/stack_dst-rs/issues/14</a>.</em></p></div>
+This module adds support for storing dynamically-sized types within fixed-size
+allocations.
+<ul>
+<li>The <code>DstValue</code> type provides a fixed size (7 word in the current version)
+buffer in which a trait object or array can be stored, without resorting
+to a heap allocation.</li>
+<li>The <code>DstQueue</code> and <code>DstStack</code> types provide collection types
+(first-in-first-out and last-in-first-out).</li>
+</ul>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2><h3 id="an-unboxed-any"><a class="doc-anchor" href="#an-unboxed-any">§</a>An unboxed any</h3>
+<p>The following example wraps a 64-bit integer up in an inline DST using the <code>Any</code>
+trait:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>dst = DstValue::&lt;<span class="kw">dyn </span>Any, DstArray&lt;usize, <span class="number">2</span>&gt;&gt;::new(<span class="number">1234u64</span>, |p| p)
+    .ok().expect(<span class="string">"Integer did not fit in allocation"</span>);
+<span class="macro">println!</span>(<span class="string">"dst as u64 = {:?}"</span>, dst.downcast_ref::&lt;u64&gt;());
+<span class="macro">println!</span>(<span class="string">"dst as i8 = {:?}"</span>, dst.downcast_ref::&lt;i8&gt;());</code></pre></div>
+<h3 id="stack-allocated-closures"><a class="doc-anchor" href="#stack-allocated-closures">§</a>Stack-allocated closures</h3>
+<p>The following snippet shows how small (<code>'static</code>) closures can be returned using
+this crate:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>c = DstValue::&lt;<span class="kw">dyn </span>Fn(i32) -&gt; i32, DstArrayUsize&lt;<span class="number">1</span>&gt;&gt;::new(|n| n * <span class="number">3</span>, |v| v)
+    .ok().expect(<span class="string">"Not enough size!"</span>);
+<span class="macro">assert_eq!</span>(c(<span class="number">6</span>), <span class="number">18</span>);
+
+<span class="kw">let </span><span class="kw-2">mut </span>q = DstQueue::&lt;<span class="kw">dyn </span>Fn(i32) -&gt; i32, DstArrayUsize&lt;<span class="number">8</span>&gt;&gt;::new();
+<span class="macro">assert!</span>[q.push_back(|n| n * <span class="number">3</span>, |v| v).is_ok()];
+<span class="macro">assert!</span>[q.push_back(|n| n - <span class="number">3</span>, |v| v).is_ok()];
+<span class="macro">assert_eq!</span>[<span class="number">18</span>, q.front().unwrap()(<span class="number">6</span>)];
+<span class="macro">assert_eq!</span>[<span class="number">21</span>, q.pop_front().unwrap()(<span class="number">7</span>)];
+<span class="macro">assert_eq!</span>[<span class="number">5</span>, q.pop_front().unwrap()(<span class="number">8</span>)];</code></pre></div>
+<h3 id="custom-allocation-sizestypes"><a class="doc-anchor" href="#custom-allocation-sizestypes">§</a>Custom allocation sizes/types</h3>
+<p>If you need larger alignment, you can use a different type for the backing array.
+(Note: that metadata uses at least one slot in the array).</p>
+<p>This code panics, because <code>i128</code> requires 8/16 byte alignment (usually):</p>
+
+<div class="example-wrap should_panic"><a href="#" class="tooltip" title="This example panics">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">let </span>v: DstValue&lt;<span class="kw">dyn </span>Any, DstArray&lt;u8, <span class="number">32</span>&gt;&gt; =
+    DstValue::new(<span class="number">123i128</span>, |p| p <span class="kw">as _</span>).unwrap();</code></pre></div>
+<p>This works, because the backing buffer has sufficient alignment:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>v: DstValue&lt;<span class="kw">dyn </span>Any, DstArray&lt;u128, <span class="number">2</span>&gt;&gt; =
+    DstValue::new(<span class="number">123i128</span>, |p| p <span class="kw">as _</span>).unwrap();</code></pre></div>
+<h2 id="vendored"><a class="doc-anchor" href="#vendored">§</a>Vendored</h2>
+<p>This is adapted work from <a href="../../_info/vendored/index.html#stack_dst" title="mod devela::_info::vendored">stack_dst</a>.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.DstArray.html" title="struct devela::data::dst::DstArray">DstArray</a></dt><dd><span class='stab portability' title='Data-structure (collection)'>🗃️</span>
+A static array for storing <abbr title="Dynamically sized type">DST</abbr>s.</dd><dt><a class="struct" href="struct.DstQueue.html" title="struct devela::data::dst::DstQueue">DstQueue</a></dt><dd><span class='stab portability' title='Data-structure (collection)'>🗃️</span>
+A statically allocated FIFO queue of <abbr title="Dynamically sized type">DST</abbr>s.</dd><dt><a class="struct" href="struct.DstQueueIter.html" title="struct devela::data::dst::DstQueueIter">DstQueue<wbr>Iter</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+An iterator over the elements of a <a href="../../all/struct.DstQueue.html" title="struct devela::all::DstQueue"><code>DstQueue</code></a>.</dd><dt><a class="struct" href="struct.DstQueueIterMut.html" title="struct devela::data::dst::DstQueueIterMut">DstQueue<wbr>Iter<wbr>Mut</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+A mutable iterator over the elements of a <a href="../../all/struct.DstQueue.html" title="struct devela::all::DstQueue"><code>DstQueue</code></a>.</dd><dt><a class="struct" href="struct.DstQueuePopHandle.html" title="struct devela::data::dst::DstQueuePopHandle">DstQueue<wbr>PopHandle</a></dt><dd>Handle returned by <a href="../../all/struct.DstQueue.html#method.pop" title="struct devela::all::DstQueue"><code>DstQueue::pop</code></a>
+(does the actual pop on drop).</dd><dt><a class="struct" href="struct.DstStack.html" title="struct devela::data::dst::DstStack">DstStack</a></dt><dd><span class='stab portability' title='Data-structure (collection)'>🗃️</span>
+A statically allocated LIFO stack of <abbr title="Dynamically sized
+type">DST</abbr>s.</dd><dt><a class="struct" href="struct.DstStackIter.html" title="struct devela::data::dst::DstStackIter">DstStack<wbr>Iter</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+An iterator over the elements of a <a href="../../all/struct.DstStack.html" title="struct devela::all::DstStack"><code>DstStack</code></a>.</dd><dt><a class="struct" href="struct.DstStackIterMut.html" title="struct devela::data::dst::DstStackIterMut">DstStack<wbr>Iter<wbr>Mut</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+A mutable iterator over the elements of a <a href="../../all/struct.DstStack.html" title="struct devela::all::DstStack"><code>DstStack</code></a>.</dd><dt><a class="struct" href="struct.DstValue.html" title="struct devela::data::dst::DstValue">DstValue</a></dt><dd><span class='stab portability' title='Data-structure (collection)'>🗃️</span>
+A statically allocated <abbr title="Dynamically sized type">DST</abbr> value.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.DstBuf.html" title="trait devela::data::dst::DstBuf">DstBuf</a></dt><dd><span class='stab portability' title='Data-structure (collection)'>🗃️</span>
+Represents the backing buffer for storing dynamically sized types.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.DstArrayUsize.html" title="type devela::data::dst::DstArrayUsize">DstArray<wbr>Usize</a></dt><dd><span class='stab portability' title='Data-structure (collection)'>🗃️</span>
+A statically allocated buffer for storing <abbr title="Dynamically sized
+type">DST</abbr>s with pointer alignment.</dd><dt><a class="type" href="type.DstQueueUsize.html" title="type devela::data::dst::DstQueueUsize">DstQueue<wbr>Usize</a></dt><dd><span class='stab portability' title='Data-structure (collection)'>🗃️</span>
+A statically allocated FIFO queue of <abbr title="Dynamically sized
+type">DST</abbr>s with pointer alignment.</dd><dt><a class="type" href="type.DstStackUsize.html" title="type devela::data::dst::DstStackUsize">DstStack<wbr>Usize</a></dt><dd><span class='stab portability' title='Data-structure (collection)'>🗃️</span>
+A statically allocated LIFO stack of
+<abbr title="Dynamically sized type">DST</abbr>s with pointer alignment.</dd><dt><a class="type" href="type.DstValueUsize.html" title="type devela::data::dst::DstValueUsize">DstValue<wbr>Usize</a></dt><dd><span class='stab portability' title='Data-structure (collection)'>🗃️</span>
+A statically allocated <abbr title="Dynamically sized type">DST</abbr>
+value with pointer alignment.</dd><dt><a class="type" href="type.DstVecUsize.html" title="type devela::data::dst::DstVecUsize">DstVec<wbr>Usize</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Data-structure (collection)'>🗃️</span>
+A dynamically allocated buffer for storing <abbr title="Dynamically sized
+type">DST</abbr>s with pointer alignment.</dd></dl></section></div></main></body></html>

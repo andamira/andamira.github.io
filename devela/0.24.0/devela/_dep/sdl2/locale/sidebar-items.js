@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_preferred_locales"],"struct":["Locale","LocaleIterator"]};

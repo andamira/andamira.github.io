@@ -1,0 +1,130 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Linearized perceptual lightness (L* in linear space)."><title>LinearLightness in devela::media::color - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc type"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">LinearLightness</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Linear<wbr>Lightness</a></h2><h3><a href="#aliased-type">Aliased Type</a></h3><h3><a href="#fields">Fields</a></h3><ul class="block field"><li><a href="#structfield.c" title="c">c</a></li></ul><h3><a href="#implementations">Methods</a></h3><ul class="block method"><li><a href="#method.linear_lightness" title="linear_lightness">linear_lightness</a></li><li><a href="#method.linear_lightness-1" title="linear_lightness">linear_lightness</a></li><li><a href="#method.linear_lightness-2" title="linear_lightness">linear_lightness</a></li><li><a href="#method.linear_lightness_mut" title="linear_lightness_mut">linear_lightness_mut</a></li><li><a href="#method.linear_lightness_mut-1" title="linear_lightness_mut">linear_lightness_mut</a></li><li><a href="#method.linear_lightness_mut-2" title="linear_lightness_mut">linear_lightness_mut</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>media::<wbr>color</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">media</a>::<wbr><a href="index.html">color</a></div><h1>Type Alias <span class="type">Linear<wbr>Lightness</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/media/color/luminance.rs.html#64">Source</a> </span></div><pre class="rust item-decl"><code>pub type LinearLightness&lt;T&gt; = <a class="struct" href="../../all/struct.Lum.html" title="struct devela::all::Lum">Lum</a>&lt;T, true, true&gt;;</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>color</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Linearized perceptual lightness (L* in linear space).</p>
+<p>Use cases include:</p>
+<ul>
+<li>Combining linear luminance (for precise computations)
+and perceptual lightness (for display scaling).</li>
+<li>Tone mapping in HDR imaging, where linear data is scaled to a perceptual range.</li>
+<li>Representing raw radiometric data (e.g., watts/sr/m²) prior to photometric weighting (CIE Y).</li>
+</ul>
+</div></details><h2 id="aliased-type" class="section-header">Aliased Type<a href="#aliased-type" class="anchor">§</a></h2><pre class="rust item-decl"><code><div class="code-attribute">#[repr(C)]</div>pub struct LinearLightness&lt;T&gt; {
+    pub c: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">[T; 1]</a>,
+}</code></pre><h2 id="fields" class="fields section-header">Fields<a href="#fields" class="anchor">§</a></h2><span id="structfield.c" class="structfield section-header"><a href="#structfield.c" class="anchor field">§</a><code>c: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">[T; 1]</a></code></span><div class="docblock"><p>The luminance-like channel value.</p>
+</div><h2 id="implementations" class="section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-Lum%3Cu8,+true,+true%3E" class="impl"><a class="src rightside" href="../../../src/devela/media/color/luminance.rs.html#259">Source</a><a href="#impl-Lum%3Cu8,+true,+true%3E" class="anchor">§</a><h3 class="code-header">impl <a class="type" href="../../all/type.LinearLightness.html" title="type devela::all::LinearLightness">LinearLightness</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.linear_lightness" class="method"><a class="src rightside" href="../../../src/devela/media/color/luminance.rs.html#259">Source</a><h4 class="code-header">pub const fn <a href="#method.linear_lightness" class="fn">linear_lightness</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></h4></section></summary><div class="docblock"><p>Returns the <strong>linear-light perceptual</strong> value (experimental).</p>
+<p>Used for hybrid workflows like HDR tonemapping.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.linear_lightness_mut" class="method"><a class="src rightside" href="../../../src/devela/media/color/luminance.rs.html#259">Source</a><h4 class="code-header">pub const fn <a href="#method.linear_lightness_mut" class="fn">linear_lightness_mut</a>(&amp;mut self) -&gt; &amp;mut <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></h4></section></summary><div class="docblock"><p>Returns a mutable reference to the <strong>linear-light perceptual</strong> value.</p>
+</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-Lum%3Cu16,+true,+true%3E" class="impl"><a class="src rightside" href="../../../src/devela/media/color/luminance.rs.html#259">Source</a><a href="#impl-Lum%3Cu16,+true,+true%3E" class="anchor">§</a><h3 class="code-header">impl <a class="type" href="../../all/type.LinearLightness.html" title="type devela::all::LinearLightness">LinearLightness</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.linear_lightness-1" class="method"><a class="src rightside" href="../../../src/devela/media/color/luminance.rs.html#259">Source</a><h4 class="code-header">pub const fn <a href="#method.linear_lightness-1" class="fn">linear_lightness</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a></h4></section></summary><div class="docblock"><p>Returns the <strong>linear-light perceptual</strong> value (experimental).</p>
+<p>Used for hybrid workflows like HDR tonemapping.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.linear_lightness_mut-1" class="method"><a class="src rightside" href="../../../src/devela/media/color/luminance.rs.html#259">Source</a><h4 class="code-header">pub const fn <a href="#method.linear_lightness_mut-1" class="fn">linear_lightness_mut</a>(&amp;mut self) -&gt; &amp;mut <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a></h4></section></summary><div class="docblock"><p>Returns a mutable reference to the <strong>linear-light perceptual</strong> value.</p>
+</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-Lum%3Cf64,+true,+true%3E" class="impl"><a class="src rightside" href="../../../src/devela/media/color/luminance.rs.html#259">Source</a><a href="#impl-Lum%3Cf64,+true,+true%3E" class="anchor">§</a><h3 class="code-header">impl <a class="type" href="../../all/type.LinearLightness.html" title="type devela::all::LinearLightness">LinearLightness</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.linear_lightness-2" class="method"><a class="src rightside" href="../../../src/devela/media/color/luminance.rs.html#259">Source</a><h4 class="code-header">pub const fn <a href="#method.linear_lightness-2" class="fn">linear_lightness</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> <a href="#" class="tooltip" data-notable-ty="f64">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns the <strong>linear-light perceptual</strong> value (experimental).</p>
+<p>Used for hybrid workflows like HDR tonemapping.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.linear_lightness_mut-2" class="method"><a class="src rightside" href="../../../src/devela/media/color/luminance.rs.html#259">Source</a><h4 class="code-header">pub const fn <a href="#method.linear_lightness_mut-2" class="fn">linear_lightness_mut</a>(&amp;mut self) -&gt; &amp;mut <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> <a href="#" class="tooltip" data-notable-ty="&amp;mut f64">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns a mutable reference to the <strong>linear-light perceptual</strong> value.</p>
+</div></details></div></details></div><script src="../../../type.impl/devela/all/struct.Lum.js" data-self-path="devela::media::color::luminance::LinearLightness" async></script><script type="text/json" id="notable-traits-data">{"&mut f64":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.f64.html\">f64</a></code></h3><pre><code><div class=\"where\">impl <a class=\"trait\" href=\"../../num/trait.Num.html\" title=\"trait devela::num::Num\">Num</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.f64.html\">f64</a></div><div class=\"where\">    type <a href=\"../../num/trait.Num.html#associatedtype.Inner\" class=\"associatedtype\">Inner</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.f64.html\">f64</a>;</div><div class=\"where\">    type <a href=\"../../num/trait.Num.html#associatedtype.Out\" class=\"associatedtype\">Out</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.f64.html\">f64</a>;</div><div class=\"where\">    type <a href=\"../../num/trait.Num.html#associatedtype.Rhs\" class=\"associatedtype\">Rhs</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.f64.html\">f64</a>;</div>","f64":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.f64.html\">f64</a></code></h3><pre><code><div class=\"where\">impl <a class=\"trait\" href=\"../../num/trait.Num.html\" title=\"trait devela::num::Num\">Num</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.f64.html\">f64</a></div><div class=\"where\">    type <a href=\"../../num/trait.Num.html#associatedtype.Inner\" class=\"associatedtype\">Inner</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.f64.html\">f64</a>;</div><div class=\"where\">    type <a href=\"../../num/trait.Num.html#associatedtype.Out\" class=\"associatedtype\">Out</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.f64.html\">f64</a>;</div><div class=\"where\">    type <a href=\"../../num/trait.Num.html#associatedtype.Rhs\" class=\"associatedtype\">Rhs</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.f64.html\">f64</a>;</div>"}</script></section></div></main></body></html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Provides extensions for string searching and manipulation functionalities on types that can reference byte slices (u8). This trait extends the capability of any type implementing `AsRef&#60;[u8]&#62;`, allowing easy integration of SIMD-accelerated string processing functions."><title>StringZilla in devela::_dep::stringzilla - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">StringZilla</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">String<wbr>Zilla</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.sz_alignment_score" title="sz_alignment_score">sz_alignment_score</a></li><li><a href="#tymethod.sz_edit_distance" title="sz_edit_distance">sz_edit_distance</a></li><li><a href="#tymethod.sz_find" title="sz_find">sz_find</a></li><li><a href="#tymethod.sz_find_char_from" title="sz_find_char_from">sz_find_char_from</a></li><li><a href="#tymethod.sz_find_char_not_from" title="sz_find_char_not_from">sz_find_char_not_from</a></li><li><a href="#tymethod.sz_find_first_not_of" title="sz_find_first_not_of">sz_find_first_not_of</a></li><li><a href="#tymethod.sz_find_first_of" title="sz_find_first_of">sz_find_first_of</a></li><li><a href="#tymethod.sz_find_last_not_of" title="sz_find_last_not_of">sz_find_last_not_of</a></li><li><a href="#tymethod.sz_find_last_of" title="sz_find_last_of">sz_find_last_of</a></li><li><a href="#tymethod.sz_matches" title="sz_matches">sz_matches</a></li><li><a href="#tymethod.sz_rfind" title="sz_rfind">sz_rfind</a></li><li><a href="#tymethod.sz_rfind_char_from" title="sz_rfind_char_from">sz_rfind_char_from</a></li><li><a href="#tymethod.sz_rfind_char_not_from" title="sz_rfind_char_not_from">sz_rfind_char_not_from</a></li><li><a href="#tymethod.sz_rmatches" title="sz_rmatches">sz_rmatches</a></li><li><a href="#tymethod.sz_rsplits" title="sz_rsplits">sz_rsplits</a></li><li><a href="#tymethod.sz_splits" title="sz_splits">sz_splits</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>stringzilla</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a>::<wbr><a href="index.html">stringzilla</a></div><h1>Trait <span class="trait">String<wbr>Zilla</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>pub trait StringZilla&lt;'a, N&gt;<div class="where">where
+    N: <a class="trait" href="../../code/trait.AsRef.html" title="trait devela::code::AsRef">AsRef</a>&lt;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; + 'a,</div>{
+<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 16 methods</span></summary>    // Required methods
+    fn <a href="#tymethod.sz_find" class="fn">sz_find</a>(&amp;self, needle: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_rfind" class="fn">sz_rfind</a>(&amp;self, needle: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_find_char_from" class="fn">sz_find_char_from</a>(&amp;self, needles: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_rfind_char_from" class="fn">sz_rfind_char_from</a>(&amp;self, needles: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_find_char_not_from" class="fn">sz_find_char_not_from</a>(&amp;self, needles: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_rfind_char_not_from" class="fn">sz_rfind_char_not_from</a>(&amp;self, needles: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_edit_distance" class="fn">sz_edit_distance</a>(&amp;self, other: N) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_alignment_score" class="fn">sz_alignment_score</a>(
+        &amp;self,
+        other: N,
+        matrix: [[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">256</a>]; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">256</a>],
+        gap: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>,
+    ) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_matches" class="fn">sz_matches</a>(&amp;'a self, needle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeMatches.html" title="struct devela::_dep::stringzilla::RangeMatches">RangeMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeMatches&lt;&#39;a&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_rmatches" class="fn">sz_rmatches</a>(&amp;'a self, needle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeRMatches.html" title="struct devela::_dep::stringzilla::RangeRMatches">RangeRMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeRMatches&lt;&#39;a&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_splits" class="fn">sz_splits</a>(&amp;'a self, needle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeSplits.html" title="struct devela::_dep::stringzilla::RangeSplits">RangeSplits</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeSplits&lt;&#39;a&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_rsplits" class="fn">sz_rsplits</a>(&amp;'a self, needle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeRSplits.html" title="struct devela::_dep::stringzilla::RangeRSplits">RangeRSplits</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeRSplits&lt;&#39;a&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_find_first_of" class="fn">sz_find_first_of</a>(&amp;'a self, needles: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeMatches.html" title="struct devela::_dep::stringzilla::RangeMatches">RangeMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeMatches&lt;&#39;a&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_find_last_of" class="fn">sz_find_last_of</a>(&amp;'a self, needles: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeRMatches.html" title="struct devela::_dep::stringzilla::RangeRMatches">RangeRMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeRMatches&lt;&#39;a&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_find_first_not_of" class="fn">sz_find_first_not_of</a>(&amp;'a self, needles: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeMatches.html" title="struct devela::_dep::stringzilla::RangeMatches">RangeMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeMatches&lt;&#39;a&gt;">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.sz_find_last_not_of" class="fn">sz_find_last_not_of</a>(&amp;'a self, needles: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeRMatches.html" title="struct devela::_dep::stringzilla::RangeRMatches">RangeRMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeRMatches&lt;&#39;a&gt;">ⓘ</a>;
+</details>}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_stringzilla</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Provides extensions for string searching and manipulation functionalities
+on types that can reference byte slices (<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html" title="primitive u8">u8</a>). This trait extends the capability
+of any type implementing <code>AsRef&lt;[u8]&gt;</code>, allowing easy integration of SIMD-accelerated
+string processing functions.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>Basic usage on a <code>Vec&lt;u8&gt;</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[<span class="string">b'a'</span>, <span class="string">b'b'</span>, <span class="string">b'c'</span>, <span class="string">b'd'</span>, <span class="string">b'e'</span>];
+<span class="kw">let </span>needle: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[<span class="string">b'c'</span>, <span class="string">b'd'</span>];
+
+<span class="macro">assert_eq!</span>(haystack.sz_find(needle.as_ref()), <span class="prelude-val">Some</span>(<span class="number">2</span>));</code></pre></div>
+<p>Searching in a string slice:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">"abcdef"</span>;
+<span class="kw">let </span>needle = <span class="string">"cd"</span>;
+
+<span class="macro">assert_eq!</span>(haystack.sz_find(needle.as_bytes()), <span class="prelude-val">Some</span>(<span class="number">2</span>));</code></pre></div>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.sz_find" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_find" class="fn">sz_find</a>(&amp;self, needle: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Searches for the first occurrence of <code>needle</code> in <code>self</code>.</p>
+<h5 id="examples-1"><a class="doc-anchor" href="#examples-1">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">"Hello, world!"</span>;
+<span class="macro">assert_eq!</span>(haystack.sz_find(<span class="string">"world"</span>.as_bytes()), <span class="prelude-val">Some</span>(<span class="number">7</span>));</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_rfind" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_rfind" class="fn">sz_rfind</a>(&amp;self, needle: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Searches for the last occurrence of <code>needle</code> in <code>self</code>.</p>
+<h5 id="examples-2"><a class="doc-anchor" href="#examples-2">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">"Hello, world, world!"</span>;
+<span class="macro">assert_eq!</span>(haystack.sz_rfind(<span class="string">"world"</span>.as_bytes()), <span class="prelude-val">Some</span>(<span class="number">14</span>));</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_find_char_from" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_find_char_from" class="fn">sz_find_char_from</a>(&amp;self, needles: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Finds the index of the first character in <code>self</code> that is also present in <code>needles</code>.</p>
+<h5 id="examples-3"><a class="doc-anchor" href="#examples-3">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">"Hello, world!"</span>;
+<span class="macro">assert_eq!</span>(haystack.sz_find_char_from(<span class="string">"aeiou"</span>.as_bytes()), <span class="prelude-val">Some</span>(<span class="number">1</span>));</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_rfind_char_from" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_rfind_char_from" class="fn">sz_rfind_char_from</a>(&amp;self, needles: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Finds the index of the last character in <code>self</code> that is also present in <code>needles</code>.</p>
+<h5 id="examples-4"><a class="doc-anchor" href="#examples-4">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">"Hello, world!"</span>;
+<span class="macro">assert_eq!</span>(haystack.sz_rfind_char_from(<span class="string">"aeiou"</span>.as_bytes()), <span class="prelude-val">Some</span>(<span class="number">8</span>));</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_find_char_not_from" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_find_char_not_from" class="fn">sz_find_char_not_from</a>(&amp;self, needles: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Finds the index of the first character in <code>self</code> that is not present in <code>needles</code>.</p>
+<h5 id="examples-5"><a class="doc-anchor" href="#examples-5">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">"Hello, world!"</span>;
+<span class="macro">assert_eq!</span>(haystack.sz_find_char_not_from(<span class="string">"aeiou"</span>.as_bytes()), <span class="prelude-val">Some</span>(<span class="number">0</span>));</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_rfind_char_not_from" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_rfind_char_not_from" class="fn">sz_rfind_char_not_from</a>(&amp;self, needles: N) -&gt; <a class="enum" href="../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;usize&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Finds the index of the last character in <code>self</code> that is not present in <code>needles</code>.</p>
+<h5 id="examples-6"><a class="doc-anchor" href="#examples-6">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">"Hello, world!"</span>;
+<span class="macro">assert_eq!</span>(haystack.sz_rfind_char_not_from(<span class="string">"aeiou"</span>.as_bytes()), <span class="prelude-val">Some</span>(<span class="number">12</span>));</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_edit_distance" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_edit_distance" class="fn">sz_edit_distance</a>(&amp;self, other: N) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></h4></section></summary><div class="docblock"><p>Computes the Levenshtein edit distance between <code>self</code> and <code>other</code>.</p>
+<h5 id="examples-7"><a class="doc-anchor" href="#examples-7">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>first = <span class="string">"kitten"</span>;
+<span class="kw">let </span>second = <span class="string">"sitting"</span>;
+<span class="macro">assert_eq!</span>(first.sz_edit_distance(second.as_bytes()), <span class="number">3</span>);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_alignment_score" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_alignment_score" class="fn">sz_alignment_score</a>(
+    &amp;self,
+    other: N,
+    matrix: [[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">256</a>]; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">256</a>],
+    gap: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>,
+) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a></h4></section></summary><div class="docblock"><p>Computes the alignment score between <code>self</code> and <code>other</code> using the specified
+substitution matrix and gap penalty.</p>
+<h5 id="examples-8"><a class="doc-anchor" href="#examples-8">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::{sz, StringZilla};
+
+<span class="kw">let </span>first = <span class="string">"kitten"</span>;
+<span class="kw">let </span>second = <span class="string">"sitting"</span>;
+<span class="kw">let </span>matrix = sz::unary_substitution_costs();
+<span class="kw">let </span>gap_penalty = -<span class="number">1</span>;
+<span class="macro">assert_eq!</span>(first.sz_alignment_score(second.as_bytes(), matrix, gap_penalty), -<span class="number">3</span>);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_matches" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_matches" class="fn">sz_matches</a>(&amp;'a self, needle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeMatches.html" title="struct devela::_dep::stringzilla::RangeMatches">RangeMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeMatches&lt;&#39;a&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns an iterator over all non-overlapping matches of the given <code>needle</code> in <code>self</code>.</p>
+<h5 id="arguments"><a class="doc-anchor" href="#arguments">§</a>Arguments</h5>
+<ul>
+<li><code>needle</code>: The byte slice to search for within <code>self</code>.</li>
+</ul>
+<h5 id="examples-9"><a class="doc-anchor" href="#examples-9">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">b"abababa"</span>;
+<span class="kw">let </span>needle = <span class="string">b"aba"</span>;
+<span class="kw">let </span>matches: Vec&lt;<span class="kw-2">&amp;</span>[u8]&gt; = haystack.sz_matches(needle).collect();
+<span class="macro">assert_eq!</span>(matches, <span class="macro">vec!</span>[<span class="string">b"aba"</span>, <span class="string">b"aba"</span>, <span class="string">b"aba"</span>]);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_rmatches" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_rmatches" class="fn">sz_rmatches</a>(&amp;'a self, needle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeRMatches.html" title="struct devela::_dep::stringzilla::RangeRMatches">RangeRMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeRMatches&lt;&#39;a&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns an iterator over all non-overlapping matches of the given <code>needle</code> in <code>self</code>, searching from the end.</p>
+<h5 id="arguments-1"><a class="doc-anchor" href="#arguments-1">§</a>Arguments</h5>
+<ul>
+<li><code>needle</code>: The byte slice to search for within <code>self</code>.</li>
+</ul>
+<h5 id="examples-10"><a class="doc-anchor" href="#examples-10">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">b"abababa"</span>;
+<span class="kw">let </span>needle = <span class="string">b"aba"</span>;
+<span class="kw">let </span>matches: Vec&lt;<span class="kw-2">&amp;</span>[u8]&gt; = haystack.sz_rmatches(needle).collect();
+<span class="macro">assert_eq!</span>(matches, <span class="macro">vec!</span>[<span class="string">b"aba"</span>, <span class="string">b"aba"</span>, <span class="string">b"aba"</span>]);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_splits" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_splits" class="fn">sz_splits</a>(&amp;'a self, needle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeSplits.html" title="struct devela::_dep::stringzilla::RangeSplits">RangeSplits</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeSplits&lt;&#39;a&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns an iterator over the substrings of <code>self</code> that are separated by the given <code>needle</code>.</p>
+<h5 id="arguments-2"><a class="doc-anchor" href="#arguments-2">§</a>Arguments</h5>
+<ul>
+<li><code>needle</code>: The byte slice to split <code>self</code> by.</li>
+</ul>
+<h5 id="examples-11"><a class="doc-anchor" href="#examples-11">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">b"a,b,c,d"</span>;
+<span class="kw">let </span>needle = <span class="string">b","</span>;
+<span class="kw">let </span>splits: Vec&lt;<span class="kw-2">&amp;</span>[u8]&gt; = haystack.sz_splits(needle).collect();
+<span class="macro">assert_eq!</span>(splits, <span class="macro">vec!</span>[<span class="string">b"a"</span>, <span class="string">b"b"</span>, <span class="string">b"c"</span>, <span class="string">b"d"</span>]);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_rsplits" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_rsplits" class="fn">sz_rsplits</a>(&amp;'a self, needle: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeRSplits.html" title="struct devela::_dep::stringzilla::RangeRSplits">RangeRSplits</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeRSplits&lt;&#39;a&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns an iterator over the substrings of <code>self</code> that are separated by the given <code>needle</code>, searching from the end.</p>
+<h5 id="arguments-3"><a class="doc-anchor" href="#arguments-3">§</a>Arguments</h5>
+<ul>
+<li><code>needle</code>: The byte slice to split <code>self</code> by.</li>
+</ul>
+<h5 id="examples-12"><a class="doc-anchor" href="#examples-12">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">b"a,b,c,d"</span>;
+<span class="kw">let </span>needle = <span class="string">b","</span>;
+<span class="kw">let </span>splits: Vec&lt;<span class="kw-2">&amp;</span>[u8]&gt; = haystack.sz_rsplits(needle).collect();
+<span class="macro">assert_eq!</span>(splits, <span class="macro">vec!</span>[<span class="string">b"d"</span>, <span class="string">b"c"</span>, <span class="string">b"b"</span>, <span class="string">b"a"</span>]);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_find_first_of" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_find_first_of" class="fn">sz_find_first_of</a>(&amp;'a self, needles: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeMatches.html" title="struct devela::_dep::stringzilla::RangeMatches">RangeMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeMatches&lt;&#39;a&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns an iterator over all non-overlapping matches of any of the bytes in <code>needles</code> within <code>self</code>.</p>
+<h5 id="arguments-4"><a class="doc-anchor" href="#arguments-4">§</a>Arguments</h5>
+<ul>
+<li><code>needles</code>: The set of bytes to search for within <code>self</code>.</li>
+</ul>
+<h5 id="examples-13"><a class="doc-anchor" href="#examples-13">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">b"Hello, world!"</span>;
+<span class="kw">let </span>needles = <span class="string">b"aeiou"</span>;
+<span class="kw">let </span>matches: Vec&lt;<span class="kw-2">&amp;</span>[u8]&gt; = haystack.sz_find_first_of(needles).collect();
+<span class="macro">assert_eq!</span>(matches, <span class="macro">vec!</span>[<span class="string">b"e"</span>, <span class="string">b"o"</span>, <span class="string">b"o"</span>]);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_find_last_of" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_find_last_of" class="fn">sz_find_last_of</a>(&amp;'a self, needles: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeRMatches.html" title="struct devela::_dep::stringzilla::RangeRMatches">RangeRMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeRMatches&lt;&#39;a&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns an iterator over all non-overlapping matches of any of the bytes in <code>needles</code> within <code>self</code>, searching from the end.</p>
+<h5 id="arguments-5"><a class="doc-anchor" href="#arguments-5">§</a>Arguments</h5>
+<ul>
+<li><code>needles</code>: The set of bytes to search for within <code>self</code>.</li>
+</ul>
+<h5 id="examples-14"><a class="doc-anchor" href="#examples-14">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">b"Hello, world!"</span>;
+<span class="kw">let </span>needles = <span class="string">b"aeiou"</span>;
+<span class="kw">let </span>matches: Vec&lt;<span class="kw-2">&amp;</span>[u8]&gt; = haystack.sz_find_last_of(needles).collect();
+<span class="macro">assert_eq!</span>(matches, <span class="macro">vec!</span>[<span class="string">b"o"</span>, <span class="string">b"o"</span>, <span class="string">b"e"</span>]);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_find_first_not_of" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_find_first_not_of" class="fn">sz_find_first_not_of</a>(&amp;'a self, needles: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeMatches.html" title="struct devela::_dep::stringzilla::RangeMatches">RangeMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeMatches&lt;&#39;a&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns an iterator over all non-overlapping matches of any byte not in <code>needles</code> within <code>self</code>.</p>
+<h5 id="arguments-6"><a class="doc-anchor" href="#arguments-6">§</a>Arguments</h5>
+<ul>
+<li><code>needles</code>: The set of bytes that should not be matched within <code>self</code>.</li>
+</ul>
+<h5 id="examples-15"><a class="doc-anchor" href="#examples-15">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">b"Hello, world!"</span>;
+<span class="kw">let </span>needles = <span class="string">b"aeiou"</span>;
+<span class="kw">let </span>matches: Vec&lt;<span class="kw-2">&amp;</span>[u8]&gt; = haystack.sz_find_first_not_of(needles).collect();
+<span class="macro">assert_eq!</span>(matches, <span class="macro">vec!</span>[<span class="string">b"H"</span>, <span class="string">b"l"</span>, <span class="string">b"l"</span>, <span class="string">b","</span>, <span class="string">b" "</span>, <span class="string">b"w"</span>, <span class="string">b"r"</span>, <span class="string">b"l"</span>, <span class="string">b"d"</span>, <span class="string">b"!"</span>]);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.sz_find_last_not_of" class="method"><h4 class="code-header">fn <a href="#tymethod.sz_find_last_not_of" class="fn">sz_find_last_not_of</a>(&amp;'a self, needles: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a N</a>) -&gt; <a class="struct" href="struct.RangeRMatches.html" title="struct devela::_dep::stringzilla::RangeRMatches">RangeRMatches</a>&lt;'a&gt; <a href="#" class="tooltip" data-notable-ty="RangeRMatches&lt;&#39;a&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns an iterator over all non-overlapping matches of any byte not in <code>needles</code> within <code>self</code>, searching from the end.</p>
+<h5 id="arguments-7"><a class="doc-anchor" href="#arguments-7">§</a>Arguments</h5>
+<ul>
+<li><code>needles</code>: The set of bytes that should not be matched within <code>self</code>.
+q</li>
+</ul>
+<h5 id="examples-16"><a class="doc-anchor" href="#examples-16">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stringzilla::StringZilla;
+
+<span class="kw">let </span>haystack = <span class="string">b"Hello, world!"</span>;
+<span class="kw">let </span>needles = <span class="string">b"aeiou"</span>;
+<span class="kw">let </span>matches: Vec&lt;<span class="kw-2">&amp;</span>[u8]&gt; = haystack.sz_find_last_not_of(needles).collect();
+<span class="macro">assert_eq!</span>(matches, <span class="macro">vec!</span>[<span class="string">b"!"</span>, <span class="string">b"d"</span>, <span class="string">b"l"</span>, <span class="string">b"r"</span>, <span class="string">b"w"</span>, <span class="string">b" "</span>, <span class="string">b","</span>, <span class="string">b"l"</span>, <span class="string">b"l"</span>, <span class="string">b"H"</span>]);</code></pre></div>
+</div></details></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-StringZilla%3C'a,+N%3E-for-T" class="impl"><a href="#impl-StringZilla%3C'a,+N%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;'a, T, N&gt; <a class="trait" href="trait.StringZilla.html" title="trait devela::_dep::stringzilla::StringZilla">StringZilla</a>&lt;'a, N&gt; for T<div class="where">where
+    T: <a class="trait" href="../../code/trait.AsRef.html" title="trait devela::code::AsRef">AsRef</a>&lt;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; + ?<a class="trait" href="../../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a>,
+    N: <a class="trait" href="../../code/trait.AsRef.html" title="trait devela::code::AsRef">AsRef</a>&lt;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; + 'a,</div></h3></section></div><script src="../../../trait.impl/stringzilla/trait.StringZilla.js" async></script><script type="text/json" id="notable-traits-data">{"Option<usize>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../all/trait.ExtOption.html\" title=\"trait devela::all::ExtOption\">ExtOption</a>&lt;T&gt; for <a class=\"enum\" href=\"../../all/enum.Option.html\" title=\"enum devela::all::Option\">Option</a>&lt;T&gt;</div>","RangeMatches<'a>":"<h3>Notable traits for <code><a class=\"struct\" href=\"struct.RangeMatches.html\" title=\"struct devela::_dep::stringzilla::RangeMatches\">RangeMatches</a>&lt;'a&gt;</code></h3><pre><code><div class=\"where\">impl&lt;'a&gt; <a class=\"trait\" href=\"../../all/trait.Iterator.html\" title=\"trait devela::all::Iterator\">Iterator</a> for <a class=\"struct\" href=\"struct.RangeMatches.html\" title=\"struct devela::_dep::stringzilla::RangeMatches\">RangeMatches</a>&lt;'a&gt;</div><div class=\"where\">    type <a href=\"../../all/trait.Iterator.html#associatedtype.Item\" class=\"associatedtype\">Item</a> = &amp;'a [<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u8.html\">u8</a>];</div>","RangeRMatches<'a>":"<h3>Notable traits for <code><a class=\"struct\" href=\"struct.RangeRMatches.html\" title=\"struct devela::_dep::stringzilla::RangeRMatches\">RangeRMatches</a>&lt;'a&gt;</code></h3><pre><code><div class=\"where\">impl&lt;'a&gt; <a class=\"trait\" href=\"../../all/trait.Iterator.html\" title=\"trait devela::all::Iterator\">Iterator</a> for <a class=\"struct\" href=\"struct.RangeRMatches.html\" title=\"struct devela::_dep::stringzilla::RangeRMatches\">RangeRMatches</a>&lt;'a&gt;</div><div class=\"where\">    type <a href=\"../../all/trait.Iterator.html#associatedtype.Item\" class=\"associatedtype\">Item</a> = &amp;'a [<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u8.html\">u8</a>];</div>","RangeRSplits<'a>":"<h3>Notable traits for <code><a class=\"struct\" href=\"struct.RangeRSplits.html\" title=\"struct devela::_dep::stringzilla::RangeRSplits\">RangeRSplits</a>&lt;'a&gt;</code></h3><pre><code><div class=\"where\">impl&lt;'a&gt; <a class=\"trait\" href=\"../../all/trait.Iterator.html\" title=\"trait devela::all::Iterator\">Iterator</a> for <a class=\"struct\" href=\"struct.RangeRSplits.html\" title=\"struct devela::_dep::stringzilla::RangeRSplits\">RangeRSplits</a>&lt;'a&gt;</div><div class=\"where\">    type <a href=\"../../all/trait.Iterator.html#associatedtype.Item\" class=\"associatedtype\">Item</a> = &amp;'a [<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u8.html\">u8</a>];</div>","RangeSplits<'a>":"<h3>Notable traits for <code><a class=\"struct\" href=\"struct.RangeSplits.html\" title=\"struct devela::_dep::stringzilla::RangeSplits\">RangeSplits</a>&lt;'a&gt;</code></h3><pre><code><div class=\"where\">impl&lt;'a&gt; <a class=\"trait\" href=\"../../all/trait.Iterator.html\" title=\"trait devela::all::Iterator\">Iterator</a> for <a class=\"struct\" href=\"struct.RangeSplits.html\" title=\"struct devela::_dep::stringzilla::RangeSplits\">RangeSplits</a>&lt;'a&gt;</div><div class=\"where\">    type <a href=\"../../all/trait.Iterator.html#associatedtype.Item\" class=\"associatedtype\">Item</a> = &amp;'a [<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u8.html\">u8</a>];</div>"}</script></section></div></main></body></html>

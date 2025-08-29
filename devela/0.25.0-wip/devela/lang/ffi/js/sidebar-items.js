@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["JsError","JsValue"],"mod":["web"],"struct":["Js","JsConsole","JsInstant","JsObject","JsTextMetrics","JsTextMetricsFull","JsTimeout"],"type":["js_bool","js_int32","js_null","js_number","js_str","js_uint32","js_undefined"]};

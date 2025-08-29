@@ -1,0 +1,587 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/ui/event/key/ffi.rs`."><title>ffi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/ui/event/key/</div>ffi.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::ui::event::key::key
+<a href=#2 id=2 data-nosnippet>2</a>//
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//! Defines [`EventKeyFfi`], [`KeyFfi`].
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
+<a href=#5 id=5 data-nosnippet>5</a>// TOC
+<a href=#6 id=6 data-nosnippet>6</a>// - struct EventKeyFfi
+<a href=#7 id=7 data-nosnippet>7</a>// - enum KeyFfi
+<a href=#8 id=8 data-nosnippet>8</a>// - static F_KEYS
+<a href=#9 id=9 data-nosnippet>9</a>// - impls `js`
+<a href=#10 id=10 data-nosnippet>10</a>
+<a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span><a href="../../../code/result/opt_res/unwrap.rs.html#37-331"><span class="kw">crate</span>::unwrap</a>;
+<a href=#13 id=13 data-nosnippet>13</a><span class="attr">#[cfg(all(feature = <span class="string">"js"</span>, not(windows)))]
+<a href=#14 id=14 data-nosnippet>14</a></span><span class="macro">crate::items!</span> {
+<a href=#15 id=15 data-nosnippet>15</a>    <span class="kw">use crate</span>::{<a href="../../../text/char/namespace.rs.html#17">Char</a>, <a href="../../../lang/ffi/js/web/event.rs.html#171-181">WebKeyLocation</a>, <a href="../../../sys/mem/slice/namespace.rs.html#44">Slice</a>};
+<a href=#16 id=16 data-nosnippet>16</a>    <a class="macro" href="../../../code/util/_use.rs.html#13-63">crate::_use!</a> {basic::from_utf8}
+<a href=#17 id=17 data-nosnippet>17</a>}
+<a href=#18 id=18 data-nosnippet>18</a>
+<a href=#19 id=19 data-nosnippet>19</a><span class="attr">#[doc = <span class="macro">crate::TAG_FFI!</span>()]
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="doccomment">/// An FFI-safe version of [`EventKey`].
+<a href=#21 id=21 data-nosnippet>21</a></span><span class="attr">#[repr(C)]
+<a href=#22 id=22 data-nosnippet>22</a>#[allow(missing_docs)]
+<a href=#23 id=23 data-nosnippet>23</a>#[derive(Copy, Clone, Debug, Default, PartialEq)]
+<a href=#24 id=24 data-nosnippet>24</a></span><span class="kw">pub struct </span><a href="../../../../../devela/all/struct.EventKeyFfi.html">EventKeyFfi</a> {
+<a href=#25 id=25 data-nosnippet>25</a>    <span class="attr">#[doc = <span class="macro">crate::TAG_FFI!</span>()]
+<a href=#26 id=26 data-nosnippet>26</a>    </span><span class="doccomment">/// The key representing the human-readable code.
+<a href=#27 id=27 data-nosnippet>27</a>    </span><span class="kw">pub </span>semantic: <a href="#75-97">KeyFfi</a>,
+<a href=#28 id=28 data-nosnippet>28</a>    <span class="attr">#[doc = <span class="macro">crate::TAG_FFI!</span>()]
+<a href=#29 id=29 data-nosnippet>29</a>    </span><span class="doccomment">/// The key representing the hardware scan code.
+<a href=#30 id=30 data-nosnippet>30</a>    </span><span class="kw">pub </span>physical: <a href="#75-97">KeyFfi</a>,
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="doccomment">/// The state of the key (pressed or released).
+<a href=#32 id=32 data-nosnippet>32</a>    </span><span class="kw">pub </span>state: <a href="mod.rs.html#48-54">KeyState</a>,
+<a href=#33 id=33 data-nosnippet>33</a>    <span class="doccomment">/// The active modifiers of the key (e.g., Shift, Ctrl).
+<a href=#34 id=34 data-nosnippet>34</a>    </span><span class="kw">pub </span>mods: <a href="media_mods.rs.html#145">KeyMods</a>,
+<a href=#35 id=35 data-nosnippet>35</a>    <span class="attr">#[doc = <span class="macro">crate::TAG_FFI!</span>()]
+<a href=#36 id=36 data-nosnippet>36</a>    </span><span class="doccomment">/// The time stamp of when the event occurred.
+<a href=#37 id=37 data-nosnippet>37</a>    </span><span class="kw">pub </span>time_stamp: <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>,
+<a href=#38 id=38 data-nosnippet>38</a>}
+<a href=#39 id=39 data-nosnippet>39</a>
+<a href=#40 id=40 data-nosnippet>40</a><span class="kw">impl </span><a href="mod.rs.html#32-43">EventKey</a> {
+<a href=#41 id=41 data-nosnippet>41</a>    <span class="doccomment">/// Converts `EventKey` to `EventKeyFfi`.
+<a href=#42 id=42 data-nosnippet>42</a>    </span><span class="kw">pub const fn </span>to_ffi(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="#24-38">EventKeyFfi</a> {
+<a href=#43 id=43 data-nosnippet>43</a>        <a href="#24-38">EventKeyFfi</a> {
+<a href=#44 id=44 data-nosnippet>44</a>            semantic: <a class="self" href="#42">self</a>.semantic.<a href="#101-133">to_ffi</a>(),
+<a href=#45 id=45 data-nosnippet>45</a>            physical: <a class="self" href="#42">self</a>.physical.<a href="#101-133">to_ffi</a>(),
+<a href=#46 id=46 data-nosnippet>46</a>            state: <a class="self" href="#42">self</a>.state,
+<a href=#47 id=47 data-nosnippet>47</a>            mods: <a class="self" href="#42">self</a>.mods,
+<a href=#48 id=48 data-nosnippet>48</a>            time_stamp: <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(t) = <a class="self" href="#42">self</a>.time_stamp { <a href="#48">t</a>.<a href="../time.rs.html#78">as_millis_f32</a>() } <span class="kw">else </span>{ <span class="number">0.0 </span>},
+<a href=#49 id=49 data-nosnippet>49</a>        }
+<a href=#50 id=50 data-nosnippet>50</a>    }
+<a href=#51 id=51 data-nosnippet>51</a>    <span class="doccomment">/// Converts `EventKeyFfi` to `EventKey`.
+<a href=#52 id=52 data-nosnippet>52</a>    </span><span class="kw">pub const fn </span>from_ffi(from: <span class="kw-2">&amp;</span><a href="#24-38">EventKeyFfi</a>) -&gt; <a href="mod.rs.html#32-43">EventKey</a> {
+<a href=#53 id=53 data-nosnippet>53</a>        <a href="mod.rs.html#32-43">EventKey</a> {
+<a href=#54 id=54 data-nosnippet>54</a>            semantic: <a href="#136-168">Key::from_ffi</a>(<a href="#52">from</a>.semantic),
+<a href=#55 id=55 data-nosnippet>55</a>            physical: <a href="#136-168">Key::from_ffi</a>(<a href="#52">from</a>.physical),
+<a href=#56 id=56 data-nosnippet>56</a>            state: <a href="#52">from</a>.state,
+<a href=#57 id=57 data-nosnippet>57</a>            mods: <a href="#52">from</a>.mods,
+<a href=#58 id=58 data-nosnippet>58</a>            time_stamp: <a href="../time.rs.html#63-74">EventTimestamp::try_from_millis_f32</a>(<a href="#52">from</a>.time_stamp),
+<a href=#59 id=59 data-nosnippet>59</a>        }
+<a href=#60 id=60 data-nosnippet>60</a>    }
+<a href=#61 id=61 data-nosnippet>61</a>}
+<a href=#62 id=62 data-nosnippet>62</a><span class="macro">crate::items!</span> {
+<a href=#63 id=63 data-nosnippet>63</a>    <span class="kw">impl </span><a href="../../../../../devela/code/trait.From.html">From</a>&lt;<span class="kw-2">&amp;</span><a href="mod.rs.html#32-43">EventKey</a>&gt; <span class="kw">for </span><a href="#24-38">EventKeyFfi</a> { <span class="kw">fn </span>from(e: <span class="kw-2">&amp;</span><a href="mod.rs.html#32-43">EventKey</a>) -&gt; <span class="self">Self </span>{ <a href="#42-50">EventKey::to_ffi</a>(<a href="#63">e</a>) } }
+<a href=#64 id=64 data-nosnippet>64</a>    <span class="kw">impl </span><a href="../../../../../devela/code/trait.From.html">From</a>&lt;<span class="kw-2">&amp;</span><a href="#24-38">EventKeyFfi</a>&gt; <span class="kw">for </span><a href="mod.rs.html#32-43">EventKey</a> { <span class="kw">fn </span>from(e: <span class="kw-2">&amp;</span><a href="#24-38">EventKeyFfi</a>) -&gt; <span class="self">Self </span>{ <a href="#52-60"><span class="self">Self</span>::from_ffi</a>(<a href="#64">e</a>) } }
+<a href=#65 id=65 data-nosnippet>65</a>    <span class="kw">impl </span><a href="../../../../../devela/code/trait.From.html">From</a>&lt;<a href="mod.rs.html#32-43">EventKey</a>&gt; <span class="kw">for </span><a href="#24-38">EventKeyFfi</a> { <span class="kw">fn </span>from(e: <a href="mod.rs.html#32-43">EventKey</a>) -&gt; <span class="self">Self </span>{ <a href="#42-50">EventKey::to_ffi</a>(<span class="kw-2">&amp;</span><a href="#65">e</a>) } }
+<a href=#66 id=66 data-nosnippet>66</a>    <span class="kw">impl </span><a href="../../../../../devela/code/trait.From.html">From</a>&lt;<a href="#24-38">EventKeyFfi</a>&gt; <span class="kw">for </span><a href="mod.rs.html#32-43">EventKey</a> { <span class="kw">fn </span>from(e: <a href="#24-38">EventKeyFfi</a>) -&gt; <span class="self">Self </span>{ <a href="#52-60"><span class="self">Self</span>::from_ffi</a>(<span class="kw-2">&amp;</span><a href="#66">e</a>) } }
+<a href=#67 id=67 data-nosnippet>67</a>}
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a><span class="attr">#[doc = <span class="macro">crate::TAG_FFI!</span>()]
+<a href=#70 id=70 data-nosnippet>70</a></span><span class="doccomment">/// An FFI-safe version of [`Key`], used in [`EventKeyFfi`][crate::EventKeyFfi].
+<a href=#71 id=71 data-nosnippet>71</a></span><span class="attr">#[repr(C)]
+<a href=#72 id=72 data-nosnippet>72</a>#[non_exhaustive]
+<a href=#73 id=73 data-nosnippet>73</a>#[allow(missing_docs)] #[rustfmt::skip]
+<a href=#74 id=74 data-nosnippet>74</a>#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+<a href=#75 id=75 data-nosnippet>75</a></span><span class="kw">pub enum </span><a href="../../../../../devela/all/enum.KeyFfi.html">KeyFfi</a> {
+<a href=#76 id=76 data-nosnippet>76</a>    Backspace, Enter, Tab, Escape, Space,
+<a href=#77 id=77 data-nosnippet>77</a>    Left, Right, Up, Down,
+<a href=#78 id=78 data-nosnippet>78</a>    Home, End, PageUp, PageDown,
+<a href=#79 id=79 data-nosnippet>79</a>    Delete, Insert,
+<a href=#80 id=80 data-nosnippet>80</a>    CapsLock, ScrollLock, NumLock,
+<a href=#81 id=81 data-nosnippet>81</a>    PrintScreen, Pause, Menu,
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="doccomment">/// Function keys (F1-F48).
+<a href=#83 id=83 data-nosnippet>83</a>    </span>F(<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>),
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="doccomment">/// An alphanumeric key (A-Z, 0-9).
+<a href=#85 id=85 data-nosnippet>85</a>    </span>Alpha(<a href="alpha_pad.rs.html#12-15">KeyAlpha</a>),
+<a href=#86 id=86 data-nosnippet>86</a>    <span class="attr">#[doc = <span class="macro">crate::TAG_FFI!</span>()]
+<a href=#87 id=87 data-nosnippet>87</a>    </span><span class="doccomment">/// A unicode character (FFI-safe, stored as `u32`).
+<a href=#88 id=88 data-nosnippet>88</a>    </span>Char(<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+<a href=#89 id=89 data-nosnippet>89</a>    <span class="doccomment">/// A keypad key.
+<a href=#90 id=90 data-nosnippet>90</a>    </span>Pad(<a href="alpha_pad.rs.html#22-26">KeyPad</a>),
+<a href=#91 id=91 data-nosnippet>91</a>    <span class="doccomment">/// A multimedia key.
+<a href=#92 id=92 data-nosnippet>92</a>    </span>Media(<a href="media_mods.rs.html#26-91">KeyMedia</a>),
+<a href=#93 id=93 data-nosnippet>93</a>    <span class="doccomment">/// A modifier key.
+<a href=#94 id=94 data-nosnippet>94</a>    </span>Mod(<a href="media_mods.rs.html#102-135">KeyMod</a>),
+<a href=#95 id=95 data-nosnippet>95</a>    <span class="attr">#[default]
+<a href=#96 id=96 data-nosnippet>96</a>    </span>Unknown,
+<a href=#97 id=97 data-nosnippet>97</a>}
+<a href=#98 id=98 data-nosnippet>98</a>
+<a href=#99 id=99 data-nosnippet>99</a><span class="kw">impl </span><a href="key.rs.html#20-107">Key</a> {
+<a href=#100 id=100 data-nosnippet>100</a>    <span class="doccomment">/// Converts `Key` to `KeyFfi`.
+<a href=#101 id=101 data-nosnippet>101</a>    </span><span class="kw">pub const fn </span>to_ffi(<span class="self">self</span>) -&gt; <a href="#75-97">KeyFfi</a> {
+<a href=#102 id=102 data-nosnippet>102</a>        <span class="kw">use </span>{<a href="key.rs.html#20-107">Key</a> <span class="kw">as </span>K, <a href="#75-97">KeyFfi</a> <span class="kw">as </span>F};
+<a href=#103 id=103 data-nosnippet>103</a>        <span class="kw">match </span><span class="self"><a href="#101">self</a> </span>{
+<a href=#104 id=104 data-nosnippet>104</a>            <a href="key.rs.html#29">K::Backspace</a> =&gt; <a href="#76">F::Backspace</a>,
+<a href=#105 id=105 data-nosnippet>105</a>            <a href="key.rs.html#31">K::Enter</a> =&gt; <a href="#76">F::Enter</a>,
+<a href=#106 id=106 data-nosnippet>106</a>            <a href="key.rs.html#33">K::Tab</a> =&gt; <a href="#76">F::Tab</a>,
+<a href=#107 id=107 data-nosnippet>107</a>            <a href="key.rs.html#37">K::Escape</a> =&gt; <a href="#76">F::Escape</a>,
+<a href=#108 id=108 data-nosnippet>108</a>            <a href="key.rs.html#41">K::Space</a> =&gt; <a href="#76">F::Space</a>,
+<a href=#109 id=109 data-nosnippet>109</a>            <a href="key.rs.html#45">K::Left</a> =&gt; <a href="#77">F::Left</a>,
+<a href=#110 id=110 data-nosnippet>110</a>            <a href="key.rs.html#47">K::Right</a> =&gt; <a href="#77">F::Right</a>,
+<a href=#111 id=111 data-nosnippet>111</a>            <a href="key.rs.html#49">K::Up</a> =&gt; <a href="#77">F::Up</a>,
+<a href=#112 id=112 data-nosnippet>112</a>            <a href="key.rs.html#51">K::Down</a> =&gt; <a href="#77">F::Down</a>,
+<a href=#113 id=113 data-nosnippet>113</a>            <a href="key.rs.html#54">K::Home</a> =&gt; <a href="#78">F::Home</a>,
+<a href=#114 id=114 data-nosnippet>114</a>            <a href="key.rs.html#56">K::End</a> =&gt; <a href="#78">F::End</a>,
+<a href=#115 id=115 data-nosnippet>115</a>            <a href="key.rs.html#58">K::PageUp</a> =&gt; <a href="#78">F::PageUp</a>,
+<a href=#116 id=116 data-nosnippet>116</a>            <a href="key.rs.html#60">K::PageDown</a> =&gt; <a href="#78">F::PageDown</a>,
+<a href=#117 id=117 data-nosnippet>117</a>            <a href="key.rs.html#64">K::Delete</a> =&gt; <a href="#79">F::Delete</a>,
+<a href=#118 id=118 data-nosnippet>118</a>            <a href="key.rs.html#66">K::Insert</a> =&gt; <a href="#79">F::Insert</a>,
+<a href=#119 id=119 data-nosnippet>119</a>            <a href="key.rs.html#78">K::CapsLock</a> =&gt; <a href="#80">F::CapsLock</a>,
+<a href=#120 id=120 data-nosnippet>120</a>            <a href="key.rs.html#80">K::ScrollLock</a> =&gt; <a href="#80">F::ScrollLock</a>,
+<a href=#121 id=121 data-nosnippet>121</a>            <a href="key.rs.html#82">K::NumLock</a> =&gt; <a href="#80">F::NumLock</a>,
+<a href=#122 id=122 data-nosnippet>122</a>            <a href="key.rs.html#86">K::PrintScreen</a> =&gt; <a href="#81">F::PrintScreen</a>,
+<a href=#123 id=123 data-nosnippet>123</a>            <a href="key.rs.html#88">K::Pause</a> =&gt; <a href="#81">F::Pause</a>,
+<a href=#124 id=124 data-nosnippet>124</a>            <a href="key.rs.html#90">K::Menu</a> =&gt; <a href="#81">F::Menu</a>,
+<a href=#125 id=125 data-nosnippet>125</a>            <a href="key.rs.html#74">K::F</a>(f) =&gt; <a href="#83">F::F</a>(<a href="#125">f</a>),
+<a href=#126 id=126 data-nosnippet>126</a>            <a href="key.rs.html#93">K::Alpha</a>(a) =&gt; <a href="#85">F::Alpha</a>(<a href="#126">a</a>),
+<a href=#127 id=127 data-nosnippet>127</a>            <a href="key.rs.html#96">K::Char</a>(c) =&gt; <a href="#88">F::Char</a>(<a href="#127">c</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>), <span class="comment">// Convert char to u32
+<a href=#128 id=128 data-nosnippet>128</a>            </span><a href="key.rs.html#99">K::Pad</a>(p) =&gt; <a href="#90">F::Pad</a>(<a href="#128">p</a>),
+<a href=#129 id=129 data-nosnippet>129</a>            <a href="key.rs.html#104">K::Media</a>(m) =&gt; <a href="#92">F::Media</a>(<a href="#129">m</a>),
+<a href=#130 id=130 data-nosnippet>130</a>            <a href="key.rs.html#106">K::Mod</a>(m) =&gt; <a href="#94">F::Mod</a>(<a href="#130">m</a>),
+<a href=#131 id=131 data-nosnippet>131</a>            <a href="key.rs.html#25">K::Unknown</a> =&gt; <a href="#96">F::Unknown</a>,
+<a href=#132 id=132 data-nosnippet>132</a>        }
+<a href=#133 id=133 data-nosnippet>133</a>    }
+<a href=#134 id=134 data-nosnippet>134</a>
+<a href=#135 id=135 data-nosnippet>135</a>    <span class="doccomment">/// Converts `KeyFfi` to `Key`.
+<a href=#136 id=136 data-nosnippet>136</a>    </span><span class="kw">pub const fn </span>from_ffi(from: <a href="#75-97">KeyFfi</a>) -&gt; <a href="key.rs.html#20-107">Key</a> {
+<a href=#137 id=137 data-nosnippet>137</a>        <span class="kw">use </span>{<a href="key.rs.html#20-107">Key</a> <span class="kw">as </span>K, <a href="#75-97">KeyFfi</a> <span class="kw">as </span>F};
+<a href=#138 id=138 data-nosnippet>138</a>        <span class="kw">match </span><a href="#136">from</a> {
+<a href=#139 id=139 data-nosnippet>139</a>            <a href="#76">F::Backspace</a> =&gt; <a href="key.rs.html#29">K::Backspace</a>,
+<a href=#140 id=140 data-nosnippet>140</a>            <a href="#76">F::Enter</a> =&gt; <a href="key.rs.html#31">K::Enter</a>,
+<a href=#141 id=141 data-nosnippet>141</a>            <a href="#76">F::Tab</a> =&gt; <a href="key.rs.html#33">K::Tab</a>,
+<a href=#142 id=142 data-nosnippet>142</a>            <a href="#76">F::Escape</a> =&gt; <a href="key.rs.html#37">K::Escape</a>,
+<a href=#143 id=143 data-nosnippet>143</a>            <a href="#76">F::Space</a> =&gt; <a href="key.rs.html#41">K::Space</a>,
+<a href=#144 id=144 data-nosnippet>144</a>            <a href="#77">F::Left</a> =&gt; <a href="key.rs.html#45">K::Left</a>,
+<a href=#145 id=145 data-nosnippet>145</a>            <a href="#77">F::Right</a> =&gt; <a href="key.rs.html#47">K::Right</a>,
+<a href=#146 id=146 data-nosnippet>146</a>            <a href="#77">F::Up</a> =&gt; <a href="key.rs.html#49">K::Up</a>,
+<a href=#147 id=147 data-nosnippet>147</a>            <a href="#77">F::Down</a> =&gt; <a href="key.rs.html#51">K::Down</a>,
+<a href=#148 id=148 data-nosnippet>148</a>            <a href="#78">F::Home</a> =&gt; <a href="key.rs.html#54">K::Home</a>,
+<a href=#149 id=149 data-nosnippet>149</a>            <a href="#78">F::End</a> =&gt; <a href="key.rs.html#56">K::End</a>,
+<a href=#150 id=150 data-nosnippet>150</a>            <a href="#78">F::PageUp</a> =&gt; <a href="key.rs.html#58">K::PageUp</a>,
+<a href=#151 id=151 data-nosnippet>151</a>            <a href="#78">F::PageDown</a> =&gt; <a href="key.rs.html#60">K::PageDown</a>,
+<a href=#152 id=152 data-nosnippet>152</a>            <a href="#79">F::Delete</a> =&gt; <a href="key.rs.html#64">K::Delete</a>,
+<a href=#153 id=153 data-nosnippet>153</a>            <a href="#79">F::Insert</a> =&gt; <a href="key.rs.html#66">K::Insert</a>,
+<a href=#154 id=154 data-nosnippet>154</a>            <a href="#80">F::CapsLock</a> =&gt; <a href="key.rs.html#78">K::CapsLock</a>,
+<a href=#155 id=155 data-nosnippet>155</a>            <a href="#80">F::ScrollLock</a> =&gt; <a href="key.rs.html#80">K::ScrollLock</a>,
+<a href=#156 id=156 data-nosnippet>156</a>            <a href="#80">F::NumLock</a> =&gt; <a href="key.rs.html#82">K::NumLock</a>,
+<a href=#157 id=157 data-nosnippet>157</a>            <a href="#81">F::PrintScreen</a> =&gt; <a href="key.rs.html#86">K::PrintScreen</a>,
+<a href=#158 id=158 data-nosnippet>158</a>            <a href="#81">F::Pause</a> =&gt; <a href="key.rs.html#88">K::Pause</a>,
+<a href=#159 id=159 data-nosnippet>159</a>            <a href="#81">F::Menu</a> =&gt; <a href="key.rs.html#90">K::Menu</a>,
+<a href=#160 id=160 data-nosnippet>160</a>            <a href="#83">F::F</a>(f) =&gt; <a href="key.rs.html#74">K::F</a>(<a href="#160">f</a>),
+<a href=#161 id=161 data-nosnippet>161</a>            <a href="#85">F::Alpha</a>(a) =&gt; <a href="key.rs.html#93">K::Alpha</a>(<a href="#161">a</a>),
+<a href=#162 id=162 data-nosnippet>162</a>            <a href="#88">F::Char</a>(c) =&gt; <a href="key.rs.html#96">K::Char</a>(<a class="macro" href="../../../code/result/opt_res/unwrap.rs.html#37-331">unwrap!</a>[some_or char::from_u32(c), <span class="string">'?'</span>]), <span class="comment">// IMPROVE: ?
+<a href=#163 id=163 data-nosnippet>163</a>            </span><a href="#90">F::Pad</a>(p) =&gt; <a href="key.rs.html#99">K::Pad</a>(<a href="#163">p</a>),
+<a href=#164 id=164 data-nosnippet>164</a>            <a href="#92">F::Media</a>(m) =&gt; <a href="key.rs.html#104">K::Media</a>(<a href="#164">m</a>),
+<a href=#165 id=165 data-nosnippet>165</a>            <a href="#94">F::Mod</a>(m) =&gt; <a href="key.rs.html#106">K::Mod</a>(<a href="#165">m</a>),
+<a href=#166 id=166 data-nosnippet>166</a>            <a href="#96">F::Unknown</a> =&gt; <a href="key.rs.html#25">K::Unknown</a>,
+<a href=#167 id=167 data-nosnippet>167</a>        }
+<a href=#168 id=168 data-nosnippet>168</a>    }
+<a href=#169 id=169 data-nosnippet>169</a>}
+<a href=#170 id=170 data-nosnippet>170</a><span class="macro">crate::items!</span> {
+<a href=#171 id=171 data-nosnippet>171</a>    <span class="kw">impl </span><a href="../../../../../devela/code/trait.From.html">From</a>&lt;<a href="key.rs.html#20-107">Key</a>&gt; <span class="kw">for </span><a href="#75-97">KeyFfi</a> { <span class="kw">fn </span>from(k: <a href="key.rs.html#20-107">Key</a>) -&gt; <span class="self">Self </span>{ <a href="#101-133">Key::to_ffi</a>(<a href="#171">k</a>) } }
+<a href=#172 id=172 data-nosnippet>172</a>    <span class="kw">impl </span><a href="../../../../../devela/code/trait.From.html">From</a>&lt;<a href="#75-97">KeyFfi</a>&gt; <span class="kw">for </span><a href="key.rs.html#20-107">Key</a> { <span class="kw">fn </span>from(k: <a href="#75-97">KeyFfi</a>) -&gt; <span class="self">Self </span>{ <a href="#136-168">Key::from_ffi</a>(<a href="#172">k</a>) } }
+<a href=#173 id=173 data-nosnippet>173</a>}
+<a href=#174 id=174 data-nosnippet>174</a>
+<a href=#175 id=175 data-nosnippet>175</a><span class="attr">#[cfg(all(feature = <span class="string">"js"</span>, not(windows)))]
+<a href=#176 id=176 data-nosnippet>176</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static </span>F_KEYS: [<span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>; <span class="number">48</span>] = [
+<a href=#177 id=177 data-nosnippet>177</a>    <span class="string">"F1"</span>, <span class="string">"F2"</span>, <span class="string">"F3"</span>, <span class="string">"F4"</span>, <span class="string">"F5"</span>, <span class="string">"F6"</span>, <span class="string">"F7"</span>, <span class="string">"F8"</span>, <span class="string">"F9"</span>, <span class="string">"F10"</span>, <span class="string">"F11"</span>, <span class="string">"F12"</span>, <span class="string">"F13"</span>, <span class="string">"F14"</span>, <span class="string">"F15"</span>,
+<a href=#178 id=178 data-nosnippet>178</a>    <span class="string">"F16"</span>, <span class="string">"F17"</span>, <span class="string">"F18"</span>, <span class="string">"F19"</span>, <span class="string">"F20"</span>, <span class="string">"F21"</span>, <span class="string">"F22"</span>, <span class="string">"F23"</span>, <span class="string">"F24"</span>, <span class="string">"F25"</span>, <span class="string">"F26"</span>, <span class="string">"F27"</span>, <span class="string">"F28"</span>,
+<a href=#179 id=179 data-nosnippet>179</a>    <span class="string">"F29"</span>, <span class="string">"F30"</span>, <span class="string">"F31"</span>, <span class="string">"F32"</span>, <span class="string">"F33"</span>, <span class="string">"F34"</span>, <span class="string">"F35"</span>, <span class="string">"F36"</span>, <span class="string">"F37"</span>, <span class="string">"F38"</span>, <span class="string">"F39"</span>, <span class="string">"F40"</span>, <span class="string">"F41"</span>,
+<a href=#180 id=180 data-nosnippet>180</a>    <span class="string">"F42"</span>, <span class="string">"F43"</span>, <span class="string">"F44"</span>, <span class="string">"F45"</span>, <span class="string">"F46"</span>, <span class="string">"F47"</span>, <span class="string">"F48"</span>,
+<a href=#181 id=181 data-nosnippet>181</a>];
+<a href=#182 id=182 data-nosnippet>182</a>
+<a href=#183 id=183 data-nosnippet>183</a><span class="attr">#[rustfmt::skip]
+<a href=#184 id=184 data-nosnippet>184</a>#[cfg(all(feature = <span class="string">"js"</span>, not(windows)))]
+<a href=#185 id=185 data-nosnippet>185</a>#[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"js"</span>)))]
+<a href=#186 id=186 data-nosnippet>186</a></span><span class="kw">impl </span><a href="#75-97">KeyFfi</a> {
+<a href=#187 id=187 data-nosnippet>187</a>    <span class="comment">// IMPROVE generalize and move to some namespace
+<a href=#188 id=188 data-nosnippet>188</a>    // const fn parse_u8_from_bytes(mut bytes: &amp;[u8]) -&gt; (u8, bool) {
+<a href=#189 id=189 data-nosnippet>189</a>    //     let (mut num, mut valid) = (0u8, false);
+<a href=#190 id=190 data-nosnippet>190</a>    //     while let Some((&amp;digit, rest)) = bytes.split_first() {
+<a href=#191 id=191 data-nosnippet>191</a>    //         if digit &lt; b'0' || digit &gt; b'9' { return (0, false); }
+<a href=#192 id=192 data-nosnippet>192</a>    //         num = num * 10 + (digit - b'0');
+<a href=#193 id=193 data-nosnippet>193</a>    //         valid = true;
+<a href=#194 id=194 data-nosnippet>194</a>    //         bytes = rest;
+<a href=#195 id=195 data-nosnippet>195</a>    //     }
+<a href=#196 id=196 data-nosnippet>196</a>    //     (num, valid)
+<a href=#197 id=197 data-nosnippet>197</a>    // }
+<a href=#198 id=198 data-nosnippet>198</a>    </span><span class="kw">const fn </span>parse_u8_from_bytes(bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../devela/all/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; {
+<a href=#199 id=199 data-nosnippet>199</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>num, <span class="kw-2">mut </span>index, <span class="kw-2">mut </span>found_digit) = (<span class="number">0u8</span>, <span class="number">0usize</span>, <span class="bool-val">false</span>);
+<a href=#200 id=200 data-nosnippet>200</a>        <span class="kw">while </span>index &lt; bytes.len() {
+<a href=#201 id=201 data-nosnippet>201</a>            <span class="kw">let </span>digit = bytes[index];
+<a href=#202 id=202 data-nosnippet>202</a>            <span class="kw">if </span>digit &lt; <span class="string">b'0' </span>|| digit &gt; <span class="string">b'9' </span>{ <span class="kw">break</span>; } <span class="comment">// Stop at first invalid character
+<a href=#203 id=203 data-nosnippet>203</a>            </span><span class="kw">let </span>digit_value = digit - <span class="string">b'0'</span>;
+<a href=#204 id=204 data-nosnippet>204</a>            <span class="kw">if </span>num &gt; (u8::MAX / <span class="number">10</span>) || (num == u8::MAX / <span class="number">10 </span>&amp;&amp; digit_value &gt; u8::MAX % <span class="number">10</span>) {
+<a href=#205 id=205 data-nosnippet>205</a>                <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#206 id=206 data-nosnippet>206</a>            }
+<a href=#207 id=207 data-nosnippet>207</a>            num = num * <span class="number">10 </span>+ digit_value;
+<a href=#208 id=208 data-nosnippet>208</a>            found_digit = <span class="bool-val">true</span>;
+<a href=#209 id=209 data-nosnippet>209</a>            index += <span class="number">1</span>;
+<a href=#210 id=210 data-nosnippet>210</a>        }
+<a href=#211 id=211 data-nosnippet>211</a>        <span class="kw">if </span><a href="#199">found_digit</a> { <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#199">num</a>) } <span class="kw">else </span>{ <a class="prelude-val" href="../../../../../devela/all/enum.Option.html"><a href="../../../../../devela/all/enum.Option.html">None</a> </a>}
+<a href=#212 id=212 data-nosnippet>212</a>    }
+<a href=#213 id=213 data-nosnippet>213</a>
+<a href=#214 id=214 data-nosnippet>214</a>    <span class="doccomment">/// Attempts to construct a `KeyMod` from a JavaScript `KeyboardEvent`
+<a href=#215 id=215 data-nosnippet>215</a>    /// physical [code] + a [location].
+<a href=#216 id=216 data-nosnippet>216</a>    ///
+<a href=#217 id=217 data-nosnippet>217</a>    /// [code]: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code
+<a href=#218 id=218 data-nosnippet>218</a>    /// [location]: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/location
+<a href=#219 id=219 data-nosnippet>219</a>    </span><span class="kw">pub const fn </span>from_js_code(code: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, location: <a href="../../../lang/ffi/js/web/event.rs.html#171-181">WebKeyLocation</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/all/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+<a href=#220 id=220 data-nosnippet>220</a>        <span class="kw">use </span><a href="#75-97">KeyFfi</a> <span class="kw">as </span>K;
+<a href=#221 id=221 data-nosnippet>221</a>        <span class="kw">match </span><a href="#219">code</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>() {
+<a href=#222 id=222 data-nosnippet>222</a>            <span class="string">b"Backspace" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#76">K::Backspace</a>),
+<a href=#223 id=223 data-nosnippet>223</a>            <span class="string">b"Enter" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#76">K::Enter</a>),
+<a href=#224 id=224 data-nosnippet>224</a>            <span class="string">b"Tab" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#76">K::Tab</a>),
+<a href=#225 id=225 data-nosnippet>225</a>            <span class="string">b"Escape" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#76">K::Escape</a>),
+<a href=#226 id=226 data-nosnippet>226</a>            <span class="string">b"Space" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#76">K::Space</a>),
+<a href=#227 id=227 data-nosnippet>227</a>            <span class="comment">//
+<a href=#228 id=228 data-nosnippet>228</a>            </span><span class="string">b"ArrowLeft" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#77">K::Left</a>),
+<a href=#229 id=229 data-nosnippet>229</a>            <span class="string">b"ArrowRight" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#77">K::Right</a>),
+<a href=#230 id=230 data-nosnippet>230</a>            <span class="string">b"ArrowUp" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#77">K::Up</a>),
+<a href=#231 id=231 data-nosnippet>231</a>            <span class="string">b"ArrowDown" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#77">K::Down</a>),
+<a href=#232 id=232 data-nosnippet>232</a>            <span class="comment">//
+<a href=#233 id=233 data-nosnippet>233</a>            </span><span class="string">b"Home" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#78">K::Home</a>),
+<a href=#234 id=234 data-nosnippet>234</a>            <span class="string">b"End" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#78">K::End</a>),
+<a href=#235 id=235 data-nosnippet>235</a>            <span class="string">b"PageUp" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#78">K::PageUp</a>),
+<a href=#236 id=236 data-nosnippet>236</a>            <span class="string">b"PageDown" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#78">K::PageDown</a>),
+<a href=#237 id=237 data-nosnippet>237</a>            <span class="comment">//
+<a href=#238 id=238 data-nosnippet>238</a>            </span><span class="string">b"Delete" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#79">K::Delete</a>),
+<a href=#239 id=239 data-nosnippet>239</a>            <span class="string">b"Insert" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#79">K::Insert</a>),
+<a href=#240 id=240 data-nosnippet>240</a>            <span class="comment">//
+<a href=#241 id=241 data-nosnippet>241</a>            </span><span class="string">b"CapsLock" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#80">K::CapsLock</a>),
+<a href=#242 id=242 data-nosnippet>242</a>            <span class="string">b"ScrollLock" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#80">K::ScrollLock</a>),
+<a href=#243 id=243 data-nosnippet>243</a>            <span class="string">b"NumLock" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#80">K::NumLock</a>),
+<a href=#244 id=244 data-nosnippet>244</a>            <span class="comment">//
+<a href=#245 id=245 data-nosnippet>245</a>            </span><span class="string">b"PrintScreen" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#81">K::PrintScreen</a>),
+<a href=#246 id=246 data-nosnippet>246</a>            <span class="string">b"Pause" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#81">K::Pause</a>),
+<a href=#247 id=247 data-nosnippet>247</a>            <span class="string">b"ContextMenu" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#81">K::Menu</a>),
+<a href=#248 id=248 data-nosnippet>248</a>            <span class="kw">_ </span>=&gt; {
+<a href=#249 id=249 data-nosnippet>249</a>                <span class="comment">// Try converting from inner enums
+<a href=#250 id=250 data-nosnippet>250</a>                </span><span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(alpha) = <a href="alpha_pad.rs.html#37-55">KeyAlpha::from_js_code</a>(<a href="#219">code</a>) {
+<a href=#251 id=251 data-nosnippet>251</a>                    <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#85">K::Alpha</a>(<a href="#250">alpha</a>));
+<a href=#252 id=252 data-nosnippet>252</a>                }
+<a href=#253 id=253 data-nosnippet>253</a>                <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(pad) = <a href="alpha_pad.rs.html#119-131">KeyPad::from_js_code</a>(<a href="#219">code</a>) {
+<a href=#254 id=254 data-nosnippet>254</a>                    <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#90">K::Pad</a>(<a href="#253">pad</a>));
+<a href=#255 id=255 data-nosnippet>255</a>                }
+<a href=#256 id=256 data-nosnippet>256</a>                <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(media) = <a href="media_mods.rs.html#196-231">KeyMedia::from_js_code</a>(<a href="#219">code</a>) {
+<a href=#257 id=257 data-nosnippet>257</a>                    <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#92">K::Media</a>(<a href="#256">media</a>));
+<a href=#258 id=258 data-nosnippet>258</a>                }
+<a href=#259 id=259 data-nosnippet>259</a>                <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(mod_key) = <a href="media_mods.rs.html#359-378">KeyMod::from_js_code</a>(<a href="#219">code</a>, <a href="#219">location</a>) {
+<a href=#260 id=260 data-nosnippet>260</a>                    <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#94">K::Mod</a>(<a href="#259">mod_key</a>));
+<a href=#261 id=261 data-nosnippet>261</a>                }
+<a href=#262 id=262 data-nosnippet>262</a>                <span class="kw">let </span>cbytes = <a href="#219">code</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>();
+<a href=#263 id=263 data-nosnippet>263</a>                <span class="comment">// Check if the code starts with "F" (Function keys)
+<a href=#264 id=264 data-nosnippet>264</a>                </span><span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(first) = <a href="#262">cbytes</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.first">first</a>() {
+<a href=#265 id=265 data-nosnippet>265</a>                    <span class="kw">if </span><span class="kw-2">*</span><a href="#264">first</a> == <span class="string">b'F' </span>{
+<a href=#266 id=266 data-nosnippet>266</a>                        <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(n) = <a href="#198-212"><span class="self">Self</span>::parse_u8_from_bytes</a>(<a href="../../../sys/mem/slice/namespace.rs.html#133-135">Slice::range_from</a>(<a href="#262">cbytes</a>, <span class="number">1</span>)) {
+<a href=#267 id=267 data-nosnippet>267</a>                            <span class="kw">if </span><a href="#266">n</a> &gt;= <span class="number">1 </span>&amp;&amp; <a href="#266">n</a> &lt;= <span class="number">48 </span>{ <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#83">K::F</a>(<a href="#266">n</a>)); }
+<a href=#268 id=268 data-nosnippet>268</a>                        }
+<a href=#269 id=269 data-nosnippet>269</a>                    }
+<a href=#270 id=270 data-nosnippet>270</a>                }
+<a href=#271 id=271 data-nosnippet>271</a>                <a class="prelude-val" href="../../../../../devela/all/enum.Option.html"><a href="../../../../../devela/all/enum.Option.html">None</a>
+<a href=#272 id=272 data-nosnippet>272</a>            </a>}
+<a href=#273 id=273 data-nosnippet>273</a>        }
+<a href=#274 id=274 data-nosnippet>274</a>    }
+<a href=#275 id=275 data-nosnippet>275</a>    <span class="doccomment">/// Returns a JavaScript `KeyboardEvent` physical [code] + a [location].
+<a href=#276 id=276 data-nosnippet>276</a>    ///
+<a href=#277 id=277 data-nosnippet>277</a>    /// [code]: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code
+<a href=#278 id=278 data-nosnippet>278</a>    /// [location]: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/location
+<a href=#279 id=279 data-nosnippet>279</a>    </span><span class="kw">pub const fn </span>to_js_code(<span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, <a href="../../../lang/ffi/js/web/event.rs.html#171-181">WebKeyLocation</a>) {
+<a href=#280 id=280 data-nosnippet>280</a>        <span class="kw">use </span><a href="#75-97">KeyFfi</a> <span class="kw">as </span>K;
+<a href=#281 id=281 data-nosnippet>281</a>        <span class="kw">use </span><a href="../../../lang/ffi/js/web/event.rs.html#171-181">WebKeyLocation</a> <span class="kw">as </span>L;
+<a href=#282 id=282 data-nosnippet>282</a>        <span class="kw">match </span><span class="self"><a href="#279">self</a> </span>{
+<a href=#283 id=283 data-nosnippet>283</a>            <a href="#76">K::Backspace</a> =&gt; (<span class="string">"Backspace"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#284 id=284 data-nosnippet>284</a>            <a href="#76">K::Enter</a> =&gt; (<span class="string">"Enter"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#285 id=285 data-nosnippet>285</a>            <a href="#76">K::Tab</a> =&gt; (<span class="string">"Tab"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#286 id=286 data-nosnippet>286</a>            <a href="#76">K::Escape</a> =&gt; (<span class="string">"Escape"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#287 id=287 data-nosnippet>287</a>            <a href="#76">K::Space</a> =&gt; (<span class="string">"Space"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#288 id=288 data-nosnippet>288</a>            <span class="comment">//
+<a href=#289 id=289 data-nosnippet>289</a>            </span><a href="#77">K::Left</a> =&gt; (<span class="string">"ArrowLeft"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#290 id=290 data-nosnippet>290</a>            <a href="#77">K::Right</a> =&gt; (<span class="string">"ArrowRight"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#291 id=291 data-nosnippet>291</a>            <a href="#77">K::Up</a> =&gt; (<span class="string">"ArrowUp"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#292 id=292 data-nosnippet>292</a>            <a href="#77">K::Down</a> =&gt; (<span class="string">"ArrowDown"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#293 id=293 data-nosnippet>293</a>            <span class="comment">//
+<a href=#294 id=294 data-nosnippet>294</a>            </span><a href="#78">K::Home</a> =&gt; (<span class="string">"Home"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#295 id=295 data-nosnippet>295</a>            <a href="#78">K::End</a> =&gt; (<span class="string">"End"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#296 id=296 data-nosnippet>296</a>            <a href="#78">K::PageUp</a> =&gt; (<span class="string">"PageUp"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#297 id=297 data-nosnippet>297</a>            <a href="#78">K::PageDown</a> =&gt; (<span class="string">"PageDown"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#298 id=298 data-nosnippet>298</a>            <span class="comment">//
+<a href=#299 id=299 data-nosnippet>299</a>            </span><a href="#79">K::Delete</a> =&gt; (<span class="string">"Delete"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#300 id=300 data-nosnippet>300</a>            <a href="#79">K::Insert</a> =&gt; (<span class="string">"Insert"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#301 id=301 data-nosnippet>301</a>            <span class="comment">//
+<a href=#302 id=302 data-nosnippet>302</a>            </span><a href="#80">K::CapsLock</a> =&gt; (<span class="string">"CapsLock"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#303 id=303 data-nosnippet>303</a>            <a href="#80">K::ScrollLock</a> =&gt; (<span class="string">"ScrollLock"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#304 id=304 data-nosnippet>304</a>            <a href="#80">K::NumLock</a> =&gt; (<span class="string">"NumLock"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#305 id=305 data-nosnippet>305</a>            <span class="comment">//
+<a href=#306 id=306 data-nosnippet>306</a>            </span><a href="#81">K::PrintScreen</a> =&gt; (<span class="string">"PrintScreen"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#307 id=307 data-nosnippet>307</a>            <a href="#81">K::Pause</a> =&gt; (<span class="string">"Pause"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#308 id=308 data-nosnippet>308</a>            <a href="#81">K::Menu</a> =&gt; (<span class="string">"ContextMenu"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#309 id=309 data-nosnippet>309</a>            <span class="comment">//
+<a href=#310 id=310 data-nosnippet>310</a>            </span><a href="#85">K::Alpha</a>(alpha) =&gt; (<a href="#310">alpha</a>.<a href="alpha_pad.rs.html#59-72">to_js_code</a>(), <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#311 id=311 data-nosnippet>311</a>            <a href="#90">K::Pad</a>(pad) =&gt; (<a href="#311">pad</a>.<a href="alpha_pad.rs.html#135-145">to_js_code</a>(), <a href="../../../lang/ffi/js/web/event.rs.html#180">L::NumPad</a>),
+<a href=#312 id=312 data-nosnippet>312</a>            <a href="#92">K::Media</a>(media) =&gt; (<a href="#312">media</a>.<a href="media_mods.rs.html#235-269">to_js_code</a>(), <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#313 id=313 data-nosnippet>313</a>            <a href="#94">K::Mod</a>(mod_key) =&gt; <a href="#313">mod_key</a>.<a href="media_mods.rs.html#383-401">to_js_code</a>(),
+<a href=#314 id=314 data-nosnippet>314</a>            <span class="comment">//
+<a href=#315 id=315 data-nosnippet>315</a>            </span><a href="#83">K::F</a>(num) =&gt; <span class="kw">match </span><a href="#315">num</a> {
+<a href=#316 id=316 data-nosnippet>316</a>                <span class="number">1</span>..=<span class="number">48 </span>=&gt; (<a href="#176-181">F_KEYS</a>[(<a href="#315">num</a> - <span class="number">1</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>], <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#317 id=317 data-nosnippet>317</a>                <span class="kw">_ </span>=&gt; (<span class="string">"Unknown"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#318 id=318 data-nosnippet>318</a>            },
+<a href=#319 id=319 data-nosnippet>319</a>            <a href="#88">K::Char</a>(c) =&gt; {
+<a href=#320 id=320 data-nosnippet>320</a>                <span class="comment">// Returns the ASCII character, or Unknown otherwise
+<a href=#321 id=321 data-nosnippet>321</a>                </span><span class="kw">if </span><a href="../../../text/char/namespace.rs.html#163">Char::is_7bit</a>(<a href="#319">c</a>) { <span class="kw">return </span>(<a href="../../../text/char/namespace.rs.html#190">Char::code_to_ascii_str_unchecked</a>(<a href="#319">c</a>), <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>); }
+<a href=#322 id=322 data-nosnippet>322</a>                (<span class="string">"Unknown"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>)
+<a href=#323 id=323 data-nosnippet>323</a>            },
+<a href=#324 id=324 data-nosnippet>324</a>            <a href="#96">K::Unknown</a> =&gt; (<span class="string">"Unknown"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#325 id=325 data-nosnippet>325</a>        }
+<a href=#326 id=326 data-nosnippet>326</a>    }
+<a href=#327 id=327 data-nosnippet>327</a>
+<a href=#328 id=328 data-nosnippet>328</a>    <span class="doccomment">/// Attempts to construct a `KeyMod` from a JavaScript `KeyboardEvent`
+<a href=#329 id=329 data-nosnippet>329</a>    /// semantic [key] + a [location].
+<a href=#330 id=330 data-nosnippet>330</a>    ///
+<a href=#331 id=331 data-nosnippet>331</a>    /// [key]: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key
+<a href=#332 id=332 data-nosnippet>332</a>    /// [location]: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/location
+<a href=#333 id=333 data-nosnippet>333</a>    </span><span class="kw">pub const fn </span>from_js_key(key: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, location: <a href="../../../lang/ffi/js/web/event.rs.html#171-181">WebKeyLocation</a>) -&gt; <a class="prelude-ty" href="../../../../../devela/all/enum.Option.html">Option</a>&lt;<span class="self">Self</span>&gt; {
+<a href=#334 id=334 data-nosnippet>334</a>        <span class="kw">use </span><a href="#75-97">KeyFfi</a> <span class="kw">as </span>K;
+<a href=#335 id=335 data-nosnippet>335</a>        <span class="kw">match </span><a href="#333">key</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>() {
+<a href=#336 id=336 data-nosnippet>336</a>            <span class="string">b"Backspace" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#76">K::Backspace</a>),
+<a href=#337 id=337 data-nosnippet>337</a>            <span class="string">b"Enter" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#76">K::Enter</a>),
+<a href=#338 id=338 data-nosnippet>338</a>            <span class="string">b"Tab" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#76">K::Tab</a>),
+<a href=#339 id=339 data-nosnippet>339</a>            <span class="string">b"Escape" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#76">K::Escape</a>),
+<a href=#340 id=340 data-nosnippet>340</a>            <span class="string">b" " </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#76">K::Space</a>),
+<a href=#341 id=341 data-nosnippet>341</a>            <span class="comment">//
+<a href=#342 id=342 data-nosnippet>342</a>            </span><span class="string">b"ArrowLeft" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#77">K::Left</a>),
+<a href=#343 id=343 data-nosnippet>343</a>            <span class="string">b"ArrowRight" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#77">K::Right</a>),
+<a href=#344 id=344 data-nosnippet>344</a>            <span class="string">b"ArrowUp" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#77">K::Up</a>),
+<a href=#345 id=345 data-nosnippet>345</a>            <span class="string">b"ArrowDown" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#77">K::Down</a>),
+<a href=#346 id=346 data-nosnippet>346</a>            <span class="comment">//
+<a href=#347 id=347 data-nosnippet>347</a>            </span><span class="string">b"Home" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#78">K::Home</a>),
+<a href=#348 id=348 data-nosnippet>348</a>            <span class="string">b"End" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#78">K::End</a>),
+<a href=#349 id=349 data-nosnippet>349</a>            <span class="string">b"PageUp" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#78">K::PageUp</a>),
+<a href=#350 id=350 data-nosnippet>350</a>            <span class="string">b"PageDown" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#78">K::PageDown</a>),
+<a href=#351 id=351 data-nosnippet>351</a>            <span class="comment">//
+<a href=#352 id=352 data-nosnippet>352</a>            </span><span class="string">b"Delete" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#79">K::Delete</a>),
+<a href=#353 id=353 data-nosnippet>353</a>            <span class="string">b"Insert" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#79">K::Insert</a>),
+<a href=#354 id=354 data-nosnippet>354</a>            <span class="comment">//
+<a href=#355 id=355 data-nosnippet>355</a>            </span><span class="string">b"CapsLock" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#80">K::CapsLock</a>),
+<a href=#356 id=356 data-nosnippet>356</a>            <span class="string">b"ScrollLock" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#80">K::ScrollLock</a>),
+<a href=#357 id=357 data-nosnippet>357</a>            <span class="string">b"NumLock" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#80">K::NumLock</a>),
+<a href=#358 id=358 data-nosnippet>358</a>            <span class="comment">//
+<a href=#359 id=359 data-nosnippet>359</a>            </span><span class="string">b"PrintScreen" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#81">K::PrintScreen</a>),
+<a href=#360 id=360 data-nosnippet>360</a>            <span class="string">b"Pause" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#81">K::Pause</a>),
+<a href=#361 id=361 data-nosnippet>361</a>            <span class="string">b"ContextMenu" </span>=&gt; <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#81">K::Menu</a>),
+<a href=#362 id=362 data-nosnippet>362</a>            <span class="kw">_ </span>=&gt; {
+<a href=#363 id=363 data-nosnippet>363</a>                <span class="comment">// Try converting from inner enums
+<a href=#364 id=364 data-nosnippet>364</a>                </span><span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(a) = <a href="alpha_pad.rs.html#77-95">KeyAlpha::from_js_key</a>(<a href="#333">key</a>) { <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#85">K::Alpha</a>(<a href="#364">a</a>)); }
+<a href=#365 id=365 data-nosnippet>365</a>                <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(p) = <a href="alpha_pad.rs.html#150-161">KeyPad::from_js_key</a>(<a href="#333">key</a>) { <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#90">K::Pad</a>(<a href="#365">p</a>)); }
+<a href=#366 id=366 data-nosnippet>366</a>                <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(m) = <a href="media_mods.rs.html#274-309">KeyMedia::from_js_key</a>(<a href="#333">key</a>) { <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#92">K::Media</a>(<a href="#366">m</a>)); }
+<a href=#367 id=367 data-nosnippet>367</a>                <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(m) = <a href="media_mods.rs.html#407-426">KeyMod::from_js_key</a>(<a href="#333">key</a>, <a href="#333">location</a>) { <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#94">K::Mod</a>(<a href="#367">m</a>)); }
+<a href=#368 id=368 data-nosnippet>368</a>                <span class="kw">let </span>kbytes = <a href="#333">key</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>();
+<a href=#369 id=369 data-nosnippet>369</a>                <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(first) = <a href="#368">kbytes</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.first">first</a>() {
+<a href=#370 id=370 data-nosnippet>370</a>                    <span class="comment">// Check if the key starts with "F" (Function keys)
+<a href=#371 id=371 data-nosnippet>371</a>                    </span><span class="kw">if </span><span class="kw-2">*</span><a href="#369">first</a> == <span class="string">b'F' </span>{
+<a href=#372 id=372 data-nosnippet>372</a>                        <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(n) = <a href="#198-212"><span class="self">Self</span>::parse_u8_from_bytes</a>(<a href="../../../sys/mem/slice/namespace.rs.html#133-135">Slice::range_from</a>(<a href="#368">kbytes</a>, <span class="number">1</span>)) {
+<a href=#373 id=373 data-nosnippet>373</a>                            <span class="kw">if </span><a href="#372">n</a> &gt;= <span class="number">1 </span>&amp;&amp; <a href="#372">n</a> &lt;= <span class="number">48 </span>{ <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#83">K::F</a>(<a href="#372">n</a>)); }
+<a href=#374 id=374 data-nosnippet>374</a>                        }
+<a href=#375 id=375 data-nosnippet>375</a>                    }
+<a href=#376 id=376 data-nosnippet>376</a>                    <span class="comment">// Handle single UTF-8 characters (only meaningful for semantic keys)
+<a href=#377 id=377 data-nosnippet>377</a>                    </span><span class="kw">let </span>(code, <span class="kw">_</span>) = <a href="../../../text/char/namespace.rs.html#360-384">Char::utf8_bytes_to_code_unchecked</a>(<a href="#368">kbytes</a>, <span class="number">0</span>);
+<a href=#378 id=378 data-nosnippet>378</a>                    <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#88">K::Char</a>(<a href="#377">code</a>));
+<a href=#379 id=379 data-nosnippet>379</a>                }
+<a href=#380 id=380 data-nosnippet>380</a>                <a class="prelude-val" href="../../../../../devela/all/enum.Option.html"><a href="../../../../../devela/all/enum.Option.html">None</a>
+<a href=#381 id=381 data-nosnippet>381</a>            </a>}
+<a href=#382 id=382 data-nosnippet>382</a>        }
+<a href=#383 id=383 data-nosnippet>383</a>    }
+<a href=#384 id=384 data-nosnippet>384</a>    <span class="doccomment">/// Returns a JavaScript `KeyboardEvent` semantic [key] + a [location]
+<a href=#385 id=385 data-nosnippet>385</a>    ///
+<a href=#386 id=386 data-nosnippet>386</a>    /// [key]: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key
+<a href=#387 id=387 data-nosnippet>387</a>    /// [location]: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/location
+<a href=#388 id=388 data-nosnippet>388</a>    </span><span class="kw">pub const fn </span>to_js_key(<span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'static </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, <a href="../../../lang/ffi/js/web/event.rs.html#171-181">WebKeyLocation</a>) {
+<a href=#389 id=389 data-nosnippet>389</a>        <span class="kw">use </span><a href="#75-97">KeyFfi</a> <span class="kw">as </span>K;
+<a href=#390 id=390 data-nosnippet>390</a>        <span class="kw">use </span><a href="../../../lang/ffi/js/web/event.rs.html#171-181">WebKeyLocation</a> <span class="kw">as </span>L;
+<a href=#391 id=391 data-nosnippet>391</a>        <span class="kw">match </span><span class="self"><a href="#388">self</a> </span>{
+<a href=#392 id=392 data-nosnippet>392</a>            <a href="#76">K::Backspace</a> =&gt; (<span class="string">"Backspace"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#393 id=393 data-nosnippet>393</a>            <a href="#76">K::Enter</a> =&gt; (<span class="string">"Enter"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#394 id=394 data-nosnippet>394</a>            <a href="#76">K::Tab</a> =&gt; (<span class="string">"Tab"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#395 id=395 data-nosnippet>395</a>            <a href="#76">K::Escape</a> =&gt; (<span class="string">"Escape"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#396 id=396 data-nosnippet>396</a>            <a href="#76">K::Space</a> =&gt; (<span class="string">" "</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#397 id=397 data-nosnippet>397</a>            <span class="comment">//
+<a href=#398 id=398 data-nosnippet>398</a>            </span><a href="#77">K::Left</a> =&gt; (<span class="string">"ArrowLeft"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#399 id=399 data-nosnippet>399</a>            <a href="#77">K::Right</a> =&gt; (<span class="string">"ArrowRight"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#400 id=400 data-nosnippet>400</a>            <a href="#77">K::Up</a> =&gt; (<span class="string">"ArrowUp"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#401 id=401 data-nosnippet>401</a>            <a href="#77">K::Down</a> =&gt; (<span class="string">"ArrowDown"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#402 id=402 data-nosnippet>402</a>            <span class="comment">//
+<a href=#403 id=403 data-nosnippet>403</a>            </span><a href="#78">K::Home</a> =&gt; (<span class="string">"Home"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#404 id=404 data-nosnippet>404</a>            <a href="#78">K::End</a> =&gt; (<span class="string">"End"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#405 id=405 data-nosnippet>405</a>            <a href="#78">K::PageUp</a> =&gt; (<span class="string">"PageUp"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#406 id=406 data-nosnippet>406</a>            <a href="#78">K::PageDown</a> =&gt; (<span class="string">"PageDown"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#407 id=407 data-nosnippet>407</a>            <span class="comment">//
+<a href=#408 id=408 data-nosnippet>408</a>            </span><a href="#79">K::Delete</a> =&gt; (<span class="string">"Delete"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#409 id=409 data-nosnippet>409</a>            <a href="#79">K::Insert</a> =&gt; (<span class="string">"Insert"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#410 id=410 data-nosnippet>410</a>            <span class="comment">//
+<a href=#411 id=411 data-nosnippet>411</a>            </span><a href="#80">K::CapsLock</a> =&gt; (<span class="string">"CapsLock"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#412 id=412 data-nosnippet>412</a>            <a href="#80">K::ScrollLock</a> =&gt; (<span class="string">"ScrollLock"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#413 id=413 data-nosnippet>413</a>            <a href="#80">K::NumLock</a> =&gt; (<span class="string">"NumLock"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#414 id=414 data-nosnippet>414</a>            <span class="comment">//
+<a href=#415 id=415 data-nosnippet>415</a>            </span><a href="#81">K::PrintScreen</a> =&gt; (<span class="string">"PrintScreen"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#416 id=416 data-nosnippet>416</a>            <a href="#81">K::Pause</a> =&gt; (<span class="string">"Pause"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#417 id=417 data-nosnippet>417</a>            <a href="#81">K::Menu</a> =&gt; (<span class="string">"ContextMenu"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#418 id=418 data-nosnippet>418</a>            <span class="comment">//
+<a href=#419 id=419 data-nosnippet>419</a>            </span><a href="#85">K::Alpha</a>(alpha) =&gt; (<a href="#419">alpha</a>.<a href="alpha_pad.rs.html#99-110">to_js_key</a>(), <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#420 id=420 data-nosnippet>420</a>            <a href="#90">K::Pad</a>(pad) =&gt; (<a href="#420">pad</a>.<a href="alpha_pad.rs.html#165-173">to_js_key</a>(), <a href="../../../lang/ffi/js/web/event.rs.html#180">L::NumPad</a>),
+<a href=#421 id=421 data-nosnippet>421</a>            <a href="#92">K::Media</a>(media) =&gt; (<a href="#421">media</a>.<a href="media_mods.rs.html#313-347">to_js_key</a>(), <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#422 id=422 data-nosnippet>422</a>            <a href="#94">K::Mod</a>(mod_key) =&gt; <a href="#422">mod_key</a>.<a href="media_mods.rs.html#431-449">to_js_key</a>(),
+<a href=#423 id=423 data-nosnippet>423</a>            <span class="comment">//
+<a href=#424 id=424 data-nosnippet>424</a>            </span><a href="#83">K::F</a>(num) =&gt; <span class="kw">match </span><a href="#424">num</a> {
+<a href=#425 id=425 data-nosnippet>425</a>                <span class="number">1</span>..=<span class="number">48 </span>=&gt; (<a href="#176-181">F_KEYS</a>[(<a href="#424">num</a> - <span class="number">1</span>) <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>], <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#426 id=426 data-nosnippet>426</a>                <span class="kw">_ </span>=&gt; (<span class="string">"Unknown"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#427 id=427 data-nosnippet>427</a>            },
+<a href=#428 id=428 data-nosnippet>428</a>            <a href="#88">K::Char</a>(c) =&gt; {
+<a href=#429 id=429 data-nosnippet>429</a>                <span class="comment">// Returns the ASCII character, or Unknown otherwise
+<a href=#430 id=430 data-nosnippet>430</a>                </span><span class="kw">if </span><a href="../../../text/char/namespace.rs.html#163">Char::is_7bit</a>(<a href="#428">c</a>) { <span class="kw">return </span>(<a href="../../../text/char/namespace.rs.html#190">Char::code_to_ascii_str_unchecked</a>(<a href="#428">c</a>), <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>); }
+<a href=#431 id=431 data-nosnippet>431</a>                (<span class="string">"Unknown"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>)
+<a href=#432 id=432 data-nosnippet>432</a>                <span class="comment">// IMPROVE using a static atomic buffer
+<a href=#433 id=433 data-nosnippet>433</a>                // (Char::code_to_utf8_str_unchecked(c), L::Standard)
+<a href=#434 id=434 data-nosnippet>434</a>            </span>},
+<a href=#435 id=435 data-nosnippet>435</a>            <a href="#96">K::Unknown</a> =&gt; (<span class="string">"Unknown"</span>, <a href="../../../lang/ffi/js/web/event.rs.html#174">L::Standard</a>),
+<a href=#436 id=436 data-nosnippet>436</a>        }
+<a href=#437 id=437 data-nosnippet>437</a>    }
+<a href=#438 id=438 data-nosnippet>438</a>}
+<a href=#439 id=439 data-nosnippet>439</a>
+<a href=#440 id=440 data-nosnippet>440</a><span class="attr">#[cfg(test)]
+<a href=#441 id=441 data-nosnippet>441</a>#[cfg(all(feature = <span class="string">"js"</span>, not(windows)))]
+<a href=#442 id=442 data-nosnippet>442</a></span><span class="kw">mod </span>tests {
+<a href=#443 id=443 data-nosnippet>443</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#444 id=444 data-nosnippet>444</a>    <span class="kw">use </span>WebKeyLocation <span class="kw">as </span>L;
+<a href=#445 id=445 data-nosnippet>445</a>
+<a href=#446 id=446 data-nosnippet>446</a>    <span class="comment">/* physical */
+<a href=#447 id=447 data-nosnippet>447</a>    </span><span class="attr">#[test]
+<a href=#448 id=448 data-nosnippet>448</a>    </span><span class="kw">fn </span>key_ffi_to_js_code() {
+<a href=#449 id=449 data-nosnippet>449</a>        <span class="macro">assert_eq!</span>(KeyFfi::Enter.to_js_code(), (<span class="string">"Enter"</span>, L::Standard));
+<a href=#450 id=450 data-nosnippet>450</a>        <span class="macro">assert_eq!</span>(KeyFfi::Space.to_js_code(), (<span class="string">"Space"</span>, L::Standard));
+<a href=#451 id=451 data-nosnippet>451</a>        <span class="macro">assert_eq!</span>(KeyFfi::F(<span class="number">5</span>).to_js_code(), (<span class="string">"F5"</span>, L::Standard));
+<a href=#452 id=452 data-nosnippet>452</a>        <span class="macro">assert_eq!</span>(KeyFfi::Pad(KeyPad::Num0).to_js_code(), (<span class="string">"Numpad0"</span>, L::NumPad));
+<a href=#453 id=453 data-nosnippet>453</a>        <span class="macro">assert_eq!</span>(KeyFfi::Char(<span class="string">'é' </span><span class="kw">as </span>u32).to_js_key(), (<span class="string">"Unknown"</span>, L::Standard));
+<a href=#454 id=454 data-nosnippet>454</a>    }
+<a href=#455 id=455 data-nosnippet>455</a>    <span class="attr">#[test]
+<a href=#456 id=456 data-nosnippet>456</a>    </span><span class="kw">fn </span>key_ffi_from_js_code() {
+<a href=#457 id=457 data-nosnippet>457</a>        <span class="macro">assert_eq!</span>(KeyFfi::from_js_code(<span class="string">"Enter"</span>, L::Standard), <span class="prelude-val">Some</span>(KeyFfi::Enter));
+<a href=#458 id=458 data-nosnippet>458</a>        <span class="macro">assert_eq!</span>(KeyFfi::from_js_code(<span class="string">"F5"</span>, L::Standard), <span class="prelude-val">Some</span>(KeyFfi::F(<span class="number">5</span>)));
+<a href=#459 id=459 data-nosnippet>459</a>        <span class="macro">assert_eq!</span>(KeyFfi::from_js_code(<span class="string">"Numpad0"</span>, L::NumPad), <span class="prelude-val">Some</span>(KeyFfi::Pad(KeyPad::Num0)));
+<a href=#460 id=460 data-nosnippet>460</a>        <span class="macro">assert_eq!</span>(KeyFfi::from_js_code(<span class="string">"Unknown"</span>, L::Standard), <span class="prelude-val">None</span>);
+<a href=#461 id=461 data-nosnippet>461</a>    }
+<a href=#462 id=462 data-nosnippet>462</a>    <span class="comment">/* semantic */
+<a href=#463 id=463 data-nosnippet>463</a>    </span><span class="attr">#[test]
+<a href=#464 id=464 data-nosnippet>464</a>    </span><span class="kw">fn </span>key_ffi_to_js_key() {
+<a href=#465 id=465 data-nosnippet>465</a>        <span class="macro">assert_eq!</span>(KeyFfi::Enter.to_js_key(), (<span class="string">"Enter"</span>, L::Standard));
+<a href=#466 id=466 data-nosnippet>466</a>        <span class="macro">assert_eq!</span>(KeyFfi::Space.to_js_key(), (<span class="string">" "</span>, L::Standard));
+<a href=#467 id=467 data-nosnippet>467</a>        <span class="macro">assert_eq!</span>(KeyFfi::Char(<span class="string">'a' </span><span class="kw">as </span>u32).to_js_key(), (<span class="string">"a"</span>, L::Standard));
+<a href=#468 id=468 data-nosnippet>468</a>        <span class="macro">assert_eq!</span>(KeyFfi::Char(<span class="string">'é' </span><span class="kw">as </span>u32).to_js_key(), (<span class="string">"Unknown"</span>, L::Standard));
+<a href=#469 id=469 data-nosnippet>469</a>        <span class="comment">// assert_eq!(KeyFfi::Char('é' as u32).to_js_key(), ("é", L::Standard)); // IMPROVE
+<a href=#470 id=470 data-nosnippet>470</a>    </span>}
+<a href=#471 id=471 data-nosnippet>471</a>    <span class="attr">#[test]
+<a href=#472 id=472 data-nosnippet>472</a>    </span><span class="kw">fn </span>key_ffi_from_js_key() {
+<a href=#473 id=473 data-nosnippet>473</a>        <span class="macro">assert_eq!</span>(KeyFfi::from_js_key(<span class="string">"Enter"</span>, L::Standard), <span class="prelude-val">Some</span>(KeyFfi::Enter));
+<a href=#474 id=474 data-nosnippet>474</a>        <span class="macro">assert_eq!</span>(KeyFfi::from_js_key(<span class="string">" "</span>, L::Standard), <span class="prelude-val">Some</span>(KeyFfi::Space));
+<a href=#475 id=475 data-nosnippet>475</a>        <span class="macro">assert_eq!</span>(KeyFfi::from_js_key(<span class="string">"a"</span>, L::Standard), <span class="prelude-val">Some</span>(KeyFfi::Char(<span class="string">'a' </span><span class="kw">as </span>u32)));
+<a href=#476 id=476 data-nosnippet>476</a>        <span class="macro">assert_eq!</span>(KeyFfi::from_js_key(<span class="string">"é"</span>, L::Standard), <span class="prelude-val">Some</span>(KeyFfi::Char(<span class="string">'é' </span><span class="kw">as </span>u32)));
+<a href=#477 id=477 data-nosnippet>477</a>    }
+<a href=#478 id=478 data-nosnippet>478</a>}</code></pre></div></section></main></body></html>

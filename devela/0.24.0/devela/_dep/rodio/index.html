@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`rodio` Audio playback library."><title>devela::_dep::rodio - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="../../../crates.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#sink" title="Sink">Sink</a></li><li><a href="#filters" title="Filters">Filters</a></li><li><a href="#alternative-decoder-backends" title="Alternative Decoder Backends">Alternative Decoder Backends</a></li><li><a href="#optional-features" title="Optional Features">Optional Features</a><ul><li><a href="#feature-tracing" title="Feature “tracing”">Feature “tracing”</a></li><li><a href="#feature-noise" title="Feature “noise”">Feature “noise”</a></li><li><a href="#feature-playback" title="Feature “playback”">Feature “playback”</a></li></ul></li><li><a href="#how-it-works-under-the-hood" title="How it works under the hood">How it works under the hood</a></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a></div><h1>Crate <span>rodio</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_rodio</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='re-exported `rodio`'><code>rodio</code></span>
+Audio playback library.</p>
+<hr />
+<p>Audio playback library.</p>
+<p>The main concept of this library is the <a href="trait.Source.html" title="trait devela::_dep::rodio::Source"><code>Source</code></a> trait, which
+represents a sound (streaming or not). In order to play a sound, there are three steps:</p>
+<ul>
+<li>Get an output stream handle to a physical device. For example, get a stream to the system’s
+default sound device with [<code>OutputStreamBuilder::open_default_stream()</code>].</li>
+<li>Create an object that represents the streaming sound. It can be a sine wave, a buffer, a
+<a href="decoder/index.html" title="mod devela::_dep::rodio::decoder"><code>decoder</code></a>, etc. or even your own type that implements the <a href="trait.Source.html" title="trait devela::_dep::rodio::Source"><code>Source</code></a> trait.</li>
+<li>Add the source to the output stream using <a href="OutputStream::mixer"><code>OutputStream::mixer()</code></a>
+on the output stream handle.</li>
+</ul>
+<p>Here is a complete example of how you would play an audio file:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::fs::File;
+<span class="kw">use </span>rodio::{Decoder, OutputStream, source::Source};
+
+<span class="comment">// Get an output stream handle to the default physical sound device.
+// Note that the playback stops when the stream_handle is dropped.//!
+</span><span class="kw">let </span>stream_handle = rodio::OutputStreamBuilder::open_default_stream()
+        .expect(<span class="string">"open default audio stream"</span>);
+<span class="kw">let </span>sink = rodio::Sink::connect_new(<span class="kw-2">&amp;</span>stream_handle.mixer());
+<span class="comment">// Load a sound from a file, using a path relative to Cargo.toml
+</span><span class="kw">let </span>file = File::open(<span class="string">"examples/music.ogg"</span>).unwrap();
+<span class="comment">// Decode that sound file into a source
+</span><span class="kw">let </span>source = Decoder::try_from(file).unwrap();
+<span class="comment">// Play the sound directly on the device
+</span>stream_handle.mixer().add(source);
+
+<span class="comment">// The sound plays in a separate audio thread,
+// so we need to keep the main thread alive while it's playing.
+</span>std::thread::sleep(std::time::Duration::from_secs(<span class="number">5</span>));</code></pre></div>
+<p><a href="crate::play"><code>rodio::play()</code></a> helps to simplify the above</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::fs::File;
+<span class="kw">use </span>std::io::BufReader;
+<span class="kw">use </span>rodio::{Decoder, OutputStream, source::Source};
+
+<span class="comment">// Get an output stream handle to the default physical sound device.
+// Note that the playback stops when the stream_handle is dropped.
+</span><span class="kw">let </span>stream_handle = rodio::OutputStreamBuilder::open_default_stream()
+        .expect(<span class="string">"open default audio stream"</span>);
+
+<span class="comment">// Load a sound from a file, using a path relative to Cargo.toml
+</span><span class="kw">let </span>file = BufReader::new(File::open(<span class="string">"examples/music.ogg"</span>).unwrap());
+<span class="comment">// Note that the playback stops when the sink is dropped
+</span><span class="kw">let </span>sink = rodio::play(<span class="kw-2">&amp;</span>stream_handle.mixer(), file).unwrap();
+
+<span class="comment">// The sound plays in a separate audio thread,
+// so we need to keep the main thread alive while it's playing.
+</span>std::thread::sleep(std::time::Duration::from_secs(<span class="number">5</span>));</code></pre></div>
+<h3 id="sink"><a class="doc-anchor" href="#sink">§</a>Sink</h3>
+<p>In order to make it easier to control the playback, the rodio library also provides a type
+named <a href="struct.Sink.html" title="struct devela::_dep::rodio::Sink"><code>Sink</code></a> which represents an audio track. <a href="struct.Sink.html" title="struct devela::_dep::rodio::Sink"><code>Sink</code></a> plays its input sources sequentially,
+one after another. To play sounds in simultaneously in parallel, use <a href="mixer/struct.Mixer.html" title="struct devela::_dep::rodio::mixer::Mixer"><code>mixer::Mixer</code></a> instead.</p>
+<p>To play a song Create a <a href="struct.Sink.html" title="struct devela::_dep::rodio::Sink"><code>Sink</code></a> connect it to the output stream,
+and <a href="struct.Sink.html#method.append" title="method devela::_dep::rodio::Sink::append"><code>.append()</code></a> your sound to it.</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::time::Duration;
+<span class="kw">use </span>rodio::{OutputStream, Sink};
+<span class="kw">use </span>rodio::source::{SineWave, Source};
+
+<span class="comment">// _stream must live as long as the sink
+</span><span class="kw">let </span>stream_handle = rodio::OutputStreamBuilder::open_default_stream()
+        .expect(<span class="string">"open default audio stream"</span>);
+<span class="kw">let </span>sink = rodio::Sink::connect_new(<span class="kw-2">&amp;</span>stream_handle.mixer());
+
+<span class="comment">// Add a dummy source of the sake of the example.
+</span><span class="kw">let </span>source = SineWave::new(<span class="number">440.0</span>).take_duration(Duration::from_secs_f32(<span class="number">0.25</span>)).amplify(<span class="number">0.20</span>);
+sink.append(source);
+
+<span class="comment">// The sound plays in a separate thread. This call will block the current thread until the sink
+// has finished playing all its queued sounds.
+</span>sink.sleep_until_end();</code></pre></div>
+<p>The <a href="struct.Sink.html#method.append" title="method devela::_dep::rodio::Sink::append"><code>append</code></a> method will add the sound at the end of the
+sink. It will be played when all the previous sounds have been played. If you want multiple
+sounds to play simultaneously, you should create multiple <a href="struct.Sink.html" title="struct devela::_dep::rodio::Sink"><code>Sink</code></a>s.</p>
+<p>The <a href="struct.Sink.html" title="struct devela::_dep::rodio::Sink"><code>Sink</code></a> type also provides utilities such as playing/pausing or controlling the volume.</p>
+<div class="warning">Note that playback through Sink will end if the associated
+OutputStream is dropped.</div>
+<h3 id="filters"><a class="doc-anchor" href="#filters">§</a>Filters</h3>
+<p>The <a href="trait.Source.html" title="trait devela::_dep::rodio::Source"><code>Source</code></a> trait provides various filters, similar to the standard <a href="../../all/trait.Iterator.html" title="trait devela::all::Iterator"><code>Iterator</code></a> trait.</p>
+<p>Example:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rodio::Source;
+<span class="kw">use </span>std::time::Duration;
+
+<span class="comment">// Repeats the first five seconds of the sound forever.
+</span><span class="kw">let </span>source = source.take_duration(Duration::from_secs(<span class="number">5</span>)).repeat_infinite();</code></pre></div>
+<h3 id="alternative-decoder-backends"><a class="doc-anchor" href="#alternative-decoder-backends">§</a>Alternative Decoder Backends</h3>
+<p><a href="https://github.com/pdeljanov/Symphonia">Symphonia</a> is an alternative decoder library that can be used in place
+of many of the default backends.
+Currently, the main benefit is that Symphonia is the only backend that supports M4A and AAC,
+but it may be used to implement additional optional functionality in the future.</p>
+<p>To use, enable either the <code>symphonia-all</code> feature to enable all Symphonia codecs
+or enable specific codecs using one of the <code>symphonia-{codec name}</code> features.
+If you enable one or more of the Symphonia codecs, you may want to set <code>default-features = false</code> in order
+to avoid adding extra crates to your binary.
+See the <a href="https://docs.rs/crate/rodio/latest/features">available feature flags</a> for all options.</p>
+<h3 id="optional-features"><a class="doc-anchor" href="#optional-features">§</a>Optional Features</h3>
+<p>Rodio provides several optional features that are guarded with feature gates.</p>
+<h4 id="feature-tracing"><a class="doc-anchor" href="#feature-tracing">§</a>Feature “tracing”</h4>
+<p>The “tracing” feature replaces the print to stderr when a stream error happens with a
+recording an error event with tracing.</p>
+<h4 id="feature-noise"><a class="doc-anchor" href="#feature-noise">§</a>Feature “noise”</h4>
+<p>The “noise” feature adds support for white and pink noise sources. This feature requires the
+“rand” crate.</p>
+<h4 id="feature-playback"><a class="doc-anchor" href="#feature-playback">§</a>Feature “playback”</h4>
+<p>The “playback” feature adds support for playing audio. This feature requires the “cpal” crate.</p>
+<h3 id="how-it-works-under-the-hood"><a class="doc-anchor" href="#how-it-works-under-the-hood">§</a>How it works under the hood</h3>
+<p>Rodio spawns a background thread that is dedicated to reading from the sources and sending
+the output to the device. Whenever you give up ownership of a <a href="trait.Source.html" title="trait devela::_dep::rodio::Source"><code>Source</code></a> in order to play it,
+it is sent to this background thread where it will be read by rodio.</p>
+<p>All the sounds are mixed together by rodio before being sent to the operating system or the
+hardware. Therefore, there is no restriction on the number of sounds that play simultaneously or
+on the number of sinks that can be created (except for the fact that creating too many will slow
+down your program).</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="buffer/index.html" title="mod devela::_dep::rodio::buffer">buffer</a></dt><dd>A simple source of samples coming from a buffer.</dd><dt><a class="mod" href="conversions/index.html" title="mod devela::_dep::rodio::conversions">conversions</a></dt><dd>This module contains functions that convert from one PCM format to another.</dd><dt><a class="mod" href="decoder/index.html" title="mod devela::_dep::rodio::decoder">decoder</a></dt><dd>Decodes audio samples from various audio file formats.</dd><dt><a class="mod" href="math/index.html" title="mod devela::_dep::rodio::math">math</a></dt><dd>Math utilities for audio processing.</dd><dt><a class="mod" href="mixer/index.html" title="mod devela::_dep::rodio::mixer">mixer</a></dt><dd>Mixer that plays multiple sounds at the same time.</dd><dt><a class="mod" href="queue/index.html" title="mod devela::_dep::rodio::queue">queue</a></dt><dd>Queue that plays sounds one after the other.</dd><dt><a class="mod" href="source/index.html" title="mod devela::_dep::rodio::source">source</a></dt><dd>Sources of sound and various filters.</dd><dt><a class="mod" href="static_buffer/index.html" title="mod devela::_dep::rodio::static_buffer">static_<wbr>buffer</a></dt><dd>A simple source of samples coming from a static buffer.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Decoder.html" title="struct devela::_dep::rodio::Decoder">Decoder</a></dt><dd>Source of audio samples decoded from an input stream.
+See the <a href="decoder/index.html" title="mod devela::_dep::rodio::decoder">module-level documentation</a> for examples and usage.</dd><dt><a class="struct" href="struct.Sink.html" title="struct devela::_dep::rodio::Sink">Sink</a></dt><dd>Handle to a device that outputs sounds.</dd><dt><a class="struct" href="struct.SpatialSink.html" title="struct devela::_dep::rodio::SpatialSink">Spatial<wbr>Sink</a></dt><dd>A sink that allows changing the position of the source and the listeners
+ears while playing. The sources played are then transformed to give a simple
+spatial effect. See <a href="source/struct.Spatial.html" title="struct devela::_dep::rodio::source::Spatial"><code>Spatial</code></a> for details.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Source.html" title="trait devela::_dep::rodio::Source">Source</a></dt><dd>A source of samples.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.ChannelCount.html" title="type devela::_dep::rodio::ChannelCount">Channel<wbr>Count</a></dt><dd>Number of channels in a stream.</dd><dt><a class="type" href="type.Sample.html" title="type devela::_dep::rodio::Sample">Sample</a></dt><dd>Represents value of a single sample.
+Silence corresponds to the value <code>0.0</code>. The expected amplitude range is  -1.0…1.0.
+Values below and above this range are clipped in conversion to other sample types.
+Use conversion traits from [dasp_sample] crate or <a href="conversions/struct.SampleTypeConverter.html" title="struct devela::_dep::rodio::conversions::SampleTypeConverter">crate::conversions::SampleTypeConverter</a>
+to convert between sample types if necessary.</dd><dt><a class="type" href="type.SampleRate.html" title="type devela::_dep::rodio::SampleRate">Sample<wbr>Rate</a></dt><dd>Stream sample rate (a frame rate or samples per second per channel).</dd></dl></section></div></main></body></html>

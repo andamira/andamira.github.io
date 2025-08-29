@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `DisjointBitOr` trait in crate `devela`."><title>DisjointBitOr in devela::_dep::_std::intrinsics::fallback - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">DisjointBitOr</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Disjoint<wbr>BitOr</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.disjoint_bitor" title="disjoint_bitor">disjoint_bitor</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>dep::<wbr>_<wbr>std::<wbr>intrinsics::<wbr>fallback</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../index.html">devela</a>::<wbr><a href="../../../index.html">_dep</a>::<wbr><a href="../../index.html">_std</a>::<wbr><a href="../index.html">intrinsics</a>::<wbr><a href="index.html">fallback</a></div><h1>Trait <span class="trait">Disjoint<wbr>BitOr</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#116">Source</a> </span></div><pre class="rust item-decl"><code>pub trait DisjointBitOr: <a class="trait" href="../../../../all/trait.Copy.html" title="trait devela::all::Copy">Copy</a> + 'static {
+    // Required method
+    unsafe fn <a href="#tymethod.disjoint_bitor" class="fn">disjoint_bitor</a>(self, other: Self) -&gt; Self;
+}</code></pre><span class="item-info"><div class="stab unstable"><span class="emoji">🔬</span><span>This is a nightly-only experimental API. (<code>core_intrinsics_fallbacks</code>)</span></div><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.disjoint_bitor" class="method"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#119">Source</a><h4 class="code-header">unsafe fn <a href="#tymethod.disjoint_bitor" class="fn">disjoint_bitor</a>(self, other: Self) -&gt; Self</h4></section><span class="item-info"><div class="stab unstable"><span class="emoji">🔬</span><span>This is a nightly-only experimental API. (<code>core_intrinsics_fallbacks</code>)</span></div></span></summary><div class="docblock"><p>See <a href="../../../../_core/intrinsics/fn.disjoint_bitor.html" title="fn devela::_core::intrinsics::disjoint_bitor"><code>super::disjoint_bitor</code></a>; we just need the trait indirection to handle
+different types since calling intrinsics with generics doesn’t work.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-DisjointBitOr-for-bool" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-bool" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h3></section><section id="impl-DisjointBitOr-for-i8" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-i8" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a></h3></section><section id="impl-DisjointBitOr-for-i16" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-i16" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a></h3></section><section id="impl-DisjointBitOr-for-i32" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-i32" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></h3></section><section id="impl-DisjointBitOr-for-i64" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-i64" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a></h3></section><section id="impl-DisjointBitOr-for-i128" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-i128" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i128.html">i128</a></h3></section><section id="impl-DisjointBitOr-for-isize" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-isize" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a></h3></section><section id="impl-DisjointBitOr-for-u8" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-u8" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></h3></section><section id="impl-DisjointBitOr-for-u16" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-u16" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a></h3></section><section id="impl-DisjointBitOr-for-u32" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-u32" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></h3></section><section id="impl-DisjointBitOr-for-u64" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-u64" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h3></section><section id="impl-DisjointBitOr-for-u128" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-u128" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a></h3></section><section id="impl-DisjointBitOr-for-usize" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/core/intrinsics/fallback.rs.html#146-150">Source</a><a href="#impl-DisjointBitOr-for-usize" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../../_core/intrinsics/fallback/trait.DisjointBitOr.html" title="trait devela::_core::intrinsics::fallback::DisjointBitOr">DisjointBitOr</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></h3></section></div><script src="../../../../../trait.impl/core/intrinsics/fallback/trait.DisjointBitOr.js" data-ignore-extern-crates="std" async></script></section></div></main></body></html>

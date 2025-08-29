@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/media/image/sixel/output/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/media/image/sixel/output/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::media::image::sixel::output
+<a href=#2 id=2 data-nosnippet>2</a>//
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//! Defines private [`SixelNode`], [`SixelOutput`].
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
+<a href=#5 id=5 data-nosnippet>5</a>// TOC
+<a href=#6 id=6 data-nosnippet>6</a>// - SixelNode
+<a href=#7 id=7 data-nosnippet>7</a>// - SixelOutput
+<a href=#8 id=8 data-nosnippet>8</a>// - impl SixelOutput
+<a href=#9 id=9 data-nosnippet>9</a>//
+<a href=#10 id=10 data-nosnippet>10</a>// TODO: NEED:
+<a href=#11 id=11 data-nosnippet>11</a>
+<a href=#12 id=12 data-nosnippet>12</a></span><span class="kw">use crate</span>::{<a href="../../../../../../devela/all/trait.IoWrite.html">IoWrite</a>, <a href="../../../../../../devela/all/struct.String.html">String</a>, <a href="../../../../../../devela/all/struct.Vec.html">Vec</a>};
+<a href=#13 id=13 data-nosnippet>13</a>
+<a href=#14 id=14 data-nosnippet>14</a><span class="kw">mod </span><a href="enums.rs.html#3-134">enums</a>; <span class="comment">// RETHINK relocate
+<a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">mod </span><a href="pixel_format.rs.html#14-303">pixel_format</a>; <span class="comment">// PixelFormat
+<a href=#16 id=16 data-nosnippet>16</a></span><span class="kw">mod </span><a href="tosixel.rs.html#3-724">tosixel</a>;
+<a href=#17 id=17 data-nosnippet>17</a><span class="kw">pub use </span><a href="#14">enums</a>::<span class="kw-2">*</span>;
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">pub use </span><a href="#15">pixel_format</a>::<span class="kw-2">*</span>;
+<a href=#19 id=19 data-nosnippet>19</a>
+<a href=#20 id=20 data-nosnippet>20</a><span class="doccomment">/// Represents a single sixel tile with color and spatial properties.
+<a href=#21 id=21 data-nosnippet>21</a>///
+<a href=#22 id=22 data-nosnippet>22</a>/// Holds the palette index, x-coordinates, and a map of color data
+<a href=#23 id=23 data-nosnippet>23</a>/// for efficient rendering of individual sixel tiles.
+<a href=#24 id=24 data-nosnippet>24</a>///
+<a href=#25 id=25 data-nosnippet>25</a>/// # Adaptation
+<a href=#26 id=26 data-nosnippet>26</a>/// - Derived from `sixel_node` struct in the `libsixel` C library.
+<a href=#27 id=27 data-nosnippet>27</a></span><span class="attr">#[derive(Debug, Default, PartialEq, Eq, Hash)]
+<a href=#28 id=28 data-nosnippet>28</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>SixelNode {
+<a href=#29 id=29 data-nosnippet>29</a>    <span class="doccomment">/// Index of the color in the palette.
+<a href=#30 id=30 data-nosnippet>30</a>    </span><span class="kw">pub </span>pal: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="doccomment">/// Start x-coordinate of the tile.
+<a href=#32 id=32 data-nosnippet>32</a>    </span><span class="kw">pub </span>sx: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+<a href=#33 id=33 data-nosnippet>33</a>    <span class="doccomment">/// End x-coordinate of the tile.
+<a href=#34 id=34 data-nosnippet>34</a>    </span><span class="kw">pub </span>mx: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+<a href=#35 id=35 data-nosnippet>35</a>    <span class="doccomment">/// Color data map for the tile.
+<a href=#36 id=36 data-nosnippet>36</a>    </span><span class="kw">pub </span>map: <a href="../../../../../../devela/all/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;,
+<a href=#37 id=37 data-nosnippet>37</a>}
+<a href=#38 id=38 data-nosnippet>38</a><span class="kw">impl </span><a href="#28-37">SixelNode</a> {
+<a href=#39 id=39 data-nosnippet>39</a>    <span class="kw">pub fn </span>new(pal: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, sx: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, mx: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, map: <a href="../../../../../../devela/all/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;) -&gt; <span class="self">Self </span>{
+<a href=#40 id=40 data-nosnippet>40</a>        <span class="self">Self </span>{ <a href="#39">pal</a>, <a href="#39">sx</a>, <a href="#39">mx</a>, <a href="#39">map</a> }
+<a href=#41 id=41 data-nosnippet>41</a>    }
+<a href=#42 id=42 data-nosnippet>42</a>}
+<a href=#43 id=43 data-nosnippet>43</a>
+<a href=#44 id=44 data-nosnippet>44</a><span class="doccomment">/// Handles sixel data output to a specified writer destination.
+<a href=#45 id=45 data-nosnippet>45</a>///
+<a href=#46 id=46 data-nosnippet>46</a>/// Abstracts over writing sixel-encoded data,
+<a href=#47 id=47 data-nosnippet>47</a>/// supporting various output targets such as files or terminal streams.
+<a href=#48 id=48 data-nosnippet>48</a>///
+<a href=#49 id=49 data-nosnippet>49</a>/// # Adaptation
+<a href=#50 id=50 data-nosnippet>50</a>/// - Derived from `sixel_output` struct in the `libsixel` C library.
+<a href=#51 id=51 data-nosnippet>51</a></span><span class="attr">#[derive(Debug, Default, PartialEq, Eq, Hash)]
+<a href=#52 id=52 data-nosnippet>52</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>SixelOutput&lt;W: <a href="../../../../../../devela/all/trait.IoWrite.html">IoWrite</a>&gt; {
+<a href=#53 id=53 data-nosnippet>53</a>    <span class="comment">/* public fields
+<a href=#54 id=54 data-nosnippet>54</a>     */
+<a href=#55 id=55 data-nosnippet>55</a>    </span><span class="doccomment">/// Palette selection mode.
+<a href=#56 id=56 data-nosnippet>56</a>    </span><span class="kw">pub </span>color_model: <a href="enums.rs.html#109-117">SixelColorModel</a>,
+<a href=#57 id=57 data-nosnippet>57</a>
+<a href=#58 id=58 data-nosnippet>58</a>    <span class="doccomment">/// Writer for output, managing data destination.
+<a href=#59 id=59 data-nosnippet>59</a>    </span><span class="kw">pub </span>fn_write: W,
+<a href=#60 id=60 data-nosnippet>60</a>
+<a href=#61 id=61 data-nosnippet>61</a>    <span class="doccomment">/// Last saved pixel value.
+<a href=#62 id=62 data-nosnippet>62</a>    </span><span class="kw">pub </span>save_pixel: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
+<a href=#63 id=63 data-nosnippet>63</a>    <span class="doccomment">/// Count of consecutive saved pixels.
+<a href=#64 id=64 data-nosnippet>64</a>    </span><span class="kw">pub </span>save_count: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+<a href=#65 id=65 data-nosnippet>65</a>    <span class="doccomment">/// Currently active palette index.
+<a href=#66 id=66 data-nosnippet>66</a>    </span><span class="kw">pub </span>active_palette: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+<a href=#67 id=67 data-nosnippet>67</a>
+<a href=#68 id=68 data-nosnippet>68</a>    <span class="doccomment">/// Collection of sixel nodes for dithering.
+<a href=#69 id=69 data-nosnippet>69</a>    </span><span class="kw">pub </span>nodes: <a href="../../../../../../devela/all/struct.Vec.html">Vec</a>&lt;<a href="#28-37">SixelNode</a>&gt;,
+<a href=#70 id=70 data-nosnippet>70</a>
+<a href=#71 id=71 data-nosnippet>71</a>    <span class="doccomment">/// Flag to allow penetration of the multiplexer.
+<a href=#72 id=72 data-nosnippet>72</a>    </span><span class="kw">pub </span>penetrate_multiplexer: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+<a href=#73 id=73 data-nosnippet>73</a>    <span class="doccomment">/// Policy for encoding decisions.
+<a href=#74 id=74 data-nosnippet>74</a>    </span><span class="kw">pub </span>encode_policy: <a href="enums.rs.html#88-96">SixelEncodePolicy</a>,
+<a href=#75 id=75 data-nosnippet>75</a>
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="doccomment">/// Buffer for output data.
+<a href=#77 id=77 data-nosnippet>77</a>    </span><span class="kw">pub </span>buffer: <a href="../../../../../../devela/all/struct.String.html">String</a>,
+<a href=#78 id=78 data-nosnippet>78</a>
+<a href=#79 id=79 data-nosnippet>79</a>    <span class="comment">/* private compatibility flags
+<a href=#80 id=80 data-nosnippet>80</a>     */
+<a href=#81 id=81 data-nosnippet>81</a>    </span><span class="doccomment">/// Indicates 8-bit terminal support.
+<a href=#82 id=82 data-nosnippet>82</a>    ///
+<a href=#83 id=83 data-nosnippet>83</a>    /// `false` for 7-bit, `true` for 8-bit.
+<a href=#84 id=84 data-nosnippet>84</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_8bit_control: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+<a href=#85 id=85 data-nosnippet>85</a>
+<a href=#86 id=86 data-nosnippet>86</a>    <span class="doccomment">/// Sixel scrolling support flag.
+<a href=#87 id=87 data-nosnippet>87</a>    ///
+<a href=#88 id=88 data-nosnippet>88</a>    /// `false` if terminal supports scrolling, `true` if not.
+<a href=#89 id=89 data-nosnippet>89</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_sixel_scrolling: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+<a href=#90 id=90 data-nosnippet>90</a>
+<a href=#91 id=91 data-nosnippet>91</a>    <span class="doccomment">/// Argument limit for repeat introducer (DECGRI).
+<a href=#92 id=92 data-nosnippet>92</a>    ///
+<a href=#93 id=93 data-nosnippet>93</a>    /// `false` if limited to 255, `true` if unlimited.
+<a href=#94 id=94 data-nosnippet>94</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_gri_arg_limit: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+<a href=#95 id=95 data-nosnippet>95</a>
+<a href=#96 id=96 data-nosnippet>96</a>    <span class="doccomment">/// DECSDM (CSI ? 80 h) sixel scrolling glitch flag.
+<a href=#97 id=97 data-nosnippet>97</a>    ///
+<a href=#98 id=98 data-nosnippet>98</a>    /// `false` enables sixel scrolling, `true` disables it.
+<a href=#99 id=99 data-nosnippet>99</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_sdm_glitch: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+<a href=#100 id=100 data-nosnippet>100</a>
+<a href=#101 id=101 data-nosnippet>101</a>    <span class="doccomment">/// Flag to skip DCS envelope handling.
+<a href=#102 id=102 data-nosnippet>102</a>    ///
+<a href=#103 id=103 data-nosnippet>103</a>    /// `false` to process, `true` to skip.
+<a href=#104 id=104 data-nosnippet>104</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) skip_dcs_envelope: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+<a href=#105 id=105 data-nosnippet>105</a>}
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a><span class="comment">// general methods annd constants
+<a href=#108 id=108 data-nosnippet>108</a></span><span class="attr">#[allow(dead_code, reason = <span class="string">"crate private struct"</span>)]
+<a href=#109 id=109 data-nosnippet>109</a></span><span class="kw">impl</span>&lt;W: <a href="../../../../../../devela/all/trait.IoWrite.html">IoWrite</a>&gt; <a href="#52-105">SixelOutput</a>&lt;W&gt; {
+<a href=#110 id=110 data-nosnippet>110</a>    <span class="doccomment">/// Device Control String start and end sequences
+<a href=#111 id=111 data-nosnippet>111</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DCS_START_7BIT: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"\x1BP"</span>;
+<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DCS_START_8BIT: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"\u{220}"</span>;
+<a href=#113 id=113 data-nosnippet>113</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DCS_END_7BIT: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"\x1B\\"</span>;
+<a href=#114 id=114 data-nosnippet>114</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DCS_END_8BIT: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = <span class="string">"\u{234}"</span>;
+<a href=#115 id=115 data-nosnippet>115</a>
+<a href=#116 id=116 data-nosnippet>116</a>    <span class="doccomment">/// Used in `penetrate`.
+<a href=#117 id=117 data-nosnippet>117</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>SCREEN_PACKET_SIZE: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">256</span>;
+<a href=#118 id=118 data-nosnippet>118</a>
+<a href=#119 id=119 data-nosnippet>119</a>    <span class="doccomment">/// Packet size limit.
+<a href=#120 id=120 data-nosnippet>120</a>    /// Used in `advance`.
+<a href=#121 id=121 data-nosnippet>121</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>PACKET_SIZE: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">16_384</span>;
+<a href=#122 id=122 data-nosnippet>122</a>
+<a href=#123 id=123 data-nosnippet>123</a>    <span class="doccomment">/// Used in `encode_high_color`.
+<a href=#124 id=124 data-nosnippet>124</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>PALETTE_HIT: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a> = <span class="number">1</span>;
+<a href=#125 id=125 data-nosnippet>125</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>PALETTE_CHANGE: <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a> = <span class="number">2</span>;
+<a href=#126 id=126 data-nosnippet>126</a>
+<a href=#127 id=127 data-nosnippet>127</a>    <span class="doccomment">/// Create new output context object
+<a href=#128 id=128 data-nosnippet>128</a>    </span><span class="kw">pub fn </span>new(fn_write: W) -&gt; <span class="self">Self </span>{
+<a href=#129 id=129 data-nosnippet>129</a>        <span class="self">Self </span>{
+<a href=#130 id=130 data-nosnippet>130</a>            has_8bit_control: <span class="bool-val">false</span>,
+<a href=#131 id=131 data-nosnippet>131</a>            has_sdm_glitch: <span class="bool-val">false</span>,
+<a href=#132 id=132 data-nosnippet>132</a>            has_gri_arg_limit: <span class="bool-val">true</span>,
+<a href=#133 id=133 data-nosnippet>133</a>            skip_dcs_envelope: <span class="bool-val">false</span>,
+<a href=#134 id=134 data-nosnippet>134</a>            color_model: <a href="enums.rs.html#112">SixelColorModel::Auto</a>,
+<a href=#135 id=135 data-nosnippet>135</a>            <a href="#128">fn_write</a>,
+<a href=#136 id=136 data-nosnippet>136</a>            save_pixel: <span class="number">0</span>,
+<a href=#137 id=137 data-nosnippet>137</a>            save_count: <span class="number">0</span>,
+<a href=#138 id=138 data-nosnippet>138</a>            active_palette: -<span class="number">1</span>,
+<a href=#139 id=139 data-nosnippet>139</a>            nodes: <a href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html#method.new">Vec::new</a>(),
+<a href=#140 id=140 data-nosnippet>140</a>            penetrate_multiplexer: <span class="bool-val">false</span>,
+<a href=#141 id=141 data-nosnippet>141</a>            encode_policy: <a href="enums.rs.html#91">SixelEncodePolicy::Auto</a>,
+<a href=#142 id=142 data-nosnippet>142</a>            has_sixel_scrolling: <span class="bool-val">false</span>,
+<a href=#143 id=143 data-nosnippet>143</a>            buffer: <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.new">String::new</a>(),
+<a href=#144 id=144 data-nosnippet>144</a>        }
+<a href=#145 id=145 data-nosnippet>145</a>    }
+<a href=#146 id=146 data-nosnippet>146</a>
+<a href=#147 id=147 data-nosnippet>147</a>    <span class="doccomment">/// Get 8bit output mode which indicates whether it uses C1 control characters.
+<a href=#148 id=148 data-nosnippet>148</a>    </span><span class="attr">#[must_use]
+<a href=#149 id=149 data-nosnippet>149</a>    </span><span class="kw">pub fn </span>get_8bit_availability(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+<a href=#150 id=150 data-nosnippet>150</a>        <a class="self" href="#149">self</a>.has_8bit_control
+<a href=#151 id=151 data-nosnippet>151</a>    }
+<a href=#152 id=152 data-nosnippet>152</a>    <span class="doccomment">/// Set 8bit output mode state.
+<a href=#153 id=153 data-nosnippet>153</a>    </span><span class="kw">pub fn </span>set_8bit_availability(<span class="kw-2">&amp;mut </span><span class="self">self</span>, availability: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) {
+<a href=#154 id=154 data-nosnippet>154</a>        <a class="self" href="#153">self</a>.has_8bit_control = <a href="#153">availability</a>;
+<a href=#155 id=155 data-nosnippet>155</a>    }
+<a href=#156 id=156 data-nosnippet>156</a>
+<a href=#157 id=157 data-nosnippet>157</a>    <span class="doccomment">/// Set limit for repeat introducer (DECGRI).
+<a href=#158 id=158 data-nosnippet>158</a>    ///
+<a href=#159 id=159 data-nosnippet>159</a>    /// `false` if limited to 255, `true` if unlimited.
+<a href=#160 id=160 data-nosnippet>160</a>    </span><span class="kw">pub fn </span>set_gri_arg_limit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) {
+<a href=#161 id=161 data-nosnippet>161</a>        <a class="self" href="#160">self</a>.has_gri_arg_limit = <a href="#160">value</a>;
+<a href=#162 id=162 data-nosnippet>162</a>    }
+<a href=#163 id=163 data-nosnippet>163</a>
+<a href=#164 id=164 data-nosnippet>164</a>    <span class="doccomment">/// Set GNU Screen penetration.
+<a href=#165 id=165 data-nosnippet>165</a>    </span><span class="kw">pub fn </span>set_penetrate_multiplexer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, penetrate: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) {
+<a href=#166 id=166 data-nosnippet>166</a>        <a class="self" href="#165">self</a>.penetrate_multiplexer = <a href="#165">penetrate</a>;
+<a href=#167 id=167 data-nosnippet>167</a>    }
+<a href=#168 id=168 data-nosnippet>168</a>
+<a href=#169 id=169 data-nosnippet>169</a>    <span class="doccomment">/// Set whether we skip DCS envelope.
+<a href=#170 id=170 data-nosnippet>170</a>    </span><span class="kw">pub fn </span>set_skip_dcs_envelope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, skip: <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) {
+<a href=#171 id=171 data-nosnippet>171</a>        <a class="self" href="#170">self</a>.skip_dcs_envelope = <a href="#170">skip</a>;
+<a href=#172 id=172 data-nosnippet>172</a>    }
+<a href=#173 id=173 data-nosnippet>173</a>
+<a href=#174 id=174 data-nosnippet>174</a>    <span class="doccomment">/// Set the color model.
+<a href=#175 id=175 data-nosnippet>175</a>    </span><span class="kw">pub fn </span>set_color_model(<span class="kw-2">&amp;mut </span><span class="self">self</span>, color_model: <a href="enums.rs.html#109-117">SixelColorModel</a>) {
+<a href=#176 id=176 data-nosnippet>176</a>        <a class="self" href="#175">self</a>.color_model = <a href="#175">color_model</a>;
+<a href=#177 id=177 data-nosnippet>177</a>    }
+<a href=#178 id=178 data-nosnippet>178</a>
+<a href=#179 id=179 data-nosnippet>179</a>    <span class="doccomment">/// Set the encoding policy.
+<a href=#180 id=180 data-nosnippet>180</a>    </span><span class="kw">pub fn </span>set_encode_policy(<span class="kw-2">&amp;mut </span><span class="self">self</span>, encode_policy: <a href="enums.rs.html#88-96">SixelEncodePolicy</a>) {
+<a href=#181 id=181 data-nosnippet>181</a>        <a class="self" href="#180">self</a>.encode_policy = <a href="#180">encode_policy</a>;
+<a href=#182 id=182 data-nosnippet>182</a>    }
+<a href=#183 id=183 data-nosnippet>183</a>}</code></pre></div></section></main></body></html>

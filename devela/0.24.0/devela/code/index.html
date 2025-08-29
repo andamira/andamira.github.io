@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Code reflective synthesis. code::{error, marker, ops, panic, result, util} "><title>devela::code - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module code</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#derives" title="Derive Macros">Derive Macros</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate devela</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a></div><h1>Module <span>code</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/code/mod.rs.html#3-53">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Code reflective synthesis.
+<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::code">code</a>::{<a href="error/index.html" title="mod devela::code::error">error</a>, <a href="marker/index.html" title="mod devela::code::marker">marker</a>, <a href="ops/index.html" title="mod devela::code::ops">ops</a>, <a href="panic/index.html" title="mod devela::code::panic">panic</a>, <a href="result/index.html" title="mod devela::code::result">result</a>, <a href="util/index.html" title="mod devela::code::util">util</a>}</span>
+<br/><br style='display:block;content:"";margin-top:10px;' /></p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../_core/any/index.html" title="mod devela::_core::any">any</a>, <a href="../_core/clone/index.html" title="mod devela::_core::clone">clone</a>, <a href="../_core/convert/index.html" title="mod devela::_core::convert">convert</a>, <a href="../_core/default/index.html" title="mod devela::_core::default">default</a>, <a href="../_dep/_std/error/index.html" title="mod devela::_dep::_std::error">error</a>, <a href="../_core/hint/index.html" title="mod devela::_core::hint">hint</a>, <a href="../_core/marker/index.html" title="mod devela::_core::marker">marker</a>, <a href="../_core/ops/index.html" title="mod devela::_core::ops">ops</a>, <a href="../_dep/_std/panic/index.html" title="mod devela::_dep::_std::panic">panic</a>, <a href="../_core/result/index.html" title="mod devela::_core::result">result</a>}</span><hr/></p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="error/index.html" title="mod devela::code::error">error</a></dt><dd>Errors, backtraces, structured handling.</dd><dt><a class="mod" href="intro/index.html" title="mod devela::code::intro">intro</a></dt><dd>Introspection.</dd><dt><a class="mod" href="marker/index.html" title="mod devela::code::marker">marker</a></dt><dd>Marker types, traits and macros.</dd><dt><a class="mod" href="ops/index.html" title="mod devela::code::ops">ops</a></dt><dd>Overloadable operators.</dd><dt><a class="mod" href="panic/index.html" title="mod devela::code::panic">panic</a></dt><dd>Panic hooks, unwinding, abort strategies.</dd><dt><a class="mod" href="result/index.html" title="mod devela::code::result">result</a></dt><dd>Structured resolution and parameterized outcome-based types.</dd><dt><a class="mod" href="util/index.html" title="mod devela::code::util">util</a></dt><dd>Utility macros and hint functions.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.ScopeGuard.html" title="struct devela::code::ScopeGuard">Scope<wbr>Guard</a></dt><dd>A general-purpose RAII guard that executes a callback on drop.</dd><dt><a class="struct" href="struct.TypeId.html" title="struct devela::code::TypeId">TypeId</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Represents a globally unique identifier for a type.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.Infallible.html" title="enum devela::code::Infallible">Infallible</a></dt><dd><span class='stab portability' title='Individual error type'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The error type for errors that can never happen.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Any.html" title="trait devela::code::Any">Any</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A trait to emulate dynamic typing.</dd><dt><a class="trait" href="trait.AsMut.html" title="trait devela::code::AsMut">AsMut</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used to do a cheap mutable-to-mutable reference conversion.</dd><dt><a class="trait" href="trait.AsRef.html" title="trait devela::code::AsRef">AsRef</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used to do a cheap reference-to-reference conversion.</dd><dt><a class="trait" href="trait.Clone.html" title="trait devela::code::Clone">Clone</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A common trait that allows explicit creation of a duplicate value.</dd><dt><a class="trait" href="trait.ConstDefault.html" title="trait devela::code::ConstDefault">Const<wbr>Default</a></dt><dd>A trait for giving a type a useful default value in <em>compile-time</em>.</dd><dt><a class="trait" href="trait.Default.html" title="trait devela::code::Default">Default</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A trait for giving a type a useful default value.</dd><dt><a class="trait" href="trait.ExtAny.html" title="trait devela::code::ExtAny">ExtAny</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Extension trait providing convenience methods for <code>T:</code><a href="trait.Any.html" title="trait devela::code::Any"><code>Any</code></a>.</dd><dt><a class="trait" href="trait.From.html" title="trait devela::code::From">From</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used to do value-to-value conversions while consuming the input value.</dd><dt><a class="trait" href="trait.Into.html" title="trait devela::code::Into">Into</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A value-to-value conversion that consumes the input value.</dd><dt><a class="trait" href="trait.TryFrom.html" title="trait devela::code::TryFrom">TryFrom</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Simple and safe type conversions that may fail in a controlled way.</dd><dt><a class="trait" href="trait.TryInto.html" title="trait devela::code::TryInto">TryInto</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An attempted conversion that consumes self, which may or may not be expensive.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.any_type_name.html" title="fn devela::code::any_type_name">any_<wbr>type_<wbr>name</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Returns the name of a type as a string slice.</dd><dt><a class="fn" href="fn.identity.html" title="fn devela::code::identity">identity</a></dt><dd><span class='stab portability' title='Absence, emptiness, or a no-op effect'>∅</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The identity function. Just returns back its input.</dd></dl><h2 id="derives" class="section-header">Derive Macros<a href="#derives" class="anchor">§</a></h2><dl class="item-table"><dt><a class="derive" href="derive.Clone.html" title="derive devela::code::Clone">Clone</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Derive macro generating an impl of the trait <code>Clone</code>.</dd><dt><a class="derive" href="derive.Default.html" title="derive devela::code::Default">Default</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Derive macro generating an impl of the trait <code>Default</code>.</dd></dl></section></div></main></body></html>

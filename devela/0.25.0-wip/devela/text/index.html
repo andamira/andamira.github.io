@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Text types and operations, text processing. text::{fmt, parse, str} "><title>devela::text - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module text</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module text</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate devela</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a></div><h1>Module <span>text</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/text/mod.rs.html#3-49">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Text types and operations, text processing.
+<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::text">text</a>::{<a href="fmt/index.html" title="mod devela::text::fmt">fmt</a>, <a href="parse/index.html" title="mod devela::text::parse">parse</a>, <a href="str/index.html" title="mod devela::text::str">str</a>}</span>
+<br/><br style='display:block;content:"";margin-top:10px;' /></p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../_dep/_std/ascii/index.html" title="mod devela::_dep::_std::ascii">ascii</a>, <a href="../_core/char/index.html" title="mod devela::_core::char">char</a>, <a href="../_dep/_alloc/fmt/index.html" title="mod devela::_dep::_alloc::fmt">fmt</a>, <a href="../_dep/_alloc/str/index.html" title="mod devela::_dep::_alloc::str">str</a>, <a href="../_dep/_alloc/string/index.html" title="mod devela::_dep::_alloc::string">string</a>}</span><hr/></p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="errors/index.html" title="mod devela::text::errors">errors</a></dt><dd>Text-related errors.</dd><dt><a class="mod" href="fmt/index.html" title="mod devela::text::fmt">fmt</a></dt><dd>Strings formatting.</dd><dt><a class="mod" href="parse/index.html" title="mod devela::text::parse">parse</a></dt><dd>String parsing without structured semantics.</dd><dt><a class="mod" href="str/index.html" title="mod devela::text::str">str</a></dt><dd>String types and related functionality.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Ascii.html" title="struct devela::text::Ascii">Ascii</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Provides ASCII operations on <code>T</code>, most of them <em>const</em>.</dd><dt><a class="struct" href="struct.Char.html" title="struct devela::text::Char">Char</a></dt><dd><span class='stab portability' title='Namespaced functionality'>🌐</span>
+Unicode scalars-related operations.</dd><dt><a class="struct" href="struct.GraphemeNonul.html" title="struct devela::text::GraphemeNonul">Grapheme<wbr>Nonul</a></dt><dd><span class='stab portability' title='Text-related type'>𝐓</span>
+An <abbr title="Extended Grapheme Cluster">EGC</abbr> backed by a <a href="../all/struct.StringNonul.html" title="struct devela::all::StringNonul"><code>StringNonul</code></a>.</dd><dt><a class="struct" href="struct.GraphemeString.html" title="struct devela::text::GraphemeString">Grapheme<wbr>String</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Text-related type'>𝐓</span>
+An <abbr title="Extended Grapheme Cluster">EGC</abbr> backed by a <a href="../all/struct.String.html" title="struct devela::all::String"><code>String</code></a>.</dd><dt><a class="struct" href="struct.GraphemeU8.html" title="struct devela::text::GraphemeU8">Grapheme<wbr>U8</a></dt><dd>An <abbr title="Extended Grapheme Cluster">EGC</abbr> backed by an
+<a href="../all/struct.StringU8.html" title="struct devela::all::StringU8"><code>StringU8</code></a>.</dd><dt><a class="struct" href="struct.IterChars.html" title="struct devela::text::IterChars">Iter<wbr>Chars</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An iterator over the <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html" title="primitive char"><code>char</code></a>s of a string slice.</dd><dt><a class="struct" href="struct.char7.html" title="struct devela::text::char7">char7</a><wbr><span class="stab portability" title="Available on crate feature `_char7` only"><code>_char7</code></span></dt><dd><span class='stab portability' title='Text-related type'>𝐓</span>
+A 7-bit <a href="https://www.unicode.org/glossary/#unicode_scalar_value">unicode scalar</a>, limited to <a href="https://en.wikipedia.org/wiki/Basic_Latin_(Unicode_block)">basic latin</a> subset
+(ASCII).</dd><dt><a class="struct" href="struct.char8.html" title="struct devela::text::char8">char8</a><wbr><span class="stab portability" title="Available on crate feature `_char8` only"><code>_char8</code></span></dt><dd><span class='stab portability' title='Text-related type'>𝐓</span>
+An 8-bit <a href="https://www.unicode.org/glossary/#unicode_scalar_value">unicode scalar</a>, limited to <a href="https://en.wikipedia.org/wiki/Basic_Latin_(Unicode_block)">basic latin</a>
+and <a href="https://en.wikipedia.org/wiki/Latin-1_Supplement">latin-1</a> subsets.</dd><dt><a class="struct" href="struct.char16.html" title="struct devela::text::char16">char16</a><wbr><span class="stab portability" title="Available on crate feature `_char16` only"><code>_char16</code></span></dt><dd><span class='stab portability' title='Text-related type'>𝐓</span>
+A 16-bit <a href="https://www.unicode.org/glossary/#unicode_scalar_value">unicode scalar</a>, limited to the
+<a href="https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane">Basic Multilingual Plane</a> subset.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.AsciiChar.html" title="enum devela::text::AsciiChar">Ascii<wbr>Char</a><wbr><span class="stab portability" title="Available on crate feature `ascii` only"><code>ascii</code></span></dt><dd>One of 128 Unicode characters (<code>U+0000</code> to <code>U+007F</code>), the ASCII subset.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Grapheme.html" title="trait devela::text::Grapheme">Grapheme</a></dt><dd><span class='stab portability' title='Text-related type'>𝐓</span>
+Common trait for <abbr title="Extended Grapheme Cluster">EGC</abbr> types.</dd><dt><a class="trait" href="trait.UnicodeScalar.html" title="trait devela::text::UnicodeScalar">Unicode<wbr>Scalar</a></dt><dd><span class='stab portability' title='Text-related type'>𝐓</span>
+Common trait for unicode scalar types.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.char.html" title="type devela::text::char">char</a></dt><dd><span class='stab portability' title='Rust primitive type'>⚙️</span>
+<span class='stab portability' title='Text-related type'>𝐓</span>
+<span class="stab portability" title="re-exported from rust's `core`"><code>core</code></span>
+A 32-bit <a href="https://www.unicode.org/glossary/#unicode_scalar_value">unicode scalar</a>.</dd></dl></section></div></main></body></html>

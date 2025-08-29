@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Implementations of key-based storage."><title>devela::data::key - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module key</a></h2><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>data</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">data</a></div><h1>Module <span>key</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/data/key/mod.rs.html#3-33">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Implementations of key-based storage.</p>
+<p>Provides tools for mapping, indexing, and efficiently organizing data
+through unique keys, including maps, sets, and other key-value structures.</p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../../_dep/_std/collections/index.html" title="mod devela::_dep::_std::collections">collections</a>}</span><hr/></p>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.define_static_map.html" title="macro devela::data::key::define_static_map">define_<wbr>static_<wbr>map</a></dt><dd>Build a custom static hashmap.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.BTreeMap.html" title="struct devela::data::key::BTreeMap">BTree<wbr>Map</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='General-purpose data structure'>📦</span>
+<span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+An ordered map based on a B-Tree.</dd><dt><a class="struct" href="struct.BTreeSet.html" title="struct devela::data::key::BTreeSet">BTree<wbr>Set</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='General-purpose data structure'>📦</span>
+<span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+An ordered set based on a B-Tree.</dd><dt><a class="struct" href="struct.ExampleStaticMapU16.html" title="struct devela::data::key::ExampleStaticMapU16">Example<wbr>Static<wbr>MapU16</a></dt><dt><a class="struct" href="struct.HashMap.html" title="struct devela::data::key::HashMap">HashMap</a><wbr><span class="stab portability" title="Available on crate features `dep_hashbrown` or `std` only"><code>dep_hashbrown</code> or <code>std</code></span></dt><dd><span class='stab portability' title='General-purpose data structure'>📦</span>
+<span class='stab portability'
+        title='re-exported from either `hashbrown` or `std`'><code>std?</code></span>
+An unordered hash map implemented with quadratic probing and SIMD lookup.</dd><dt><a class="struct" href="struct.HashSet.html" title="struct devela::data::key::HashSet">HashSet</a><wbr><span class="stab portability" title="Available on crate features `dep_hashbrown` or `std` only"><code>dep_hashbrown</code> or <code>std</code></span></dt><dd><span class='stab portability'
+        title='re-exported from either `hashbrown` or `std`'><code>std?</code></span>
+An unordered hash set implemented as a <code>HashMap</code> where the value is <code>()</code></dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.BTreeMapEntry.html" title="enum devela::data::key::BTreeMapEntry">BTree<wbr>MapEntry</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+An ordered map based on a B-Tree.</dd><dt><a class="enum" href="enum.HashMapEntry.html" title="enum devela::data::key::HashMapEntry">Hash<wbr>MapEntry</a><wbr><span class="stab portability" title="Available on crate features `dep_hashbrown` or `std` only"><code>dep_hashbrown</code> or <code>std</code></span></dt><dd><span class='stab portability' title='General-purpose data structure'>📦</span>
+<span class='stab portability'
+        title='re-exported from either `hashbrown` or `std`'><code>std?</code></span>
+A view into a single entry in a map, which may either be vacant or occupied.</dd><dt><a class="enum" href="enum.StaticMapEntry.html" title="enum devela::data::key::StaticMapEntry">Static<wbr>MapEntry</a></dt><dd>Represents an entry in a <a href="../../all/macro.define_static_map.html" title="macro devela::all::define_static_map">static map</a> allowing for in-place mutation or insertion.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.HashMapFx.html" title="type devela::data::key::HashMapFx">Hash<wbr>MapFx</a><wbr><span class="stab portability" title="Available on crate feature `hash` and (crate feature `std`, or crate features `dep_hashbrown` and `hash`) only"><code>hash</code> and (<code>std</code>, or <code>dep_hashbrown</code> and <code>hash</code>)</span></dt><dd>A <a href="../../all/struct.HashMap.html" title="struct devela::all::HashMap"><code>HashMap</code></a> using a default Fx hasher.</dd><dt><a class="type" href="type.HashMapStd.html" title="type devela::data::key::HashMapStd">Hash<wbr>MapStd</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd>The <code>HashMap</code> in the standard library.</dd><dt><a class="type" href="type.HashSetFx.html" title="type devela::data::key::HashSetFx">Hash<wbr>SetFx</a><wbr><span class="stab portability" title="Available on crate feature `hash` and (crate feature `std`, or crate features `dep_hashbrown` and `hash`) only"><code>hash</code> and (<code>std</code>, or <code>dep_hashbrown</code> and <code>hash</code>)</span></dt><dd>A <a href="../../all/struct.HashSet.html" title="struct devela::all::HashSet"><code>HashSet</code></a> using a default Fx hasher.</dd><dt><a class="type" href="type.HashSetStd.html" title="type devela::data::key::HashSetStd">Hash<wbr>SetStd</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd>The <code>HashSet</code> in the standard library.</dd></dl></section></div></main></body></html>

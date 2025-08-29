@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/dst/queue/impl_traits.rs`."><title>impl_traits.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../../static.files/storage-68b7e25d.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">devela/data/dst/queue/</div>impl_traits.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela::data::dst::queue_impl_traits
+<a href=#2 id=2 data-nosnippet>2</a>//
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//!
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
+<a href=#5 id=5 data-nosnippet>5</a>
+<a href=#6 id=6 data-nosnippet>6</a></span><span class="kw">use super</span>::{<a href="../buffer.rs.html#16-33">DstBuf</a>, <a href="mod.rs.html#24-29">DstQueue</a>, <a href="mod.rs.html#52">DstQueueIter</a>, <a href="mod.rs.html#56-59">DstQueueIterMut</a>, <a href="mod.rs.html#46-48">DstQueuePopHandle</a>};
+<a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span>core::{<a href="../../../../../devela/_core/fmt/index.html">fmt</a>, <a href="../../../../../devela/_core/iter/index.html">iter</a>, <a href="../../../../../devela/_core/mem/index.html">mem</a>, <a href="../../../../../devela/_core/ops/index.html">ops</a>};
+<a href=#8 id=8 data-nosnippet>8</a>
+<a href=#9 id=9 data-nosnippet>9</a><span class="comment">/* queue */
+<a href=#10 id=10 data-nosnippet>10</a>
+<a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">impl</span>&lt;DST: <span class="question-mark">?</span><a href="../../../../../devela/all/trait.Sized.html">Sized</a>, BUF: <a href="../buffer.rs.html#16-33">DstBuf</a>&gt; <a href="../../../../../devela/all/trait.Drop.html">ops::Drop</a> <span class="kw">for </span><a href="mod.rs.html#24-29">DstQueue</a>&lt;DST, BUF&gt; {
+<a href=#12 id=12 data-nosnippet>12</a>    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+<a href=#13 id=13 data-nosnippet>13</a>        <span class="kw">while </span><span class="self">self</span>.pop_front().is_some() {}
+<a href=#14 id=14 data-nosnippet>14</a>    }
+<a href=#15 id=15 data-nosnippet>15</a>}
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">impl</span>&lt;DST: <span class="question-mark">?</span><a href="../../../../../devela/all/trait.Sized.html">Sized</a>, BUF: <a href="../buffer.rs.html#16-33">DstBuf</a> + <a href="../../../../../devela/code/trait.Default.html">Default</a>&gt; <a href="../../../../../devela/code/trait.Default.html">Default</a> <span class="kw">for </span><a href="mod.rs.html#24-29">DstQueue</a>&lt;DST, BUF&gt; {
+<a href=#17 id=17 data-nosnippet>17</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+<a href=#18 id=18 data-nosnippet>18</a>        <a href="methods.rs.html#17">DstQueue::new</a>()
+<a href=#19 id=19 data-nosnippet>19</a>    }
+<a href=#20 id=20 data-nosnippet>20</a>}
+<a href=#21 id=21 data-nosnippet>21</a>
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">impl</span>&lt;BUF: <a href="../buffer.rs.html#16-33">DstBuf</a>, DST: <span class="question-mark">?</span><a href="../../../../../devela/all/trait.Sized.html">Sized</a> + <a href="../../../../../devela/all/trait.Debug.html">fmt::Debug</a>&gt; <a href="../../../../../devela/all/trait.Debug.html">fmt::Debug</a> <span class="kw">for </span><a href="mod.rs.html#24-29">DstQueue</a>&lt;DST, BUF&gt; {
+<a href=#23 id=23 data-nosnippet>23</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../../devela/all/struct.Formatter.html">fmt::Formatter</a>) -&gt; <a href="../../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
+<a href=#24 id=24 data-nosnippet>24</a>        <a href="#23">f</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.write_str">write_str</a>(<span class="string">"["</span>)<span class="question-mark">?</span>;
+<a href=#25 id=25 data-nosnippet>25</a>        <span class="kw">for </span>v <span class="kw">in </span><span class="self">self</span>.iter() {
+<a href=#26 id=26 data-nosnippet>26</a>            v.fmt(f)<span class="question-mark">?</span>;
+<a href=#27 id=27 data-nosnippet>27</a>            f.write_str(<span class="string">","</span>)<span class="question-mark">?</span>;
+<a href=#28 id=28 data-nosnippet>28</a>        }
+<a href=#29 id=29 data-nosnippet>29</a>        <a href="#23">f</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.write_str">write_str</a>(<span class="string">"]"</span>)<span class="question-mark">?</span>;
+<a href=#30 id=30 data-nosnippet>30</a>        <a class="prelude-val" href="../../../../../devela/all/enum.Result.html">Ok</a>(())
+<a href=#31 id=31 data-nosnippet>31</a>    }
+<a href=#32 id=32 data-nosnippet>32</a>}
+<a href=#33 id=33 data-nosnippet>33</a>
+<a href=#34 id=34 data-nosnippet>34</a><span class="comment">/* pop handle */
+<a href=#35 id=35 data-nosnippet>35</a>
+<a href=#36 id=36 data-nosnippet>36</a></span><span class="kw">impl</span>&lt;DST: <span class="question-mark">?</span><a href="../../../../../devela/all/trait.Sized.html">Sized</a>, BUF: <a href="../buffer.rs.html#16-33">DstBuf</a>&gt; <a href="../../../../../devela/all/trait.Deref.html">ops::Deref</a> <span class="kw">for </span><a href="mod.rs.html#46-48">DstQueuePopHandle</a>&lt;<span class="lifetime">'_</span>, DST, BUF&gt; {
+<a href=#37 id=37 data-nosnippet>37</a>    <span class="kw">type </span>Target = DST;
+<a href=#38 id=38 data-nosnippet>38</a>    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DST {
+<a href=#39 id=39 data-nosnippet>39</a>        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><a class="self" href="#38">self</a>.parent.<a href="private.rs.html#88-92">front_raw</a>() }
+<a href=#40 id=40 data-nosnippet>40</a>    }
+<a href=#41 id=41 data-nosnippet>41</a>}
+<a href=#42 id=42 data-nosnippet>42</a><span class="kw">impl</span>&lt;DST: <span class="question-mark">?</span><a href="../../../../../devela/all/trait.Sized.html">Sized</a>, BUF: <a href="../buffer.rs.html#16-33">DstBuf</a>&gt; <a href="../../../../../devela/all/trait.DerefMut.html">ops::DerefMut</a> <span class="kw">for </span><a href="mod.rs.html#46-48">DstQueuePopHandle</a>&lt;<span class="lifetime">'_</span>, DST, BUF&gt; {
+<a href=#43 id=43 data-nosnippet>43</a>    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>DST {
+<a href=#44 id=44 data-nosnippet>44</a>        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><a class="self" href="#43">self</a>.parent.<a href="private.rs.html#107-111">front_raw_mut</a>() }
+<a href=#45 id=45 data-nosnippet>45</a>    }
+<a href=#46 id=46 data-nosnippet>46</a>}
+<a href=#47 id=47 data-nosnippet>47</a><span class="kw">impl</span>&lt;DST: <span class="question-mark">?</span><a href="../../../../../devela/all/trait.Sized.html">Sized</a>, BUF: <a href="../buffer.rs.html#16-33">DstBuf</a>&gt; <a href="../../../../../devela/all/trait.Drop.html">ops::Drop</a> <span class="kw">for </span><a href="mod.rs.html#46-48">DstQueuePopHandle</a>&lt;<span class="lifetime">'_</span>, DST, BUF&gt; {
+<a href=#48 id=48 data-nosnippet>48</a>    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+<a href=#49 id=49 data-nosnippet>49</a>        <a class="self" href="#48">self</a>.parent.<a href="private.rs.html#125-134">pop_front_inner</a>();
+<a href=#50 id=50 data-nosnippet>50</a>    }
+<a href=#51 id=51 data-nosnippet>51</a>}
+<a href=#52 id=52 data-nosnippet>52</a>
+<a href=#53 id=53 data-nosnippet>53</a><span class="comment">/* iter */
+<a href=#54 id=54 data-nosnippet>54</a>
+<a href=#55 id=55 data-nosnippet>55</a></span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, DST: <span class="lifetime">'a </span>+ <span class="question-mark">?</span><a href="../../../../../devela/all/trait.Sized.html">Sized</a>, BUF: <span class="lifetime">'a </span>+ <a href="../buffer.rs.html#16-33">DstBuf</a>&gt; <a href="../../../../../devela/all/trait.Iterator.html">iter::Iterator</a> <span class="kw">for </span><a href="mod.rs.html#52">DstQueueIter</a>&lt;<span class="lifetime">'a</span>, DST, BUF&gt; {
+<a href=#56 id=56 data-nosnippet>56</a>    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DST;
+<a href=#57 id=57 data-nosnippet>57</a>    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/all/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>DST&gt; {
+<a href=#58 id=58 data-nosnippet>58</a>        <span class="kw">if </span><a class="self" href="#57">self</a>.<span class="number">1 </span>== <a class="self" href="#57">self</a>.<span class="number">0</span>.write_pos {
+<a href=#59 id=59 data-nosnippet>59</a>            <a class="prelude-val" href="../../../../../devela/all/enum.Option.html"><a href="../../../../../devela/all/enum.Option.html">None</a>
+<a href=#60 id=60 data-nosnippet>60</a>        </a>} <span class="kw">else </span>{
+<a href=#61 id=61 data-nosnippet>61</a>            <span class="comment">// SAFETY: Bounds checked, aliasing enforced by API.
+<a href=#62 id=62 data-nosnippet>62</a>            </span><span class="kw">let </span>rv = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><a class="self" href="#57">self</a>.<span class="number">0</span>.<a href="private.rs.html#96-104">raw_at</a>(<a class="self" href="#57">self</a>.<span class="number">1</span>) };
+<a href=#63 id=63 data-nosnippet>63</a>            <a class="self" href="#57">self</a>.<span class="number">1 </span>+=
+<a href=#64 id=64 data-nosnippet>64</a>                <a href="mod.rs.html#24-29">DstQueue</a>::&lt;DST, BUF&gt;::meta_words() + <a href="../buffer.rs.html#30-32">BUF::round_to_words</a>(<a href="../../../../../devela/_core/mem/fn.size_of_val.html">mem::size_of_val</a>(<a href="#62">rv</a>));
+<a href=#65 id=65 data-nosnippet>65</a>            <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#62">rv</a>)
+<a href=#66 id=66 data-nosnippet>66</a>        }
+<a href=#67 id=67 data-nosnippet>67</a>    }
+<a href=#68 id=68 data-nosnippet>68</a>}
+<a href=#69 id=69 data-nosnippet>69</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, DST: <span class="lifetime">'a </span>+ <span class="question-mark">?</span><a href="../../../../../devela/all/trait.Sized.html">Sized</a>, BUF: <span class="lifetime">'a </span>+ <a href="../buffer.rs.html#16-33">DstBuf</a>&gt; <a href="../../../../../devela/all/trait.Iterator.html">iter::Iterator</a> <span class="kw">for </span><a href="mod.rs.html#56-59">DstQueueIterMut</a>&lt;<span class="lifetime">'a</span>, DST, BUF&gt; {
+<a href=#70 id=70 data-nosnippet>70</a>    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>DST;
+<a href=#71 id=71 data-nosnippet>71</a>    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/all/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>DST&gt; {
+<a href=#72 id=72 data-nosnippet>72</a>        <span class="kw">if </span><a class="self" href="#71">self</a>.<span class="number">1 </span>== <a class="self" href="#71">self</a>.<span class="number">0</span>.write_pos {
+<a href=#73 id=73 data-nosnippet>73</a>            <a class="prelude-val" href="../../../../../devela/all/enum.Option.html"><a href="../../../../../devela/all/enum.Option.html">None</a>
+<a href=#74 id=74 data-nosnippet>74</a>        </a>} <span class="kw">else </span>{
+<a href=#75 id=75 data-nosnippet>75</a>            <span class="comment">// SAFETY: Bounds checked, aliasing enforced by API
+<a href=#76 id=76 data-nosnippet>76</a>            </span><span class="kw">let </span>rv = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><a class="self" href="#71">self</a>.<span class="number">0</span>.<a href="private.rs.html#115-123">raw_at_mut</a>(<a class="self" href="#71">self</a>.<span class="number">1</span>) };
+<a href=#77 id=77 data-nosnippet>77</a>            <a class="self" href="#71">self</a>.<span class="number">1 </span>+=
+<a href=#78 id=78 data-nosnippet>78</a>                <a href="mod.rs.html#24-29">DstQueue</a>::&lt;DST, BUF&gt;::meta_words() + <a href="../buffer.rs.html#30-32">BUF::round_to_words</a>(<a href="../../../../../devela/_core/mem/fn.size_of_val.html">mem::size_of_val</a>(<a href="#76">rv</a>));
+<a href=#79 id=79 data-nosnippet>79</a>            <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#76">rv</a>)
+<a href=#80 id=80 data-nosnippet>80</a>        }
+<a href=#81 id=81 data-nosnippet>81</a>    }
+<a href=#82 id=82 data-nosnippet>82</a>}</code></pre></div></section></main></body></html>

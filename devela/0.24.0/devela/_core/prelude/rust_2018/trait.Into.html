@@ -1,0 +1,168 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A value-to-value conversion that consumes the input value. The opposite of `From`."><title>Into in devela::_core::prelude::rust_2018 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../../static.files/storage-68b7e25d.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Into</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#generic-implementations" title="Generic Implementations">Generic Implementations</a></li><li><a href="#implementing-into-for-conversions-to-external-types-in-old-versions-of-rust" title="Implementing `Into` for conversions to external types in old versions of Rust">Implementing <code>Into</code> for conversions to external types in old versions of Rust</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.into" title="into">into</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>_<wbr>core::<wbr>prelude::<wbr>rust_<wbr>2018</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">_core</a>::<wbr><a href="../index.html">prelude</a>::<wbr><a href="index.html">rust_2018</a></div><h1>Trait <span class="trait">Into</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><span class="since" title="Stable since Rust version 1.55.0, const unstable">1.55.0 (const: <a href="https://github.com/rust-lang/rust/issues/143773" title="Tracking issue for const_from">unstable</a>)</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#454">Source</a> </span></div><pre class="rust item-decl"><code>pub trait Into&lt;T&gt;: <a class="trait" href="../../../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a> {
+    // Required method
+    fn <a href="#tymethod.into" class="fn">into</a>(self) -&gt; T;
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A value-to-value conversion that consumes the input value. The
+opposite of <a href="../../../code/trait.From.html" title="trait devela::code::From"><code>From</code></a>.</p>
+<p>One should avoid implementing <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a> and implement <a href="../../../code/trait.From.html" title="trait devela::code::From"><code>From</code></a> instead.
+Implementing <a href="../../../code/trait.From.html" title="trait devela::code::From"><code>From</code></a> automatically provides one with an implementation of <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a>
+thanks to the blanket implementation in the standard library.</p>
+<p>Prefer using <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a> over <a href="../../../code/trait.From.html" title="trait devela::code::From"><code>From</code></a> when specifying trait bounds on a generic function
+to ensure that types that only implement <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a> can be used as well.</p>
+<p><strong>Note: This trait must not fail</strong>. If the conversion can fail, use <a href="../../../code/trait.TryInto.html" title="trait devela::code::TryInto"><code>TryInto</code></a>.</p>
+<h2 id="generic-implementations"><a class="doc-anchor" href="#generic-implementations">§</a>Generic Implementations</h2>
+<ul>
+<li><a href="../../../code/trait.From.html" title="trait devela::code::From"><code>From</code></a><code>&lt;T&gt; for U</code> implies <code>Into&lt;U&gt; for T</code></li>
+<li><a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a> is reflexive, which means that <code>Into&lt;T&gt; for T</code> is implemented</li>
+</ul>
+<h2 id="implementing-into-for-conversions-to-external-types-in-old-versions-of-rust"><a class="doc-anchor" href="#implementing-into-for-conversions-to-external-types-in-old-versions-of-rust">§</a>Implementing <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a> for conversions to external types in old versions of Rust</h2>
+<p>Prior to Rust 1.41, if the destination type was not part of the current crate
+then you couldn’t implement <a href="../../../code/trait.From.html" title="trait devela::code::From"><code>From</code></a> directly.
+For example, take this code:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct </span>Wrapper&lt;T&gt;(Vec&lt;T&gt;);
+<span class="kw">impl</span>&lt;T&gt; From&lt;Wrapper&lt;T&gt;&gt; <span class="kw">for </span>Vec&lt;T&gt; {
+    <span class="kw">fn </span>from(w: Wrapper&lt;T&gt;) -&gt; Vec&lt;T&gt; {
+        w.<span class="number">0
+    </span>}
+}</code></pre></div>
+<p>This will fail to compile in older versions of the language because Rust’s orphaning rules
+used to be a little bit more strict. To bypass this, you could implement <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a> directly:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct </span>Wrapper&lt;T&gt;(Vec&lt;T&gt;);
+<span class="kw">impl</span>&lt;T&gt; Into&lt;Vec&lt;T&gt;&gt; <span class="kw">for </span>Wrapper&lt;T&gt; {
+    <span class="kw">fn </span>into(<span class="self">self</span>) -&gt; Vec&lt;T&gt; {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
+}</code></pre></div>
+<p>It is important to understand that <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a> does not provide a <a href="../../../code/trait.From.html" title="trait devela::code::From"><code>From</code></a> implementation
+(as <a href="../../../code/trait.From.html" title="trait devela::code::From"><code>From</code></a> does with <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a>). Therefore, you should always try to implement <a href="../../../code/trait.From.html" title="trait devela::code::From"><code>From</code></a>
+and then fall back to <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a> if <a href="../../../code/trait.From.html" title="trait devela::code::From"><code>From</code></a> can’t be implemented.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p><a href="../../std/string/struct.String.html"><code>String</code></a> implements <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a><code>&lt;</code><a href="../../std/vec/struct.Vec.html"><code>Vec</code></a><code>&lt;</code><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html" title="primitive u8"><code>u8</code></a><code>&gt;&gt;</code>:</p>
+<p>In order to express that we want a generic function to take all arguments that can be
+converted to a specified type <code>T</code>, we can use a trait bound of <a href="../../../code/trait.Into.html" title="trait devela::code::Into"><code>Into</code></a><code>&lt;T&gt;</code>.
+For example: The function <code>is_hello</code> takes all arguments that can be converted into a
+<a href="../../std/vec/struct.Vec.html"><code>Vec</code></a><code>&lt;</code><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html" title="primitive u8"><code>u8</code></a><code>&gt;</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn </span>is_hello&lt;T: Into&lt;Vec&lt;u8&gt;&gt;&gt;(s: T) {
+   <span class="kw">let </span>bytes = <span class="string">b"hello"</span>.to_vec();
+   <span class="macro">assert_eq!</span>(bytes, s.into());
+}
+
+<span class="kw">let </span>s = <span class="string">"hello"</span>.to_string();
+is_hello(s);</code></pre></div>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.into" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#458">Source</a></span><h4 class="code-header">fn <a href="#tymethod.into" class="fn">into</a>(self) -&gt; T</h4></section></summary><div class="docblock"><p>Converts this type into the (usually inferred) input type.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-Into%3CClippingRect%3E-for-Option%3CRect%3E" class="impl"><a href="#impl-Into%3CClippingRect%3E-for-Option%3CRect%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../code/trait.Into.html" title="trait devela::code::Into">Into</a>&lt;<a class="enum" href="../../../_dep/sdl2/render/enum.ClippingRect.html" title="enum devela::_dep::sdl2::render::ClippingRect">ClippingRect</a>&gt; for <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../../_dep/sdl2/rect/struct.Rect.html" title="struct devela::_dep::sdl2::rect::Rect">Rect</a>&gt;</h3></section><section id="impl-Into%3CClippingRect%3E-for-Rect" class="impl"><a href="#impl-Into%3CClippingRect%3E-for-Rect" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../code/trait.Into.html" title="trait devela::code::Into">Into</a>&lt;<a class="enum" href="../../../_dep/sdl2/render/enum.ClippingRect.html" title="enum devela::_dep::sdl2::render::ClippingRect">ClippingRect</a>&gt; for <a class="struct" href="../../../_dep/sdl2/rect/struct.Rect.html" title="struct devela::_dep::sdl2::rect::Rect">Rect</a></h3></section><section id="impl-Into%3CVec%3CT%3E%3E-for-CSlice%3C'a,+T%3E" class="impl"><a href="#impl-Into%3CVec%3CT%3E%3E-for-CSlice%3C'a,+T%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a, T&gt; <a class="trait" href="../../../code/trait.Into.html" title="trait devela::code::Into">Into</a>&lt;<a class="struct" href="../../../all/struct.Vec.html" title="struct devela::all::Vec">Vec</a>&lt;T&gt;&gt; for CSlice&lt;'a, T&gt;<div class="where">where
+    T: <a class="trait" href="../../../code/trait.Clone.html" title="trait devela::code::Clone">Clone</a>,</div></h3></section><section id="impl-Into%3CVec%3CT%3E%3E-for-CSliceMut%3C'a,+T%3E" class="impl"><a href="#impl-Into%3CVec%3CT%3E%3E-for-CSliceMut%3C'a,+T%3E" class="anchor">§</a><h3 class="code-header">impl&lt;'a, T&gt; <a class="trait" href="../../../code/trait.Into.html" title="trait devela::code::Into">Into</a>&lt;<a class="struct" href="../../../all/struct.Vec.html" title="struct devela::all::Vec">Vec</a>&lt;T&gt;&gt; for CSliceMut&lt;'a, T&gt;<div class="where">where
+    T: <a class="trait" href="../../../code/trait.Clone.html" title="trait devela::code::Clone">Clone</a>,</div></h3></section><section id="impl-Into%3CVec%3CT%3E%3E-for-CVec%3CT%3E" class="impl"><a href="#impl-Into%3CVec%3CT%3E%3E-for-CVec%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="../../../code/trait.Into.html" title="trait devela::code::Into">Into</a>&lt;<a class="struct" href="../../../all/struct.Vec.html" title="struct devela::all::Vec">Vec</a>&lt;T&gt;&gt; for CVec&lt;T&gt;<div class="where">where
+    T: <a class="trait" href="../../../code/trait.Clone.html" title="trait devela::code::Clone">Clone</a>,</div></h3></section><section id="impl-Into%3CU%3E-for-T" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0, const unstable">1.0.0 (const: <a href="https://github.com/rust-lang/rust/issues/143773" title="Tracking issue for const_from">unstable</a>)</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#773-775">Source</a></span><a href="#impl-Into%3CU%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="../../../code/trait.Into.html" title="trait devela::code::Into">Into</a>&lt;U&gt; for T<div class="where">where
+    U: <a class="trait" href="../../../code/trait.From.html" title="trait devela::code::From">From</a>&lt;T&gt;,</div></h3></section></div><script src="../../../../trait.impl/core/convert/trait.Into.js" data-ignore-extern-crates="sdl2,core,c_vec" async></script></section></div></main></body></html>

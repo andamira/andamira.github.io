@@ -1,0 +1,203 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`itertools` Extra iterator adaptors, iterator methods, functions, and macros."><title>devela::_dep::itertools - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-069232aa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (3672a55b7 2025-08-13)" data-channel="nightly" data-search-js="search-281b7574.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="../../../crates.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    /* settings */
+
+    const crateName = "devela";
+    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
+    const allowedKatexChem = ["/all/", "/phys/"];
+
+    // Find the LAST occurrence of `/devela/` in the path
+    const path = window.location.pathname;
+    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
+    if (lastCrateIndex === -1) return;
+    // Extract everything after the last `/devela/`
+    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+
+    /* load resources */
+
+    try {
+      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      }
+      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
+      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
+        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#crate-features" title="Crate Features">Crate Features</a></li><li><a href="#rust-version" title="Rust Version">Rust Version</a></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>dep</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">_dep</a></div><h1>Crate <span>itertools</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_itertools</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='re-exported `itertools`'><code>itertools</code></span>
+Extra iterator adaptors, iterator methods, functions, and macros.</p>
+<hr />
+<p>Extra iterator adaptors, functions and macros.</p>
+<p>To extend <a href="../../all/trait.Iterator.html" title="trait devela::all::Iterator"><code>Iterator</code></a> with methods in this crate, import
+the <a href="../../all/trait.Itertools.html" title="trait devela::all::Itertools"><code>Itertools</code></a> trait:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>itertools::Itertools;</code></pre></div>
+<p>Now, new methods like <a href="../../all/trait.Itertools.html#method.interleave" title="method devela::all::Itertools::interleave"><code>interleave</code></a>
+are available on all iterators:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>itertools::Itertools;
+
+<span class="kw">let </span>it = (<span class="number">1</span>..<span class="number">3</span>).interleave(<span class="macro">vec!</span>[-<span class="number">1</span>, -<span class="number">2</span>]);
+itertools::assert_equal(it, <span class="macro">vec!</span>[<span class="number">1</span>, -<span class="number">1</span>, <span class="number">2</span>, -<span class="number">2</span>]);</code></pre></div>
+<p>Most iterator methods are also provided as functions (with the benefit
+that they convert parameters using <a href="../../all/trait.IteratorInto.html" title="trait devela::all::IteratorInto"><code>IntoIterator</code></a>):</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>itertools::interleave;
+
+<span class="kw">for </span>elt <span class="kw">in </span>interleave(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], <span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]) {
+    <span class="comment">/* loop body */
+</span>}</code></pre></div>
+<h3 id="crate-features"><a class="doc-anchor" href="#crate-features">§</a>Crate Features</h3>
+<ul>
+<li><code>use_std</code>
+<ul>
+<li>Enabled by default.</li>
+<li>Disable to compile itertools using <code>#![no_std]</code>. This disables
+any item that depend on allocations (see the <code>use_alloc</code> feature)
+and hash maps (like <code>unique</code>, <code>counts</code>, <code>into_grouping_map</code> and more).</li>
+</ul>
+</li>
+<li><code>use_alloc</code>
+<ul>
+<li>Enabled by default.</li>
+<li>Enables any item that depend on allocations (like <code>chunk_by</code>,
+<code>kmerge</code>, <code>join</code> and many more).</li>
+</ul>
+</li>
+</ul>
+<h3 id="rust-version"><a class="doc-anchor" href="#rust-version">§</a>Rust Version</h3>
+<p>This version of itertools requires Rust 1.63.0 or later.</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="__std_iter/index.html" title="mod devela::_dep::itertools::__std_iter">__<wbr>std_<wbr>iter</a></dt><dd>Composable external iteration.</dd><dt><a class="mod" href="structs/index.html" title="mod devela::_dep::itertools::structs">structs</a></dt><dd>The concrete iterator types.</dd><dt><a class="mod" href="traits/index.html" title="mod devela::_dep::itertools::traits">traits</a></dt><dd>Traits helpful for using certain <code>Itertools</code> methods in generic contexts.</dd></dl><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.chain.html" title="macro devela::_dep::itertools::chain">chain</a></dt><dd><a href="../../all/trait.Iterator.html#method.chain" title="method devela::all::Iterator::chain">Chain</a> zero or more iterators together into one sequence.</dd><dt><a class="macro" href="macro.iproduct.html" title="macro devela::_dep::itertools::iproduct">iproduct</a></dt><dd>Create an iterator over the “cartesian product” of iterators.</dd><dt><a class="macro" href="macro.izip.html" title="macro devela::_dep::itertools::izip">izip</a></dt><dd>Create an iterator running multiple iterators in lockstep.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Batching.html" title="struct devela::_dep::itertools::Batching">Batching</a></dt><dd>A “meta iterator adaptor”. Its closure receives a reference to the iterator
+and may pick off as many elements as it likes, to produce the next iterator element.</dd><dt><a class="struct" href="struct.Chunk.html" title="struct devela::_dep::itertools::Chunk">Chunk</a></dt><dd>An iterator for the elements in a single chunk.</dd><dt><a class="struct" href="struct.ChunkBy.html" title="struct devela::_dep::itertools::ChunkBy">ChunkBy</a></dt><dd><code>ChunkBy</code> is the storage for the lazy grouping operation.</dd><dt><a class="struct" href="struct.Chunks.html" title="struct devela::_dep::itertools::Chunks">Chunks</a></dt><dd>An iterator that yields the Chunk iterators.</dd><dt><a class="struct" href="struct.CircularTupleWindows.html" title="struct devela::_dep::itertools::CircularTupleWindows">Circular<wbr>Tuple<wbr>Windows</a></dt><dd>An iterator over all windows, wrapping back to the first elements when the
+window would otherwise exceed the length of the iterator, producing tuples
+of a specific size.</dd><dt><a class="struct" href="struct.CombinationsWithReplacement.html" title="struct devela::_dep::itertools::CombinationsWithReplacement">Combinations<wbr>With<wbr>Replacement</a></dt><dd>An iterator to iterate through all the <code>n</code>-length combinations in an iterator, with replacement.</dd><dt><a class="struct" href="struct.ExactlyOneError.html" title="struct devela::_dep::itertools::ExactlyOneError">Exactly<wbr>OneError</a></dt><dd>Iterator returned for the error case of <code>Itertools::exactly_one()</code>
+This iterator yields exactly the same elements as the input iterator.</dd><dt><a class="struct" href="struct.FilterMapOk.html" title="struct devela::_dep::itertools::FilterMapOk">Filter<wbr>MapOk</a></dt><dd>An iterator adapter to filter and apply a transformation on values within a nested <code>Result::Ok</code>.</dd><dt><a class="struct" href="struct.FilterOk.html" title="struct devela::_dep::itertools::FilterOk">Filter<wbr>Ok</a></dt><dd>An iterator adapter to filter values within a nested <code>Result::Ok</code>.</dd><dt><a class="struct" href="struct.FlattenOk.html" title="struct devela::_dep::itertools::FlattenOk">Flatten<wbr>Ok</a></dt><dd>An iterator adaptor that flattens <code>Result::Ok</code> values and
+allows <code>Result::Err</code> values through unchanged.</dd><dt><a class="struct" href="struct.Format.html" title="struct devela::_dep::itertools::Format">Format</a></dt><dd>Format all iterator elements lazily, separated by <code>sep</code>.</dd><dt><a class="struct" href="struct.FormatWith.html" title="struct devela::_dep::itertools::FormatWith">Format<wbr>With</a></dt><dd>Format all iterator elements lazily, separated by <code>sep</code>.</dd><dt><a class="struct" href="struct.Group.html" title="struct devela::_dep::itertools::Group">Group</a></dt><dd>An iterator for the elements in a single group.</dd><dt><a class="struct" href="struct.GroupingMap.html" title="struct devela::_dep::itertools::GroupingMap">Grouping<wbr>Map</a></dt><dd><code>GroupingMap</code> is an intermediate struct for efficient group-and-fold operations.
+It groups elements by their key and at the same time fold each group
+using some aggregating operation.</dd><dt><a class="struct" href="struct.Groups.html" title="struct devela::_dep::itertools::Groups">Groups</a></dt><dd>An iterator that yields the Group iterators.</dd><dt><a class="struct" href="struct.Interleave.html" title="struct devela::_dep::itertools::Interleave">Interleave</a></dt><dd>An iterator adaptor that alternates elements from two iterators until both
+run out.</dd><dt><a class="struct" href="struct.InterleaveShortest.html" title="struct devela::_dep::itertools::InterleaveShortest">Interleave<wbr>Shortest</a></dt><dd>An iterator adaptor that alternates elements from the two iterators until
+one of them runs out.</dd><dt><a class="struct" href="struct.IntersperseWith.html" title="struct devela::_dep::itertools::IntersperseWith">Intersperse<wbr>With</a></dt><dd>An iterator adaptor to insert a particular value created by a function
+between each element of the adapted iterator.</dd><dt><a class="struct" href="struct.IntoChunks.html" title="struct devela::_dep::itertools::IntoChunks">Into<wbr>Chunks</a></dt><dd><code>ChunkLazy</code> is the storage for a lazy chunking operation.</dd><dt><a class="struct" href="struct.Iterate.html" title="struct devela::_dep::itertools::Iterate">Iterate</a></dt><dd>An iterator that infinitely applies function to value and yields results.</dd><dt><a class="struct" href="struct.KMergeBy.html" title="struct devela::_dep::itertools::KMergeBy">KMerge<wbr>By</a></dt><dd>An iterator adaptor that merges an abitrary number of base iterators
+according to an ordering function.</dd><dt><a class="struct" href="struct.MergeBy.html" title="struct devela::_dep::itertools::MergeBy">MergeBy</a></dt><dd>An iterator adaptor that merges the two base iterators in ascending order.
+If both base iterators are sorted (ascending), the result is sorted.</dd><dt><a class="struct" href="struct.MultiPeek.html" title="struct devela::_dep::itertools::MultiPeek">Multi<wbr>Peek</a></dt><dd>See <a href="fn.multipeek.html" title="fn devela::_dep::itertools::multipeek"><code>multipeek()</code></a> for more information.</dd><dt><a class="struct" href="struct.MultiProduct.html" title="struct devela::_dep::itertools::MultiProduct">Multi<wbr>Product</a></dt><dd>An iterator adaptor that iterates over the cartesian product of
+multiple iterators of type <code>I</code>.</dd><dt><a class="struct" href="struct.PadUsing.html" title="struct devela::_dep::itertools::PadUsing">PadUsing</a></dt><dd>An iterator adaptor that pads a sequence to a minimum length by filling
+missing elements using a closure.</dd><dt><a class="struct" href="struct.PeekNth.html" title="struct devela::_dep::itertools::PeekNth">PeekNth</a></dt><dd>See <a href="fn.peek_nth.html" title="fn devela::_dep::itertools::peek_nth"><code>peek_nth()</code></a> for more information.</dd><dt><a class="struct" href="struct.PeekingTakeWhile.html" title="struct devela::_dep::itertools::PeekingTakeWhile">Peeking<wbr>Take<wbr>While</a></dt><dd>An iterator adaptor that takes items while a closure returns <code>true</code>.</dd><dt><a class="struct" href="struct.Permutations.html" title="struct devela::_dep::itertools::Permutations">Permutations</a></dt><dd>An iterator adaptor that iterates through all the <code>k</code>-permutations of the
+elements from an iterator.</dd><dt><a class="struct" href="struct.Positions.html" title="struct devela::_dep::itertools::Positions">Positions</a></dt><dd>An iterator adapter to get the positions of each element that matches a predicate.</dd><dt><a class="struct" href="struct.Powerset.html" title="struct devela::_dep::itertools::Powerset">Powerset</a></dt><dd>An iterator to iterate through the powerset of the elements from an iterator.</dd><dt><a class="struct" href="struct.ProcessResults.html" title="struct devela::_dep::itertools::ProcessResults">Process<wbr>Results</a></dt><dd>An iterator that produces only the <code>T</code> values as long as the
+inner iterator produces <code>Ok(T)</code>.</dd><dt><a class="struct" href="struct.Product.html" title="struct devela::_dep::itertools::Product">Product</a></dt><dd>An iterator adaptor that iterates over the cartesian product of
+the element sets of two iterators <code>I</code> and <code>J</code>.</dd><dt><a class="struct" href="struct.PutBack.html" title="struct devela::_dep::itertools::PutBack">PutBack</a></dt><dd>An iterator adaptor that allows putting back a single
+item to the front of the iterator.</dd><dt><a class="struct" href="struct.PutBackN.html" title="struct devela::_dep::itertools::PutBackN">PutBackN</a></dt><dd>An iterator adaptor that allows putting multiple
+items in front of the iterator.</dd><dt><a class="struct" href="struct.RcIter.html" title="struct devela::_dep::itertools::RcIter">RcIter</a></dt><dd>A wrapper for <code>Rc&lt;RefCell&lt;I&gt;&gt;</code>, that implements the <code>Iterator</code> trait.</dd><dt><a class="struct" href="struct.RepeatN.html" title="struct devela::_dep::itertools::RepeatN">RepeatN</a></dt><dd>An iterator that produces <em>n</em> repetitions of an element.</dd><dt><a class="struct" href="struct.TakeWhileInclusive.html" title="struct devela::_dep::itertools::TakeWhileInclusive">Take<wbr>While<wbr>Inclusive</a></dt><dd>An iterator adaptor that consumes elements while the given predicate is
+<code>true</code>, including the element for which the predicate first returned
+<code>false</code>.</dd><dt><a class="struct" href="struct.TakeWhileRef.html" title="struct devela::_dep::itertools::TakeWhileRef">Take<wbr>While<wbr>Ref</a></dt><dd>An iterator adaptor that borrows from a <code>Clone</code>-able iterator
+to only pick off elements while the predicate returns <code>true</code>.</dd><dt><a class="struct" href="struct.Tee.html" title="struct devela::_dep::itertools::Tee">Tee</a></dt><dd>One half of an iterator pair where both return the same elements.</dd><dt><a class="struct" href="struct.TupleBuffer.html" title="struct devela::_dep::itertools::TupleBuffer">Tuple<wbr>Buffer</a></dt><dd>An iterator over a incomplete tuple.</dd><dt><a class="struct" href="struct.TupleCombinations.html" title="struct devela::_dep::itertools::TupleCombinations">Tuple<wbr>Combinations</a></dt><dd>An iterator to iterate through all combinations in a <code>Clone</code>-able iterator that produces tuples
+of a specific size.</dd><dt><a class="struct" href="struct.TupleWindows.html" title="struct devela::_dep::itertools::TupleWindows">Tuple<wbr>Windows</a></dt><dd>An iterator over all contiguous windows that produces tuples of a specific size.</dd><dt><a class="struct" href="struct.Tuples.html" title="struct devela::_dep::itertools::Tuples">Tuples</a></dt><dd>An iterator that groups the items in tuples of a specific size.</dd><dt><a class="struct" href="struct.Unfold.html" title="struct devela::_dep::itertools::Unfold">Unfold</a><wbr><span class="stab deprecated" title="">Deprecated</span></dt><dd>See <a href="fn.unfold.html" title="fn devela::_dep::itertools::unfold"><code>unfold</code></a> for more information.</dd><dt><a class="struct" href="struct.Unique.html" title="struct devela::_dep::itertools::Unique">Unique</a></dt><dd>An iterator adapter to filter out duplicate elements.</dd><dt><a class="struct" href="struct.UniqueBy.html" title="struct devela::_dep::itertools::UniqueBy">Unique<wbr>By</a></dt><dd>An iterator adapter to filter out duplicate elements.</dd><dt><a class="struct" href="struct.Update.html" title="struct devela::_dep::itertools::Update">Update</a></dt><dd>An iterator adapter to apply a mutating function to each element before yielding it.</dd><dt><a class="struct" href="struct.WhileSome.html" title="struct devela::_dep::itertools::WhileSome">While<wbr>Some</a></dt><dd>An iterator adaptor that filters <code>Option&lt;A&gt;</code> iterator elements
+and produces <code>A</code>. Stops on the first <code>None</code> encountered.</dd><dt><a class="struct" href="struct.WithPosition.html" title="struct devela::_dep::itertools::WithPosition">With<wbr>Position</a></dt><dd>An iterator adaptor that wraps each element in an <a href="enum.Position.html" title="enum devela::_dep::itertools::Position"><code>Position</code></a>.</dd><dt><a class="struct" href="struct.Zip.html" title="struct devela::_dep::itertools::Zip">Zip</a></dt><dd>See <a href="fn.multizip.html" title="fn devela::_dep::itertools::multizip"><code>multizip</code></a> for more information.</dd><dt><a class="struct" href="struct.ZipEq.html" title="struct devela::_dep::itertools::ZipEq">ZipEq</a></dt><dd>An iterator which iterates two other iterators simultaneously
+and panic if they have different lengths.</dd><dt><a class="struct" href="struct.ZipLongest.html" title="struct devela::_dep::itertools::ZipLongest">ZipLongest</a></dt><dd>An iterator which iterates two other iterators simultaneously
+and wraps the elements in <a href="enum.EitherOrBoth.html" title="enum devela::_dep::itertools::EitherOrBoth"><code>EitherOrBoth</code></a>.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.Diff.html" title="enum devela::_dep::itertools::Diff">Diff</a></dt><dd>A type returned by the <a href="fn.diff_with.html" title="fn devela::_dep::itertools::diff_with"><code>diff_with</code></a> function.</dd><dt><a class="enum" href="enum.Either.html" title="enum devela::_dep::itertools::Either">Either</a></dt><dd>The enum <code>Either</code> with variants <code>Left</code> and <code>Right</code> is a general purpose
+sum type with two cases.</dd><dt><a class="enum" href="enum.EitherOrBoth.html" title="enum devela::_dep::itertools::EitherOrBoth">Either<wbr>OrBoth</a></dt><dd>Value that either holds a single A or B, or both.</dd><dt><a class="enum" href="enum.FoldWhile.html" title="enum devela::_dep::itertools::FoldWhile">Fold<wbr>While</a></dt><dd>An enum used for controlling the execution of <code>fold_while</code>.</dd><dt><a class="enum" href="enum.MinMaxResult.html" title="enum devela::_dep::itertools::MinMaxResult">MinMax<wbr>Result</a></dt><dd><code>MinMaxResult</code> is an enum returned by <code>minmax</code>.</dd><dt><a class="enum" href="enum.Position.html" title="enum devela::_dep::itertools::Position">Position</a></dt><dd>The first component of the value yielded by <code>WithPosition</code>.
+Indicates the position of this element in the iterator results.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Itertools.html" title="trait devela::_dep::itertools::Itertools">Itertools</a></dt><dd>An <a href="../../all/trait.Iterator.html" title="trait devela::all::Iterator"><code>Iterator</code></a> blanket implementation that provides extra adaptors and
+methods.</dd><dt><a class="trait" href="trait.MultiUnzip.html" title="trait devela::_dep::itertools::MultiUnzip">Multi<wbr>Unzip</a></dt><dd>An iterator that can be unzipped into multiple collections.</dd><dt><a class="trait" href="trait.PeekingNext.html" title="trait devela::_dep::itertools::PeekingNext">Peeking<wbr>Next</a></dt><dd>An iterator that allows peeking at an element before deciding to accept it.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.all.html" title="fn devela::_dep::itertools::all">all</a></dt><dd>Test whether the predicate holds for all elements in the iterable.</dd><dt><a class="fn" href="fn.any.html" title="fn devela::_dep::itertools::any">any</a></dt><dd>Test whether the predicate holds for any elements in the iterable.</dd><dt><a class="fn" href="fn.assert_equal.html" title="fn devela::_dep::itertools::assert_equal">assert_<wbr>equal</a></dt><dd>Assert that two iterables produce equal sequences, with the same
+semantics as <a href="fn.equal.html" title="fn devela::_dep::itertools::equal"><code>equal(a, b)</code></a>.</dd><dt><a class="fn" href="fn.chain.html" title="fn devela::_dep::itertools::chain">chain</a></dt><dd>Takes two iterables and creates a new iterator over both in sequence.</dd><dt><a class="fn" href="fn.cloned.html" title="fn devela::_dep::itertools::cloned">cloned</a></dt><dd>Create an iterator that clones each element from <code>&amp;T</code> to <code>T</code>.</dd><dt><a class="fn" href="fn.concat.html" title="fn devela::_dep::itertools::concat">concat</a></dt><dd>Combine all an iterator’s elements into one element by using <a href="../../all/trait.IteratorExtend.html" title="trait devela::all::IteratorExtend"><code>Extend</code></a>.</dd><dt><a class="fn" href="fn.cons_tuples.html" title="fn devela::_dep::itertools::cons_tuples">cons_<wbr>tuples</a></dt><dd>Create an iterator that maps for example iterators of
+<code>((A, B), C)</code> to <code>(A, B, C)</code>.</dd><dt><a class="fn" href="fn.diff_with.html" title="fn devela::_dep::itertools::diff_with">diff_<wbr>with</a></dt><dd>Compares every element yielded by both <code>i</code> and <code>j</code> with the given function in lock-step and
+returns a <a href="enum.Diff.html" title="enum devela::_dep::itertools::Diff"><code>Diff</code></a> which describes how <code>j</code> differs from <code>i</code>.</dd><dt><a class="fn" href="fn.enumerate.html" title="fn devela::_dep::itertools::enumerate">enumerate</a></dt><dd>Iterate <code>iterable</code> with a running index.</dd><dt><a class="fn" href="fn.equal.html" title="fn devela::_dep::itertools::equal">equal</a></dt><dd>Return <code>true</code> if both iterables produce equal sequences
+(elements pairwise equal and sequences of the same length),
+<code>false</code> otherwise.</dd><dt><a class="fn" href="fn.fold.html" title="fn devela::_dep::itertools::fold">fold</a></dt><dd>Perform a fold operation over the iterable.</dd><dt><a class="fn" href="fn.interleave.html" title="fn devela::_dep::itertools::interleave">interleave</a></dt><dd>Create an iterator that interleaves elements in <code>i</code> and <code>j</code>.</dd><dt><a class="fn" href="fn.intersperse.html" title="fn devela::_dep::itertools::intersperse">intersperse</a></dt><dd>Iterate <code>iterable</code> with a particular value inserted between each element.</dd><dt><a class="fn" href="fn.intersperse_with.html" title="fn devela::_dep::itertools::intersperse_with">intersperse_<wbr>with</a></dt><dd>Iterate <code>iterable</code> with a particular value created by a function inserted
+between each element.</dd><dt><a class="fn" href="fn.iterate.html" title="fn devela::_dep::itertools::iterate">iterate</a></dt><dd>Creates a new iterator that infinitely applies function to value and yields results.</dd><dt><a class="fn" href="fn.join.html" title="fn devela::_dep::itertools::join">join</a></dt><dd>Combine all iterator elements into one <code>String</code>, separated by <code>sep</code>.</dd><dt><a class="fn" href="fn.kmerge.html" title="fn devela::_dep::itertools::kmerge">kmerge</a></dt><dd>Create an iterator that merges elements of the contained iterators using
+the ordering function.</dd><dt><a class="fn" href="fn.kmerge_by.html" title="fn devela::_dep::itertools::kmerge_by">kmerge_<wbr>by</a></dt><dd>Create an iterator that merges elements of the contained iterators.</dd><dt><a class="fn" href="fn.max.html" title="fn devela::_dep::itertools::max">max</a></dt><dd>Return the maximum value of the iterable.</dd><dt><a class="fn" href="fn.merge.html" title="fn devela::_dep::itertools::merge">merge</a></dt><dd>Create an iterator that merges elements in <code>i</code> and <code>j</code>.</dd><dt><a class="fn" href="fn.merge_join_by.html" title="fn devela::_dep::itertools::merge_join_by">merge_<wbr>join_<wbr>by</a></dt><dd>Return an iterator adaptor that merge-joins items from the two base iterators in ascending order.</dd><dt><a class="fn" href="fn.min.html" title="fn devela::_dep::itertools::min">min</a></dt><dd>Return the minimum value of the iterable.</dd><dt><a class="fn" href="fn.multipeek.html" title="fn devela::_dep::itertools::multipeek">multipeek</a></dt><dd>An iterator adaptor that allows the user to peek at multiple <code>.next()</code>
+values without advancing the base iterator.</dd><dt><a class="fn" href="fn.multiunzip.html" title="fn devela::_dep::itertools::multiunzip">multiunzip</a></dt><dd>Converts an iterator of tuples into a tuple of containers.</dd><dt><a class="fn" href="fn.multizip.html" title="fn devela::_dep::itertools::multizip">multizip</a></dt><dd>An iterator that generalizes <code>.zip()</code> and allows running multiple iterators in lockstep.</dd><dt><a class="fn" href="fn.partition.html" title="fn devela::_dep::itertools::partition">partition</a></dt><dd>Partition a sequence using predicate <code>pred</code> so that elements
+that map to <code>true</code> are placed before elements which map to <code>false</code>.</dd><dt><a class="fn" href="fn.peek_nth.html" title="fn devela::_dep::itertools::peek_nth">peek_<wbr>nth</a></dt><dd>A drop-in replacement for <a href="../../all/struct.IterPeekable.html" title="struct devela::all::IterPeekable"><code>std::iter::Peekable</code></a> which adds a <code>peek_nth</code>
+method allowing the user to <code>peek</code> at a value several iterations forward
+without advancing the base iterator.</dd><dt><a class="fn" href="fn.process_results.html" title="fn devela::_dep::itertools::process_results">process_<wbr>results</a></dt><dd>“Lift” a function of the values of an iterator so that it can process
+an iterator of <code>Result</code> values instead.</dd><dt><a class="fn" href="fn.put_back.html" title="fn devela::_dep::itertools::put_back">put_<wbr>back</a></dt><dd>Create an iterator where you can put back a single item</dd><dt><a class="fn" href="fn.put_back_n.html" title="fn devela::_dep::itertools::put_back_n">put_<wbr>back_<wbr>n</a></dt><dd>Create an iterator where you can put back multiple values to the front
+of the iteration.</dd><dt><a class="fn" href="fn.rciter.html" title="fn devela::_dep::itertools::rciter">rciter</a></dt><dd>Return an iterator inside a <code>Rc&lt;RefCell&lt;_&gt;&gt;</code> wrapper.</dd><dt><a class="fn" href="fn.repeat_n.html" title="fn devela::_dep::itertools::repeat_n">repeat_<wbr>n</a></dt><dd>Create an iterator that produces <code>n</code> repetitions of <code>element</code>.</dd><dt><a class="fn" href="fn.rev.html" title="fn devela::_dep::itertools::rev">rev</a></dt><dd>Iterate <code>iterable</code> in reverse.</dd><dt><a class="fn" href="fn.sorted.html" title="fn devela::_dep::itertools::sorted">sorted</a></dt><dd>Sort all iterator elements into a new iterator in ascending order.</dd><dt><a class="fn" href="fn.sorted_unstable.html" title="fn devela::_dep::itertools::sorted_unstable">sorted_<wbr>unstable</a></dt><dd>Sort all iterator elements into a new iterator in ascending order.
+This sort is unstable (i.e., may reorder equal elements).</dd><dt><a class="fn" href="fn.unfold.html" title="fn devela::_dep::itertools::unfold">unfold</a><wbr><span class="stab deprecated" title="">Deprecated</span></dt><dd>Creates a new unfold source with the specified closure as the “iterator
+function” and an initial state to eventually pass to the closure</dd><dt><a class="fn" href="fn.zip.html" title="fn devela::_dep::itertools::zip">zip</a><wbr><span class="stab deprecated" title="">Deprecated</span></dt><dd>Converts the arguments to iterators and zips them.</dd><dt><a class="fn" href="fn.zip_eq.html" title="fn devela::_dep::itertools::zip_eq">zip_eq</a></dt><dd>Zips two iterators but <strong>panics</strong> if they are not of the same length.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.ArrayCombinations.html" title="type devela::_dep::itertools::ArrayCombinations">Array<wbr>Combinations</a></dt><dd>Iterator for const generic combinations returned by <a href="../../all/trait.Itertools.html#method.array_combinations" title="method devela::all::Itertools::array_combinations"><code>.array_combinations()</code></a></dd><dt><a class="type" href="type.Coalesce.html" title="type devela::_dep::itertools::Coalesce">Coalesce</a></dt><dd>An iterator adaptor that may join together adjacent elements.</dd><dt><a class="type" href="type.Combinations.html" title="type devela::_dep::itertools::Combinations">Combinations</a></dt><dd>Iterator for <code>Vec</code> valued combinations returned by <a href="../../all/trait.Itertools.html#method.combinations" title="method devela::all::Itertools::combinations"><code>.combinations()</code></a></dd><dt><a class="type" href="type.ConsTuples.html" title="type devela::_dep::itertools::ConsTuples">Cons<wbr>Tuples</a></dt><dd>An iterator that maps an iterator of tuples like
+<code>((A, B), C)</code> to an iterator of <code>(A, B, C)</code>.</dd><dt><a class="type" href="type.Dedup.html" title="type devela::_dep::itertools::Dedup">Dedup</a></dt><dd>An iterator adaptor that removes repeated duplicates.</dd><dt><a class="type" href="type.DedupBy.html" title="type devela::_dep::itertools::DedupBy">DedupBy</a></dt><dd>An iterator adaptor that removes repeated duplicates, determining equality using a comparison function.</dd><dt><a class="type" href="type.DedupByWithCount.html" title="type devela::_dep::itertools::DedupByWithCount">Dedup<wbr>ByWith<wbr>Count</a></dt><dd>An iterator adaptor that removes repeated duplicates, while keeping a count of how many
+repeated elements were present. This will determine equality using a comparison function.</dd><dt><a class="type" href="type.DedupWithCount.html" title="type devela::_dep::itertools::DedupWithCount">Dedup<wbr>With<wbr>Count</a></dt><dd>An iterator adaptor that removes repeated duplicates, while keeping a count of how many
+repeated elements were present.</dd><dt><a class="type" href="type.Duplicates.html" title="type devela::_dep::itertools::Duplicates">Duplicates</a></dt><dd>An iterator adapter to filter out duplicate elements.</dd><dt><a class="type" href="type.DuplicatesBy.html" title="type devela::_dep::itertools::DuplicatesBy">Duplicates<wbr>By</a></dt><dd>An iterator adapter to filter for duplicate elements.</dd><dt><a class="type" href="type.GroupBy.html" title="type devela::_dep::itertools::GroupBy">GroupBy</a><wbr><span class="stab deprecated" title="">Deprecated</span></dt><dd>See <a href="struct.ChunkBy.html" title="struct devela::_dep::itertools::ChunkBy"><code>ChunkBy</code></a>.</dd><dt><a class="type" href="type.GroupingMapBy.html" title="type devela::_dep::itertools::GroupingMapBy">Grouping<wbr>MapBy</a></dt><dd><code>GroupingMapBy</code> is an intermediate struct for efficient group-and-fold operations.</dd><dt><a class="type" href="type.Intersperse.html" title="type devela::_dep::itertools::Intersperse">Intersperse</a></dt><dd>An iterator adaptor to insert a particular value
+between each element of the adapted iterator.</dd><dt><a class="type" href="type.KMerge.html" title="type devela::_dep::itertools::KMerge">KMerge</a></dt><dd>An iterator adaptor that merges an abitrary number of base iterators in ascending order.
+If all base iterators are sorted (ascending), the result is sorted.</dd><dt><a class="type" href="type.MapInto.html" title="type devela::_dep::itertools::MapInto">MapInto</a></dt><dd>An iterator adapter to apply <code>Into</code> conversion to each element.</dd><dt><a class="type" href="type.MapOk.html" title="type devela::_dep::itertools::MapOk">MapOk</a></dt><dd>An iterator adapter to apply a transformation within a nested <code>Result::Ok</code>.</dd><dt><a class="type" href="type.Merge.html" title="type devela::_dep::itertools::Merge">Merge</a></dt><dd>An iterator adaptor that merges the two base iterators in ascending order.
+If both base iterators are sorted (ascending), the result is sorted.</dd><dt><a class="type" href="type.MergeJoinBy.html" title="type devela::_dep::itertools::MergeJoinBy">Merge<wbr>Join<wbr>By</a></dt><dd>An iterator adaptor that merge-joins items from the two base iterators in ascending order.</dd></dl></section></div></main></body></html>
