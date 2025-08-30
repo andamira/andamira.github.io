@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Represents a Python Capsule as described in Capsules:"><title>PyCapsule in devela::_dep::pyo3::types - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Represents a Python Capsule as described in Capsules:"><title>PyCapsule in devela::_dep::pyo3::types - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
@@ -129,7 +129,7 @@ be used to access C APIs defined in dynamically loaded modules.</p>
     <span class="kw">pub </span>val: u32,
 }
 
-<span class="kw">let </span>r = Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {
+<span class="kw">let </span>r = Python::attach(|py| -&gt; PyResult&lt;()&gt; {
     <span class="kw">let </span>foo = Foo { val: <span class="number">123 </span>};
     <span class="kw">let </span>name = CString::new(<span class="string">"builtins.capsule"</span>).unwrap();
 
@@ -157,7 +157,7 @@ need to be cast to a function pointer (<code>fn(args) -&gt; result</code>) to be
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>pyo3::{prelude::<span class="kw-2">*</span>, types::PyCapsule};
 <span class="kw">use </span>std::ffi::CString;
 
-Python::with_gil(|py| {
+Python::attach(|py| {
     <span class="kw">let </span>name = CString::new(<span class="string">"foo"</span>).unwrap();
     <span class="kw">let </span>capsule = PyCapsule::new(py, <span class="number">123_u32</span>, <span class="prelude-val">Some</span>(name)).unwrap();
     <span class="kw">let </span>val = <span class="kw">unsafe </span>{ capsule.reference::&lt;u32&gt;() };
@@ -168,7 +168,7 @@ Python::with_gil(|py| {
 <div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>pyo3::{prelude::<span class="kw-2">*</span>, types::PyCapsule};
 <span class="kw">use </span>std::ffi::CString;
 
-Python::with_gil(|py| {
+Python::attach(|py| {
     <span class="kw">let </span>capsule = PyCapsule::new(py, (), <span class="prelude-val">None</span>).unwrap();  <span class="comment">// Oops! `()` is zero sized!
 </span>});</code></pre></div>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.new_with_destructor" class="method"><h4 class="code-header">pub fn <a href="#method.new_with_destructor" class="fn">new_with_destructor</a>&lt;T, F&gt;(

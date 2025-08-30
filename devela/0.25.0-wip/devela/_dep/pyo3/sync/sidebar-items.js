@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["with_critical_section","with_critical_section2"],"struct":["GILOnceCell","GILProtected"],"trait":["MutexExt","OnceExt","OnceLockExt"]};
+window.SIDEBAR_ITEMS = {"fn":["with_critical_section","with_critical_section2"],"struct":["GILOnceCell","GILProtected","PyOnceLock"],"trait":["MutexExt","OnceExt","OnceLockExt"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["arch_cmp","arch_round","asm","detect_aarch64","detect_x86","global_asm"],"struct":["Arch","Cell","LazyCell","OnceCell","Ref","RefCell","RefCellBorrowError","RefCellBorrowMutError","RefMut","UnsafeCell","Wasm","m128","m128d","m128i","m256","m256d","m256i"]};
+window.SIDEBAR_ITEMS = {"macro":["arch_cmp","arch_round","asm","detect_aarch64","detect_x86","global_asm"],"struct":["Arch","Wasm","m128","m128d","m128i","m256","m256d","m256i"]};

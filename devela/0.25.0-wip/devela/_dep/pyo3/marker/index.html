@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Fundamental properties of objects tied to the Python interpreter."><title>devela::_dep::pyo3::marker - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Fundamental properties of objects tied to the Python interpreter."><title>devela::_dep::pyo3::marker - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
@@ -122,7 +122,7 @@ caught at compile time and your program will fail to compile.</p>
 awaiting a future</li>
 <li>Once that is done, reacquire the GIL</li>
 </ul>
-<p>That API is provided by <a href="../struct.Python.html#method.allow_threads" title="method devela::_dep::pyo3::Python::allow_threads"><code>Python::allow_threads</code></a> and enforced via the <a href="trait.Ungil.html" title="trait devela::_dep::pyo3::marker::Ungil"><code>Ungil</code></a> bound on the
+<p>That API is provided by <a href="../struct.Python.html#method.detach" title="method devela::_dep::pyo3::Python::detach"><code>Python::detach</code></a> and enforced via the <a href="trait.Ungil.html" title="trait devela::_dep::pyo3::marker::Ungil"><code>Ungil</code></a> bound on the
 closure and the return type. This is done by relying on the <a href="../../../all/trait.Send.html" title="trait devela::all::Send"><code>Send</code></a> auto trait. <code>Ungil</code> is
 defined as the following:</p>
 
@@ -135,17 +135,17 @@ making the API usable.</p>
 <p>In practice this API works quite well, but it comes with some drawbacks:</p>
 <h3 id="drawbacks"><a class="doc-anchor" href="#drawbacks">§</a>Drawbacks</h3>
 <p>There is no reason to prevent <code>!Send</code> types like <a href="../../../all/struct.Rc.html" title="struct devela::all::Rc"><code>Rc</code></a> from crossing the closure. After all,
-<a href="../struct.Python.html#method.allow_threads" title="method devela::_dep::pyo3::Python::allow_threads"><code>Python::allow_threads</code></a> just lets other Python threads run - it does not itself launch a new
+<a href="../struct.Python.html#method.detach" title="method devela::_dep::pyo3::Python::detach"><code>Python::detach</code></a> just lets other Python threads run - it does not itself launch a new
 thread.</p>
 
 <div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>pyo3::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>std::rc::Rc;
 
 <span class="kw">fn </span>main() {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         <span class="kw">let </span>rc = Rc::new(<span class="number">5</span>);
 
-        py.allow_threads(|| {
+        py.detach(|| {
             <span class="comment">// This would actually be fine...
             </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, <span class="kw-2">*</span>rc);
         });
@@ -166,12 +166,12 @@ doing anything with threads:</p>
 <span class="kw">use </span>pyo3::types::PyString;
 <span class="kw">use </span>send_wrapper::SendWrapper;
 
-Python::with_gil(|py| {
+Python::attach(|py| {
     <span class="kw">let </span>string = PyString::new(py, <span class="string">"foo"</span>);
 
     <span class="kw">let </span>wrapped = SendWrapper::new(string);
 
-    py.allow_threads(|| {
+    py.detach(|| {
         <span class="comment">// 💥 Unsound! 💥
         </span><span class="kw">let </span>smuggled: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'_</span>, PyString&gt; = <span class="kw-2">&amp;*</span>wrapped;
         <span class="macro">println!</span>(<span class="string">"{:?}"</span>, smuggled);

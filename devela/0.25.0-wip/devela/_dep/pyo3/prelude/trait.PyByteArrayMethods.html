@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Implementation of functionality for `PyByteArray`."><title>PyByteArrayMethods in devela::_dep::pyo3::prelude - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (f2824da98 2025-08-28)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Implementation of functionality for `PyByteArray`."><title>PyByteArrayMethods in devela::_dep::pyo3::prelude - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
@@ -139,26 +139,27 @@ reference to the <code>bytearray</code> you cannot safely use the vast majority 
 using the slice.</li>
 </ul>
 <p>As a result, this slice should only be used for short-lived operations without executing any
-Python code, such as copying into a Vec.</p>
+Python code, such as copying into a Vec.
+For free-threaded Python support see also <a href="../sync/fn.with_critical_section.html" title="fn devela::_dep::pyo3::sync::with_critical_section"><code>with_critical_section</code></a>.</p>
 <h5 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>pyo3::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>pyo3::exceptions::PyRuntimeError;
+<span class="kw">use </span>pyo3::sync::with_critical_section;
 <span class="kw">use </span>pyo3::types::PyByteArray;
 
 <span class="attr">#[pyfunction]
 </span><span class="kw">fn </span>a_valid_function(bytes: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'_</span>, PyByteArray&gt;) -&gt; PyResult&lt;()&gt; {
-    <span class="kw">let </span>section = {
-        <span class="comment">// SAFETY: We promise to not let the interpreter regain control
+    <span class="kw">let </span>section = with_critical_section(bytes, || {
+        <span class="comment">// SAFETY: We promise to not let the interpreter regain control over the bytearray
         // or invoke any PyO3 APIs while using the slice.
         </span><span class="kw">let </span>slice = <span class="kw">unsafe </span>{ bytes.as_bytes() };
 
         <span class="comment">// Copy only a section of `bytes` while avoiding
         // `to_vec` which copies the entire thing.
-        </span><span class="kw">let </span>section = slice
-            .get(<span class="number">6</span>..<span class="number">11</span>)
-            .ok_or_else(|| PyRuntimeError::new_err(<span class="string">"input is not long enough"</span>))<span class="question-mark">?</span>;
-        Vec::from(section)
-    };
+        </span>slice.get(<span class="number">6</span>..<span class="number">11</span>)
+            .map(Vec::from)
+            .ok_or_else(|| PyRuntimeError::new_err(<span class="string">"input is not long enough"</span>))
+    })<span class="question-mark">?</span>;
 
     <span class="comment">// Now we can do things with `section` and call PyO3 APIs again.
     // ...
@@ -171,11 +172,14 @@ Python code, such as copying into a Vec.</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code>
 <span class="attr">#[pyfunction]
 </span><span class="kw">fn </span>bug(py: Python&lt;<span class="lifetime">'_</span>&gt;, bytes: <span class="kw-2">&amp;</span>Bound&lt;<span class="lifetime">'_</span>, PyByteArray&gt;) {
-    <span class="kw">let </span>slice = <span class="kw">unsafe </span>{ bytes.as_bytes() };
+    <span class="comment">// No critical section is being used.
+    // This means that for no-gil Python another thread could be modifying the
+    // bytearray concurrently and thus invalidate `slice` any time.
+    </span><span class="kw">let </span>slice = <span class="kw">unsafe </span>{ bytes.as_bytes() };
 
     <span class="comment">// This explicitly yields control back to the Python interpreter...
     // ...but it's not always this obvious. Many things do this implicitly.
-    </span>py.allow_threads(|| {
+    </span>py.detach(|| {
         <span class="comment">// Python code could be mutating through its handle to `bytes`,
         // which makes reading it a data race, which is undefined behavior.
         </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, slice[<span class="number">0</span>]);
