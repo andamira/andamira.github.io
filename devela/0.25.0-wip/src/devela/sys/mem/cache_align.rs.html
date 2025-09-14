@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/cache_align.rs`."><title>cache_align.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/mem/cache_align.rs`."><title>cache_align.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -258,7 +278,7 @@
 <a href=#149 id=149 data-nosnippet>149</a><span class="attr">#[rustfmt::skip]
 <a href=#150 id=150 data-nosnippet>150</a></span><span class="kw">impl</span>&lt;T&gt; <a href="#145-147">CacheAlign</a>&lt;T&gt; {
 <a href=#151 id=151 data-nosnippet>151</a>    <span class="doccomment">/// The alignment of a cache line in the current platform.
-<a href=#152 id=152 data-nosnippet>152</a>    </span><span class="kw">pub const </span>ALIGN: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <a href="../../../../devela/_core/mem/fn.align_of.html">align_of</a>::&lt;<span class="self">Self</span>&gt;();
+<a href=#152 id=152 data-nosnippet>152</a>    </span><span class="kw">pub const </span>ALIGN: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <a href="https://doc.rust-lang.org/nightly/core/mem/fn.align_of.html">align_of</a>::&lt;<span class="self">Self</span>&gt;();
 <a href=#153 id=153 data-nosnippet>153</a>
 <a href=#154 id=154 data-nosnippet>154</a>    <span class="doccomment">/// Pads and aligns a value to the length of a cache line.
 <a href=#155 id=155 data-nosnippet>155</a>    /// ```
@@ -285,7 +305,7 @@
 <a href=#176 id=176 data-nosnippet>176</a>
 <a href=#177 id=177 data-nosnippet>177</a><span class="attr">#[rustfmt::skip]
 <a href=#178 id=178 data-nosnippet>178</a></span><span class="kw">mod </span>impls {
-<a href=#179 id=179 data-nosnippet>179</a>    <span class="kw">use crate</span>::{<a href="#145-147">CacheAlign</a>, <a href="../../../../devela/all/derive.Debug.html">Debug</a>, <a href="../../../../devela/all/trait.Deref.html">Deref</a>, <a href="../../../../devela/all/trait.DerefMut.html">DerefMut</a>, <a href="../../../../devela/all/trait.Display.html">Display</a>, <a href="../../libs/base/src/text/fmt/reexports.rs.html#95">FmtResult</a>, <a href="../../../../devela/all/struct.Formatter.html">Formatter</a>};
+<a href=#179 id=179 data-nosnippet>179</a>    <span class="kw">use crate</span>::{<a href="#145-147">CacheAlign</a>, <a href="../../../../devela/all/derive.Debug.html">Debug</a>, <a href="../../../../devela/all/trait.Deref.html">Deref</a>, <a href="../../../../devela/all/trait.DerefMut.html">DerefMut</a>, <a href="../../../../devela/all/trait.Display.html">Display</a>, <a href="../../libs/base_core/src/text/fmt/reexports.rs.html#95">FmtResult</a>, <a href="../../../../devela/all/struct.Formatter.html">Formatter</a>};
 <a href=#180 id=180 data-nosnippet>180</a>
 <a href=#181 id=181 data-nosnippet>181</a>    <span class="kw">impl</span>&lt;T&gt; <a href="../../../../devela/code/trait.From.html">From</a>&lt;T&gt; <span class="kw">for </span><a href="#145-147">CacheAlign</a>&lt;T&gt; {
 <a href=#182 id=182 data-nosnippet>182</a>        <span class="kw">fn </span>from(t: T) -&gt; <span class="self">Self </span>{ <a href="#160">CacheAlign::new</a>(<a href="#182">t</a>) }
@@ -298,14 +318,14 @@
 <a href=#189 id=189 data-nosnippet>189</a>        <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T { <span class="kw-2">&amp;mut </span><a class="self" href="#189">self</a>.value }
 <a href=#190 id=190 data-nosnippet>190</a>    }
 <a href=#191 id=191 data-nosnippet>191</a>    <span class="kw">impl</span>&lt;T: <a href="../../../../devela/all/trait.Debug.html">Debug</a>&gt; <a href="../../../../devela/all/trait.Debug.html">Debug</a> <span class="kw">for </span><a href="#145-147">CacheAlign</a>&lt;T&gt; {
-<a href=#192 id=192 data-nosnippet>192</a>        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../libs/base/src/text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
+<a href=#192 id=192 data-nosnippet>192</a>        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../libs/base_core/src/text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
 <a href=#193 id=193 data-nosnippet>193</a>            <a href="#192">f</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.debug_struct">debug_struct</a>(<span class="string">"CacheAlign"</span>)
 <a href=#194 id=194 data-nosnippet>194</a>                .<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"align"</span>, <span class="kw-2">&amp;</span><span class="self">Self</span>::ALIGN)
 <a href=#195 id=195 data-nosnippet>195</a>                .<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.field">field</a>(<span class="string">"value"</span>, <span class="kw-2">&amp;</span><a class="self" href="#192">self</a>.value).<a href="https://doc.rust-lang.org/nightly/core/fmt/builders/struct.DebugStruct.html#method.finish">finish</a>()
 <a href=#196 id=196 data-nosnippet>196</a>        }
 <a href=#197 id=197 data-nosnippet>197</a>    }
 <a href=#198 id=198 data-nosnippet>198</a>    <span class="kw">impl</span>&lt;T: <a href="../../../../devela/all/trait.Display.html">Display</a>&gt; <a href="../../../../devela/all/trait.Display.html">Display</a> <span class="kw">for </span><a href="#145-147">CacheAlign</a>&lt;T&gt; {
-<a href=#199 id=199 data-nosnippet>199</a>        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../libs/base/src/text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
+<a href=#199 id=199 data-nosnippet>199</a>        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../libs/base_core/src/text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
 <a href=#200 id=200 data-nosnippet>200</a>            <a href="../../../../devela/all/trait.Display.html">Display::fmt</a>(<span class="kw-2">&amp;</span><a class="self" href="#199">self</a>.value, <a href="#199">f</a>)
 <a href=#201 id=201 data-nosnippet>201</a>        }
 <a href=#202 id=202 data-nosnippet>202</a>    }

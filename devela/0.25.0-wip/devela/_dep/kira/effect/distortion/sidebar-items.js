@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["DistortionKind"],"struct":["DistortionBuilder","DistortionHandle"]};

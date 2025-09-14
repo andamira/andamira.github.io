@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The most efficient print method, exclusive for `std`."><title>ansi_print_std in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">ansi_print_std</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Function <span class="fn">ansi_<wbr>print_<wbr>std</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/ui/front/term/ansi/print.rs.html#61-63">Source</a> </span></div><pre class="rust item-decl"><code>pub fn ansi_print_std(sequence: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="type" href="type.IoResult.html" title="type devela::all::IoResult">IoResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The most efficient print method, exclusive for <code>std</code>.</p>
+</div></details></section></div></main></body></html>

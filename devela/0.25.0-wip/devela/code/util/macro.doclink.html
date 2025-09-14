@@ -1,0 +1,184 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Helps doc-linking items in downstream crates."><title>doclink in devela::code::util - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">doclink</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">doclink</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#features" title="Features">Features</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>code::<wbr>util</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">code</a>::<wbr><a href="index.html">util</a></div><h1>Macro <span class="macro">doclink</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>macro_rules! doclink {
+    (
+     /* links to either a custom domain or a local URL */
+
+     // [anchor]: https://…/crate/item_path
+     // [anchor]: file://…/current_crate/item_path/index.html
+     custom crate $anchor:literal $item_path:literal $(@mod$($_m:lifetime)?)?) =&gt; { ... };
+    ( // https://…/crate/item_path
+      // file://…/current_crate/item_path/index.html
+     custom crate $item_path:literal $(@mod$($_m:lifetime)?)?) =&gt; { ... };
+    (
+     // [anchor]: https://…/crate_name/item_path
+     // [anchor]: file://…/crate_name/item_path/index.html
+     custom $crate_name:ident $anchor:literal $item_path:literal $(@mod$($_m:lifetime)?)?) =&gt; { ... };
+    ( // https://…/crate_name/item_path
+      // file://…/crate_name/item_path/index.html
+     custom $crate_name:ident $item_path:literal $(@mod$($_m:lifetime)?)?) =&gt; { ... };
+    (
+     /* links to either docs.rs or a local URL */
+
+     // [anchor]: https://…/crate/item_path
+     // [anchor]: file://…/current_crate/item_path/index.html
+     crate $anchor:literal $item_path:literal $(@mod$($_m:lifetime)?)?) =&gt; { ... };
+    ( // https://…/crate/item_path
+      // file://…/current_crate/item_path/index.html
+     crate $item_path:literal $(@mod$($_m:lifetime)?)?) =&gt; { ... };
+    (
+     // [anchor]: https://…/crate_name/item_path
+     // [anchor]: file://…/crate_name/item_path/index.html
+     $crate_name:ident $anchor:literal $item_path:literal $(@mod$($_m:lifetime)?)?) =&gt; { ... };
+    ( // https://…/crate_name/item_path
+      // file://…/crate_name/item_path/index.html
+     $crate_name:ident $item_path:literal $(@mod$($_m:lifetime)?)?) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Helps doc-linking items in downstream crates.</p>
+<!-- (*internet* version) -->
+<p>Returns the constructed URL to the linked doc element.</p>
+<p>The <code>custom</code> arms depend on defining a macro that returns a string literal
+containing the custom domain to use for the docs, following the same structure as docs.rs. E.g.:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[macro_export] #[doc(hidden)]
+</span><span class="macro">macro_rules!</span> DOCLINK_CUSTOM_DOMAIN { () =&gt; { <span class="string">"https://docs.rs/" </span>} } <span class="comment">// it must end in `/`</span></code></pre></div>
+<h2 id="features"><a class="doc-anchor" href="#features">§</a>Features</h2>
+<p>If the <code>__publish</code> feature is enabled it links to the published documentation on the internet,
+otherwise it links to the local path.</p>
+<p>The local version needs the <code>CARGO_TARGET_DIR</code> env var always defined.
+For <em>devela</em> it is defined in <code>/build/main/environment.rs</code>.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="doccomment">/// Example links to [`AnotherExample`] and [some module].
+</span><span class="attr">#[doc = <span class="macro">doclink!</span>(crate_name <span class="string">"[`AnotherExample`]" "path/to/struct.AnotherExample.html"</span>)]
+#[doc = <span class="macro">doclink!</span>(crate_name <span class="string">"[some module]" "path/to/some_module" </span>@<span class="kw">mod</span>)]
+</span><span class="doccomment">///
+/// This doclink to [`Item`] links to the current crate being compiled.
+</span><span class="attr">#[doc = <span class="macro">doclink!</span>(<span class="kw">crate </span><span class="string">"[`Item`]" "path/to/struct.Item.html"</span>)]
+</span><span class="kw">pub struct </span>Example;</code></pre></div>
+</div></details></section></div></main></body></html>

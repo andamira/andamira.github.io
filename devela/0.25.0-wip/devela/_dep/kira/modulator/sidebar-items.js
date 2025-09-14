@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["lfo","tweener"],"struct":["ModulatorId"],"trait":["Modulator","ModulatorBuilder"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["db_to_linear","linear_to_db"]};

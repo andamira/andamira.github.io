@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ForthError"],"struct":["Forth"],"type":["ForthResult","ForthValue"]};

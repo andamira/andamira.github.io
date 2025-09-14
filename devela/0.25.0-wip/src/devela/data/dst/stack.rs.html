@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/dst/stack.rs`."><title>stack.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/dst/stack.rs`."><title>stack.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -116,8 +136,8 @@
 <a href=#7 id=7 data-nosnippet>7</a>// - private API
 <a href=#8 id=8 data-nosnippet>8</a>// - core_impls
 <a href=#9 id=9 data-nosnippet>9</a>
-<a href=#10 id=10 data-nosnippet>10</a></span><span class="kw">use super</span>::{<a href="buffer.rs.html#102-104">DstArray</a>, <a href="buffer.rs.html#16-33">DstBuf</a>, <a href="helpers.rs.html#82-90">check_fat_pointer</a>, <a href="helpers.rs.html#10-17">decompose_pointer</a>, <a href="helpers.rs.html#101-146">list_push_gen</a>};
-<a href=#11 id=11 data-nosnippet>11</a><span class="kw">use crate</span>::{<a href="../../code/default.rs.html#19-22">ConstDefault</a>, <a href="../../../../devela/all/union.MaybeUninit.html">MaybeUninit</a>, <a href="../../sys/mem/aligned.rs.html#26-46">MemAligned</a>, <a href="../../../../devela/all/struct.PhantomData.html">PhantomData</a>, <a href="../../sys/mem/ptr/namespace.rs.html#26">Ptr</a>};
+<a href=#10 id=10 data-nosnippet>10</a></span><span class="kw">use super</span>::{<a href="buffer.rs.html#102-104">DstArray</a>, <a href="buffer.rs.html#16-33">DstBuf</a>, <a href="helpers.rs.html#80-88">check_fat_pointer</a>, <a href="helpers.rs.html#8-15">decompose_pointer</a>, <a href="helpers.rs.html#99-144">list_push_gen</a>};
+<a href=#11 id=11 data-nosnippet>11</a><span class="kw">use crate</span>::{<a href="../../code/default.rs.html#21-24">ConstDefault</a>, <a href="../../../../devela/all/union.MaybeUninit.html">MaybeUninit</a>, <a href="../../../../devela/all/trait.MemAligned.html">MemAligned</a>, <a href="../../../../devela/all/struct.PhantomData.html">PhantomData</a>, <a href="../../../../devela/all/struct.Ptr.html">Ptr</a>};
 <a href=#12 id=12 data-nosnippet>12</a>
 <a href=#13 id=13 data-nosnippet>13</a><span class="comment">/* public API */
 <a href=#14 id=14 data-nosnippet>14</a>
@@ -176,7 +196,7 @@
 <a href=#67 id=67 data-nosnippet>67</a>
 <a href=#68 id=68 data-nosnippet>68</a>    <span class="doccomment">/// Constructs a new (empty) stack, in compile-time.
 <a href=#69 id=69 data-nosnippet>69</a>    </span><span class="attr">#[must_use] #[rustfmt::skip]
-<a href=#70 id=70 data-nosnippet>70</a>    </span><span class="kw">pub const fn </span>new_const() -&gt; <span class="self">Self </span><span class="kw">where </span>BUF: <a href="../../code/default.rs.html#19-22">ConstDefault</a> { <a href="#74-76"><span class="self">Self</span>::with_buffer</a>(BUF::DEFAULT) }
+<a href=#70 id=70 data-nosnippet>70</a>    </span><span class="kw">pub const fn </span>new_const() -&gt; <span class="self">Self </span><span class="kw">where </span>BUF: <a href="../../code/default.rs.html#21-24">ConstDefault</a> { <a href="#74-76"><span class="self">Self</span>::with_buffer</a>(BUF::DEFAULT) }
 <a href=#71 id=71 data-nosnippet>71</a>
 <a href=#72 id=72 data-nosnippet>72</a>    <span class="doccomment">/// Constructs a new (empty) stack using the given `buffer`.
 <a href=#73 id=73 data-nosnippet>73</a>    </span><span class="attr">#[must_use] #[rustfmt::skip]
@@ -199,15 +219,15 @@
 <a href=#90 id=90 data-nosnippet>90</a>    /// ```
 <a href=#91 id=91 data-nosnippet>91</a>    </span><span class="kw">pub fn </span>push&lt;VAL, F: <a href="../../../../devela/all/trait.FnOnce.html">FnOnce</a>(<span class="kw-2">&amp;</span>VAL) -&gt; <span class="kw-2">&amp;</span>DST&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, v: VAL, f: F) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;(), VAL&gt;
 <a href=#92 id=92 data-nosnippet>92</a>    <span class="kw">where
-<a href=#93 id=93 data-nosnippet>93</a>        </span>(VAL, BUF::Inner): <a href="../../sys/mem/aligned.rs.html#26-46">MemAligned</a>,
+<a href=#93 id=93 data-nosnippet>93</a>        </span>(VAL, BUF::Inner): <a href="../../../../devela/all/trait.MemAligned.html">MemAligned</a>,
 <a href=#94 id=94 data-nosnippet>94</a>    {
 <a href=#95 id=95 data-nosnippet>95</a>        &lt;(VAL, BUF::Inner) <span class="kw">as </span>MemAligned&gt;::assert_compatibility();
 <a href=#96 id=96 data-nosnippet>96</a>
 <a href=#97 id=97 data-nosnippet>97</a>        <span class="comment">// SAFETY: Destination address is valid.
 <a href=#98 id=98 data-nosnippet>98</a>        </span><span class="kw">unsafe </span>{
-<a href=#99 id=99 data-nosnippet>99</a>            <span class="kw">match </span><a class="self" href="#91">self</a>.<a href="#335-340">push_inner</a>(<a href="helpers.rs.html#82-90">check_fat_pointer</a>(<span class="kw-2">&amp;</span><a href="#91">v</a>, <a href="#91">f</a>)) {
+<a href=#99 id=99 data-nosnippet>99</a>            <span class="kw">match </span><a class="self" href="#91">self</a>.<a href="#335-340">push_inner</a>(<a href="helpers.rs.html#80-88">check_fat_pointer</a>(<span class="kw-2">&amp;</span><a href="#91">v</a>, <a href="#91">f</a>)) {
 <a href=#100 id=100 data-nosnippet>100</a>                <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(pii) =&gt; {
-<a href=#101 id=101 data-nosnippet>101</a>                    <a href="../../sys/mem/ptr/namespace.rs.html#344-347">Ptr::write</a>(<a href="#100">pii</a>.data.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_mut_ptr">as_mut_ptr</a>() <span class="kw">as </span><span class="kw-2">*mut </span>VAL, <a href="#91">v</a>);
+<a href=#101 id=101 data-nosnippet>101</a>                    Ptr::write(<a href="#100">pii</a>.data.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_mut_ptr">as_mut_ptr</a>() <span class="kw">as </span><span class="kw-2">*mut </span>VAL, <a href="#91">v</a>);
 <a href=#102 id=102 data-nosnippet>102</a>                    <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(())
 <a href=#103 id=103 data-nosnippet>103</a>                }
 <a href=#104 id=104 data-nosnippet>104</a>                <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(()) =&gt; <a class="prelude-val" href="../../../../devela/all/enum.Result.html">Err</a>(<a href="#91">v</a>),
@@ -233,8 +253,8 @@
 <a href=#124 id=124 data-nosnippet>124</a>            <a class="macro" href="../../../../devela/all/macro.assert.html">assert!</a>(<span class="self">self</span>.next_ofs &gt; <span class="number">0</span>);
 <a href=#125 id=125 data-nosnippet>125</a>            <span class="comment">// SAFETY: Pointer is valid, and will never be accessed after this point.
 <a href=#126 id=126 data-nosnippet>126</a>            </span><span class="kw">let </span>words = <span class="kw">unsafe </span>{
-<a href=#127 id=127 data-nosnippet>127</a>                <span class="kw">let </span>size = <a href="../../../../devela/_core/mem/fn.size_of_val.html">size_of_val</a>(<span class="kw-2">&amp;*</span><a href="#123">ptr</a>);
-<a href=#128 id=128 data-nosnippet>128</a>                <a href="../../sys/mem/ptr/namespace.rs.html#277-280">Ptr::drop_in_place</a>(<a href="#123">ptr</a>);
+<a href=#127 id=127 data-nosnippet>127</a>                <span class="kw">let </span>size = <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of_val.html">size_of_val</a>(<span class="kw-2">&amp;*</span><a href="#123">ptr</a>);
+<a href=#128 id=128 data-nosnippet>128</a>                Ptr::drop_in_place(<a href="#123">ptr</a>);
 <a href=#129 id=129 data-nosnippet>129</a>                <a href="buffer.rs.html#30-32">BUF::round_to_words</a>(<a href="#127">size</a>)
 <a href=#130 id=130 data-nosnippet>130</a>            };
 <a href=#131 id=131 data-nosnippet>131</a>            <a class="self" href="#122">self</a>.next_ofs -= <a href="#126">words</a> + <a href="#290-292"><span class="self">Self</span>::meta_words</a>();
@@ -294,7 +314,7 @@
 <a href=#185 id=185 data-nosnippet>185</a>    </span><span class="kw">pub fn </span>push_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;(), ()&gt; {
 <a href=#186 id=186 data-nosnippet>186</a>        <span class="kw">unsafe </span>{
 <a href=#187 id=187 data-nosnippet>187</a>            <a class="self" href="#185">self</a>.<a href="#335-340">push_inner</a>(<a href="#185">string</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map">map</a>(|pii| {
-<a href=#188 id=188 data-nosnippet>188</a>                <a href="../../sys/mem/ptr/namespace.rs.html#259-262">Ptr::copy</a>(
+<a href=#188 id=188 data-nosnippet>188</a>                Ptr::copy(
 <a href=#189 id=189 data-nosnippet>189</a>                    <a href="#185">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.as_bytes">as_bytes</a>().<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>(),
 <a href=#190 id=190 data-nosnippet>190</a>                    <a href="#187">pii</a>.data.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_mut_ptr">as_mut_ptr</a>() <span class="kw">as </span><span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
 <a href=#191 id=191 data-nosnippet>191</a>                    <a href="#185">string</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.len">len</a>(),
@@ -306,7 +326,7 @@
 <a href=#197 id=197 data-nosnippet>197</a>
 <a href=#198 id=198 data-nosnippet>198</a><span class="kw">impl</span>&lt;BUF: <a href="buffer.rs.html#16-33">DstBuf</a>, DST: <a href="../../../../devela/code/trait.Clone.html">Clone</a>&gt; <a href="#42-48">DstStack</a>&lt;[DST], BUF&gt;
 <a href=#199 id=199 data-nosnippet>199</a><span class="kw">where
-<a href=#200 id=200 data-nosnippet>200</a>    </span>(DST, BUF::Inner): <a href="../../sys/mem/aligned.rs.html#26-46">MemAligned</a>,
+<a href=#200 id=200 data-nosnippet>200</a>    </span>(DST, BUF::Inner): <a href="../../../../devela/all/trait.MemAligned.html">MemAligned</a>,
 <a href=#201 id=201 data-nosnippet>201</a>{
 <a href=#202 id=202 data-nosnippet>202</a>    <span class="doccomment">/// Pushes a set of items (cloning out of the input `slice`).
 <a href=#203 id=203 data-nosnippet>203</a>    ///
@@ -336,10 +356,10 @@
 <a href=#227 id=227 data-nosnippet>227</a>        <span class="comment">// SAFETY: Carefully constructed to maintain consistency.
 <a href=#228 id=228 data-nosnippet>228</a>        </span><span class="kw">unsafe </span>{
 <a href=#229 id=229 data-nosnippet>229</a>            <a class="self" href="#222">self</a>.<a href="#335-340">push_inner</a>(<a href="#222">slice</a>).<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map">map</a>(|pii| {
-<a href=#230 id=230 data-nosnippet>230</a>                <a href="../../sys/mem/ptr/namespace.rs.html#259-262">Ptr::copy</a>(
+<a href=#230 id=230 data-nosnippet>230</a>                Ptr::copy(
 <a href=#231 id=231 data-nosnippet>231</a>                    <a href="#222">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>() <span class="kw">as </span><span class="kw-2">*const </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
 <a href=#232 id=232 data-nosnippet>232</a>                    <a href="#229">pii</a>.data.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_mut_ptr">as_mut_ptr</a>() <span class="kw">as </span><span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
-<a href=#233 id=233 data-nosnippet>233</a>                    <a href="../../../../devela/_core/mem/fn.size_of_val.html">size_of_val</a>(<a href="#222">slice</a>),
+<a href=#233 id=233 data-nosnippet>233</a>                    <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of_val.html">size_of_val</a>(<a href="#222">slice</a>),
 <a href=#234 id=234 data-nosnippet>234</a>                );
 <a href=#235 id=235 data-nosnippet>235</a>            })
 <a href=#236 id=236 data-nosnippet>236</a>        }
@@ -348,7 +368,7 @@
 <a href=#239 id=239 data-nosnippet>239</a>
 <a href=#240 id=240 data-nosnippet>240</a><span class="kw">impl</span>&lt;BUF: <a href="buffer.rs.html#16-33">DstBuf</a>, DST&gt; <a href="#42-48">DstStack</a>&lt;[DST], BUF&gt;
 <a href=#241 id=241 data-nosnippet>241</a><span class="kw">where
-<a href=#242 id=242 data-nosnippet>242</a>    </span>(DST, BUF::Inner): <a href="../../sys/mem/aligned.rs.html#26-46">MemAligned</a>,
+<a href=#242 id=242 data-nosnippet>242</a>    </span>(DST, BUF::Inner): <a href="../../../../devela/all/trait.MemAligned.html">MemAligned</a>,
 <a href=#243 id=243 data-nosnippet>243</a>{
 <a href=#244 id=244 data-nosnippet>244</a>    <span class="doccomment">/// Pushes an item, populated from an exact-sized iterator.
 <a href=#245 id=245 data-nosnippet>245</a>    ///
@@ -366,8 +386,8 @@
 <a href=#257 id=257 data-nosnippet>257</a>        &lt;(DST, BUF::Inner) <span class="kw">as </span>MemAligned&gt;::assert_compatibility();
 <a href=#258 id=258 data-nosnippet>258</a>        <span class="comment">// SAFETY: API used correctly.
 <a href=#259 id=259 data-nosnippet>259</a>        </span><span class="kw">unsafe </span>{
-<a href=#260 id=260 data-nosnippet>260</a>            <span class="kw">let </span>pii = <a class="self" href="#254">self</a>.<a href="#346-386">push_inner_raw</a>(<a href="#255">iter</a>.<a href="../../../../devela/all/trait.IteratorExactSize.html">len</a>() * <a href="../../../../devela/_core/mem/fn.size_of.html">size_of</a>::&lt;DST&gt;(), <span class="kw-2">&amp;</span>[<span class="number">0</span>])<span class="question-mark">?</span>;
-<a href=#261 id=261 data-nosnippet>261</a>            <a href="helpers.rs.html#101-146">list_push_gen</a>(
+<a href=#260 id=260 data-nosnippet>260</a>            <span class="kw">let </span>pii = <a class="self" href="#254">self</a>.<a href="#346-386">push_inner_raw</a>(<a href="#255">iter</a>.<a href="../../../../devela/all/trait.IteratorExactSize.html">len</a>() * <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">size_of</a>::&lt;DST&gt;(), <span class="kw-2">&amp;</span>[<span class="number">0</span>])<span class="question-mark">?</span>;
+<a href=#261 id=261 data-nosnippet>261</a>            <a href="helpers.rs.html#99-144">list_push_gen</a>(
 <a href=#262 id=262 data-nosnippet>262</a>                <a href="#260">pii</a>.meta,
 <a href=#263 id=263 data-nosnippet>263</a>                <a href="#260">pii</a>.data,
 <a href=#264 id=264 data-nosnippet>264</a>                <a href="#255">iter</a>.<a href="../../../../devela/all/trait.IteratorExactSize.html">len</a>(),
@@ -397,7 +417,7 @@
 <a href=#288 id=288 data-nosnippet>288</a><span class="kw">impl</span>&lt;DST: <span class="question-mark">?</span><a href="../../../../devela/all/trait.Sized.html">Sized</a>, BUF: <a href="buffer.rs.html#16-33">DstBuf</a>&gt; <a href="#42-48">DstStack</a>&lt;DST, BUF&gt; {
 <a href=#289 id=289 data-nosnippet>289</a>    <span class="attr">#[must_use]
 <a href=#290 id=290 data-nosnippet>290</a>    </span><span class="kw">fn </span>meta_words() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> {
-<a href=#291 id=291 data-nosnippet>291</a>        <a href="buffer.rs.html#30-32">BUF::round_to_words</a>(<a href="../../../../devela/_core/mem/fn.size_of.html">size_of</a>::&lt;<span class="kw-2">&amp;</span>DST&gt;() - <a href="../../../../devela/_core/mem/fn.size_of.html">size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;())
+<a href=#291 id=291 data-nosnippet>291</a>        <a href="buffer.rs.html#30-32">BUF::round_to_words</a>(<a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">size_of</a>::&lt;<span class="kw-2">&amp;</span>DST&gt;() - <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html">size_of</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;())
 <a href=#292 id=292 data-nosnippet>292</a>    }
 <a href=#293 id=293 data-nosnippet>293</a>
 <a href=#294 id=294 data-nosnippet>294</a>    <span class="attr">#[must_use]
@@ -407,7 +427,7 @@
 <a href=#298 id=298 data-nosnippet>298</a>        <span class="kw">let </span>mw = <a href="#290-292"><span class="self">Self</span>::meta_words</a>();
 <a href=#299 id=299 data-nosnippet>299</a>        <span class="kw">let </span>(meta, data) = <a href="#297">meta</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#298">mw</a>);
 <a href=#300 id=300 data-nosnippet>300</a>        <span class="comment">// SAFETY: caller must ensure safety
-<a href=#301 id=301 data-nosnippet>301</a>        </span><span class="kw">unsafe </span>{ <a href="helpers.rs.html#28-59"><span class="kw">super</span>::make_fat_ptr</a>(<a href="#299">data</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>() <span class="kw">as </span><span class="kw-2">*mut </span>(), <a href="#299">meta</a>) }
+<a href=#301 id=301 data-nosnippet>301</a>        </span><span class="kw">unsafe </span>{ <a href="helpers.rs.html#26-57"><span class="kw">super</span>::make_fat_ptr</a>(<a href="#299">data</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_ptr">as_ptr</a>() <span class="kw">as </span><span class="kw-2">*mut </span>(), <a href="#299">meta</a>) }
 <a href=#302 id=302 data-nosnippet>302</a>    }
 <a href=#303 id=303 data-nosnippet>303</a>    <span class="attr">#[must_use]
 <a href=#304 id=304 data-nosnippet>304</a>    </span><span class="kw">unsafe fn </span>raw_at_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ofs: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="kw-2">*mut </span>DST {
@@ -417,7 +437,7 @@
 <a href=#308 id=308 data-nosnippet>308</a>        <span class="kw">let </span>mw = <a href="#290-292"><span class="self">Self</span>::meta_words</a>();
 <a href=#309 id=309 data-nosnippet>309</a>        <span class="kw">let </span>(meta, data) = <a href="#307">meta</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#308">mw</a>);
 <a href=#310 id=310 data-nosnippet>310</a>        <span class="comment">// SAFETY: caller must ensure safety
-<a href=#311 id=311 data-nosnippet>311</a>        </span><span class="kw">unsafe </span>{ <a href="helpers.rs.html#28-59"><span class="kw">super</span>::make_fat_ptr</a>(<a href="#309">data</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_mut_ptr">as_mut_ptr</a>() <span class="kw">as </span><span class="kw-2">*mut </span>(), <a href="#309">meta</a>) }
+<a href=#311 id=311 data-nosnippet>311</a>        </span><span class="kw">unsafe </span>{ <a href="helpers.rs.html#26-57"><span class="kw">super</span>::make_fat_ptr</a>(<a href="#309">data</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.as_mut_ptr">as_mut_ptr</a>() <span class="kw">as </span><span class="kw-2">*mut </span>(), <a href="#309">meta</a>) }
 <a href=#312 id=312 data-nosnippet>312</a>    }
 <a href=#313 id=313 data-nosnippet>313</a>    <span class="comment">// Get a raw pointer to the top of the stack.
 <a href=#314 id=314 data-nosnippet>314</a>    </span><span class="attr">#[must_use]
@@ -442,8 +462,8 @@
 <a href=#333 id=333 data-nosnippet>333</a>
 <a href=#334 id=334 data-nosnippet>334</a>    <span class="comment">// See `push_inner_raw`.
 <a href=#335 id=335 data-nosnippet>335</a>    </span><span class="kw">unsafe fn </span>push_inner(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fat_ptr: <span class="kw-2">&amp;</span>DST) -&gt; <a class="prelude-ty" href="../../../../devela/all/enum.Result.html">Result</a>&lt;<a href="#276-286">PushInnerInfo</a>&lt;<span class="lifetime">'_</span>, BUF::Inner&gt;, ()&gt; {
-<a href=#336 id=336 data-nosnippet>336</a>        <span class="kw">let </span>bytes = <a href="../../../../devela/_core/mem/fn.size_of_val.html">size_of_val</a>(<a href="#335">fat_ptr</a>);
-<a href=#337 id=337 data-nosnippet>337</a>        <span class="kw">let </span>(_data_ptr, len, v) = <a href="helpers.rs.html#10-17">decompose_pointer</a>(<a href="#335">fat_ptr</a>);
+<a href=#336 id=336 data-nosnippet>336</a>        <span class="kw">let </span>bytes = <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of_val.html">size_of_val</a>(<a href="#335">fat_ptr</a>);
+<a href=#337 id=337 data-nosnippet>337</a>        <span class="kw">let </span>(_data_ptr, len, v) = <a href="helpers.rs.html#8-15">decompose_pointer</a>(<a href="#335">fat_ptr</a>);
 <a href=#338 id=338 data-nosnippet>338</a>        <span class="comment">// SAFETY: caller must ensure safety
 <a href=#339 id=339 data-nosnippet>339</a>        </span><span class="kw">unsafe </span>{ <a class="self" href="#335">self</a>.<a href="#346-386">push_inner_raw</a>(<a href="#336">bytes</a>, <span class="kw-2">&amp;</span><a href="#337">v</a>[..<a href="#337">len</a>]) }
 <a href=#340 id=340 data-nosnippet>340</a>    }
@@ -480,7 +500,7 @@
 <a href=#371 id=371 data-nosnippet>371</a>            <span class="kw">let </span>(meta, rv) = <a href="#370">slot</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at_mut">split_at_mut</a>(<a href="#290-292"><span class="self">Self</span>::meta_words</a>());
 <a href=#372 id=372 data-nosnippet>372</a>
 <a href=#373 id=373 data-nosnippet>373</a>            <span class="comment">// Populate the metadata.
-<a href=#374 id=374 data-nosnippet>374</a>            </span><a href="helpers.rs.html#62-74"><span class="kw">super</span>::store_metadata</a>(<a href="#371">meta</a>, <a href="#349">metadata</a>);
+<a href=#374 id=374 data-nosnippet>374</a>            </span><a href="helpers.rs.html#60-72"><span class="kw">super</span>::store_metadata</a>(<a href="#371">meta</a>, <a href="#349">metadata</a>);
 <a href=#375 id=375 data-nosnippet>375</a>
 <a href=#376 id=376 data-nosnippet>376</a>            <span class="comment">// Increment offset and return.
 <a href=#377 id=377 data-nosnippet>377</a>            </span><a class="prelude-val" href="../../../../devela/all/enum.Result.html">Ok</a>(<a href="#276-286">PushInnerInfo</a> {
@@ -497,7 +517,7 @@
 <a href=#388 id=388 data-nosnippet>388</a>
 <a href=#389 id=389 data-nosnippet>389</a><span class="kw">mod </span>core_impls {
 <a href=#390 id=390 data-nosnippet>390</a>    <span class="kw">use super</span>::{<a href="buffer.rs.html#16-33">DstBuf</a>, <a href="#42-48">DstStack</a>, <a href="#53">DstStackIter</a>, <a href="#58-61">DstStackIterMut</a>};
-<a href=#391 id=391 data-nosnippet>391</a>    <span class="kw">use </span>core::{<a href="../../../../devela/_core/fmt/index.html">fmt</a>, <a href="../../../../devela/_core/iter/index.html">iter</a>, <a href="../../../../devela/_core/ops/index.html">ops</a>};
+<a href=#391 id=391 data-nosnippet>391</a>    <span class="kw">use </span>core::{<a href="https://doc.rust-lang.org/nightly/core/fmt/index.html">fmt</a>, <a href="https://doc.rust-lang.org/nightly/core/iter/index.html">iter</a>, <a href="https://doc.rust-lang.org/nightly/core/ops/index.html">ops</a>};
 <a href=#392 id=392 data-nosnippet>392</a>
 <a href=#393 id=393 data-nosnippet>393</a>    <span class="kw">impl</span>&lt;DST: <span class="question-mark">?</span><a href="../../../../devela/all/trait.Sized.html">Sized</a>, BUF: <a href="buffer.rs.html#16-33">DstBuf</a>&gt; <a href="../../../../devela/all/trait.Drop.html">ops::Drop</a> <span class="kw">for </span><a href="#42-48">DstStack</a>&lt;DST, BUF&gt; {
 <a href=#394 id=394 data-nosnippet>394</a>        <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
@@ -518,7 +538,7 @@
 <a href=#409 id=409 data-nosnippet>409</a>        }
 <a href=#410 id=410 data-nosnippet>410</a>    }
 <a href=#411 id=411 data-nosnippet>411</a>    <a class="macro" href="#406-410">impl_trait!</a> { <a href="../../../../devela/all/trait.Debug.html">fmt::Debug</a>;
-<a href=#412 id=412 data-nosnippet>412</a>        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">fmt::Formatter</a>) -&gt; <a href="../../../../devela/_core/fmt/type.Result.html">fmt::Result</a> {
+<a href=#412 id=412 data-nosnippet>412</a>        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../devela/all/struct.Formatter.html">fmt::Formatter</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html">fmt::Result</a> {
 <a href=#413 id=413 data-nosnippet>413</a>            <a href="#412">f</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.write_str">write_str</a>(<span class="string">"["</span>)<span class="question-mark">?</span>;
 <a href=#414 id=414 data-nosnippet>414</a>            <span class="kw">for </span>v <span class="kw">in </span><span class="self">self</span>.iter() {
 <a href=#415 id=415 data-nosnippet>415</a>                v.fmt(f)<span class="question-mark">?</span>;
@@ -539,7 +559,7 @@
 <a href=#430 id=430 data-nosnippet>430</a>            </a>} <span class="kw">else </span>{
 <a href=#431 id=431 data-nosnippet>431</a>                <span class="comment">// SAFETY: Bounds checked, aliasing enforced by API.
 <a href=#432 id=432 data-nosnippet>432</a>                </span><span class="kw">let </span>rv = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><a class="self" href="#427">self</a>.<span class="number">0</span>.<a href="#295-302">raw_at</a>(<a class="self" href="#427">self</a>.<span class="number">1</span>) };
-<a href=#433 id=433 data-nosnippet>433</a>                <a class="self" href="#427">self</a>.<span class="number">1 </span>-= <a href="#42-48">DstStack</a>::&lt;DST, BUF&gt;::meta_words() + <a href="buffer.rs.html#30-32">BUF::round_to_words</a>(<a href="../../../../devela/_core/mem/fn.size_of_val.html">size_of_val</a>(<a href="#432">rv</a>));
+<a href=#433 id=433 data-nosnippet>433</a>                <a class="self" href="#427">self</a>.<span class="number">1 </span>-= <a href="#42-48">DstStack</a>::&lt;DST, BUF&gt;::meta_words() + <a href="buffer.rs.html#30-32">BUF::round_to_words</a>(<a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of_val.html">size_of_val</a>(<a href="#432">rv</a>));
 <a href=#434 id=434 data-nosnippet>434</a>                <a class="prelude-val" href="../../../../devela/all/enum.Option.html">Some</a>(<a href="#432">rv</a>)
 <a href=#435 id=435 data-nosnippet>435</a>            }
 <a href=#436 id=436 data-nosnippet>436</a>        }
@@ -553,7 +573,7 @@
 <a href=#444 id=444 data-nosnippet>444</a>            </a>} <span class="kw">else </span>{
 <a href=#445 id=445 data-nosnippet>445</a>                <span class="comment">// SAFETY: Bounds checked, aliasing enforced by API.
 <a href=#446 id=446 data-nosnippet>446</a>                </span><span class="kw">let </span>rv = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><a class="self" href="#441">self</a>.<span class="number">0</span>.<a href="#304-312">raw_at_mut</a>(<a class="self" href="#441">self</a>.<span class="number">1</span>) };
-<a href=#447 id=447 data-nosnippet>447</a>                <a class="self" href="#441">self</a>.<span class="number">1 </span>-= <a href="#42-48">DstStack</a>::&lt;DST, BUF&gt;::meta_words() + <a href="buffer.rs.html#30-32">BUF::round_to_words</a>(<a href="../../../../devela/_core/mem/fn.size_of_val.html">size_of_val</a>(<a href="#446">rv</a>));
+<a href=#447 id=447 data-nosnippet>447</a>                <a class="self" href="#441">self</a>.<span class="number">1 </span>-= <a href="#42-48">DstStack</a>::&lt;DST, BUF&gt;::meta_words() + <a href="buffer.rs.html#30-32">BUF::round_to_words</a>(<a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of_val.html">size_of_val</a>(<a href="#446">rv</a>));
 <a href=#448 id=448 data-nosnippet>448</a>                <a class="prelude-val" href="../../../../devela/all/enum.Option.html">Some</a>(<a href="#446">rv</a>)
 <a href=#449 id=449 data-nosnippet>449</a>            }
 <a href=#450 id=450 data-nosnippet>450</a>        }

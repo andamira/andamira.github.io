@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`miniquad` Low-level interface for rendering operations in miniquad."><title>MiniquadRenderingBackend in devela::ui::back::miniquad - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`miniquad` Low-level interface for rendering operations in miniquad."><title>MiniquadRenderingBackend in devela::ui::back::miniquad - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -109,45 +129,45 @@
 
 </head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">MiniquadRenderingBackend</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Miniquad<wbr>Rendering<wbr>Backend</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.apply_bindings_from_slice" title="apply_bindings_from_slice">apply_bindings_from_slice</a></li><li><a href="#tymethod.apply_pipeline" title="apply_pipeline">apply_pipeline</a></li><li><a href="#tymethod.apply_scissor_rect" title="apply_scissor_rect">apply_scissor_rect</a></li><li><a href="#tymethod.apply_uniforms_from_bytes" title="apply_uniforms_from_bytes">apply_uniforms_from_bytes</a></li><li><a href="#tymethod.apply_viewport" title="apply_viewport">apply_viewport</a></li><li><a href="#tymethod.begin_default_pass" title="begin_default_pass">begin_default_pass</a></li><li><a href="#tymethod.begin_pass" title="begin_pass">begin_pass</a></li><li><a href="#tymethod.buffer_size" title="buffer_size">buffer_size</a></li><li><a href="#tymethod.buffer_update" title="buffer_update">buffer_update</a></li><li><a href="#tymethod.clear" title="clear">clear</a></li><li><a href="#tymethod.commit_frame" title="commit_frame">commit_frame</a></li><li><a href="#tymethod.delete_buffer" title="delete_buffer">delete_buffer</a></li><li><a href="#tymethod.delete_pipeline" title="delete_pipeline">delete_pipeline</a></li><li><a href="#tymethod.delete_render_pass" title="delete_render_pass">delete_render_pass</a></li><li><a href="#tymethod.delete_shader" title="delete_shader">delete_shader</a></li><li><a href="#tymethod.delete_texture" title="delete_texture">delete_texture</a></li><li><a href="#tymethod.draw" title="draw">draw</a></li><li><a href="#tymethod.end_render_pass" title="end_render_pass">end_render_pass</a></li><li><a href="#tymethod.info" title="info">info</a></li><li><a href="#tymethod.new_buffer" title="new_buffer">new_buffer</a></li><li><a href="#tymethod.new_pipeline" title="new_pipeline">new_pipeline</a></li><li><a href="#tymethod.new_render_pass_mrt" title="new_render_pass_mrt">new_render_pass_mrt</a></li><li><a href="#tymethod.new_shader" title="new_shader">new_shader</a></li><li><a href="#tymethod.new_texture" title="new_texture">new_texture</a></li><li><a href="#tymethod.render_pass_color_attachments" title="render_pass_color_attachments">render_pass_color_attachments</a></li><li><a href="#tymethod.texture_generate_mipmaps" title="texture_generate_mipmaps">texture_generate_mipmaps</a></li><li><a href="#tymethod.texture_params" title="texture_params">texture_params</a></li><li><a href="#tymethod.texture_raw_id" title="texture_raw_id">texture_raw_id</a></li><li><a href="#tymethod.texture_read_pixels" title="texture_read_pixels">texture_read_pixels</a></li><li><a href="#tymethod.texture_resize" title="texture_resize">texture_resize</a></li><li><a href="#tymethod.texture_set_mag_filter" title="texture_set_mag_filter">texture_set_mag_filter</a></li><li><a href="#tymethod.texture_set_min_filter" title="texture_set_min_filter">texture_set_min_filter</a></li><li><a href="#tymethod.texture_set_wrap" title="texture_set_wrap">texture_set_wrap</a></li><li><a href="#tymethod.texture_update_part" title="texture_update_part">texture_update_part</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.apply_bindings" title="apply_bindings">apply_bindings</a></li><li><a href="#method.apply_uniforms" title="apply_uniforms">apply_uniforms</a></li><li><a href="#method.new_render_pass" title="new_render_pass">new_render_pass</a></li><li><a href="#method.new_render_texture" title="new_render_texture">new_render_texture</a></li><li><a href="#method.new_texture_from_data_and_format" title="new_texture_from_data_and_format">new_texture_from_data_and_format</a></li><li><a href="#method.new_texture_from_rgba8" title="new_texture_from_rgba8">new_texture_from_rgba8</a></li><li><a href="#method.render_pass_texture" title="render_pass_texture">render_pass_texture</a></li><li><a href="#method.texture_set_filter" title="texture_set_filter">texture_set_filter</a></li><li><a href="#method.texture_size" title="texture_size">texture_size</a></li><li><a href="#method.texture_update" title="texture_update">texture_update</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>ui::<wbr>back::<wbr>miniquad</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">ui</a>::<wbr><a href="../index.html">back</a>::<wbr><a href="index.html">miniquad</a></div><h1>Trait <span class="trait">Miniquad<wbr>Rendering<wbr>Backend</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>pub trait MiniquadRenderingBackend {
 <details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 44 methods</span></summary>    // Required methods
-    fn <a href="#tymethod.info" class="fn">info</a>(&amp;self) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.ContextInfo.html" title="struct devela::_dep::miniquad::ContextInfo">ContextInfo</a>;
+    fn <a href="#tymethod.info" class="fn">info</a>(&amp;self) -&gt; ContextInfo;
 <span class="item-spacer"></span>    fn <a href="#tymethod.new_shader" class="fn">new_shader</a>(
         &amp;mut self,
-        shader: <a class="enum" href="../../../_dep/miniquad/enum.ShaderSource.html" title="enum devela::_dep::miniquad::ShaderSource">ShaderSource</a>&lt;'_&gt;,
-        meta: <a class="struct" href="../../../_dep/miniquad/struct.ShaderMeta.html" title="struct devela::_dep::miniquad::ShaderMeta">ShaderMeta</a>,
-    ) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="struct" href="../../../_dep/miniquad/struct.ShaderId.html" title="struct devela::_dep::miniquad::ShaderId">ShaderId</a>, <a class="enum" href="../../../_dep/miniquad/enum.ShaderError.html" title="enum devela::_dep::miniquad::ShaderError">ShaderError</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;ShaderId, ShaderError&gt;">ⓘ</a>;
+        shader: ShaderSource&lt;'_&gt;,
+        meta: ShaderMeta,
+    ) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;ShaderId, ShaderError&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;ShaderId, ShaderError&gt;">ⓘ</a>;
 <span class="item-spacer"></span>    fn <a href="#tymethod.new_texture" class="fn">new_texture</a>(
         &amp;mut self,
-        access: <a class="enum" href="../../../_dep/miniquad/enum.TextureAccess.html" title="enum devela::_dep::miniquad::TextureAccess">TextureAccess</a>,
-        data: <a class="enum" href="../../../_dep/miniquad/enum.TextureSource.html" title="enum devela::_dep::miniquad::TextureSource">TextureSource</a>&lt;'_&gt;,
-        params: <a class="struct" href="../../../_dep/miniquad/struct.TextureParams.html" title="struct devela::_dep::miniquad::TextureParams">TextureParams</a>,
-    ) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>;
-<span class="item-spacer"></span>    fn <a href="#tymethod.texture_params" class="fn">texture_params</a>(&amp;self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureParams.html" title="struct devela::_dep::miniquad::TextureParams">TextureParams</a>;
-<span class="item-spacer"></span>    unsafe fn <a href="#tymethod.texture_raw_id" class="fn">texture_raw_id</a>(&amp;self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>) -&gt; <a class="enum" href="../../../_dep/miniquad/enum.RawId.html" title="enum devela::_dep::miniquad::RawId">RawId</a>;
+        access: TextureAccess,
+        data: TextureSource&lt;'_&gt;,
+        params: TextureParams,
+    ) -&gt; TextureId;
+<span class="item-spacer"></span>    fn <a href="#tymethod.texture_params" class="fn">texture_params</a>(&amp;self, texture: TextureId) -&gt; TextureParams;
+<span class="item-spacer"></span>    unsafe fn <a href="#tymethod.texture_raw_id" class="fn">texture_raw_id</a>(&amp;self, texture: TextureId) -&gt; RawId;
 <span class="item-spacer"></span>    fn <a href="#tymethod.texture_set_min_filter" class="fn">texture_set_min_filter</a>(
         &amp;mut self,
-        texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
-        filter: <a class="enum" href="../../../_dep/miniquad/enum.FilterMode.html" title="enum devela::_dep::miniquad::FilterMode">FilterMode</a>,
-        mipmap_filter: <a class="enum" href="../../../_dep/miniquad/enum.MipmapFilterMode.html" title="enum devela::_dep::miniquad::MipmapFilterMode">MipmapFilterMode</a>,
+        texture: TextureId,
+        filter: FilterMode,
+        mipmap_filter: MipmapFilterMode,
     );
-<span class="item-spacer"></span>    fn <a href="#tymethod.texture_set_mag_filter" class="fn">texture_set_mag_filter</a>(&amp;mut self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>, filter: <a class="enum" href="../../../_dep/miniquad/enum.FilterMode.html" title="enum devela::_dep::miniquad::FilterMode">FilterMode</a>);
+<span class="item-spacer"></span>    fn <a href="#tymethod.texture_set_mag_filter" class="fn">texture_set_mag_filter</a>(&amp;mut self, texture: TextureId, filter: FilterMode);
 <span class="item-spacer"></span>    fn <a href="#tymethod.texture_set_wrap" class="fn">texture_set_wrap</a>(
         &amp;mut self,
-        texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
-        wrap_x: <a class="enum" href="../../../_dep/miniquad/enum.TextureWrap.html" title="enum devela::_dep::miniquad::TextureWrap">TextureWrap</a>,
-        wrap_y: <a class="enum" href="../../../_dep/miniquad/enum.TextureWrap.html" title="enum devela::_dep::miniquad::TextureWrap">TextureWrap</a>,
+        texture: TextureId,
+        wrap_x: TextureWrap,
+        wrap_y: TextureWrap,
     );
-<span class="item-spacer"></span>    fn <a href="#tymethod.texture_generate_mipmaps" class="fn">texture_generate_mipmaps</a>(&amp;mut self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>);
+<span class="item-spacer"></span>    fn <a href="#tymethod.texture_generate_mipmaps" class="fn">texture_generate_mipmaps</a>(&amp;mut self, texture: TextureId);
 <span class="item-spacer"></span>    fn <a href="#tymethod.texture_resize" class="fn">texture_resize</a>(
         &amp;mut self,
-        texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
+        texture: TextureId,
         width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
         height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
         bytes: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;&amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt;,
     );
-<span class="item-spacer"></span>    fn <a href="#tymethod.texture_read_pixels" class="fn">texture_read_pixels</a>(&amp;mut self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>, bytes: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]);
+<span class="item-spacer"></span>    fn <a href="#tymethod.texture_read_pixels" class="fn">texture_read_pixels</a>(&amp;mut self, texture: TextureId, bytes: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]);
 <span class="item-spacer"></span>    fn <a href="#tymethod.texture_update_part" class="fn">texture_update_part</a>(
         &amp;mut self,
-        texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
+        texture: TextureId,
         x_offset: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
         y_offset: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
         width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
@@ -156,42 +176,42 @@
     );
 <span class="item-spacer"></span>    fn <a href="#tymethod.new_render_pass_mrt" class="fn">new_render_pass_mrt</a>(
         &amp;mut self,
-        color_img: &amp;[<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>],
-        resolve_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;&amp;[<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>]&gt;,
-        depth_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>&gt;,
-    ) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a>;
+        color_img: &amp;[TextureId],
+        resolve_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;&amp;[TextureId]&gt;,
+        depth_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;TextureId&gt;,
+    ) -&gt; RenderPass;
 <span class="item-spacer"></span>    fn <a href="#tymethod.render_pass_color_attachments" class="fn">render_pass_color_attachments</a>(
         &amp;self,
-        render_pass: <a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a>,
-    ) -&gt; &amp;[<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>] <a href="#" class="tooltip" data-notable-ty="&amp;[TextureId]">ⓘ</a>;
-<span class="item-spacer"></span>    fn <a href="#tymethod.delete_render_pass" class="fn">delete_render_pass</a>(&amp;mut self, render_pass: <a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a>);
+        render_pass: RenderPass,
+    ) -&gt; &amp;[TextureId] <a href="#" class="tooltip" data-notable-ty="&amp;[TextureId]">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.delete_render_pass" class="fn">delete_render_pass</a>(&amp;mut self, render_pass: RenderPass);
 <span class="item-spacer"></span>    fn <a href="#tymethod.new_pipeline" class="fn">new_pipeline</a>(
         &amp;mut self,
-        buffer_layout: &amp;[<a class="struct" href="../../../_dep/miniquad/struct.BufferLayout.html" title="struct devela::_dep::miniquad::BufferLayout">BufferLayout</a>],
-        attributes: &amp;[<a class="struct" href="../../../_dep/miniquad/struct.VertexAttribute.html" title="struct devela::_dep::miniquad::VertexAttribute">VertexAttribute</a>],
-        shader: <a class="struct" href="../../../_dep/miniquad/struct.ShaderId.html" title="struct devela::_dep::miniquad::ShaderId">ShaderId</a>,
-        params: <a class="struct" href="../../../_dep/miniquad/struct.PipelineParams.html" title="struct devela::_dep::miniquad::PipelineParams">PipelineParams</a>,
-    ) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.Pipeline.html" title="struct devela::_dep::miniquad::Pipeline">Pipeline</a>;
-<span class="item-spacer"></span>    fn <a href="#tymethod.apply_pipeline" class="fn">apply_pipeline</a>(&amp;mut self, pipeline: &amp;<a class="struct" href="../../../_dep/miniquad/struct.Pipeline.html" title="struct devela::_dep::miniquad::Pipeline">Pipeline</a>);
-<span class="item-spacer"></span>    fn <a href="#tymethod.delete_pipeline" class="fn">delete_pipeline</a>(&amp;mut self, pipeline: <a class="struct" href="../../../_dep/miniquad/struct.Pipeline.html" title="struct devela::_dep::miniquad::Pipeline">Pipeline</a>);
+        buffer_layout: &amp;[BufferLayout],
+        attributes: &amp;[VertexAttribute],
+        shader: ShaderId,
+        params: PipelineParams,
+    ) -&gt; Pipeline;
+<span class="item-spacer"></span>    fn <a href="#tymethod.apply_pipeline" class="fn">apply_pipeline</a>(&amp;mut self, pipeline: &amp;Pipeline);
+<span class="item-spacer"></span>    fn <a href="#tymethod.delete_pipeline" class="fn">delete_pipeline</a>(&amp;mut self, pipeline: Pipeline);
 <span class="item-spacer"></span>    fn <a href="#tymethod.new_buffer" class="fn">new_buffer</a>(
         &amp;mut self,
-        type_: <a class="enum" href="../../../_dep/miniquad/enum.BufferType.html" title="enum devela::_dep::miniquad::BufferType">BufferType</a>,
-        usage: <a class="enum" href="../../../_dep/miniquad/enum.BufferUsage.html" title="enum devela::_dep::miniquad::BufferUsage">BufferUsage</a>,
-        data: <a class="enum" href="../../../_dep/miniquad/enum.BufferSource.html" title="enum devela::_dep::miniquad::BufferSource">BufferSource</a>&lt;'_&gt;,
-    ) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a>;
-<span class="item-spacer"></span>    fn <a href="#tymethod.buffer_update" class="fn">buffer_update</a>(&amp;mut self, buffer: <a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a>, data: <a class="enum" href="../../../_dep/miniquad/enum.BufferSource.html" title="enum devela::_dep::miniquad::BufferSource">BufferSource</a>&lt;'_&gt;);
-<span class="item-spacer"></span>    fn <a href="#tymethod.buffer_size" class="fn">buffer_size</a>(&amp;mut self, buffer: <a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>;
-<span class="item-spacer"></span>    fn <a href="#tymethod.delete_buffer" class="fn">delete_buffer</a>(&amp;mut self, buffer: <a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a>);
-<span class="item-spacer"></span>    fn <a href="#tymethod.delete_texture" class="fn">delete_texture</a>(&amp;mut self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>);
-<span class="item-spacer"></span>    fn <a href="#tymethod.delete_shader" class="fn">delete_shader</a>(&amp;mut self, program: <a class="struct" href="../../../_dep/miniquad/struct.ShaderId.html" title="struct devela::_dep::miniquad::ShaderId">ShaderId</a>);
+        type_: BufferType,
+        usage: BufferUsage,
+        data: BufferSource&lt;'_&gt;,
+    ) -&gt; BufferId;
+<span class="item-spacer"></span>    fn <a href="#tymethod.buffer_update" class="fn">buffer_update</a>(&amp;mut self, buffer: BufferId, data: BufferSource&lt;'_&gt;);
+<span class="item-spacer"></span>    fn <a href="#tymethod.buffer_size" class="fn">buffer_size</a>(&amp;mut self, buffer: BufferId) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> <a href="#" class="tooltip" data-notable-ty="usize">ⓘ</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.delete_buffer" class="fn">delete_buffer</a>(&amp;mut self, buffer: BufferId);
+<span class="item-spacer"></span>    fn <a href="#tymethod.delete_texture" class="fn">delete_texture</a>(&amp;mut self, texture: TextureId);
+<span class="item-spacer"></span>    fn <a href="#tymethod.delete_shader" class="fn">delete_shader</a>(&amp;mut self, program: ShaderId);
 <span class="item-spacer"></span>    fn <a href="#tymethod.apply_viewport" class="fn">apply_viewport</a>(&amp;mut self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, w: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, h: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>);
 <span class="item-spacer"></span>    fn <a href="#tymethod.apply_scissor_rect" class="fn">apply_scissor_rect</a>(&amp;mut self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, w: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, h: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>);
 <span class="item-spacer"></span>    fn <a href="#tymethod.apply_bindings_from_slice" class="fn">apply_bindings_from_slice</a>(
         &amp;mut self,
-        vertex_buffers: &amp;[<a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a>],
-        index_buffer: <a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a>,
-        textures: &amp;[<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>],
+        vertex_buffers: &amp;[BufferId],
+        index_buffer: BufferId,
+        textures: &amp;[TextureId],
     );
 <span class="item-spacer"></span>    fn <a href="#tymethod.apply_uniforms_from_bytes" class="fn">apply_uniforms_from_bytes</a>(&amp;mut self, uniform_ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, size: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>);
 <span class="item-spacer"></span>    fn <a href="#tymethod.clear" class="fn">clear</a>(
@@ -200,51 +220,51 @@
         depth: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;,
         stencil: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;,
     );
-<span class="item-spacer"></span>    fn <a href="#tymethod.begin_default_pass" class="fn">begin_default_pass</a>(&amp;mut self, action: <a class="enum" href="../../../_dep/miniquad/enum.PassAction.html" title="enum devela::_dep::miniquad::PassAction">PassAction</a>);
-<span class="item-spacer"></span>    fn <a href="#tymethod.begin_pass" class="fn">begin_pass</a>(&amp;mut self, pass: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a>&gt;, action: <a class="enum" href="../../../_dep/miniquad/enum.PassAction.html" title="enum devela::_dep::miniquad::PassAction">PassAction</a>);
+<span class="item-spacer"></span>    fn <a href="#tymethod.begin_default_pass" class="fn">begin_default_pass</a>(&amp;mut self, action: PassAction);
+<span class="item-spacer"></span>    fn <a href="#tymethod.begin_pass" class="fn">begin_pass</a>(&amp;mut self, pass: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;RenderPass&gt;, action: PassAction);
 <span class="item-spacer"></span>    fn <a href="#tymethod.end_render_pass" class="fn">end_render_pass</a>(&amp;mut self);
 <span class="item-spacer"></span>    fn <a href="#tymethod.commit_frame" class="fn">commit_frame</a>(&amp;mut self);
 <span class="item-spacer"></span>    fn <a href="#tymethod.draw" class="fn">draw</a>(&amp;self, base_element: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, num_elements: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, num_instances: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>);
 
     // Provided methods
-    fn <a href="#method.new_render_texture" class="fn">new_render_texture</a>(&amp;mut self, params: <a class="struct" href="../../../_dep/miniquad/struct.TextureParams.html" title="struct devela::_dep::miniquad::TextureParams">TextureParams</a>) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a> { ... }
+    fn <a href="#method.new_render_texture" class="fn">new_render_texture</a>(&amp;mut self, params: TextureParams) -&gt; TextureId { ... }
 <span class="item-spacer"></span>    fn <a href="#method.new_texture_from_data_and_format" class="fn">new_texture_from_data_and_format</a>(
         &amp;mut self,
         bytes: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
-        params: <a class="struct" href="../../../_dep/miniquad/struct.TextureParams.html" title="struct devela::_dep::miniquad::TextureParams">TextureParams</a>,
-    ) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a> { ... }
+        params: TextureParams,
+    ) -&gt; TextureId { ... }
 <span class="item-spacer"></span>    fn <a href="#method.new_texture_from_rgba8" class="fn">new_texture_from_rgba8</a>(
         &amp;mut self,
         width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>,
         height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>,
         bytes: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
-    ) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a> { ... }
-<span class="item-spacer"></span>    fn <a href="#method.texture_size" class="fn">texture_size</a>(&amp;self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>) -&gt; (<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) <a href="#" class="tooltip" data-notable-ty="(u32, u32)">ⓘ</a> { ... }
-<span class="item-spacer"></span>    fn <a href="#method.texture_update" class="fn">texture_update</a>(&amp;mut self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>, bytes: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) { ... }
+    ) -&gt; TextureId { ... }
+<span class="item-spacer"></span>    fn <a href="#method.texture_size" class="fn">texture_size</a>(&amp;self, texture: TextureId) -&gt; (<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) <a href="#" class="tooltip" data-notable-ty="(u32, u32)">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.texture_update" class="fn">texture_update</a>(&amp;mut self, texture: TextureId, bytes: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) { ... }
 <span class="item-spacer"></span>    fn <a href="#method.texture_set_filter" class="fn">texture_set_filter</a>(
         &amp;mut self,
-        texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
-        filter: <a class="enum" href="../../../_dep/miniquad/enum.FilterMode.html" title="enum devela::_dep::miniquad::FilterMode">FilterMode</a>,
-        mipmap_filter: <a class="enum" href="../../../_dep/miniquad/enum.MipmapFilterMode.html" title="enum devela::_dep::miniquad::MipmapFilterMode">MipmapFilterMode</a>,
+        texture: TextureId,
+        filter: FilterMode,
+        mipmap_filter: MipmapFilterMode,
     ) { ... }
 <span class="item-spacer"></span>    fn <a href="#method.new_render_pass" class="fn">new_render_pass</a>(
         &amp;mut self,
-        color_img: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
-        depth_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>&gt;,
-    ) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a> { ... }
-<span class="item-spacer"></span>    fn <a href="#method.render_pass_texture" class="fn">render_pass_texture</a>(&amp;self, render_pass: <a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a>) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a> { ... }
-<span class="item-spacer"></span>    fn <a href="#method.apply_bindings" class="fn">apply_bindings</a>(&amp;mut self, bindings: &amp;<a class="struct" href="../../../_dep/miniquad/struct.Bindings.html" title="struct devela::_dep::miniquad::Bindings">Bindings</a>) { ... }
-<span class="item-spacer"></span>    fn <a href="#method.apply_uniforms" class="fn">apply_uniforms</a>(&amp;mut self, uniforms: <a class="struct" href="../../../_dep/miniquad/struct.UniformsSource.html" title="struct devela::_dep::miniquad::UniformsSource">UniformsSource</a>&lt;'_&gt;) { ... }
+        color_img: TextureId,
+        depth_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;TextureId&gt;,
+    ) -&gt; RenderPass { ... }
+<span class="item-spacer"></span>    fn <a href="#method.render_pass_texture" class="fn">render_pass_texture</a>(&amp;self, render_pass: RenderPass) -&gt; TextureId { ... }
+<span class="item-spacer"></span>    fn <a href="#method.apply_bindings" class="fn">apply_bindings</a>(&amp;mut self, bindings: &amp;Bindings) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.apply_uniforms" class="fn">apply_uniforms</a>(&amp;mut self, uniforms: UniformsSource&lt;'_&gt;) { ... }
 </details>}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>dep_miniquad</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='re-exported from the `miniquad` crate'><code>miniquad</code></span>
 Low-level interface for rendering operations in miniquad.</p>
 <p><em>Re-exported from the <a href="https://docs.rs/miniquad"><code>miniquad</code></a> crate</em>
 <code>RenderingBackend</code>→<a href="../../../all/trait.MiniquadRenderingBackend.html" title="trait devela::all::MiniquadRenderingBackend"><code>MiniquadRenderingBackend</code></a>.</p>
 <hr />
-</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><section id="tymethod.info" class="method"><h4 class="code-header">fn <a href="#tymethod.info" class="fn">info</a>(&amp;self) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.ContextInfo.html" title="struct devela::_dep::miniquad::ContextInfo">ContextInfo</a></h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.new_shader" class="method"><h4 class="code-header">fn <a href="#tymethod.new_shader" class="fn">new_shader</a>(
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><section id="tymethod.info" class="method"><h4 class="code-header">fn <a href="#tymethod.info" class="fn">info</a>(&amp;self) -&gt; ContextInfo</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.new_shader" class="method"><h4 class="code-header">fn <a href="#tymethod.new_shader" class="fn">new_shader</a>(
     &amp;mut self,
-    shader: <a class="enum" href="../../../_dep/miniquad/enum.ShaderSource.html" title="enum devela::_dep::miniquad::ShaderSource">ShaderSource</a>&lt;'_&gt;,
-    meta: <a class="struct" href="../../../_dep/miniquad/struct.ShaderMeta.html" title="struct devela::_dep::miniquad::ShaderMeta">ShaderMeta</a>,
-) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="struct" href="../../../_dep/miniquad/struct.ShaderId.html" title="struct devela::_dep::miniquad::ShaderId">ShaderId</a>, <a class="enum" href="../../../_dep/miniquad/enum.ShaderError.html" title="enum devela::_dep::miniquad::ShaderError">ShaderError</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;ShaderId, ShaderError&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>For metal context’s ShaderSource should contain MSL source string, for GL - glsl.</p>
+    shader: ShaderSource&lt;'_&gt;,
+    meta: ShaderMeta,
+) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;ShaderId, ShaderError&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;ShaderId, ShaderError&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>For metal context’s ShaderSource should contain MSL source string, for GL - glsl.</p>
 <p>If in doubt, <em>most</em> OpenGL contexts support “#version 100” glsl shaders.
 So far miniquad never encountered where it can create a rendering context,
 but <code>version 100</code> shaders are not supported.</p>
@@ -266,33 +286,33 @@ but <code>version 100</code> shaders are not supported.</p>
 <p>for GL-only.</p>
 </div></details><section id="tymethod.new_texture" class="method"><h4 class="code-header">fn <a href="#tymethod.new_texture" class="fn">new_texture</a>(
     &amp;mut self,
-    access: <a class="enum" href="../../../_dep/miniquad/enum.TextureAccess.html" title="enum devela::_dep::miniquad::TextureAccess">TextureAccess</a>,
-    data: <a class="enum" href="../../../_dep/miniquad/enum.TextureSource.html" title="enum devela::_dep::miniquad::TextureSource">TextureSource</a>&lt;'_&gt;,
-    params: <a class="struct" href="../../../_dep/miniquad/struct.TextureParams.html" title="struct devela::_dep::miniquad::TextureParams">TextureParams</a>,
-) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a></h4></section><section id="tymethod.texture_params" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_params" class="fn">texture_params</a>(&amp;self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureParams.html" title="struct devela::_dep::miniquad::TextureParams">TextureParams</a></h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.texture_raw_id" class="method"><h4 class="code-header">unsafe fn <a href="#tymethod.texture_raw_id" class="fn">texture_raw_id</a>(&amp;self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>) -&gt; <a class="enum" href="../../../_dep/miniquad/enum.RawId.html" title="enum devela::_dep::miniquad::RawId">RawId</a></h4></section></summary><div class="docblock"><p>Get OpenGL’s GLuint texture ID or metals ObjcId</p>
+    access: TextureAccess,
+    data: TextureSource&lt;'_&gt;,
+    params: TextureParams,
+) -&gt; TextureId</h4></section><section id="tymethod.texture_params" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_params" class="fn">texture_params</a>(&amp;self, texture: TextureId) -&gt; TextureParams</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.texture_raw_id" class="method"><h4 class="code-header">unsafe fn <a href="#tymethod.texture_raw_id" class="fn">texture_raw_id</a>(&amp;self, texture: TextureId) -&gt; RawId</h4></section></summary><div class="docblock"><p>Get OpenGL’s GLuint texture ID or metals ObjcId</p>
 </div></details><section id="tymethod.texture_set_min_filter" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_set_min_filter" class="fn">texture_set_min_filter</a>(
     &amp;mut self,
-    texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
-    filter: <a class="enum" href="../../../_dep/miniquad/enum.FilterMode.html" title="enum devela::_dep::miniquad::FilterMode">FilterMode</a>,
-    mipmap_filter: <a class="enum" href="../../../_dep/miniquad/enum.MipmapFilterMode.html" title="enum devela::_dep::miniquad::MipmapFilterMode">MipmapFilterMode</a>,
-)</h4></section><section id="tymethod.texture_set_mag_filter" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_set_mag_filter" class="fn">texture_set_mag_filter</a>(&amp;mut self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>, filter: <a class="enum" href="../../../_dep/miniquad/enum.FilterMode.html" title="enum devela::_dep::miniquad::FilterMode">FilterMode</a>)</h4></section><section id="tymethod.texture_set_wrap" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_set_wrap" class="fn">texture_set_wrap</a>(
+    texture: TextureId,
+    filter: FilterMode,
+    mipmap_filter: MipmapFilterMode,
+)</h4></section><section id="tymethod.texture_set_mag_filter" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_set_mag_filter" class="fn">texture_set_mag_filter</a>(&amp;mut self, texture: TextureId, filter: FilterMode)</h4></section><section id="tymethod.texture_set_wrap" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_set_wrap" class="fn">texture_set_wrap</a>(
     &amp;mut self,
-    texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
-    wrap_x: <a class="enum" href="../../../_dep/miniquad/enum.TextureWrap.html" title="enum devela::_dep::miniquad::TextureWrap">TextureWrap</a>,
-    wrap_y: <a class="enum" href="../../../_dep/miniquad/enum.TextureWrap.html" title="enum devela::_dep::miniquad::TextureWrap">TextureWrap</a>,
-)</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.texture_generate_mipmaps" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_generate_mipmaps" class="fn">texture_generate_mipmaps</a>(&amp;mut self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>)</h4></section></summary><div class="docblock"><p>Metal-specific note: if texture was created without <code>params.generate_mipmaps</code>
+    texture: TextureId,
+    wrap_x: TextureWrap,
+    wrap_y: TextureWrap,
+)</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.texture_generate_mipmaps" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_generate_mipmaps" class="fn">texture_generate_mipmaps</a>(&amp;mut self, texture: TextureId)</h4></section></summary><div class="docblock"><p>Metal-specific note: if texture was created without <code>params.generate_mipmaps</code>
 <code>generate_mipmaps</code> will do nothing.</p>
 <p>Also note that if MipmapFilter is set to None, mipmaps will not be visible, even if
 generated.</p>
 </div></details><section id="tymethod.texture_resize" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_resize" class="fn">texture_resize</a>(
     &amp;mut self,
-    texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
+    texture: TextureId,
     width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
     height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
     bytes: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;&amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt;,
-)</h4></section><section id="tymethod.texture_read_pixels" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_read_pixels" class="fn">texture_read_pixels</a>(&amp;mut self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>, bytes: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>])</h4></section><section id="tymethod.texture_update_part" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_update_part" class="fn">texture_update_part</a>(
+)</h4></section><section id="tymethod.texture_read_pixels" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_read_pixels" class="fn">texture_read_pixels</a>(&amp;mut self, texture: TextureId, bytes: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>])</h4></section><section id="tymethod.texture_update_part" class="method"><h4 class="code-header">fn <a href="#tymethod.texture_update_part" class="fn">texture_update_part</a>(
     &amp;mut self,
-    texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
+    texture: TextureId,
     x_offset: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
     y_offset: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
     width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
@@ -300,28 +320,28 @@ generated.</p>
     bytes: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
 )</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.new_render_pass_mrt" class="method"><h4 class="code-header">fn <a href="#tymethod.new_render_pass_mrt" class="fn">new_render_pass_mrt</a>(
     &amp;mut self,
-    color_img: &amp;[<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>],
-    resolve_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;&amp;[<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>]&gt;,
-    depth_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>&gt;,
-) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a></h4></section></summary><div class="docblock"><p>Same as “new_render_pass”, but allows multiple color attachments.
+    color_img: &amp;[TextureId],
+    resolve_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;&amp;[TextureId]&gt;,
+    depth_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;TextureId&gt;,
+) -&gt; RenderPass</h4></section></summary><div class="docblock"><p>Same as “new_render_pass”, but allows multiple color attachments.
 if <code>resolve_img</code> is set, MSAA-resolve operation will happen in <code>end_render_pass</code>
 this operation require <code>color_img</code> to have sample_count &gt; 1,resolve_img have
 sample_count == 1, and color_img.len() should be equal to resolve_img.len()</p>
 <p>Note that resolve attachments may be not supported by current backend!
 They are only available when <code>ctx.info().features.resolve_attachments</code> is true.</p>
-</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.render_pass_color_attachments" class="method"><h4 class="code-header">fn <a href="#tymethod.render_pass_color_attachments" class="fn">render_pass_color_attachments</a>(&amp;self, render_pass: <a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a>) -&gt; &amp;[<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>] <a href="#" class="tooltip" data-notable-ty="&amp;[TextureId]">ⓘ</a></h4></section></summary><div class="docblock"><p>For depth-only render pass returns empty slice.</p>
-</div></details><section id="tymethod.delete_render_pass" class="method"><h4 class="code-header">fn <a href="#tymethod.delete_render_pass" class="fn">delete_render_pass</a>(&amp;mut self, render_pass: <a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a>)</h4></section><section id="tymethod.new_pipeline" class="method"><h4 class="code-header">fn <a href="#tymethod.new_pipeline" class="fn">new_pipeline</a>(
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.render_pass_color_attachments" class="method"><h4 class="code-header">fn <a href="#tymethod.render_pass_color_attachments" class="fn">render_pass_color_attachments</a>(&amp;self, render_pass: RenderPass) -&gt; &amp;[TextureId] <a href="#" class="tooltip" data-notable-ty="&amp;[TextureId]">ⓘ</a></h4></section></summary><div class="docblock"><p>For depth-only render pass returns empty slice.</p>
+</div></details><section id="tymethod.delete_render_pass" class="method"><h4 class="code-header">fn <a href="#tymethod.delete_render_pass" class="fn">delete_render_pass</a>(&amp;mut self, render_pass: RenderPass)</h4></section><section id="tymethod.new_pipeline" class="method"><h4 class="code-header">fn <a href="#tymethod.new_pipeline" class="fn">new_pipeline</a>(
     &amp;mut self,
-    buffer_layout: &amp;[<a class="struct" href="../../../_dep/miniquad/struct.BufferLayout.html" title="struct devela::_dep::miniquad::BufferLayout">BufferLayout</a>],
-    attributes: &amp;[<a class="struct" href="../../../_dep/miniquad/struct.VertexAttribute.html" title="struct devela::_dep::miniquad::VertexAttribute">VertexAttribute</a>],
-    shader: <a class="struct" href="../../../_dep/miniquad/struct.ShaderId.html" title="struct devela::_dep::miniquad::ShaderId">ShaderId</a>,
-    params: <a class="struct" href="../../../_dep/miniquad/struct.PipelineParams.html" title="struct devela::_dep::miniquad::PipelineParams">PipelineParams</a>,
-) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.Pipeline.html" title="struct devela::_dep::miniquad::Pipeline">Pipeline</a></h4></section><section id="tymethod.apply_pipeline" class="method"><h4 class="code-header">fn <a href="#tymethod.apply_pipeline" class="fn">apply_pipeline</a>(&amp;mut self, pipeline: &amp;<a class="struct" href="../../../_dep/miniquad/struct.Pipeline.html" title="struct devela::_dep::miniquad::Pipeline">Pipeline</a>)</h4></section><section id="tymethod.delete_pipeline" class="method"><h4 class="code-header">fn <a href="#tymethod.delete_pipeline" class="fn">delete_pipeline</a>(&amp;mut self, pipeline: <a class="struct" href="../../../_dep/miniquad/struct.Pipeline.html" title="struct devela::_dep::miniquad::Pipeline">Pipeline</a>)</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.new_buffer" class="method"><h4 class="code-header">fn <a href="#tymethod.new_buffer" class="fn">new_buffer</a>(
+    buffer_layout: &amp;[BufferLayout],
+    attributes: &amp;[VertexAttribute],
+    shader: ShaderId,
+    params: PipelineParams,
+) -&gt; Pipeline</h4></section><section id="tymethod.apply_pipeline" class="method"><h4 class="code-header">fn <a href="#tymethod.apply_pipeline" class="fn">apply_pipeline</a>(&amp;mut self, pipeline: &amp;Pipeline)</h4></section><section id="tymethod.delete_pipeline" class="method"><h4 class="code-header">fn <a href="#tymethod.delete_pipeline" class="fn">delete_pipeline</a>(&amp;mut self, pipeline: Pipeline)</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.new_buffer" class="method"><h4 class="code-header">fn <a href="#tymethod.new_buffer" class="fn">new_buffer</a>(
     &amp;mut self,
-    type_: <a class="enum" href="../../../_dep/miniquad/enum.BufferType.html" title="enum devela::_dep::miniquad::BufferType">BufferType</a>,
-    usage: <a class="enum" href="../../../_dep/miniquad/enum.BufferUsage.html" title="enum devela::_dep::miniquad::BufferUsage">BufferUsage</a>,
-    data: <a class="enum" href="../../../_dep/miniquad/enum.BufferSource.html" title="enum devela::_dep::miniquad::BufferSource">BufferSource</a>&lt;'_&gt;,
-) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a></h4></section></summary><div class="docblock"><p>Create a buffer resource object.</p>
+    type_: BufferType,
+    usage: BufferUsage,
+    data: BufferSource&lt;'_&gt;,
+) -&gt; BufferId</h4></section></summary><div class="docblock"><p>Create a buffer resource object.</p>
 
 <div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[repr(C)]
 </span><span class="kw">struct </span>Vertex {
@@ -339,19 +359,19 @@ They are only available when <code>ctx.info().features.resolve_attachments</code
        BufferUsage::Immutable,
        BufferSource::slice(<span class="kw-2">&amp;</span>vertices),
    );</code></pre></div>
-</div></details><section id="tymethod.buffer_update" class="method"><h4 class="code-header">fn <a href="#tymethod.buffer_update" class="fn">buffer_update</a>(&amp;mut self, buffer: <a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a>, data: <a class="enum" href="../../../_dep/miniquad/enum.BufferSource.html" title="enum devela::_dep::miniquad::BufferSource">BufferSource</a>&lt;'_&gt;)</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.buffer_size" class="method"><h4 class="code-header">fn <a href="#tymethod.buffer_size" class="fn">buffer_size</a>(&amp;mut self, buffer: <a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></h4></section></summary><div class="docblock"><p>Size of buffer in bytes.
+</div></details><section id="tymethod.buffer_update" class="method"><h4 class="code-header">fn <a href="#tymethod.buffer_update" class="fn">buffer_update</a>(&amp;mut self, buffer: BufferId, data: BufferSource&lt;'_&gt;)</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.buffer_size" class="method"><h4 class="code-header">fn <a href="#tymethod.buffer_size" class="fn">buffer_size</a>(&amp;mut self, buffer: BufferId) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> <a href="#" class="tooltip" data-notable-ty="usize">ⓘ</a></h4></section></summary><div class="docblock"><p>Size of buffer in bytes.
 For 1 element, u16 buffer this will return 2.</p>
-</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.delete_buffer" class="method"><h4 class="code-header">fn <a href="#tymethod.delete_buffer" class="fn">delete_buffer</a>(&amp;mut self, buffer: <a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a>)</h4></section></summary><div class="docblock"><p>Delete GPU buffer, leaving handle unmodified.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.delete_buffer" class="method"><h4 class="code-header">fn <a href="#tymethod.delete_buffer" class="fn">delete_buffer</a>(&amp;mut self, buffer: BufferId)</h4></section></summary><div class="docblock"><p>Delete GPU buffer, leaving handle unmodified.</p>
 <p>More high-level code on top of miniquad probably is going to call this in Drop
 implementation of some more RAII buffer object.</p>
 <p>There is no protection against using deleted buffers later. However its not an UB in OpenGl
 and thats why this function is not marked as unsafe</p>
-</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.delete_texture" class="method"><h4 class="code-header">fn <a href="#tymethod.delete_texture" class="fn">delete_texture</a>(&amp;mut self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>)</h4></section></summary><div class="docblock"><p>Delete GPU texture, leaving handle unmodified.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.delete_texture" class="method"><h4 class="code-header">fn <a href="#tymethod.delete_texture" class="fn">delete_texture</a>(&amp;mut self, texture: TextureId)</h4></section></summary><div class="docblock"><p>Delete GPU texture, leaving handle unmodified.</p>
 <p>More high-level code on top of miniquad probably is going to call this in Drop
 implementation of some more RAII buffer object.</p>
 <p>There is no protection against using deleted textures later. However its not a CPU-level UB
 and thats why this function is not marked as unsafe</p>
-</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.delete_shader" class="method"><h4 class="code-header">fn <a href="#tymethod.delete_shader" class="fn">delete_shader</a>(&amp;mut self, program: <a class="struct" href="../../../_dep/miniquad/struct.ShaderId.html" title="struct devela::_dep::miniquad::ShaderId">ShaderId</a>)</h4></section></summary><div class="docblock"><p>Delete GPU program, leaving handle unmodified.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.delete_shader" class="method"><h4 class="code-header">fn <a href="#tymethod.delete_shader" class="fn">delete_shader</a>(&amp;mut self, program: ShaderId)</h4></section></summary><div class="docblock"><p>Delete GPU program, leaving handle unmodified.</p>
 <p>More high-level code on top of miniquad probably is going to call this in Drop
 implementation of some more RAII buffer object.</p>
 <p>There is no protection against using deleted programs later. However its not a CPU-level
@@ -362,16 +382,16 @@ Should be applied after begin_pass.</p>
 Should be applied after begin_pass.</p>
 </div></details><section id="tymethod.apply_bindings_from_slice" class="method"><h4 class="code-header">fn <a href="#tymethod.apply_bindings_from_slice" class="fn">apply_bindings_from_slice</a>(
     &amp;mut self,
-    vertex_buffers: &amp;[<a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a>],
-    index_buffer: <a class="struct" href="../../../_dep/miniquad/struct.BufferId.html" title="struct devela::_dep::miniquad::BufferId">BufferId</a>,
-    textures: &amp;[<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>],
+    vertex_buffers: &amp;[BufferId],
+    index_buffer: BufferId,
+    textures: &amp;[TextureId],
 )</h4></section><section id="tymethod.apply_uniforms_from_bytes" class="method"><h4 class="code-header">fn <a href="#tymethod.apply_uniforms_from_bytes" class="fn">apply_uniforms_from_bytes</a>(&amp;mut self, uniform_ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, size: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>)</h4></section><section id="tymethod.clear" class="method"><h4 class="code-header">fn <a href="#tymethod.clear" class="fn">clear</a>(
     &amp;mut self,
     color: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)&gt;,
     depth: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;,
     stencil: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;,
-)</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.begin_default_pass" class="method"><h4 class="code-header">fn <a href="#tymethod.begin_default_pass" class="fn">begin_default_pass</a>(&amp;mut self, action: <a class="enum" href="../../../_dep/miniquad/enum.PassAction.html" title="enum devela::_dep::miniquad::PassAction">PassAction</a>)</h4></section></summary><div class="docblock"><p>start rendering to the default frame buffer</p>
-</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.begin_pass" class="method"><h4 class="code-header">fn <a href="#tymethod.begin_pass" class="fn">begin_pass</a>(&amp;mut self, pass: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a>&gt;, action: <a class="enum" href="../../../_dep/miniquad/enum.PassAction.html" title="enum devela::_dep::miniquad::PassAction">PassAction</a>)</h4></section></summary><div class="docblock"><p>start rendering to an offscreen framebuffer</p>
+)</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.begin_default_pass" class="method"><h4 class="code-header">fn <a href="#tymethod.begin_default_pass" class="fn">begin_default_pass</a>(&amp;mut self, action: PassAction)</h4></section></summary><div class="docblock"><p>start rendering to the default frame buffer</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.begin_pass" class="method"><h4 class="code-header">fn <a href="#tymethod.begin_pass" class="fn">begin_pass</a>(&amp;mut self, pass: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;RenderPass&gt;, action: PassAction)</h4></section></summary><div class="docblock"><p>start rendering to an offscreen framebuffer</p>
 </div></details><section id="tymethod.end_render_pass" class="method"><h4 class="code-header">fn <a href="#tymethod.end_render_pass" class="fn">end_render_pass</a>(&amp;mut self)</h4></section><section id="tymethod.commit_frame" class="method"><h4 class="code-header">fn <a href="#tymethod.commit_frame" class="fn">commit_frame</a>(&amp;mut self)</h4></section><details class="toggle method-toggle" open><summary><section id="tymethod.draw" class="method"><h4 class="code-header">fn <a href="#tymethod.draw" class="fn">draw</a>(&amp;self, base_element: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, num_elements: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, num_instances: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>)</h4></section></summary><div class="docblock"><p>Draw elements using currently applied bindings and pipeline.</p>
 <ul>
 <li><code>base_element</code> specifies starting offset in <code>index_buffer</code>.</li>
@@ -380,27 +400,27 @@ Should be applied after begin_pass.</p>
 </ul>
 <p>NOTE: num_instances &gt; 1 might be not supported by the GPU (gl2.1 and gles2).
 <code>features.instancing</code> check is required.</p>
-</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><section id="method.new_render_texture" class="method"><h4 class="code-header">fn <a href="#method.new_render_texture" class="fn">new_render_texture</a>(&amp;mut self, params: <a class="struct" href="../../../_dep/miniquad/struct.TextureParams.html" title="struct devela::_dep::miniquad::TextureParams">TextureParams</a>) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a></h4></section><section id="method.new_texture_from_data_and_format" class="method"><h4 class="code-header">fn <a href="#method.new_texture_from_data_and_format" class="fn">new_texture_from_data_and_format</a>(
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><section id="method.new_render_texture" class="method"><h4 class="code-header">fn <a href="#method.new_render_texture" class="fn">new_render_texture</a>(&amp;mut self, params: TextureParams) -&gt; TextureId</h4></section><section id="method.new_texture_from_data_and_format" class="method"><h4 class="code-header">fn <a href="#method.new_texture_from_data_and_format" class="fn">new_texture_from_data_and_format</a>(
     &amp;mut self,
     bytes: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
-    params: <a class="struct" href="../../../_dep/miniquad/struct.TextureParams.html" title="struct devela::_dep::miniquad::TextureParams">TextureParams</a>,
-) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a></h4></section><section id="method.new_texture_from_rgba8" class="method"><h4 class="code-header">fn <a href="#method.new_texture_from_rgba8" class="fn">new_texture_from_rgba8</a>(
+    params: TextureParams,
+) -&gt; TextureId</h4></section><section id="method.new_texture_from_rgba8" class="method"><h4 class="code-header">fn <a href="#method.new_texture_from_rgba8" class="fn">new_texture_from_rgba8</a>(
     &amp;mut self,
     width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>,
     height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>,
     bytes: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
-) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a></h4></section><section id="method.texture_size" class="method"><h4 class="code-header">fn <a href="#method.texture_size" class="fn">texture_size</a>(&amp;self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>) -&gt; (<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) <a href="#" class="tooltip" data-notable-ty="(u32, u32)">ⓘ</a></h4></section><details class="toggle method-toggle" open><summary><section id="method.texture_update" class="method"><h4 class="code-header">fn <a href="#method.texture_update" class="fn">texture_update</a>(&amp;mut self, texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>, bytes: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>])</h4></section></summary><div class="docblock"><p>Update whole texture content
+) -&gt; TextureId</h4></section><section id="method.texture_size" class="method"><h4 class="code-header">fn <a href="#method.texture_size" class="fn">texture_size</a>(&amp;self, texture: TextureId) -&gt; (<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) <a href="#" class="tooltip" data-notable-ty="(u32, u32)">ⓘ</a></h4></section><details class="toggle method-toggle" open><summary><section id="method.texture_update" class="method"><h4 class="code-header">fn <a href="#method.texture_update" class="fn">texture_update</a>(&amp;mut self, texture: TextureId, bytes: &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>])</h4></section></summary><div class="docblock"><p>Update whole texture content
 bytes should be width * height * 4 size - non rgba8 textures are not supported yet anyway</p>
 </div></details><section id="method.texture_set_filter" class="method"><h4 class="code-header">fn <a href="#method.texture_set_filter" class="fn">texture_set_filter</a>(
     &amp;mut self,
-    texture: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
-    filter: <a class="enum" href="../../../_dep/miniquad/enum.FilterMode.html" title="enum devela::_dep::miniquad::FilterMode">FilterMode</a>,
-    mipmap_filter: <a class="enum" href="../../../_dep/miniquad/enum.MipmapFilterMode.html" title="enum devela::_dep::miniquad::MipmapFilterMode">MipmapFilterMode</a>,
+    texture: TextureId,
+    filter: FilterMode,
+    mipmap_filter: MipmapFilterMode,
 )</h4></section><section id="method.new_render_pass" class="method"><h4 class="code-header">fn <a href="#method.new_render_pass" class="fn">new_render_pass</a>(
     &amp;mut self,
-    color_img: <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>,
-    depth_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a>&gt;,
-) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a></h4></section><details class="toggle method-toggle" open><summary><section id="method.render_pass_texture" class="method"><h4 class="code-header">fn <a href="#method.render_pass_texture" class="fn">render_pass_texture</a>(&amp;self, render_pass: <a class="struct" href="../../../_dep/miniquad/struct.RenderPass.html" title="struct devela::_dep::miniquad::RenderPass">RenderPass</a>) -&gt; <a class="struct" href="../../../_dep/miniquad/struct.TextureId.html" title="struct devela::_dep::miniquad::TextureId">TextureId</a></h4></section></summary><div class="docblock"><p>panics for depth-only or multiple color attachment render pass
+    color_img: TextureId,
+    depth_img: <a class="enum" href="../../../all/enum.Option.html" title="enum devela::all::Option">Option</a>&lt;TextureId&gt;,
+) -&gt; RenderPass</h4></section><details class="toggle method-toggle" open><summary><section id="method.render_pass_texture" class="method"><h4 class="code-header">fn <a href="#method.render_pass_texture" class="fn">render_pass_texture</a>(&amp;self, render_pass: RenderPass) -&gt; TextureId</h4></section></summary><div class="docblock"><p>panics for depth-only or multiple color attachment render pass
 This function is, mostly, legacy. Using “render_pass_color_attachments”
 is recommended instead.</p>
-</div></details><section id="method.apply_bindings" class="method"><h4 class="code-header">fn <a href="#method.apply_bindings" class="fn">apply_bindings</a>(&amp;mut self, bindings: &amp;<a class="struct" href="../../../_dep/miniquad/struct.Bindings.html" title="struct devela::_dep::miniquad::Bindings">Bindings</a>)</h4></section><section id="method.apply_uniforms" class="method"><h4 class="code-header">fn <a href="#method.apply_uniforms" class="fn">apply_uniforms</a>(&amp;mut self, uniforms: <a class="struct" href="../../../_dep/miniquad/struct.UniformsSource.html" title="struct devela::_dep::miniquad::UniformsSource">UniformsSource</a>&lt;'_&gt;)</h4></section></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-RenderingBackend-for-GlContext" class="impl"><a href="#impl-RenderingBackend-for-GlContext" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../all/trait.MiniquadRenderingBackend.html" title="trait devela::all::MiniquadRenderingBackend">RenderingBackend</a> for <a class="struct" href="../../../_dep/miniquad/struct.GlContext.html" title="struct devela::_dep::miniquad::GlContext">GlContext</a></h3></section></div><script src="../../../../trait.impl/miniquad/graphics/trait.RenderingBackend.js" data-ignore-extern-crates="miniquad" async></script><script type="text/json" id="notable-traits-data">{"&[TextureId]":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../../all/trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../../all/trait.ExtSliceMut.html\" title=\"trait devela::all::ExtSliceMut\">ExtSliceMut</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../../all/trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for &amp;<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div>","(u32, u32)":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0, _1)</a></code></h3><pre><code><div class=\"where\">impl&lt;_0, _1&gt; <a class=\"trait\" href=\"../../../all/trait.Tuple.html\" title=\"trait devela::all::Tuple\">Tuple</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0, _1)</a></div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.Head\" class=\"associatedtype\">Head</a> = _0;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.Tail\" class=\"associatedtype\">Tail</a> = _1;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.NoHead\" class=\"associatedtype\">NoHead</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_1,)</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.NoTail\" class=\"associatedtype\">NoTail</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0,)</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.Append\" class=\"associatedtype\">Append</a>&lt;T&gt; = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0, _1, T)</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.Prepend\" class=\"associatedtype\">Prepend</a>&lt;T&gt; = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(T, _0, _1)</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._0\" class=\"associatedtype\">_0</a> = _0;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._1\" class=\"associatedtype\">_1</a> = _1;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._2\" class=\"associatedtype\">_2</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._3\" class=\"associatedtype\">_3</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._4\" class=\"associatedtype\">_4</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._5\" class=\"associatedtype\">_5</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._6\" class=\"associatedtype\">_6</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._7\" class=\"associatedtype\">_7</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._8\" class=\"associatedtype\">_8</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._9\" class=\"associatedtype\">_9</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._10\" class=\"associatedtype\">_10</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._11\" class=\"associatedtype\">_11</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">impl&lt;Candidate, Requirement&gt; <a class=\"trait\" href=\"../../../all/trait.MemAligned.html\" title=\"trait devela::all::MemAligned\">MemAligned</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(Candidate, Requirement)</a></div>","Result<ShaderId, ShaderError>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>
+</div></details><section id="method.apply_bindings" class="method"><h4 class="code-header">fn <a href="#method.apply_bindings" class="fn">apply_bindings</a>(&amp;mut self, bindings: &amp;Bindings)</h4></section><section id="method.apply_uniforms" class="method"><h4 class="code-header">fn <a href="#method.apply_uniforms" class="fn">apply_uniforms</a>(&amp;mut self, uniforms: UniformsSource&lt;'_&gt;)</h4></section></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-RenderingBackend-for-GlContext" class="impl"><a href="#impl-RenderingBackend-for-GlContext" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../all/trait.MiniquadRenderingBackend.html" title="trait devela::all::MiniquadRenderingBackend">RenderingBackend</a> for GlContext</h3></section></div><script src="../../../../trait.impl/miniquad/graphics/trait.RenderingBackend.js" data-ignore-extern-crates="miniquad" async></script><script type="text/json" id="notable-traits-data">{"&[TextureId]":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../../all/trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../../all/trait.ExtSliceMut.html\" title=\"trait devela::all::ExtSliceMut\">ExtSliceMut</a>&lt;T&gt; for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../../all/trait.ExtSlice.html\" title=\"trait devela::all::ExtSlice\">ExtSlice</a>&lt;T&gt; for &amp;<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.slice.html\">[T]</a></div>","(u32, u32)":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(Candidate, Requirement)</a></code></h3><pre><code><div class=\"where\">impl&lt;Candidate, Requirement&gt; <a class=\"trait\" href=\"../../../all/trait.MemAligned.html\" title=\"trait devela::all::MemAligned\">MemAligned</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(Candidate, Requirement)</a></div><div class=\"where\">impl&lt;_0, _1&gt; <a class=\"trait\" href=\"../../../all/trait.Tuple.html\" title=\"trait devela::all::Tuple\">Tuple</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0, _1)</a></div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.Head\" class=\"associatedtype\">Head</a> = _0;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.Tail\" class=\"associatedtype\">Tail</a> = _1;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.NoHead\" class=\"associatedtype\">NoHead</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_1,)</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.NoTail\" class=\"associatedtype\">NoTail</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0,)</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.Append\" class=\"associatedtype\">Append</a>&lt;T&gt; = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0, _1, T)</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype.Prepend\" class=\"associatedtype\">Prepend</a>&lt;T&gt; = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(T, _0, _1)</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._0\" class=\"associatedtype\">_0</a> = _0;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._1\" class=\"associatedtype\">_1</a> = _1;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._2\" class=\"associatedtype\">_2</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._3\" class=\"associatedtype\">_3</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._4\" class=\"associatedtype\">_4</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._5\" class=\"associatedtype\">_5</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._6\" class=\"associatedtype\">_6</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._7\" class=\"associatedtype\">_7</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._8\" class=\"associatedtype\">_8</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._9\" class=\"associatedtype\">_9</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._10\" class=\"associatedtype\">_10</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../../all/trait.Tuple.html#associatedtype._11\" class=\"associatedtype\">_11</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div>","Result<ShaderId, ShaderError>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>","usize":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.usize.html\">usize</a></code></h3><pre><code><div class=\"where\">impl <a class=\"trait\" href=\"../../../num/trait.NumInt.html\" title=\"trait devela::num::NumInt\">NumInt</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.usize.html\">usize</a></div><div class=\"where\">    type <a href=\"../../../num/trait.NumInt.html#associatedtype.OutI\" class=\"associatedtype\">OutI</a> = <a class=\"type\" href=\"../../../num/type.isize_up.html\" title=\"type devela::num::isize_up\">isize_up</a>;</div><div class=\"where\">impl <a class=\"trait\" href=\"../../../num/trait.Num.html\" title=\"trait devela::num::Num\">Num</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.usize.html\">usize</a></div><div class=\"where\">    type <a href=\"../../../num/trait.Num.html#associatedtype.Inner\" class=\"associatedtype\">Inner</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.usize.html\">usize</a>;</div><div class=\"where\">    type <a href=\"../../../num/trait.Num.html#associatedtype.Out\" class=\"associatedtype\">Out</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.usize.html\">usize</a>;</div><div class=\"where\">    type <a href=\"../../../num/trait.Num.html#associatedtype.Rhs\" class=\"associatedtype\">Rhs</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.usize.html\">usize</a>;</div>"}</script></section></div></main></body></html>

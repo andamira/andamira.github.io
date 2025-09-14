@@ -20,7 +20,7 @@ TMP_DIR="$GIT_DIR/devela/tmp"
 OUT_DIR="$DEV_DIR/$VERSION"
 OUT_SYM="$DEV_DIR/latest"
 
-CMD="CARGO_TARGET_DIR=\"$TMP_DIR\" RUSTFLAGS=\"-Ctarget-cpu=native --cfg nightly\" RUSTDOCFLAGS=\"-Ctarget-cpu=native --cfg nightly -Z unstable-options --generate-link-to-definition --html-in-header ./config/rustdoc-header.html\" cargo +nightly doc --no-deps -F _docsrs,__publish"
+CMD="CARGO_TARGET_DIR=\"$TMP_DIR\" RUSTFLAGS=\"-Ctarget-cpu=native --cfg nightly\" RUSTDOCFLAGS=\"-Ctarget-cpu=native --cfg nightly -Z unstable-options --generate-link-to-definition --html-in-header ./config/rustdoc-header.html\" cargo +nightly doc --no-deps -F _docs,__publish"
 
 
 # compile docs

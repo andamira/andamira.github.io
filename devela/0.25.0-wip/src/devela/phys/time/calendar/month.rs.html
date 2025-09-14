@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/phys/time/calendar/month.rs`."><title>month.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/phys/time/calendar/month.rs`."><title>month.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -112,7 +132,7 @@
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//!
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
 <a href=#5 id=5 data-nosnippet>5</a>
-<a href=#6 id=6 data-nosnippet>6</a></span><span class="kw">use crate</span>::{<a href="../../../../../devela/all/trait.Display.html">Display</a>, <a href="../../../libs/base/src/text/fmt/reexports.rs.html#95">FmtResult</a>, <a href="../../../../../devela/all/struct.Formatter.html">Formatter</a>, <a href="../../../../../devela/all/trait.FromStr.html">FromStr</a>};
+<a href=#6 id=6 data-nosnippet>6</a></span><span class="kw">use crate</span>::{<a href="../../../../../devela/all/trait.Display.html">Display</a>, <a href="../../../libs/base_core/src/text/fmt/reexports.rs.html#95">FmtResult</a>, <a href="../../../../../devela/all/struct.Formatter.html">Formatter</a>, <a href="../../../../../devela/all/trait.FromStr.html">FromStr</a>};
 <a href=#7 id=7 data-nosnippet>7</a><span class="attr">#[allow(clippy::enum_glob_use)]
 <a href=#8 id=8 data-nosnippet>8</a></span><span class="kw">use </span><a href="#15-28">Month</a>::<span class="kw-2">*</span>;
 <a href=#9 id=9 data-nosnippet>9</a>
@@ -254,7 +274,7 @@
 <a href=#145 id=145 data-nosnippet>145</a>            <span class="number">9 </span>=&gt; <a href="#25">October</a>,
 <a href=#146 id=146 data-nosnippet>146</a>            <span class="number">10 </span>=&gt; <a href="#26">November</a>,
 <a href=#147 id=147 data-nosnippet>147</a>            <span class="number">11 </span>=&gt; <a href="#27">December</a>,
-<a href=#148 id=148 data-nosnippet>148</a>            <span class="kw">_ </span>=&gt; <a class="macro" href="../../../../../devela/_dep/_std/macro.panic.html">panic!</a>(<span class="string">"The month index must be between 0 and 11."</span>),
+<a href=#148 id=148 data-nosnippet>148</a>            <span class="kw">_ </span>=&gt; <a class="macro" href="https://doc.rust-lang.org/nightly/std/macro.panic.html">panic!</a>(<span class="string">"The month index must be between 0 and 11."</span>),
 <a href=#149 id=149 data-nosnippet>149</a>        }
 <a href=#150 id=150 data-nosnippet>150</a>    }
 <a href=#151 id=151 data-nosnippet>151</a>}
@@ -487,7 +507,7 @@
 <a href=#378 id=378 data-nosnippet>378</a>}
 <a href=#379 id=379 data-nosnippet>379</a>
 <a href=#380 id=380 data-nosnippet>380</a><span class="kw">impl </span><a href="../../../../../devela/all/trait.Display.html">Display</a> <span class="kw">for </span><a href="#15-28">Month</a> {
-<a href=#381 id=381 data-nosnippet>381</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../libs/base/src/text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
+<a href=#381 id=381 data-nosnippet>381</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../libs/base_core/src/text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
 <a href=#382 id=382 data-nosnippet>382</a>        <a href="#381">f</a>.<a href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html#method.write_str">write_str</a>(<span class="kw">match </span><span class="self"><a href="#381">self</a> </span>{
 <a href=#383 id=383 data-nosnippet>383</a>            <a href="#16">January</a> =&gt; <span class="string">"January"</span>,
 <a href=#384 id=384 data-nosnippet>384</a>            <a href="#17">February</a> =&gt; <span class="string">"February"</span>,

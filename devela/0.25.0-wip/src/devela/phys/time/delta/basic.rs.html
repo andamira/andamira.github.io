@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/phys/time/delta/basic.rs`."><title>basic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/phys/time/delta/basic.rs`."><title>basic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -145,7 +165,7 @@
 <a href=#36 id=36 data-nosnippet>36</a>            </span><span class="kw">let </span>addsecs = <a href="#32">nanos</a> / <a href="mod.rs.html#28">NANOS_PER_SEC</a>;
 <a href=#37 id=37 data-nosnippet>37</a>            <a href="#32">secs</a> = <span class="kw">match </span><a href="#32">secs</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.num.html#method.checked_add">checked_add</a>(<a href="#36">addsecs</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>) {
 <a href=#38 id=38 data-nosnippet>38</a>                <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(secs) =&gt; <a href="#38">secs</a>,
-<a href=#39 id=39 data-nosnippet>39</a>                <a class="prelude-val" href="../../../../../devela/all/enum.Option.html"><a href="../../../../../devela/all/enum.Option.html">None</a> </a>=&gt; <a class="macro" href="../../../../../devela/_dep/_std/macro.panic.html">panic!</a>(<span class="string">"nanoseconds overflowed seconds in TimeDelta::new"</span>),
+<a href=#39 id=39 data-nosnippet>39</a>                <a class="prelude-val" href="../../../../../devela/all/enum.Option.html"><a href="../../../../../devela/all/enum.Option.html">None</a> </a>=&gt; <a class="macro" href="https://doc.rust-lang.org/nightly/std/macro.panic.html">panic!</a>(<span class="string">"nanoseconds overflowed seconds in TimeDelta::new"</span>),
 <a href=#40 id=40 data-nosnippet>40</a>            };
 <a href=#41 id=41 data-nosnippet>41</a>            <span class="comment">// Never wraps or panics because NANOS_PER_SEC!={0,-1}.
 <a href=#42 id=42 data-nosnippet>42</a>            </span><a href="#32">nanos</a> %= <a href="mod.rs.html#28">NANOS_PER_SEC</a>;
@@ -258,11 +278,11 @@
 <a href=#149 id=149 data-nosnippet>149</a>        </span><span class="kw">const </span>MAX_HOUR: <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a> = i64::MAX / (<a href="mod.rs.html#33">SECS_PER_MINUTE</a> * <a href="mod.rs.html#34">MINS_PER_HOUR</a>);
 <a href=#150 id=150 data-nosnippet>150</a>        <span class="comment">// OK because (SECS_PER_MINUTE*MINS_PER_HOUR)!={-1,0}.
 <a href=#151 id=151 data-nosnippet>151</a>        </span><span class="kw">if </span><a href="#145">hours</a> &lt; <a href="#147">MIN_HOUR</a> {
-<a href=#152 id=152 data-nosnippet>152</a>            <a class="macro" href="../../../../../devela/_dep/_std/macro.panic.html">panic!</a>(<span class="string">"hours overflowed minimum number of TimeDelta seconds"</span>)
+<a href=#152 id=152 data-nosnippet>152</a>            <a class="macro" href="https://doc.rust-lang.org/nightly/std/macro.panic.html">panic!</a>(<span class="string">"hours overflowed minimum number of TimeDelta seconds"</span>)
 <a href=#153 id=153 data-nosnippet>153</a>        }
 <a href=#154 id=154 data-nosnippet>154</a>        <span class="comment">// OK because (SECS_PER_MINUTE*MINS_PER_HOUR)!={-1,0}.
 <a href=#155 id=155 data-nosnippet>155</a>        </span><span class="kw">if </span><a href="#145">hours</a> &gt; <a href="#149">MAX_HOUR</a> {
-<a href=#156 id=156 data-nosnippet>156</a>            <a class="macro" href="../../../../../devela/_dep/_std/macro.panic.html">panic!</a>(<span class="string">"hours overflowed maximum number of TimeDelta seconds"</span>)
+<a href=#156 id=156 data-nosnippet>156</a>            <a class="macro" href="https://doc.rust-lang.org/nightly/std/macro.panic.html">panic!</a>(<span class="string">"hours overflowed maximum number of TimeDelta seconds"</span>)
 <a href=#157 id=157 data-nosnippet>157</a>        }
 <a href=#158 id=158 data-nosnippet>158</a>        <a href="#91-93">TimeDelta::from_secs</a>(<a href="#145">hours</a> * <a href="mod.rs.html#34">MINS_PER_HOUR</a> * <a href="mod.rs.html#33">SECS_PER_MINUTE</a>)
 <a href=#159 id=159 data-nosnippet>159</a>    }
@@ -280,11 +300,11 @@
 <a href=#171 id=171 data-nosnippet>171</a>        </span><span class="kw">const </span>MAX_MINUTE: <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a> = i64::MAX / <a href="mod.rs.html#33">SECS_PER_MINUTE</a>;
 <a href=#172 id=172 data-nosnippet>172</a>        <span class="comment">// OK because SECS_PER_MINUTE!={-1,0}.
 <a href=#173 id=173 data-nosnippet>173</a>        </span><span class="kw">if </span><a href="#167">minutes</a> &lt; <a href="#169">MIN_MINUTE</a> {
-<a href=#174 id=174 data-nosnippet>174</a>            <a class="macro" href="../../../../../devela/_dep/_std/macro.panic.html">panic!</a>(<span class="string">"minutes overflowed minimum number of TimeDelta seconds"</span>)
+<a href=#174 id=174 data-nosnippet>174</a>            <a class="macro" href="https://doc.rust-lang.org/nightly/std/macro.panic.html">panic!</a>(<span class="string">"minutes overflowed minimum number of TimeDelta seconds"</span>)
 <a href=#175 id=175 data-nosnippet>175</a>        }
 <a href=#176 id=176 data-nosnippet>176</a>        <span class="comment">// OK because SECS_PER_MINUTE!={-1,0}.
 <a href=#177 id=177 data-nosnippet>177</a>        </span><span class="kw">if </span><a href="#167">minutes</a> &gt; <a href="#171">MAX_MINUTE</a> {
-<a href=#178 id=178 data-nosnippet>178</a>            <a class="macro" href="../../../../../devela/_dep/_std/macro.panic.html">panic!</a>(<span class="string">"minutes overflowed maximum number of TimeDelta seconds"</span>)
+<a href=#178 id=178 data-nosnippet>178</a>            <a class="macro" href="https://doc.rust-lang.org/nightly/std/macro.panic.html">panic!</a>(<span class="string">"minutes overflowed maximum number of TimeDelta seconds"</span>)
 <a href=#179 id=179 data-nosnippet>179</a>        }
 <a href=#180 id=180 data-nosnippet>180</a>        <a href="#91-93">TimeDelta::from_secs</a>(<a href="#167">minutes</a> * <a href="mod.rs.html#33">SECS_PER_MINUTE</a>)
 <a href=#181 id=181 data-nosnippet>181</a>    }
@@ -469,7 +489,7 @@
 <a href=#360 id=360 data-nosnippet>360</a>
 <a href=#361 id=361 data-nosnippet>361</a><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 <a href=#362 id=362 data-nosnippet>362</a></span><span class="kw">mod </span>impl_system_instant {
-<a href=#363 id=363 data-nosnippet>363</a>    <span class="kw">use crate</span>::{<a href="../../../../../devela/all/trait.Add.html">Add</a>, <a href="../../../../../devela/all/struct.Duration.html">Duration</a>, <a href="../../../../../devela/all/trait.Sub.html">Sub</a>, <a href="../../../../../devela/all/struct.SystemInstant.html">SystemInstant</a>, <a href="mod.rs.html#23-26">TimeDelta</a>, <a href="../../../code/result/opt_res/unwrap.rs.html#37-331">unwrap</a>};
+<a href=#363 id=363 data-nosnippet>363</a>    <span class="kw">use crate</span>::{<a href="../../../../../devela/all/trait.Add.html">Add</a>, <a href="../../../../../devela/all/struct.Duration.html">Duration</a>, <a href="../../../../../devela/all/trait.Sub.html">Sub</a>, <a href="../../../../../devela/all/struct.SystemInstant.html">SystemInstant</a>, <a href="mod.rs.html#23-26">TimeDelta</a>, <a href="../../../../../devela/all/macro.unwrap.html">unwrap</a>};
 <a href=#364 id=364 data-nosnippet>364</a>
 <a href=#365 id=365 data-nosnippet>365</a>    <span class="doccomment">/// Additional APIs involving `SystemInstant`.
 <a href=#366 id=366 data-nosnippet>366</a>    </span><span class="kw">impl </span><a href="mod.rs.html#23-26">TimeDelta</a> {
@@ -492,8 +512,8 @@
 <a href=#383 id=383 data-nosnippet>383</a>            <span class="kw">if </span><a class="self" href="#382">self</a>.<a href="#356">is_positive</a>() {
 <a href=#384 id=384 data-nosnippet>384</a>                <a href="#382">instant</a>.<a href="https://doc.rust-lang.org/nightly/std/time/struct.Instant.html#method.checked_add">checked_add</a>(<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.new">Duration::new</a>(<a class="self" href="#382">self</a>.secs <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a class="self" href="#382">self</a>.nanos <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>))
 <a href=#385 id=385 data-nosnippet>385</a>            } <span class="kw">else </span>{
-<a href=#386 id=386 data-nosnippet>386</a>                <span class="kw">let </span>secs = <a class="macro" href="../../../code/result/opt_res/unwrap.rs.html#37-331">unwrap!</a>[some<span class="question-mark">? </span><span class="self">self</span>.secs.checked_neg()] <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>;
-<a href=#387 id=387 data-nosnippet>387</a>                <span class="kw">let </span>nanos = <a class="macro" href="../../../code/result/opt_res/unwrap.rs.html#37-331">unwrap!</a>[some<span class="question-mark">? </span><span class="self">self</span>.nanos.checked_neg()] <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
+<a href=#386 id=386 data-nosnippet>386</a>                <span class="kw">let </span>secs = <a class="macro" href="../../../../../devela/all/macro.unwrap.html">unwrap!</a>[some<span class="question-mark">? </span><span class="self">self</span>.secs.checked_neg()] <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>;
+<a href=#387 id=387 data-nosnippet>387</a>                <span class="kw">let </span>nanos = <a class="macro" href="../../../../../devela/all/macro.unwrap.html">unwrap!</a>[some<span class="question-mark">? </span><span class="self">self</span>.nanos.checked_neg()] <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
 <a href=#388 id=388 data-nosnippet>388</a>                <a href="#382">instant</a>.<a href="https://doc.rust-lang.org/nightly/std/time/struct.Instant.html#method.checked_sub">checked_sub</a>(<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.new">Duration::new</a>(<a href="#386">secs</a>, <a href="#387">nanos</a>))
 <a href=#389 id=389 data-nosnippet>389</a>            }
 <a href=#390 id=390 data-nosnippet>390</a>        }

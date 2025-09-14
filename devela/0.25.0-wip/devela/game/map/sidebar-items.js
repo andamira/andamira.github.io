@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {};
+window.SIDEBAR_ITEMS = {"enum":["CubeMapFace","SquareDirection","WrapBehavior"],"fn":["clamp_wrap","wrap_around"],"struct":["Tilemap"],"type":["WrapFn"]};

@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🌐 Extension trait providing additional methods for `Thread`s."><title>ExtThread in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🌐 Extension trait providing additional methods for `Thread`s."><title>ExtThread in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -128,28 +148,28 @@
 Extension trait providing additional methods for <a href="struct.Thread.html" title="struct devela::all::Thread"><code>Thread</code></a>s.</p>
 <p>It offers the standalone functions in <code>std::thread</code> as associated methods.</p>
 </div></details><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.current" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#27">Source</a><h4 class="code-header">fn <a href="#method.current" class="fn">current</a>() -&gt; <a class="struct" href="struct.Thread.html" title="struct devela::all::Thread">Thread</a> <a href="#" class="tooltip" data-notable-ty="Thread">ⓘ</a></h4></section></summary><div class="docblock"><p>Gets a handle to the thread that invokes it.</p>
-<p>See <code>std::thread::</code><a href="../_dep/_std/thread/fn.current.html" title="fn devela::_dep::_std::thread::current">current</a>.</p>
+<p>See <code>std::thread::</code><a href="https://doc.rust-lang.org/nightly/std/thread/current/fn.current.html" title="fn std::thread::current::current">current</a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.panicking" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#33">Source</a><h4 class="code-header">fn <a href="#method.panicking" class="fn">panicking</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Determines whether the current thread is unwinding because of panic.</p>
-<p>See <code>std::thread::</code><a href="../_dep/_std/thread/fn.panicking.html" title="fn devela::_dep::_std::thread::panicking">panicking</a>.</p>
+<p>See <code>std::thread::</code><a href="https://doc.rust-lang.org/nightly/std/thread/fn.panicking.html" title="fn std::thread::panicking">panicking</a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.available_parallelism" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#38-40">Source</a><h4 class="code-header">fn <a href="#method.available_parallelism" class="fn">available_parallelism</a>() -&gt; <a class="enum" href="enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a class="struct" href="struct.IoError.html" title="struct devela::all::IoError">IoError</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;usize, IoError&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns an estimate of the default amount of parallelism a program should use.</p>
-<p>See <code>std::thread::</code><a href="../_dep/_std/thread/fn.available_parallelism.html" title="fn devela::_dep::_std::thread::available_parallelism">available_parallelism</a>.</p>
+<p>See <code>std::thread::</code><a href="https://doc.rust-lang.org/nightly/std/thread/fn.available_parallelism.html" title="fn std::thread::available_parallelism">available_parallelism</a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.park" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#45">Source</a><h4 class="code-header">fn <a href="#method.park" class="fn">park</a>()</h4></section></summary><div class="docblock"><p>Blocks unless or until the current thread’s token is made available.</p>
-<p>See <code>std::thread::</code><a href="../_dep/_std/thread/fn.park.html" title="fn devela::_dep::_std::thread::park">park</a>.</p>
+<p>See <code>std::thread::</code><a href="https://doc.rust-lang.org/nightly/std/thread/fn.park.html" title="fn std::thread::park">park</a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.park_timeout" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#51">Source</a><h4 class="code-header">fn <a href="#method.park_timeout" class="fn">park_timeout</a>(duration: <a class="struct" href="struct.Duration.html" title="struct devela::all::Duration">Duration</a>)</h4></section></summary><div class="docblock"><p>Blocks unless or until the current thread’s token is made available
 or the specified duration has been reached (may wake spuriously).</p>
-<p>See <code>std::thread::</code><a href="../_dep/_std/thread/fn.park_timeout.html" title="fn devela::_dep::_std::thread::park_timeout">park_timeout</a>.</p>
+<p>See <code>std::thread::</code><a href="https://doc.rust-lang.org/nightly/std/thread/fn.park_timeout.html" title="fn std::thread::park_timeout">park_timeout</a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.scope" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#56-57">Source</a><h4 class="code-header">fn <a href="#method.scope" class="fn">scope</a>&lt;'env, F, T&gt;(f: F) -&gt; T<div class="where">where
     F: for&lt;'scope&gt; <a class="trait" href="trait.FnOnce.html" title="trait devela::all::FnOnce">FnOnce</a>(&amp;'scope <a class="struct" href="struct.ThreadScope.html" title="struct devela::all::ThreadScope">ThreadScope</a>&lt;'scope, 'env&gt;) -&gt; T,</div></h4></section></summary><div class="docblock"><p>Create a scope for spawning scoped threads.</p>
-<p>See <code>std::thread::</code><a href="../_dep/_std/thread/fn.scope.html" title="fn devela::_dep::_std::thread::scope">scope</a>.</p>
+<p>See <code>std::thread::</code><a href="https://doc.rust-lang.org/nightly/std/thread/scoped/fn.scope.html" title="fn std::thread::scoped::scope">scope</a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.sleep" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#62">Source</a><h4 class="code-header">fn <a href="#method.sleep" class="fn">sleep</a>(duration: <a class="struct" href="struct.Duration.html" title="struct devela::all::Duration">Duration</a>)</h4></section></summary><div class="docblock"><p>Puts the current thread to sleep for at least the specified amount of time.</p>
-<p>See <code>std::thread::</code><a href="../_dep/_std/thread/fn.sleep.html" title="fn devela::_dep::_std::thread::sleep">sleep</a>.</p>
+<p>See <code>std::thread::</code><a href="https://doc.rust-lang.org/nightly/std/thread/fn.sleep.html" title="fn std::thread::sleep">sleep</a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.sleep_ms" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#65">Source</a><h4 class="code-header">fn <a href="#method.sleep_ms" class="fn">sleep_ms</a>(milliseconds: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>)</h4></section></summary><div class="docblock"><p>Puts the current thread to sleep for at least the specified amount of <code>milliseconds</code>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.sleep_us" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#68">Source</a><h4 class="code-header">fn <a href="#method.sleep_us" class="fn">sleep_us</a>(microseconds: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>)</h4></section></summary><div class="docblock"><p>Puts the current thread to sleep for at least the specified amount of <code>nanoseconds</code>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.sleep_ns" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#71">Source</a><h4 class="code-header">fn <a href="#method.sleep_ns" class="fn">sleep_ns</a>(nanoseconds: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>)</h4></section></summary><div class="docblock"><p>Puts the current thread to sleep for at least the specified amount of <code>nanoseconds</code>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.spawn" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#76-77">Source</a><h4 class="code-header">fn <a href="#method.spawn" class="fn">spawn</a>&lt;F, T&gt;(f: F) -&gt; <a class="struct" href="struct.ThreadJoinHandle.html" title="struct devela::all::ThreadJoinHandle">ThreadJoinHandle</a>&lt;T&gt;<div class="where">where
     F: <a class="trait" href="trait.FnOnce.html" title="trait devela::all::FnOnce">FnOnce</a>() -&gt; T + <a class="trait" href="trait.Send.html" title="trait devela::all::Send">Send</a> + 'static,
     T: <a class="trait" href="trait.Send.html" title="trait devela::all::Send">Send</a> + 'static,</div></h4></section></summary><div class="docblock"><p>Spawns a new thread, returning a <a href="struct.ThreadJoinHandle.html" title="struct devela::all::ThreadJoinHandle"><code>ThreadJoinHandle</code></a> for it.</p>
-<p>See <code>std::thread::</code><a href="../_dep/_std/thread/fn.spawn.html" title="fn devela::_dep::_std::thread::spawn">spawn</a>.</p>
+<p>See <code>std::thread::</code><a href="https://doc.rust-lang.org/nightly/std/thread/fn.spawn.html" title="fn std::thread::spawn">spawn</a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.yield_now" class="method"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#82">Source</a><h4 class="code-header">fn <a href="#method.yield_now" class="fn">yield_now</a>()</h4></section></summary><div class="docblock"><p>Cooperatively gives up a timeslice to the OS scheduler.</p>
-<p>See <code>std::thread::</code><a href="../_dep/_std/thread/fn.yield_now.html" title="fn devela::_dep::_std::thread::yield_now">yield_now</a>.</p>
+<p>See <code>std::thread::</code><a href="https://doc.rust-lang.org/nightly/std/thread/fn.yield_now.html" title="fn std::thread::yield_now">yield_now</a>.</p>
 </div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-ExtThread-for-Thread" class="impl"><a class="src rightside" href="../../src/devela/work/thread/ext.rs.html#84">Source</a><a href="#impl-ExtThread-for-Thread" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.ExtThread.html" title="trait devela::all::ExtThread">ExtThread</a> for <a class="struct" href="struct.Thread.html" title="struct devela::all::Thread">Thread</a></h3></section></div><script src="../../trait.impl/devela/work/thread/ext/trait.ExtThread.js" data-ignore-extern-crates="std" async></script><script type="text/json" id="notable-traits-data">{"Result<usize, IoError>":"<h3>Notable traits for <code><a class=\"enum\" href=\"enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>","Thread":"<h3>Notable traits for <code><a class=\"struct\" href=\"struct.Thread.html\" title=\"struct devela::all::Thread\">Thread</a></code></h3><pre><code><div class=\"where\">impl <a class=\"trait\" href=\"trait.ExtThread.html\" title=\"trait devela::all::ExtThread\">ExtThread</a> for <a class=\"struct\" href=\"struct.Thread.html\" title=\"struct devela::all::Thread\">Thread</a></div>"}</script></section></div></main></body></html>

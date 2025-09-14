@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CollectionAllocErr"],"mod":["string","vec"],"struct":["String","Vec"],"trait":["CollectIn","FromIteratorIn"]};

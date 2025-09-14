@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CompareOp"],"struct":["PyClassGuard","PyClassGuardMap","PyClassGuardMut","PyTraverseError","PyVisit"],"trait":["PyClass"]};

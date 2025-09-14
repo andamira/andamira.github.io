@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Abstractions for encoding and decoding data. codec::{hash} "><title>devela::data::codec - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Abstractions for encoding and decoding data. codec::{hash} "><title>devela::data::codec - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -110,7 +130,7 @@
 </head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module codec</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module codec</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#determinism--side-effects" title="Determinism &#38; Side Effects">Determinism &amp; Side Effects</a></li><li><a href="#example" title="Example">Example</a></li></ul><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>data</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">data</a></div><h1>Module <span>codec</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/data/codec/mod.rs.html#3-62">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Abstractions for encoding and decoding data.
 <br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::data::codec">codec</a>::{<a href="hash/index.html" title="mod devela::data::codec::hash">hash</a>}</span>
 <br/><br style='display:block;content:"";margin-top:10px;' /></p>
-<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="../../_dep/_std/hash/index.html" title="mod devela::_dep::_std::hash">hash</a>}</span><hr/></p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="https://doc.rust-lang.org/nightly/std/hash/index.html" title="mod std::hash">hash</a>}</span><hr/></p>
 <h3 id="determinism--side-effects"><a class="doc-anchor" href="#determinism--side-effects">§</a>Determinism &amp; Side Effects</h3>
 <p>Encoding and decoding should be <strong>deterministic</strong>.
 Implementations should avoid introducing side effects where possible.</p>
@@ -138,14 +158,14 @@ Encodes and decodes a length prefixed value
 (<abbr title = "Type-Length-Value"><a href="https://en.wikipedia.org/wiki/Type%E2%80%93length%E2%80%93value">TLV</a></abbr>).</dd><dt><a class="struct" href="struct.Crockford.html" title="struct devela::data::codec::Crockford">Crockford</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
 The <code>Crockford</code> <a href="../../all/type.Base32.html" title="type devela::all::Base32"><code>Base32</code></a> encoding, case-insensitive, remaps certain characters.</dd><dt><a class="struct" href="struct.Rfc4648.html" title="struct devela::data::codec::Rfc4648">Rfc4648</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
 The <code>RFC 4648</code> standard encoding, used in <a href="../../all/type.Base16.html" title="type devela::all::Base16"><code>Base16</code></a>, <a href="../../all/type.Base32.html" title="type devela::all::Base32"><code>Base32</code></a>, and <a href="../../all/type.Base64.html" title="type devela::all::Base64"><code>Base64</code></a>.</dd><dt><a class="struct" href="struct.Rfc4648Hex.html" title="struct devela::data::codec::Rfc4648Hex">Rfc4648<wbr>Hex</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
-The <code>RFC 4648</code> hexadecimal-variant encoding, used in <a href="../../all/type.Base32.html" title="type devela::all::Base32"><code>Base32</code></a>.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.CompressionMode.html" title="enum devela::data::codec::CompressionMode">Compression<wbr>Mode</a></dt><dd>The type of compression applied to data.</dd><dt><a class="enum" href="enum.EncodingMode.html" title="enum devela::data::codec::EncodingMode">Encoding<wbr>Mode</a></dt><dd>The primary mode for data encoding.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Decodable.html" title="trait devela::data::codec::Decodable">Decodable</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
+The <code>RFC 4648</code> hexadecimal-variant encoding, used in <a href="../../all/type.Base32.html" title="type devela::all::Base32"><code>Base32</code></a>.</dd><dt><a class="struct" href="struct.Separator.html" title="struct devela::data::codec::Separator">Separator</a></dt></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.CompressionMode.html" title="enum devela::data::codec::CompressionMode">Compression<wbr>Mode</a></dt><dd>The type of compression applied to data.</dd><dt><a class="enum" href="enum.EncodingMode.html" title="enum devela::data::codec::EncodingMode">Encoding<wbr>Mode</a></dt><dd>The primary mode for data encoding.</dd><dt><a class="enum" href="enum.Token.html" title="enum devela::data::codec::Token">Token</a></dt><dd>An enumeration of the USV data structures.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Decodable.html" title="trait devela::data::codec::Decodable">Decodable</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
 A type that can be decoded from an I/O reader.</dd><dt><a class="trait" href="trait.Encodable.html" title="trait devela::data::codec::Encodable">Encodable</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
 A type that can be encoded into an I/O writer.</dd><dt><a class="trait" href="trait.EncodableLen.html" title="trait devela::data::codec::EncodableLen">Encodable<wbr>Len</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
-A type that can compute the size of its encoded form without actual encoding.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.Base16.html" title="type devela::data::codec::Base16">Base16</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
+A type that can compute the size of its encoded form without actual encoding.</dd><dt><a class="trait" href="trait.StrExt.html" title="trait devela::data::codec::StrExt">StrExt</a></dt></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.Base16.html" title="type devela::data::codec::Base16">Base16</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
 <code>Base16</code> standard encoding (hex), with linear search. Case-insensitive.</dd><dt><a class="type" href="type.Base32.html" title="type devela::data::codec::Base32">Base32</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
 <code>Base32</code> standard encoding, using LUT decoding. Case-sensitive.</dd><dt><a class="type" href="type.Base64.html" title="type devela::data::codec::Base64">Base64</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
 <code>Base64</code> standard encoding, using LUT decoding. Case-sensitive.</dd><dt><a class="type" href="type.Base32Crockford.html" title="type devela::data::codec::Base32Crockford">Base32<wbr>Crockford</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
 <code>Base32</code> <code>Crockford</code> encoding. Case-insensitive, remaps <code>O → 0</code>, <code>I/L → 1</code>.</dd><dt><a class="type" href="type.Base32Hex.html" title="type devela::data::codec::Base32Hex">Base32<wbr>Hex</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
 <code>Base32Hex</code> uses RFC 4648 hex-encoding (<code>0-9 A-V</code> instead of <code>A-Z 2-7</code>).</dd><dt><a class="type" href="type.Base32Padded.html" title="type devela::data::codec::Base32Padded">Base32<wbr>Padded</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
 <code>Base32</code> encoding with padding (<code>=</code>) enabled, using LUT decoding.</dd><dt><a class="type" href="type.Base64Padded.html" title="type devela::data::codec::Base64Padded">Base64<wbr>Padded</a></dt><dd><span class='stab portability' title='Codec-related-related item'>🥡</span>
-<code>Base64</code> encoding with padding (<code>=</code>) enabled, using LUT decoding.</dd></dl></section></div></main></body></html>
+<code>Base64</code> encoding with padding (<code>=</code>) enabled, using LUT decoding.</dd><dt><a class="type" href="type.File.html" title="type devela::data::codec::File">File</a></dt><dt><a class="type" href="type.Files.html" title="type devela::data::codec::Files">Files</a></dt><dt><a class="type" href="type.Group.html" title="type devela::data::codec::Group">Group</a></dt><dt><a class="type" href="type.Groups.html" title="type devela::data::codec::Groups">Groups</a></dt><dt><a class="type" href="type.Record.html" title="type devela::data::codec::Record">Record</a></dt><dt><a class="type" href="type.Records.html" title="type devela::data::codec::Records">Records</a></dt><dt><a class="type" href="type.Tokens.html" title="type devela::data::codec::Tokens">Tokens</a></dt><dt><a class="type" href="type.Unit.html" title="type devela::data::codec::Unit">Unit</a></dt><dt><a class="type" href="type.Units.html" title="type devela::data::codec::Units">Units</a></dt></dl></section></div></main></body></html>

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["borrow","flag","packet","side_data","traits"],"struct":["Borrow","Flags","Packet","SideData"],"trait":["Mut","Ref"]};

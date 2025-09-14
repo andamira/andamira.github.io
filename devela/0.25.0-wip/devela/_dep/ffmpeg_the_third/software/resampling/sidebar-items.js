@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Dither","Engine","Filter"],"fn":["configuration","license","version"],"mod":["context","delay","dither","engine","filter","flag"],"struct":["Context","Delay","Flags"]};

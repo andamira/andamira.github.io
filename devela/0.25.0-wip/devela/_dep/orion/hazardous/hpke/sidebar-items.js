@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Role"],"struct":["DHKEM_X25519_SHA256_CHACHA20","ModeAuth","ModeAuthPsk","ModeBase","ModePsk"]};

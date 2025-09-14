@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🗃️ An abstract stack data type."><title>DataStack in devela::data::list::stack - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🗃️ An abstract stack data type."><title>DataStack in devela::data::list::stack - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -125,4 +145,4 @@ An abstract <em>stack</em> data type.</p>
     &amp;mut self,
     element: &lt;Self as <a class="trait" href="../../trait.DataCollection.html" title="trait devela::data::DataCollection">DataCollection</a>&gt;::<a class="associatedtype" href="../../trait.DataCollection.html#associatedtype.Element" title="type devela::data::DataCollection::Element">Element</a>,
 ) -&gt; <a class="enum" href="../../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../../all/struct.NotEnoughSpace.html" title="struct devela::all::NotEnoughSpace">NotEnoughSpace</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), NotEnoughSpace&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Add an element to the (back of the) stack.</p>
-</div></details></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-DataStack-for-VecDeque%3CT%3E" class="impl"><a class="src rightside" href="../../../../src/devela/data/list/stack/adt.rs.html#55-62">Source</a><a href="#impl-DataStack-for-VecDeque%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="../../../all/trait.DataStack.html" title="trait devela::all::DataStack">DataStack</a> for <a class="struct" href="../../../all/struct.VecDeque.html" title="struct devela::all::VecDeque">VecDeque</a>&lt;T&gt;</h3></section><section id="impl-DataStack-for-Destaque%3CT,+CAP,+u8,+S%3E" class="impl"><a class="src rightside" href="../../../../src/devela/data/list/queue/destaque/impl_traits.rs.html#279">Source</a><a href="#impl-DataStack-for-Destaque%3CT,+CAP,+u8,+S%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T, const CAP: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, S: <a class="trait" href="../../../all/trait.Storage.html" title="trait devela::all::Storage">Storage</a>&gt; <a class="trait" href="../../../all/trait.DataStack.html" title="trait devela::all::DataStack">DataStack</a> for <a class="struct" href="../../../all/struct.Destaque.html" title="struct devela::all::Destaque">Destaque</a>&lt;T, CAP, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, S&gt;</h3></section><section id="impl-DataStack-for-Stack%3CT,+CAP,+u8,+S%3E" class="impl"><a class="src rightside" href="../../../../src/devela/data/list/stack/stack/impl_traits.rs.html#171">Source</a><a href="#impl-DataStack-for-Stack%3CT,+CAP,+u8,+S%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T, const CAP: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, S: <a class="trait" href="../../../all/trait.Storage.html" title="trait devela::all::Storage">Storage</a>&gt; <a class="trait" href="../../../all/trait.DataStack.html" title="trait devela::all::DataStack">DataStack</a> for <a class="struct" href="../../../all/struct.Stack.html" title="struct devela::all::Stack">Stack</a>&lt;T, CAP, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, S&gt;</h3></section></div><script src="../../../../trait.impl/devela/data/list/stack/adt/trait.DataStack.js" data-ignore-extern-crates="alloc" async></script><script type="text/json" id="notable-traits-data">{"Result<(), NotEnoughSpace>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>","Result<<Self as DataCollection>::Element, NotEnoughElements>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>
+</div></details></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-DataStack-for-VecDeque%3CT%3E" class="impl"><a class="src rightside" href="../../../../src/devela/data/list/stack/adt.rs.html#55-62">Source</a><a href="#impl-DataStack-for-VecDeque%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="../../../all/trait.DataStack.html" title="trait devela::all::DataStack">DataStack</a> for <a class="struct" href="../../../all/struct.VecDeque.html" title="struct devela::all::VecDeque">VecDeque</a>&lt;T&gt;</h3></section><section id="impl-DataStack-for-Destaque%3CT,+CAP,+u8,+S%3E" class="impl"><a class="src rightside" href="../../../../src/devela/data/list/queue/destaque/impl_traits.rs.html#279">Source</a><a href="#impl-DataStack-for-Destaque%3CT,+CAP,+u8,+S%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T, const CAP: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, S: <a class="trait" href="../../../all/trait.Storage.html" title="trait devela::all::Storage">Storage</a>&gt; <a class="trait" href="../../../all/trait.DataStack.html" title="trait devela::all::DataStack">DataStack</a> for <a class="struct" href="../../../all/struct.Destaque.html" title="struct devela::all::Destaque">Destaque</a>&lt;T, CAP, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, S&gt;</h3></section><section id="impl-DataStack-for-Stack%3CT,+CAP,+u8,+S%3E" class="impl"><a class="src rightside" href="../../../../src/devela/data/list/stack/stack/impl_traits.rs.html#172">Source</a><a href="#impl-DataStack-for-Stack%3CT,+CAP,+u8,+S%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T, const CAP: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, S: <a class="trait" href="../../../all/trait.Storage.html" title="trait devela::all::Storage">Storage</a>&gt; <a class="trait" href="../../../all/trait.DataStack.html" title="trait devela::all::DataStack">DataStack</a> for <a class="struct" href="../../../all/struct.Stack.html" title="struct devela::all::Stack">Stack</a>&lt;T, CAP, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, S&gt;</h3></section></div><script src="../../../../trait.impl/devela/data/list/stack/adt/trait.DataStack.js" data-ignore-extern-crates="alloc" async></script><script type="text/json" id="notable-traits-data">{"Result<(), NotEnoughSpace>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>","Result<<Self as DataCollection>::Element, NotEnoughElements>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../../all/trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>

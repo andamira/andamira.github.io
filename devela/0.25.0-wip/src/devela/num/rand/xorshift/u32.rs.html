@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/rand/xorshift/u32.rs`."><title>u32.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/num/rand/xorshift/u32.rs`."><title>u32.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -112,7 +132,7 @@
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//! 32-bit version of XorShift.
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
 <a href=#5 id=5 data-nosnippet>5</a>
-<a href=#6 id=6 data-nosnippet>6</a></span><span class="kw">use crate</span>::{<a href="../../../code/default.rs.html#19-22">ConstDefault</a>, <a href="../../../code/result/own/mod.rs.html#111-117">Own</a>, <a href="mod.rs.html#97-111">xorshift_basis</a>};
+<a href=#6 id=6 data-nosnippet>6</a></span><span class="kw">use crate</span>::{<a href="../../../code/default.rs.html#21-24">ConstDefault</a>, <a href="../../../../../devela/all/struct.Own.html">Own</a>, <a href="mod.rs.html#97-111">xorshift_basis</a>};
 <a href=#7 id=7 data-nosnippet>7</a>
 <a href=#8 id=8 data-nosnippet>8</a><span class="attr">#[doc = <span class="macro">crate::TAG_RAND!</span>()]
 <a href=#9 id=9 data-nosnippet>9</a></span><span class="doccomment">/// The `XorShift32` &lt;abbr title="Pseudo-Random Number Generator"&gt;PRNG&lt;/abbr&gt;.
@@ -138,7 +158,7 @@
 <a href=#29 id=29 data-nosnippet>29</a>    }
 <a href=#30 id=30 data-nosnippet>30</a>}
 <a href=#31 id=31 data-nosnippet>31</a><span class="doccomment">/// Creates a new PRNG initialized with the default fixed seed.
-<a href=#32 id=32 data-nosnippet>32</a></span><span class="kw">impl </span><a href="../../../code/default.rs.html#19-22">ConstDefault</a> <span class="kw">for </span><a href="#18-23">XorShift32</a> {
+<a href=#32 id=32 data-nosnippet>32</a></span><span class="kw">impl </span><a href="../../../code/default.rs.html#21-24">ConstDefault</a> <span class="kw">for </span><a href="#18-23">XorShift32</a> {
 <a href=#33 id=33 data-nosnippet>33</a>    <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="#59-62"><span class="self">Self</span>::new_unchecked</a>(<span class="self">Self</span>::DEFAULT_SEED);
 <a href=#34 id=34 data-nosnippet>34</a>}
 <a href=#35 id=35 data-nosnippet>35</a>
@@ -205,10 +225,10 @@
 <a href=#96 id=96 data-nosnippet>96</a>    }
 <a href=#97 id=97 data-nosnippet>97</a>
 <a href=#98 id=98 data-nosnippet>98</a>    <span class="doccomment">/// Returns both the next random state and the `u32` value.
-<a href=#99 id=99 data-nosnippet>99</a>    </span><span class="kw">pub const fn </span>own_next_u32(<span class="self">self</span>) -&gt; <a href="../../../code/result/own/mod.rs.html#111-117">Own</a>&lt;<span class="self">Self</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; {
+<a href=#99 id=99 data-nosnippet>99</a>    </span><span class="kw">pub const fn </span>own_next_u32(<span class="self">self</span>) -&gt; <a href="../../../../../devela/all/struct.Own.html">Own</a>&lt;<span class="self">Self</span>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; {
 <a href=#100 id=100 data-nosnippet>100</a>        <span class="kw">let </span>s = <a class="self" href="#99">self</a>.<a href="#92-96">peek_next_state</a>();
 <a href=#101 id=101 data-nosnippet>101</a>        <span class="kw">let </span>v = <a href="#100">s</a>.<a href="#76-78">current_u32</a>();
-<a href=#102 id=102 data-nosnippet>102</a>        <a href="../../../code/result/own/general.rs.html#21-23">Own::new</a>(<a href="#100">s</a>, <a href="#101">v</a>)
+<a href=#102 id=102 data-nosnippet>102</a>        Own::new(<a href="#100">s</a>, <a href="#101">v</a>)
 <a href=#103 id=103 data-nosnippet>103</a>    }
 <a href=#104 id=104 data-nosnippet>104</a>}
 <a href=#105 id=105 data-nosnippet>105</a>
@@ -241,10 +261,10 @@
 <a href=#132 id=132 data-nosnippet>132</a><span class="attr">#[cfg(feature = <span class="string">"dep_rand_core"</span>)]
 <a href=#133 id=133 data-nosnippet>133</a>#[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"dep_rand_core"</span>)))]
 <a href=#134 id=134 data-nosnippet>134</a></span><span class="kw">mod </span>impl_rand {
-<a href=#135 id=135 data-nosnippet>135</a>    <span class="kw">use </span><span class="kw">crate</span>::_dep::rand_core::{<a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a>, <a href="../../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a>};
+<a href=#135 id=135 data-nosnippet>135</a>    <span class="kw">use </span><span class="kw">crate</span>::_dep::rand_core::{<a href="https://rust-random.github.io/rand/rand_core/trait.RngCore.html">RngCore</a>, <a href="https://rust-random.github.io/rand/rand_core/trait.SeedableRng.html">SeedableRng</a>};
 <a href=#136 id=136 data-nosnippet>136</a>    <span class="kw">use crate</span>::{<a href="../../../../../devela/num/struct.Cast.html">Cast</a>, <a href="#18-23">XorShift32</a>};
 <a href=#137 id=137 data-nosnippet>137</a>
-<a href=#138 id=138 data-nosnippet>138</a>    <span class="kw">impl</span>&lt;<span class="kw">const </span>BASIS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>A: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>B: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>C: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../../devela/_dep/rand_core/trait.RngCore.html">RngCore</a>
+<a href=#138 id=138 data-nosnippet>138</a>    <span class="kw">impl</span>&lt;<span class="kw">const </span>BASIS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>A: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>B: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>C: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="https://rust-random.github.io/rand/rand_core/trait.RngCore.html">RngCore</a>
 <a href=#139 id=139 data-nosnippet>139</a>        <span class="kw">for </span><a href="#18-23">XorShift32</a>&lt;<a href="#138">BASIS</a>, <a href="#138">A</a>, <a href="#138">B</a>, <a href="#138">C</a>&gt;
 <a href=#140 id=140 data-nosnippet>140</a>    {
 <a href=#141 id=141 data-nosnippet>141</a>        <span class="doccomment">/// Returns the next random `u32`.
@@ -275,7 +295,7 @@
 <a href=#166 id=166 data-nosnippet>166</a>        }
 <a href=#167 id=167 data-nosnippet>167</a>    }
 <a href=#168 id=168 data-nosnippet>168</a>
-<a href=#169 id=169 data-nosnippet>169</a>    <span class="kw">impl</span>&lt;<span class="kw">const </span>BASIS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>A: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>B: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>C: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../../devela/_dep/rand_core/trait.SeedableRng.html">SeedableRng</a>
+<a href=#169 id=169 data-nosnippet>169</a>    <span class="kw">impl</span>&lt;<span class="kw">const </span>BASIS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>A: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>B: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <span class="kw">const </span>C: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="https://rust-random.github.io/rand/rand_core/trait.SeedableRng.html">SeedableRng</a>
 <a href=#170 id=170 data-nosnippet>170</a>        <span class="kw">for </span><a href="#18-23">XorShift32</a>&lt;<a href="#169">BASIS</a>, <a href="#169">A</a>, <a href="#169">B</a>, <a href="#169">C</a>&gt;
 <a href=#171 id=171 data-nosnippet>171</a>    {
 <a href=#172 id=172 data-nosnippet>172</a>        <span class="kw">type </span>Seed = [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">4</span>];

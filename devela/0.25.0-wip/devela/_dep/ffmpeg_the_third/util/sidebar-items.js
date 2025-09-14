@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["configuration","license","version"],"mod":["channel_layout","chroma","color","dictionary","error","format","frame","interrupt","log","mathematics","media","option","picture","rational","time"]};

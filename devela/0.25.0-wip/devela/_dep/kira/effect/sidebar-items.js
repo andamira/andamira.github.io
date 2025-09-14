@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["compressor","delay","distortion","eq_filter","filter","panning_control","reverb","volume_control"],"trait":["Effect","EffectBuilder"]};

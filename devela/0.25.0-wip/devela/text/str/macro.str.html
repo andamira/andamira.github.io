@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="𝐓 `&#38;str` compile-time operations, namespaced from the const-str crate."><title>str in devela::text::str - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="𝐓 `&#38;str` compile-time operations, namespaced from the const-str crate."><title>str in devela::text::str - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -140,7 +160,7 @@
     (squish $($t:tt)*) =&gt; { ... };
     (unwrap $($t:tt)*) =&gt; { ... };
 }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Text-related type'>𝐓</span>
-<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> compile-time operations, namespaced from the <a href="../../_dep/const_str/index.html" title="mod devela::_dep::const_str">const-str</a> crate.</p>
+<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> compile-time operations, namespaced from the [const-str][::const_str] crate.</p>
 <ul>
 <li>The name of each operation links to the official macro documentation.</li>
 <li>Each operation is prefixed to document their const-compatibility:
@@ -152,71 +172,71 @@
 </ul>
 <h2 id="operations"><a class="doc-anchor" href="#operations">§</a>Operations</h2>
 <ul>
-<li>ƒ  <a href="../../_dep/const_str/macro.compare.html" title="macro devela::_dep::const_str::compare"><code>compare</code></a>
+<li>ƒ  [<code>compare</code>][::const_str::compare]
 Compares two <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> lexicographically.</li>
-<li>≡ <a href="../../_dep/const_str/macro.concat.html" title="macro devela::_dep::const_str::concat"><code>concat</code></a>
+<li>≡ [<code>concat</code>][::const_str::concat]
 Concatenates (<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html" title="primitive char"><code>char</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html" title="primitive bool"><code>bool</code></a> | <code>u*</code> | <code>i*</code>) into a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a>.</li>
-<li>≡ <a href="../../_dep/const_str/macro.concat_bytes.html" title="macro devela::_dep::const_str::concat_bytes"><code>concat_bytes</code></a> Concatenates (<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html" title="primitive u8"><code>u8</code></a>
+<li>≡ [<code>concat_bytes</code>][::const_str::concat_bytes] Concatenates (<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html" title="primitive u8"><code>u8</code></a>
 | <a href="https://doc.rust-lang.org/nightly/std/primitive.slice.html" title="primitive slice"><code>&amp;[u8]</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>[u8; N]</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>&amp;[u8; N]</code></a>) to <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>&amp;[u8; _]</code></a>.</li>
-<li>ƒ  <a href="../../_dep/const_str/macro.contains.html" title="macro devela::_dep::const_str::contains"><code>contains</code></a>
+<li>ƒ  [<code>contains</code>][::const_str::contains]
 Returns <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html" title="primitive bool"><code>true</code></a> if the given pattern (<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html" title="primitive char"><code>char</code></a>) matches a sub-<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a>.</li>
-<li>≡ <a href="../../_dep/const_str/macro.cstr.html" title="macro devela::_dep::const_str::cstr"><code>cstr</code></a>
+<li>≡ [<code>cstr</code>][::const_str::cstr]
 Converts a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> to <a href="../../all/struct.CStr.html" title="struct devela::all::CStr"><code>&amp;CStr</code></a>.</li>
-<li>≡ <a href="../../_dep/const_str/macro.encode.html" title="macro devela::_dep::const_str::encode"><code>encode</code></a>
+<li>≡ [<code>encode</code>][::const_str::encode]
 Encodes a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> with an encoding (<code>utf8</code> | <code>utf16</code>).</li>
-<li>≡ <a href="../../_dep/const_str/macro.encode_z.html" title="macro devela::_dep::const_str::encode_z"><code>encode_z</code></a>
+<li>≡ [<code>encode_z</code>][::const_str::encode_z]
 Encodes a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> with an encoding (<code>utf8</code> | <code>utf16</code>) and append a NUL char.</li>
-<li>ƒ  <a href="../../_dep/const_str/macro.ends_with.html" title="macro devela::_dep::const_str::ends_with"><code>ends_with</code></a>
+<li>ƒ  [<code>ends_with</code>][::const_str::ends_with]
 Returns <code>true</code> if the given pattern matches a suffix of this <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a>.</li>
-<li>ƒ  <a href="../../_dep/const_str/macro.equal.html" title="macro devela::_dep::const_str::equal"><code>equal</code></a>
+<li>ƒ  [<code>equal</code>][::const_str::equal]
 Returns <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html" title="primitive bool"><code>true</code></a> if two <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> are equal.</li>
-<li>≡ <a href="../../_dep/const_str/macro.from_utf8.html" title="macro devela::_dep::const_str::from_utf8"><code>from_utf8</code></a>
+<li>≡ [<code>from_utf8</code>][::const_str::from_utf8]
 Returns a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> from a <a href="https://doc.rust-lang.org/nightly/std/primitive.slice.html" title="primitive slice"><code>&amp;[u8]</code></a>. Panics if it’s not valid utf8.</li>
-<li>≡ <a href="../../_dep/const_str/macro.hex.html" title="macro devela::_dep::const_str::hex"><code>hex</code></a>
+<li>≡ [<code>hex</code>][::const_str::hex]
 Converts a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> with hexadecimals (<code>0-9</code> | <code>A-F</code> | <code>a-f</code>) into a <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>[u8; _]</code></a>.</li>
-<li>ƒ  <a href="../../_dep/const_str/macro.ip_addr.html" title="macro devela::_dep::const_str::ip_addr"><code>ip_addr</code></a>
+<li>ƒ  [<code>ip_addr</code>][::const_str::ip_addr]
 Converts a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> to an IP address.</li>
-<li>≡ <a href="../../_dep/const_str/macro.join.html" title="macro devela::_dep::const_str::join"><code>join</code></a>
+<li>≡ [<code>join</code>][::const_str::join]
 Concatenates multiple <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> into a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str">&amp;str</a> separated by the given separator.</li>
-<li>ƒ  <a href="../../_dep/const_str/macro.parse.html" title="macro devela::_dep::const_str::parse"><code>parse</code></a>
+<li>ƒ  [<code>parse</code>][::const_str::parse]
 Parses a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> into a value (<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html" title="primitive char"><code>char</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html" title="primitive bool"><code>bool</code></a> | <code>u*</code> | <code>i*</code>).</li>
-<li>≡ <a href="../../_dep/const_str/macro.raw_cstr.html" title="macro devela::_dep::const_str::raw_cstr"><code>raw_cstr</code></a>
+<li>≡ [<code>raw_cstr</code>][::const_str::raw_cstr]
 Converts a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> into a <a href="../../all/type.c_char.html" title="type devela::all::c_char"><code>*const c_char</code></a>.</li>
-<li>≡ <a href="../../_dep/const_str/macro.repeat.html" title="macro devela::_dep::const_str::repeat"><code>repeat</code></a>
+<li>≡ [<code>repeat</code>][::const_str::repeat]
 Creates a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> by repeating a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> n times.</li>
-<li>≡ <a href="../../_dep/const_str/macro.replace.html" title="macro devela::_dep::const_str::replace"><code>replace</code></a>
+<li>≡ [<code>replace</code>][::const_str::replace]
 Replaces all matches of a pattern (<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html" title="primitive char"><code>char</code></a>) with another <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a>.</li>
-<li>≡ <a href="../../_dep/const_str/macro.sorted.html" title="macro devela::_dep::const_str::sorted"><code>sorted</code></a>
+<li>≡ [<code>sorted</code>][::const_str::sorted]
 Sorts multiple (<a href="https://doc.rust-lang.org/nightly/std/primitive.slice.html" title="primitive slice"><code>&amp;[&amp;str]</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>[&amp;str; N]</code></a> |
 <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>&amp;[&amp;str; N]</code></a>) into a <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>[&amp;str; _]</code></a>.</li>
-<li>≡ <a href="../../_dep/const_str/macro.split.html" title="macro devela::_dep::const_str::split"><code>split</code></a>
+<li>≡ [<code>split</code>][::const_str::split]
 Splits a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> by a separator pattern (<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html" title="primitive char"><code>char</code></a>)
 returning <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>[&amp;str; _]</code></a>.</li>
-<li>ƒ  <a href="../../_dep/const_str/macro.starts_with.html" title="macro devela::_dep::const_str::starts_with"><code>starts_with</code></a>
+<li>ƒ  [<code>starts_with</code>][::const_str::starts_with]
 Returns <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html" title="primitive bool"><code>true</code></a> if the given pattern (<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html" title="primitive char"><code>char</code></a>) matches a prefix of <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a>.</li>
-<li>ƒ  <a href="../../_dep/const_str/macro.strip_prefix.html" title="macro devela::_dep::const_str::strip_prefix"><code>strip_prefix</code></a>
+<li>ƒ  [<code>strip_prefix</code>][::const_str::strip_prefix]
 Returns a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> with the prefix removed.</li>
-<li>ƒ  <a href="../../_dep/const_str/macro.strip_suffix.html" title="macro devela::_dep::const_str::strip_suffix"><code>strip_suffix</code></a>
+<li>ƒ  [<code>strip_suffix</code>][::const_str::strip_suffix]
 Returns a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> with the suffix removed.</li>
-<li>≡ <a href="../../_dep/const_str/macro.to_byte_array.html" title="macro devela::_dep::const_str::to_byte_array"><code>to_byte_array</code></a>
+<li>≡ [<code>to_byte_array</code>][::const_str::to_byte_array]
 Converts a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> or <a href="https://doc.rust-lang.org/nightly/std/primitive.slice.html" title="primitive slice"><code>&amp;[u8]</code></a> into a <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>[u8; _]</code></a>.</li>
-<li>≡ <a href="../../_dep/const_str/macro.to_char_array.html" title="macro devela::_dep::const_str::to_char_array"><code>to_char_array</code></a>
+<li>≡ [<code>to_char_array</code>][::const_str::to_char_array]
 Converts a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> into a <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>[char; _]</code></a>.</li>
-<li>≡ <a href="../../_dep/const_str/macro.to_str.html" title="macro devela::_dep::const_str::to_str"><code>to_str</code></a>
+<li>≡ [<code>to_str</code>][::const_str::to_str]
 Returns a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> from a value (<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html" title="primitive char"><code>char</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html" title="primitive bool"><code>bool</code></a> | <code>u*</code> | <code>i*</code>).</li>
-<li>≡ <a href="../../_dep/const_str/macro.unwrap.html" title="macro devela::_dep::const_str::unwrap"><code>unwrap</code></a> Unwraps a container, returns the content
+<li>≡ [<code>unwrap</code>][::const_str::unwrap] Unwraps a container, returns the content
 (see also the <a href="../../all/macro.unwrap.html" title="macro devela::all::unwrap"><code>unwrap!</code></a> macro).</li>
 </ul>
 <p>Ascii related:</p>
 <ul>
-<li>≡ <a href="../../_dep/const_str/macro.convert_ascii_case.html" title="macro devela::_dep::const_str::convert_ascii_case"><code>convert_ascii_case</code></a>
+<li>≡ [<code>convert_ascii_case</code>][::const_str::convert_ascii_case]
 Converts a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> to a specified case. Non-ASCII characters are not affected.</li>
-<li>ƒ  <a href="../../_dep/const_str/macro.eq_ignore_ascii_case.html" title="macro devela::_dep::const_str::eq_ignore_ascii_case"><code>eq_ignore_ascii_case</code></a>
+<li>ƒ  [<code>eq_ignore_ascii_case</code>][::const_str::eq_ignore_ascii_case]
 Returns <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html" title="primitive bool"><code>true</code></a> if two <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> are an ASCII <em>case-insensitive</em> match.</li>
-<li>ƒ  <a href="../../_dep/const_str/macro.is_ascii.html" title="macro devela::_dep::const_str::is_ascii"><code>is_ascii</code></a>
+<li>ƒ  [<code>is_ascii</code>][::const_str::is_ascii]
 Returns <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html" title="primitive bool"><code>true</code></a> if all codes in this
 (<a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.slice.html" title="primitive slice"><code>&amp;[u8]</code></a> | <a href="https://doc.rust-lang.org/nightly/std/primitive.array.html" title="primitive array"><code>&amp;[u8; N]</code></a>) are ASCII.</li>
-<li>≡ <a href="../../_dep/const_str/macro.squish.html" title="macro devela::_dep::const_str::squish"><code>squish</code></a>
+<li>≡ [<code>squish</code>][::const_str::squish]
 Splits a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> by ASCII whitespaces, and joins the parts with a single space.</li>
 </ul>
 </div></details></section></div></main></body></html>

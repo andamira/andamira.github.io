@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AnsiColor3b"],"macro":["ansi"],"struct":["Ansi","AnsiColor8b","TermSize"]};
+window.SIDEBAR_ITEMS = {"enum":["AnsiColor3b"],"fn":["ansi_print","ansi_print_linux","ansi_print_std"],"macro":["ansi"],"struct":["Ansi","AnsiColor8b","TermSize"]};

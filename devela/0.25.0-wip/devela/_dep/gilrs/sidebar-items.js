@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Axis","Button","Error","EventType","MappingError","MappingSource","PowerInfo"],"mod":["ev","ff"],"struct":["ConnectedGamepadsIterator","Event","Gamepad","GamepadId","Gilrs","GilrsBuilder","Mapping"],"trait":["Filter"]};

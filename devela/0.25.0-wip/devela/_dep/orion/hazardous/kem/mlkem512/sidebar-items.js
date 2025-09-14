@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Ciphertext","DecapsulationKey","EncapsulationKey","KeyPair","MlKem512","Seed","SharedSecret"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["_core","_dep","_info","all","code","data","game","lang","media","num","phys","sys","text","ui","work"]};
+window.SIDEBAR_ITEMS = {"mod":["_info","all","code","data","game","lang","media","num","phys","sys","text","ui","work"]};

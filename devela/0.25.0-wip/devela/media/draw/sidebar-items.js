@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["DrawLine","LineState"]};
+window.SIDEBAR_ITEMS = {};

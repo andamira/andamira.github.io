@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["digest","digest_from_reader"],"struct":["Digest"]};

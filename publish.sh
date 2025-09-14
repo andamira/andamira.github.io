@@ -10,5 +10,4 @@ source .env
 cd $GIT_DIR
 git add . && \
 git commit -m "update docs" && \
-git push
-
+git push --set-upstream origin main # makes sure it works after pruning

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["MappedMutexGuard","MappedRwLockReadGuard","MappedRwLockWriteGuard","Mutex","MutexGuard","RwLock","RwLockReadGuard","RwLockWriteGuard","WouldBlock"],"type":["TryLockResult"]};

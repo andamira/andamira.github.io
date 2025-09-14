@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["egl","gl","linux_wayland","linux_x11","module","query_stab"],"trait":["Clipboard"]};

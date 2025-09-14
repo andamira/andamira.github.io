@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/code/default.rs`."><title>default.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/code/default.rs`."><title>default.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -120,246 +140,316 @@
 <a href=#11 id=11 data-nosnippet>11</a>//   - mod impl_core
 <a href=#12 id=12 data-nosnippet>12</a>//   - mod impl_std
 <a href=#13 id=13 data-nosnippet>13</a>//   - mod impl_devela
-<a href=#14 id=14 data-nosnippet>14</a>
-<a href=#15 id=15 data-nosnippet>15</a>/* definitions */
+<a href=#14 id=14 data-nosnippet>14</a>//
+<a href=#15 id=15 data-nosnippet>15</a>// TODO: organize in thematic modules
 <a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="doccomment">/// A trait for giving a type a useful default value in *compile-time*.
-<a href=#18 id=18 data-nosnippet>18</a></span><span class="comment">// WAIT: [Make Default const](https://github.com/rust-lang/rust/pull/134628)
-<a href=#19 id=19 data-nosnippet>19</a></span><span class="kw">pub trait </span><a href="../../../devela/code/trait.ConstDefault.html">ConstDefault</a> {
-<a href=#20 id=20 data-nosnippet>20</a>    <span class="doccomment">/// Returns the compile-time “default value” for a type.
-<a href=#21 id=21 data-nosnippet>21</a>    </span><span class="kw">const </span>DEFAULT: <span class="self">Self</span>;
-<a href=#22 id=22 data-nosnippet>22</a>}
-<a href=#23 id=23 data-nosnippet>23</a>
-<a href=#24 id=24 data-nosnippet>24</a><span class="doccomment">/// A macro helper to implement [`ConstDefault`]. Supports generics.
-<a href=#25 id=25 data-nosnippet>25</a></span><span class="macro">macro_rules!</span> impl_cdef {
-<a href=#26 id=26 data-nosnippet>26</a>    <span class="comment">// &lt;A&gt;
-<a href=#27 id=27 data-nosnippet>27</a>    </span>(&lt;<span class="macro-nonterminal">$A</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; { $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@&lt;<span class="macro-nonterminal">$A</span>&gt; <span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+ };
-<a href=#28 id=28 data-nosnippet>28</a>    (@&lt;<span class="macro-nonterminal">$A</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
-<a href=#29 id=29 data-nosnippet>29</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
-<a href=#30 id=30 data-nosnippet>30</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)]
-<a href=#31 id=31 data-nosnippet>31</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
-<a href=#32 id=32 data-nosnippet>32</a>        }
-<a href=#33 id=33 data-nosnippet>33</a>    };
-<a href=#34 id=34 data-nosnippet>34</a>    <span class="comment">// &lt;A: A_&gt; (bounded)
-<a href=#35 id=35 data-nosnippet>35</a>    </span>(&lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$A_</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; {
-<a href=#36 id=36 data-nosnippet>36</a>        $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$A_</span>&gt; <span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+
-<a href=#37 id=37 data-nosnippet>37</a>    };
-<a href=#38 id=38 data-nosnippet>38</a>    (@&lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$A_</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
-<a href=#39 id=39 data-nosnippet>39</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>: <span class="macro-nonterminal">$crate::ConstDefault</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
-<a href=#40 id=40 data-nosnippet>40</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const, reason = <span class="string">"FIXME?"</span>)]
-<a href=#41 id=41 data-nosnippet>41</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
-<a href=#42 id=42 data-nosnippet>42</a>        }
-<a href=#43 id=43 data-nosnippet>43</a>    };
-<a href=#44 id=44 data-nosnippet>44</a>    <span class="comment">// &lt;A, B&gt;
-<a href=#45 id=45 data-nosnippet>45</a>    </span>(&lt;<span class="macro-nonterminal">$A</span>:ident, <span class="macro-nonterminal">$B</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; {
-<a href=#46 id=46 data-nosnippet>46</a>        $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@&lt;<span class="macro-nonterminal">$A</span>, <span class="macro-nonterminal">$B</span>&gt; <span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+
-<a href=#47 id=47 data-nosnippet>47</a>    };
-<a href=#48 id=48 data-nosnippet>48</a>    (@&lt;<span class="macro-nonterminal">$A</span>:ident, <span class="macro-nonterminal">$B</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
-<a href=#49 id=49 data-nosnippet>49</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>, <span class="macro-nonterminal">$B</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
-<a href=#50 id=50 data-nosnippet>50</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)] </span><span class="comment">//
-<a href=#51 id=51 data-nosnippet>51</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
-<a href=#52 id=52 data-nosnippet>52</a>        }
-<a href=#53 id=53 data-nosnippet>53</a>    };
-<a href=#54 id=54 data-nosnippet>54</a>    <span class="comment">// &lt;A: A_, B: B_&gt; (bounded)
-<a href=#55 id=55 data-nosnippet>55</a>    </span>(&lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$A_</span>:ident, <span class="macro-nonterminal">$B</span>:ident:<span class="macro-nonterminal">$B_</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; {
-<a href=#56 id=56 data-nosnippet>56</a>        $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$A_</span>, <span class="macro-nonterminal">$B</span>:<span class="macro-nonterminal">$B_</span>&gt; <span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+ };
-<a href=#57 id=57 data-nosnippet>57</a>    (@&lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$A_</span>:ident, <span class="macro-nonterminal">$B</span>:ident:<span class="macro-nonterminal">$B_</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
-<a href=#58 id=58 data-nosnippet>58</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$A_</span>, <span class="macro-nonterminal">$B</span>:<span class="macro-nonterminal">$B_</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
-<a href=#59 id=59 data-nosnippet>59</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)] </span><span class="comment">//
-<a href=#60 id=60 data-nosnippet>60</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
-<a href=#61 id=61 data-nosnippet>61</a>        }
-<a href=#62 id=62 data-nosnippet>62</a>    };
-<a href=#63 id=63 data-nosnippet>63</a>
-<a href=#64 id=64 data-nosnippet>64</a>    <span class="comment">// &lt;A, B, C&gt;
-<a href=#65 id=65 data-nosnippet>65</a>    </span>(&lt;<span class="macro-nonterminal">$A</span>:ident, <span class="macro-nonterminal">$B</span>:ident, <span class="macro-nonterminal">$C</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; {
-<a href=#66 id=66 data-nosnippet>66</a>        $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@&lt;<span class="macro-nonterminal">$A</span>, <span class="macro-nonterminal">$B</span>, <span class="macro-nonterminal">$C</span>&gt; <span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+
-<a href=#67 id=67 data-nosnippet>67</a>    };
-<a href=#68 id=68 data-nosnippet>68</a>    (@&lt;<span class="macro-nonterminal">$A</span>:ident, <span class="macro-nonterminal">$B</span>:ident, <span class="macro-nonterminal">$C</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
-<a href=#69 id=69 data-nosnippet>69</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>, <span class="macro-nonterminal">$B</span>, <span class="macro-nonterminal">$C</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
-<a href=#70 id=70 data-nosnippet>70</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)] </span><span class="comment">//
-<a href=#71 id=71 data-nosnippet>71</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
-<a href=#72 id=72 data-nosnippet>72</a>        }
-<a href=#73 id=73 data-nosnippet>73</a>    };
-<a href=#74 id=74 data-nosnippet>74</a>    <span class="comment">// &lt;&gt;
-<a href=#75 id=75 data-nosnippet>75</a>    </span>(<span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; { $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+ };
-<a href=#76 id=76 data-nosnippet>76</a>    (@<span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
-<a href=#77 id=77 data-nosnippet>77</a>        <span class="kw">impl </span><span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
-<a href=#78 id=78 data-nosnippet>78</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)]
-<a href=#79 id=79 data-nosnippet>79</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
-<a href=#80 id=80 data-nosnippet>80</a>        }
-<a href=#81 id=81 data-nosnippet>81</a>    };
-<a href=#82 id=82 data-nosnippet>82</a>    <span class="comment">// impl for arrays of the given $LEN lenghts
-<a href=#83 id=83 data-nosnippet>83</a>    </span>(arrays &lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$BOUND</span>:ident&gt; $(<span class="macro-nonterminal">$LEN</span>:literal),+) =&gt; {
-<a href=#84 id=84 data-nosnippet>84</a>        $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">array</span>:<span class="macro-nonterminal">$LEN </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt;]; )+
-<a href=#85 id=85 data-nosnippet>85</a>    };
-<a href=#86 id=86 data-nosnippet>86</a>    (@array:<span class="macro-nonterminal">$LEN</span>:literal &lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$BOUND</span>:ident&gt;) =&gt; {
-<a href=#87 id=87 data-nosnippet>87</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>: <span class="macro-nonterminal">$crate::ConstDefault</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span>[<span class="macro-nonterminal">$A</span>; <span class="macro-nonterminal">$LEN</span>] {
-<a href=#88 id=88 data-nosnippet>88</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)] </span><span class="comment">//
-<a href=#89 id=89 data-nosnippet>89</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= [<span class="macro-nonterminal">$A::DEFAULT</span>; <span class="macro-nonterminal">$LEN</span>];
-<a href=#90 id=90 data-nosnippet>90</a>        }
-<a href=#91 id=91 data-nosnippet>91</a>    };
-<a href=#92 id=92 data-nosnippet>92</a>    <span class="comment">// impl for tuples of lenghts from 1 to 12
-<a href=#93 id=93 data-nosnippet>93</a>    </span>(tuples &lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$BOUND</span>:ident&gt;) =&gt; {
-<a href=#94 id=94 data-nosnippet>94</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,) =&gt; <span class="comment">// 1
-<a href=#95 id=95 data-nosnippet>95</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>,)];
-<a href=#96 id=96 data-nosnippet>96</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,) =&gt; <span class="comment">// 2
-<a href=#97 id=97 data-nosnippet>97</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
-<a href=#98 id=98 data-nosnippet>98</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 3
-<a href=#99 id=99 data-nosnippet>99</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
-<a href=#100 id=100 data-nosnippet>100</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 4
-<a href=#101 id=101 data-nosnippet>101</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
-<a href=#102 id=102 data-nosnippet>102</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 5
-<a href=#103 id=103 data-nosnippet>103</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
-<a href=#104 id=104 data-nosnippet>104</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 6
-<a href=#105 id=105 data-nosnippet>105</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
-<a href=#106 id=106 data-nosnippet>106</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 7
-<a href=#107 id=107 data-nosnippet>107</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
-<a href=#108 id=108 data-nosnippet>108</a>             <span class="macro-nonterminal">$A::DEFAULT</span>)];
-<a href=#109 id=109 data-nosnippet>109</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 8
-<a href=#110 id=110 data-nosnippet>110</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
-<a href=#111 id=111 data-nosnippet>111</a>             <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
-<a href=#112 id=112 data-nosnippet>112</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 9
-<a href=#113 id=113 data-nosnippet>113</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
-<a href=#114 id=114 data-nosnippet>114</a>             <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
-<a href=#115 id=115 data-nosnippet>115</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 10
-<a href=#116 id=116 data-nosnippet>116</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
-<a href=#117 id=117 data-nosnippet>117</a>             <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
-<a href=#118 id=118 data-nosnippet>118</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 11
-<a href=#119 id=119 data-nosnippet>119</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
-<a href=#120 id=120 data-nosnippet>120</a>             <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
-<a href=#121 id=121 data-nosnippet>121</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 12
-<a href=#122 id=122 data-nosnippet>122</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
-<a href=#123 id=123 data-nosnippet>123</a>             <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
-<a href=#124 id=124 data-nosnippet>124</a>    };
-<a href=#125 id=125 data-nosnippet>125</a>    (@tuple &lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$BOUND</span>:ident&gt; <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty </span>=&gt; <span class="macro-nonterminal">$value</span>:expr) =&gt; {
-<a href=#126 id=126 data-nosnippet>126</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>: <span class="macro-nonterminal">$crate::ConstDefault</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-<a href=#127 id=127 data-nosnippet>127</a>            <span class="kw">const </span><span class="macro-nonterminal">DEFAULT</span>: <span class="self">Self </span>= <span class="macro-nonterminal">$value</span>;
-<a href=#128 id=128 data-nosnippet>128</a>        }
-<a href=#129 id=129 data-nosnippet>129</a>    };
-<a href=#130 id=130 data-nosnippet>130</a>}
-<a href=#131 id=131 data-nosnippet>131</a><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><a href="#25-130">impl_cdef</a>;
-<a href=#132 id=132 data-nosnippet>132</a>
-<a href=#133 id=133 data-nosnippet>133</a><span class="comment">/* implementations */
+<a href=#17 id=17 data-nosnippet>17</a>/* definitions */
+<a href=#18 id=18 data-nosnippet>18</a>
+<a href=#19 id=19 data-nosnippet>19</a></span><span class="doccomment">/// A trait for giving a type a useful default value in *compile-time*.
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="comment">// WAIT: [Make Default const](https://github.com/rust-lang/rust/pull/134628)
+<a href=#21 id=21 data-nosnippet>21</a></span><span class="kw">pub trait </span><a href="../../../devela/code/trait.ConstDefault.html">ConstDefault</a> {
+<a href=#22 id=22 data-nosnippet>22</a>    <span class="doccomment">/// Returns the compile-time “default value” for a type.
+<a href=#23 id=23 data-nosnippet>23</a>    </span><span class="kw">const </span>DEFAULT: <span class="self">Self</span>;
+<a href=#24 id=24 data-nosnippet>24</a>}
+<a href=#25 id=25 data-nosnippet>25</a>
+<a href=#26 id=26 data-nosnippet>26</a><span class="doccomment">/// A macro helper to implement [`ConstDefault`]. Supports generics.
+<a href=#27 id=27 data-nosnippet>27</a></span><span class="macro">macro_rules!</span> impl_cdef {
+<a href=#28 id=28 data-nosnippet>28</a>    <span class="comment">// &lt;A&gt;
+<a href=#29 id=29 data-nosnippet>29</a>    </span>(&lt;<span class="macro-nonterminal">$A</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; { $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@&lt;<span class="macro-nonterminal">$A</span>&gt; <span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+ };
+<a href=#30 id=30 data-nosnippet>30</a>    (@&lt;<span class="macro-nonterminal">$A</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
+<a href=#31 id=31 data-nosnippet>31</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
+<a href=#32 id=32 data-nosnippet>32</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)]
+<a href=#33 id=33 data-nosnippet>33</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
+<a href=#34 id=34 data-nosnippet>34</a>        }
+<a href=#35 id=35 data-nosnippet>35</a>    };
+<a href=#36 id=36 data-nosnippet>36</a>    <span class="comment">// &lt;A: A_&gt; (bounded)
+<a href=#37 id=37 data-nosnippet>37</a>    </span>(&lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$A_</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; {
+<a href=#38 id=38 data-nosnippet>38</a>        $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$A_</span>&gt; <span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+
+<a href=#39 id=39 data-nosnippet>39</a>    };
+<a href=#40 id=40 data-nosnippet>40</a>    (@&lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$A_</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
+<a href=#41 id=41 data-nosnippet>41</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>: <span class="macro-nonterminal">$crate::ConstDefault</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
+<a href=#42 id=42 data-nosnippet>42</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const, reason = <span class="string">"FIXME?"</span>)]
+<a href=#43 id=43 data-nosnippet>43</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
+<a href=#44 id=44 data-nosnippet>44</a>        }
+<a href=#45 id=45 data-nosnippet>45</a>    };
+<a href=#46 id=46 data-nosnippet>46</a>    <span class="comment">// &lt;A, B&gt;
+<a href=#47 id=47 data-nosnippet>47</a>    </span>(&lt;<span class="macro-nonterminal">$A</span>:ident, <span class="macro-nonterminal">$B</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; {
+<a href=#48 id=48 data-nosnippet>48</a>        $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@&lt;<span class="macro-nonterminal">$A</span>, <span class="macro-nonterminal">$B</span>&gt; <span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+
+<a href=#49 id=49 data-nosnippet>49</a>    };
+<a href=#50 id=50 data-nosnippet>50</a>    (@&lt;<span class="macro-nonterminal">$A</span>:ident, <span class="macro-nonterminal">$B</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
+<a href=#51 id=51 data-nosnippet>51</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>, <span class="macro-nonterminal">$B</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
+<a href=#52 id=52 data-nosnippet>52</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)] </span><span class="comment">//
+<a href=#53 id=53 data-nosnippet>53</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
+<a href=#54 id=54 data-nosnippet>54</a>        }
+<a href=#55 id=55 data-nosnippet>55</a>    };
+<a href=#56 id=56 data-nosnippet>56</a>    <span class="comment">// &lt;A: A_, B: B_&gt; (bounded)
+<a href=#57 id=57 data-nosnippet>57</a>    </span>(&lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$A_</span>:ident, <span class="macro-nonterminal">$B</span>:ident:<span class="macro-nonterminal">$B_</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; {
+<a href=#58 id=58 data-nosnippet>58</a>        $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$A_</span>, <span class="macro-nonterminal">$B</span>:<span class="macro-nonterminal">$B_</span>&gt; <span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+ };
+<a href=#59 id=59 data-nosnippet>59</a>    (@&lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$A_</span>:ident, <span class="macro-nonterminal">$B</span>:ident:<span class="macro-nonterminal">$B_</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
+<a href=#60 id=60 data-nosnippet>60</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$A_</span>, <span class="macro-nonterminal">$B</span>:<span class="macro-nonterminal">$B_</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
+<a href=#61 id=61 data-nosnippet>61</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)] </span><span class="comment">//
+<a href=#62 id=62 data-nosnippet>62</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
+<a href=#63 id=63 data-nosnippet>63</a>        }
+<a href=#64 id=64 data-nosnippet>64</a>    };
+<a href=#65 id=65 data-nosnippet>65</a>
+<a href=#66 id=66 data-nosnippet>66</a>    <span class="comment">// &lt;A, B, C&gt;
+<a href=#67 id=67 data-nosnippet>67</a>    </span>(&lt;<span class="macro-nonterminal">$A</span>:ident, <span class="macro-nonterminal">$B</span>:ident, <span class="macro-nonterminal">$C</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; {
+<a href=#68 id=68 data-nosnippet>68</a>        $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@&lt;<span class="macro-nonterminal">$A</span>, <span class="macro-nonterminal">$B</span>, <span class="macro-nonterminal">$C</span>&gt; <span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+
+<a href=#69 id=69 data-nosnippet>69</a>    };
+<a href=#70 id=70 data-nosnippet>70</a>    (@&lt;<span class="macro-nonterminal">$A</span>:ident, <span class="macro-nonterminal">$B</span>:ident, <span class="macro-nonterminal">$C</span>:ident&gt; <span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
+<a href=#71 id=71 data-nosnippet>71</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>, <span class="macro-nonterminal">$B</span>, <span class="macro-nonterminal">$C</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
+<a href=#72 id=72 data-nosnippet>72</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)] </span><span class="comment">//
+<a href=#73 id=73 data-nosnippet>73</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
+<a href=#74 id=74 data-nosnippet>74</a>        }
+<a href=#75 id=75 data-nosnippet>75</a>    };
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="comment">// &lt;&gt;
+<a href=#77 id=77 data-nosnippet>77</a>    </span>(<span class="macro-nonterminal">$def</span>:expr =&gt; $(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; { $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">$def </span>=&gt; <span class="macro-nonterminal">$t</span>]; )+ };
+<a href=#78 id=78 data-nosnippet>78</a>    (@<span class="macro-nonterminal">$def</span>:expr =&gt; <span class="macro-nonterminal">$t</span>:ty) =&gt; {
+<a href=#79 id=79 data-nosnippet>79</a>        <span class="kw">impl </span><span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
+<a href=#80 id=80 data-nosnippet>80</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)]
+<a href=#81 id=81 data-nosnippet>81</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro-nonterminal">$def</span>;
+<a href=#82 id=82 data-nosnippet>82</a>        }
+<a href=#83 id=83 data-nosnippet>83</a>    };
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="comment">// impl for arrays of the given $LEN lenghts
+<a href=#85 id=85 data-nosnippet>85</a>    </span>(arrays &lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$BOUND</span>:ident&gt; $(<span class="macro-nonterminal">$LEN</span>:literal),+) =&gt; {
+<a href=#86 id=86 data-nosnippet>86</a>        $( <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">array</span>:<span class="macro-nonterminal">$LEN </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt;]; )+
+<a href=#87 id=87 data-nosnippet>87</a>    };
+<a href=#88 id=88 data-nosnippet>88</a>    (@array:<span class="macro-nonterminal">$LEN</span>:literal &lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$BOUND</span>:ident&gt;) =&gt; {
+<a href=#89 id=89 data-nosnippet>89</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>: <span class="macro-nonterminal">$crate::ConstDefault</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span>[<span class="macro-nonterminal">$A</span>; <span class="macro-nonterminal">$LEN</span>] {
+<a href=#90 id=90 data-nosnippet>90</a>            <span class="attr">#[allow(clippy::declare_interior_mutable_const)] </span><span class="comment">//
+<a href=#91 id=91 data-nosnippet>91</a>            </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= [<span class="macro-nonterminal">$A::DEFAULT</span>; <span class="macro-nonterminal">$LEN</span>];
+<a href=#92 id=92 data-nosnippet>92</a>        }
+<a href=#93 id=93 data-nosnippet>93</a>    };
+<a href=#94 id=94 data-nosnippet>94</a>    <span class="comment">// impl for tuples of lenghts from 1 to 12
+<a href=#95 id=95 data-nosnippet>95</a>    </span>(tuples &lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$BOUND</span>:ident&gt;) =&gt; {
+<a href=#96 id=96 data-nosnippet>96</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,) =&gt; <span class="comment">// 1
+<a href=#97 id=97 data-nosnippet>97</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>,)];
+<a href=#98 id=98 data-nosnippet>98</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,) =&gt; <span class="comment">// 2
+<a href=#99 id=99 data-nosnippet>99</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
+<a href=#100 id=100 data-nosnippet>100</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 3
+<a href=#101 id=101 data-nosnippet>101</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
+<a href=#102 id=102 data-nosnippet>102</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 4
+<a href=#103 id=103 data-nosnippet>103</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
+<a href=#104 id=104 data-nosnippet>104</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 5
+<a href=#105 id=105 data-nosnippet>105</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
+<a href=#106 id=106 data-nosnippet>106</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 6
+<a href=#107 id=107 data-nosnippet>107</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
+<a href=#108 id=108 data-nosnippet>108</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 7
+<a href=#109 id=109 data-nosnippet>109</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
+<a href=#110 id=110 data-nosnippet>110</a>             <span class="macro-nonterminal">$A::DEFAULT</span>)];
+<a href=#111 id=111 data-nosnippet>111</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 8
+<a href=#112 id=112 data-nosnippet>112</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
+<a href=#113 id=113 data-nosnippet>113</a>             <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
+<a href=#114 id=114 data-nosnippet>114</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 9
+<a href=#115 id=115 data-nosnippet>115</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
+<a href=#116 id=116 data-nosnippet>116</a>             <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
+<a href=#117 id=117 data-nosnippet>117</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 10
+<a href=#118 id=118 data-nosnippet>118</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
+<a href=#119 id=119 data-nosnippet>119</a>             <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
+<a href=#120 id=120 data-nosnippet>120</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 11
+<a href=#121 id=121 data-nosnippet>121</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
+<a href=#122 id=122 data-nosnippet>122</a>             <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
+<a href=#123 id=123 data-nosnippet>123</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::impl_cdef!</span>[@<span class="macro-nonterminal">tuple </span>&lt;<span class="macro-nonterminal">$A</span>:<span class="macro-nonterminal">$BOUND</span>&gt; (<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>,<span class="macro-nonterminal">$A</span>) =&gt; <span class="comment">// 12
+<a href=#124 id=124 data-nosnippet>124</a>            </span>(<span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>,
+<a href=#125 id=125 data-nosnippet>125</a>             <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>, <span class="macro-nonterminal">$A::DEFAULT</span>)];
+<a href=#126 id=126 data-nosnippet>126</a>    };
+<a href=#127 id=127 data-nosnippet>127</a>    (@tuple &lt;<span class="macro-nonterminal">$A</span>:ident:<span class="macro-nonterminal">$BOUND</span>:ident&gt; <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty </span>=&gt; <span class="macro-nonterminal">$value</span>:expr) =&gt; {
+<a href=#128 id=128 data-nosnippet>128</a>        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$A</span>: <span class="macro-nonterminal">$crate::ConstDefault</span>&gt; <span class="macro-nonterminal">$crate::ConstDefault </span><span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
+<a href=#129 id=129 data-nosnippet>129</a>            <span class="kw">const </span><span class="macro-nonterminal">DEFAULT</span>: <span class="self">Self </span>= <span class="macro-nonterminal">$value</span>;
+<a href=#130 id=130 data-nosnippet>130</a>        }
+<a href=#131 id=131 data-nosnippet>131</a>    };
+<a href=#132 id=132 data-nosnippet>132</a>}
+<a href=#133 id=133 data-nosnippet>133</a><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><a href="#27-132">impl_cdef</a>;
 <a href=#134 id=134 data-nosnippet>134</a>
-<a href=#135 id=135 data-nosnippet>135</a></span><span class="attr">#[rustfmt::skip]
-<a href=#136 id=136 data-nosnippet>136</a></span><span class="kw">mod </span>impl_core {
-<a href=#137 id=137 data-nosnippet>137</a>    <span class="kw">use super</span>::{<a href="#25-130">impl_cdef</a>, <a href="#19-22">ConstDefault</a>};
-<a href=#138 id=138 data-nosnippet>138</a>    <span class="kw">use </span>core::{
-<a href=#139 id=139 data-nosnippet>139</a>        <a href="../../../devela/all/struct.Reverse.html">cmp::Reverse</a>,
-<a href=#140 id=140 data-nosnippet>140</a>        cell::{<a href="../../../devela/all/struct.Cell.html">Cell</a>, <a href="../../../devela/all/struct.OnceCell.html">OnceCell</a>, <a href="../../../devela/all/struct.RefCell.html">RefCell</a>, <a href="../../../devela/all/struct.UnsafeCell.html">UnsafeCell</a>},
-<a href=#141 id=141 data-nosnippet>141</a>        <a href="../../../devela/all/struct.CStr.html">ffi::CStr</a>,
-<a href=#142 id=142 data-nosnippet>142</a>        marker::{<a href="../../../devela/all/struct.PhantomData.html">PhantomData</a>, <a href="../../../devela/all/struct.PhantomPinned.html">PhantomPinned</a>},
-<a href=#143 id=143 data-nosnippet>143</a>        <a href="../../../devela/all/struct.ManuallyDrop.html">mem::ManuallyDrop</a>,
-<a href=#144 id=144 data-nosnippet>144</a>        num::{<a href="../../../devela/all/struct.Saturating.html">Saturating</a>, <a href="../../../devela/all/struct.Wrapping.html">Wrapping</a>},
-<a href=#145 id=145 data-nosnippet>145</a>        ops::{<a href="../../../devela/all/struct.Range.html">Range</a>, <a href="../../../devela/all/struct.RangeFrom.html">RangeFrom</a>, <a href="../../../devela/all/struct.RangeFull.html">RangeFull</a>, <a href="../../../devela/all/struct.RangeInclusive.html">RangeInclusive</a>, <a href="../../../devela/all/struct.RangeTo.html">RangeTo</a>, <a href="../../../devela/all/struct.RangeToInclusive.html">RangeToInclusive</a>},
-<a href=#146 id=146 data-nosnippet>146</a>        <a href="../../../devela/all/struct.PanicAssertUnwindSafe.html">panic::AssertUnwindSafe</a>,
-<a href=#147 id=147 data-nosnippet>147</a>        <span class="comment">// sync::Exclusive,
-<a href=#148 id=148 data-nosnippet>148</a>        </span><a href="../../../devela/all/struct.Duration.html">time::Duration</a>,
-<a href=#149 id=149 data-nosnippet>149</a>    };
-<a href=#150 id=150 data-nosnippet>150</a>    <span class="comment">// Types that don't implement `Default`:
-<a href=#151 id=151 data-nosnippet>151</a>    // ops::{Bound, ControlFlow, CoroutineState, FpCategory, Ordering, Result},
-<a href=#152 id=152 data-nosnippet>152</a>    //
-<a href=#153 id=153 data-nosnippet>153</a>    // NOTE: atomic types are implemented in work::sync::atomic
-<a href=#154 id=154 data-nosnippet>154</a>
-<a href=#155 id=155 data-nosnippet>155</a>    </span><a class="macro" href="#25-130">impl_cdef!</a>[<span class="bool-val">false </span>=&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>];
-<a href=#156 id=156 data-nosnippet>156</a>    <a class="macro" href="#25-130">impl_cdef!</a>[<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.new">Duration::new</a>(<span class="number">0</span>, <span class="number">0</span>) =&gt; <a href="../../../devela/all/struct.Duration.html">Duration</a>];
-<a href=#157 id=157 data-nosnippet>157</a>    <a class="macro" href="#25-130">impl_cdef!</a>[<span class="number">0 </span>=&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i128.html">i128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>];
-<a href=#158 id=158 data-nosnippet>158</a>    <a class="macro" href="#25-130">impl_cdef!</a>[<span class="number">0.0 </span>=&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>];
-<a href=#159 id=159 data-nosnippet>159</a>    <a class="macro" href="#25-130">impl_cdef!</a>[<span class="string">'\x00' </span>=&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>];
-<a href=#160 id=160 data-nosnippet>160</a>    <a class="macro" href="#25-130">impl_cdef!</a>[() =&gt; ()];
-<a href=#161 id=161 data-nosnippet>161</a>    <a class="macro" href="#25-130">impl_cdef!</a>[tuples &lt;T: ConstDefault&gt;];
-<a href=#162 id=162 data-nosnippet>162</a>    <a class="macro" href="#25-130">impl_cdef!</a>[arrays &lt;T: ConstDefault&gt; <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>,
-<a href=#163 id=163 data-nosnippet>163</a>    <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">32</span>];
-<a href=#164 id=164 data-nosnippet>164</a>
-<a href=#165 id=165 data-nosnippet>165</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T&gt; <a href="../../../devela/_core/ptr/fn.null.html">core::ptr::null</a>() =&gt; <span class="kw-2">*const </span>T];
-<a href=#166 id=166 data-nosnippet>166</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T&gt; <a href="../../../devela/_core/ptr/fn.null_mut.html">core::ptr::null_mut</a>() =&gt; <span class="kw-2">*mut </span>T];
-<a href=#167 id=167 data-nosnippet>167</a>
-<a href=#168 id=168 data-nosnippet>168</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T&gt; <span class="kw-2">&amp;</span>[] =&gt; <span class="kw-2">&amp;</span>[T]]; <span class="comment">// not allowed for &amp;mut [T]
+<a href=#135 id=135 data-nosnippet>135</a><span class="comment">/* implementations */
+<a href=#136 id=136 data-nosnippet>136</a>
+<a href=#137 id=137 data-nosnippet>137</a></span><span class="attr">#[rustfmt::skip]
+<a href=#138 id=138 data-nosnippet>138</a></span><span class="kw">mod </span>impl_core {
+<a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">use super</span>::{<a href="#27-132">impl_cdef</a>, <a href="#21-24">ConstDefault</a>};
+<a href=#140 id=140 data-nosnippet>140</a>    <span class="kw">use </span>core::{
+<a href=#141 id=141 data-nosnippet>141</a>        <a href="../../../devela/all/struct.Reverse.html">cmp::Reverse</a>,
+<a href=#142 id=142 data-nosnippet>142</a>        cell::{<a href="../../../devela/all/struct.Cell.html">Cell</a>, <a href="../../../devela/all/struct.OnceCell.html">OnceCell</a>, <a href="../../../devela/all/struct.RefCell.html">RefCell</a>, <a href="../../../devela/all/struct.UnsafeCell.html">UnsafeCell</a>},
+<a href=#143 id=143 data-nosnippet>143</a>        <a href="../../../devela/all/struct.CStr.html">ffi::CStr</a>,
+<a href=#144 id=144 data-nosnippet>144</a>        marker::{<a href="../../../devela/all/struct.PhantomData.html">PhantomData</a>, <a href="../../../devela/all/struct.PhantomPinned.html">PhantomPinned</a>},
+<a href=#145 id=145 data-nosnippet>145</a>        <a href="../../../devela/all/struct.ManuallyDrop.html">mem::ManuallyDrop</a>,
+<a href=#146 id=146 data-nosnippet>146</a>        num::{<a href="../../../devela/all/struct.Saturating.html">Saturating</a>, <a href="../../../devela/all/struct.Wrapping.html">Wrapping</a>},
+<a href=#147 id=147 data-nosnippet>147</a>        ops::{<a href="../../../devela/all/struct.Range.html">Range</a>, <a href="../../../devela/all/struct.RangeFrom.html">RangeFrom</a>, <a href="../../../devela/all/struct.RangeFull.html">RangeFull</a>, <a href="../../../devela/all/struct.RangeInclusive.html">RangeInclusive</a>, <a href="../../../devela/all/struct.RangeTo.html">RangeTo</a>, <a href="../../../devela/all/struct.RangeToInclusive.html">RangeToInclusive</a>},
+<a href=#148 id=148 data-nosnippet>148</a>        <a href="../../../devela/all/struct.PanicAssertUnwindSafe.html">panic::AssertUnwindSafe</a>,
+<a href=#149 id=149 data-nosnippet>149</a>        <span class="comment">// sync::Exclusive,
+<a href=#150 id=150 data-nosnippet>150</a>        </span><a href="../../../devela/all/struct.Duration.html">time::Duration</a>,
+<a href=#151 id=151 data-nosnippet>151</a>    };
+<a href=#152 id=152 data-nosnippet>152</a>    <span class="comment">// Types that don't implement `Default`:
+<a href=#153 id=153 data-nosnippet>153</a>    // ops::{Bound, ControlFlow, CoroutineState, FpCategory, Ordering, Result},
+<a href=#154 id=154 data-nosnippet>154</a>    //
+<a href=#155 id=155 data-nosnippet>155</a>    // NOTE: atomic types are implemented in work::sync::atomic
+<a href=#156 id=156 data-nosnippet>156</a>
+<a href=#157 id=157 data-nosnippet>157</a>    </span><a class="macro" href="#27-132">impl_cdef!</a>[<span class="bool-val">false </span>=&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>];
+<a href=#158 id=158 data-nosnippet>158</a>    <a class="macro" href="#27-132">impl_cdef!</a>[<a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html#method.new">Duration::new</a>(<span class="number">0</span>, <span class="number">0</span>) =&gt; <a href="../../../devela/all/struct.Duration.html">Duration</a>];
+<a href=#159 id=159 data-nosnippet>159</a>    <a class="macro" href="#27-132">impl_cdef!</a>[<span class="number">0 </span>=&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.i128.html">i128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>];
+<a href=#160 id=160 data-nosnippet>160</a>    <a class="macro" href="#27-132">impl_cdef!</a>[<span class="number">0.0 </span>=&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>];
+<a href=#161 id=161 data-nosnippet>161</a>    <a class="macro" href="#27-132">impl_cdef!</a>[<span class="string">'\x00' </span>=&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>];
+<a href=#162 id=162 data-nosnippet>162</a>    <a class="macro" href="#27-132">impl_cdef!</a>[() =&gt; ()];
+<a href=#163 id=163 data-nosnippet>163</a>    <a class="macro" href="#27-132">impl_cdef!</a>[tuples &lt;T: ConstDefault&gt;];
+<a href=#164 id=164 data-nosnippet>164</a>    <a class="macro" href="#27-132">impl_cdef!</a>[arrays &lt;T: ConstDefault&gt; <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>,
+<a href=#165 id=165 data-nosnippet>165</a>    <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">32</span>];
+<a href=#166 id=166 data-nosnippet>166</a>
+<a href=#167 id=167 data-nosnippet>167</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T&gt; <a href="https://doc.rust-lang.org/nightly/core/ptr/fn.null.html">core::ptr::null</a>() =&gt; <span class="kw-2">*const </span>T];
+<a href=#168 id=168 data-nosnippet>168</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T&gt; <a href="https://doc.rust-lang.org/nightly/core/ptr/fn.null_mut.html">core::ptr::null_mut</a>() =&gt; <span class="kw-2">*mut </span>T];
 <a href=#169 id=169 data-nosnippet>169</a>
-<a href=#170 id=170 data-nosnippet>170</a>    </span><span class="kw">impl </span><a href="#19-22">ConstDefault</a> <span class="kw">for </span><span class="kw-2">&amp;</span><a href="../../../devela/all/struct.CStr.html">CStr</a> {
-<a href=#171 id=171 data-nosnippet>171</a>        <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= {
-<a href=#172 id=172 data-nosnippet>172</a>            <span class="kw">if let </span><a class="prelude-val" href="../../../devela/all/enum.Result.html">Ok</a>(s) = <a href="https://doc.rust-lang.org/nightly/core/ffi/c_str/struct.CStr.html#method.from_bytes_until_nul">CStr::from_bytes_until_nul</a>(<span class="kw-2">&amp;</span>[<span class="number">0</span>]) { <a href="#172">s</a> } <span class="kw">else </span>{ <a class="macro" href="../../../devela/all/macro.unreachable.html">unreachable!</a>[]; }
-<a href=#173 id=173 data-nosnippet>173</a>        };
-<a href=#174 id=174 data-nosnippet>174</a>    }
-<a href=#175 id=175 data-nosnippet>175</a>
-<a href=#176 id=176 data-nosnippet>176</a>    <a class="macro" href="#25-130">impl_cdef!</a>[<span class="self">Self </span>=&gt; <a href="../../../devela/all/struct.PhantomPinned.html">PhantomPinned</a>, <a href="../../../devela/all/struct.RangeFull.html">RangeFull</a>];
-<a href=#177 id=177 data-nosnippet>177</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T: ConstDefault&gt;<span class="self">Self </span>{ start: T::DEFAULT } =&gt; <a href="../../../devela/all/struct.RangeFrom.html">RangeFrom</a>&lt;T&gt;];
-<a href=#178 id=178 data-nosnippet>178</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T: ConstDefault&gt;<span class="self">Self </span>{ end: T::DEFAULT } =&gt; <a href="../../../devela/all/struct.RangeTo.html">RangeTo</a>&lt;T&gt;, <a href="../../../devela/all/struct.RangeToInclusive.html">RangeToInclusive</a>&lt;T&gt;];
-<a href=#179 id=179 data-nosnippet>179</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T: ConstDefault&gt;<span class="self">Self </span>{ start: T::DEFAULT, end: T::DEFAULT } =&gt; <a href="../../../devela/all/struct.Range.html">Range</a>&lt;T&gt;];
-<a href=#180 id=180 data-nosnippet>180</a>    <span class="comment">// this one has private fields
-<a href=#181 id=181 data-nosnippet>181</a>    </span><a class="macro" href="#25-130">impl_cdef!</a>[&lt;T: ConstDefault&gt;<a href="https://doc.rust-lang.org/nightly/core/ops/range/struct.RangeInclusive.html#method.new"><span class="self">Self</span>::new</a>(T::DEFAULT, T::DEFAULT) =&gt; <a href="../../../devela/all/struct.RangeInclusive.html">RangeInclusive</a>&lt;T&gt;];
-<a href=#182 id=182 data-nosnippet>182</a>
-<a href=#183 id=183 data-nosnippet>183</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a href="https://doc.rust-lang.org/nightly/core/cell/once/struct.OnceCell.html#method.new"><span class="self">Self</span>::new</a>() =&gt; <a href="../../../devela/all/struct.OnceCell.html">OnceCell</a>&lt;T&gt;];
-<a href=#184 id=184 data-nosnippet>184</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a href="https://doc.rust-lang.org/nightly/core/cell/struct.UnsafeCell.html#method.new"><span class="self">Self</span>::new</a>(T::DEFAULT) =&gt;
-<a href=#185 id=185 data-nosnippet>185</a>        <a href="../../../devela/all/struct.Cell.html">Cell</a>&lt;T&gt;, <a href="../../../devela/all/struct.ManuallyDrop.html">ManuallyDrop</a>&lt;T&gt;, <a href="../../../devela/all/struct.RefCell.html">RefCell</a>&lt;T&gt;, <a href="../../../devela/all/struct.UnsafeCell.html">UnsafeCell</a>&lt;T&gt;
-<a href=#186 id=186 data-nosnippet>186</a>    ];
-<a href=#187 id=187 data-nosnippet>187</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T: ConstDefault&gt; <span class="self">Self</span>(T::DEFAULT) =&gt;
-<a href=#188 id=188 data-nosnippet>188</a>        <a href="../../../devela/all/struct.PanicAssertUnwindSafe.html">AssertUnwindSafe</a>&lt;T&gt;, <a href="../../../devela/all/struct.Reverse.html">Reverse</a>&lt;T&gt;, <a href="../../../devela/all/struct.Saturating.html">Saturating</a>&lt;T&gt;, <a href="../../../devela/all/struct.Wrapping.html">Wrapping</a>&lt;T&gt;
-<a href=#189 id=189 data-nosnippet>189</a>    ];
-<a href=#190 id=190 data-nosnippet>190</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T&gt; <span class="self">Self </span>=&gt; <a href="../../../devela/all/struct.PhantomData.html">PhantomData</a>&lt;T&gt;]; <span class="comment">// no need for T: ConstDefault here
-<a href=#191 id=191 data-nosnippet>191</a>    </span><a class="macro" href="#25-130">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a class="prelude-val" href="../../../devela/all/enum.Option.html">Some</a>(T::DEFAULT) =&gt; <a class="prelude-ty" href="../../../devela/all/enum.Option.html">Option</a>&lt;T&gt;];
-<a href=#192 id=192 data-nosnippet>192</a>
-<a href=#193 id=193 data-nosnippet>193</a>    <span class="comment">// WAIT: [exclusive_wrapper](https://github.com/rust-lang/rust/issues/98407)
-<a href=#194 id=194 data-nosnippet>194</a>    // impl_cdef![&lt;T: ConstDefault&gt; Self::new(T::DEFAULT) =&gt; Exclusive&lt;T&gt;];
-<a href=#195 id=195 data-nosnippet>195</a>    // WAIT: [sync_unsafe_cell](https://github.com/rust-lang/rust/issues/95439)
-<a href=#196 id=196 data-nosnippet>196</a>    // impl_cdef![&lt;T&gt; Self::new(|| T::DEFAULT) =&gt; SyncUnsafeCell&lt;T&gt;];
-<a href=#197 id=197 data-nosnippet>197</a>    // WAIT: [ptr_alignment_type](https://github.com/rust-lang/rust/issues/102070)
-<a href=#198 id=198 data-nosnippet>198</a>    // impl_cdef![&lt;T&gt; Self::MIN =&gt; Alignment];
-<a href=#199 id=199 data-nosnippet>199</a></span>}
-<a href=#200 id=200 data-nosnippet>200</a>
-<a href=#201 id=201 data-nosnippet>201</a><span class="comment">// #[cfg(feature = "alloc")]
-<a href=#202 id=202 data-nosnippet>202</a>// #[cfg_attr(nightly_doc, doc(cfg(feature = "alloc")))]
-<a href=#203 id=203 data-nosnippet>203</a>// mod impl_alloc {
-<a href=#204 id=204 data-nosnippet>204</a>//     // TODO: fxhash, fnv, ahash
-<a href=#205 id=205 data-nosnippet>205</a>//     // #[cfg(feature = "dep_hashbrown")]
-<a href=#206 id=206 data-nosnippet>206</a>//     // impl_cdef![&lt;K, V&gt; Self::with_hasher(TODO) =&gt; HashMap&lt;K, V&gt;];
-<a href=#207 id=207 data-nosnippet>207</a>//     // #[cfg(feature = "dep_hashbrown")]
-<a href=#208 id=208 data-nosnippet>208</a>//     // impl_cdef![&lt;K&gt; Self::with_hasher(TODO) =&gt; HashSet&lt;K&gt;];
-<a href=#209 id=209 data-nosnippet>209</a>// }
-<a href=#210 id=210 data-nosnippet>210</a>
-<a href=#211 id=211 data-nosnippet>211</a></span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-<a href=#212 id=212 data-nosnippet>212</a>#[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"std"</span>)))]
-<a href=#213 id=213 data-nosnippet>213</a></span><span class="kw">mod </span>impl_std {
-<a href=#214 id=214 data-nosnippet>214</a>    <span class="kw">use </span>std::{
-<a href=#215 id=215 data-nosnippet>215</a>        <a href="../../../devela/all/struct.LazyCell.html">cell::LazyCell</a>,
-<a href=#216 id=216 data-nosnippet>216</a>        <span class="comment">// collections::hash_map::DefaultHasher
-<a href=#217 id=217 data-nosnippet>217</a>        // io::{Cursor, Empty, Sink},
-<a href=#218 id=218 data-nosnippet>218</a>        </span><a href="../../../devela/all/struct.ProcessExitCode.html">process::ExitCode</a>,
-<a href=#219 id=219 data-nosnippet>219</a>        sync::{<a href="../../../devela/all/struct.Condvar.html">Condvar</a>, <a href="../../../devela/all/struct.LazyLock.html">LazyLock</a>, <a href="../../../devela/all/struct.Mutex.html">Mutex</a>, <a href="../../../devela/all/struct.Once.html">Once</a>, <a href="../../../devela/all/struct.OnceLock.html">OnceLock</a>, <a href="../../../devela/all/struct.RwLock.html">RwLock</a>, <a href="../../../devela/_dep/_alloc/sync/struct.Weak.html">Weak</a> <span class="kw">as </span>ArcWeak},
-<a href=#220 id=220 data-nosnippet>220</a>    };
-<a href=#221 id=221 data-nosnippet>221</a>    <span class="comment">// Types that don't implement Default:
-<a href=#222 id=222 data-nosnippet>222</a>    // - OsString: OsString { inner: Buf::from_string(String::new()) }
-<a href=#223 id=223 data-nosnippet>223</a>
-<a href=#224 id=224 data-nosnippet>224</a>    </span><a class="macro" href="#25-130">impl_cdef!</a>[<span class="self">Self</span>::SUCCESS =&gt; <a href="../../../devela/all/struct.ProcessExitCode.html">ExitCode</a>];
-<a href=#225 id=225 data-nosnippet>225</a>    <a class="macro" href="#25-130">impl_cdef!</a>[<a href="https://doc.rust-lang.org/nightly/std/sync/poison/once/struct.Once.html#method.new"><span class="self">Self</span>::new</a>() =&gt; <a href="../../../devela/all/struct.Condvar.html">Condvar</a>, <a href="../../../devela/all/struct.Once.html">Once</a>];
-<a href=#226 id=226 data-nosnippet>226</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.new"><span class="self">Self</span>::new</a>() =&gt; <a href="../../../devela/_dep/_alloc/sync/struct.Weak.html">ArcWeak</a>&lt;T&gt;, <a href="../../../devela/all/struct.OnceLock.html">OnceLock</a>&lt;T&gt;];
-<a href=#227 id=227 data-nosnippet>227</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a href="https://doc.rust-lang.org/nightly/std/sync/poison/rwlock/struct.RwLock.html#method.new"><span class="self">Self</span>::new</a>(T::DEFAULT) =&gt; <a href="../../../devela/all/struct.Mutex.html">Mutex</a>&lt;T&gt;, <a href="../../../devela/all/struct.RwLock.html">RwLock</a>&lt;T&gt;];
-<a href=#228 id=228 data-nosnippet>228</a>    <a class="macro" href="#25-130">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a href="https://doc.rust-lang.org/nightly/std/sync/lazy_lock/struct.LazyLock.html#method.new"><span class="self">Self</span>::new</a>(|| T::DEFAULT) =&gt; <a href="../../../devela/all/struct.LazyCell.html">LazyCell</a>&lt;T&gt;, <a href="../../../devela/all/struct.LazyLock.html">LazyLock</a>&lt;T&gt;];
-<a href=#229 id=229 data-nosnippet>229</a>
-<a href=#230 id=230 data-nosnippet>230</a>    <span class="comment">// WAIT: [const_hash](https://github.com/rust-lang/rust/issues/104061)
-<a href=#231 id=231 data-nosnippet>231</a>    // #[cfg(feature = "dep_hashbrown")]
-<a href=#232 id=232 data-nosnippet>232</a>    // impl_cdef![&lt;K, V&gt; Self::with_hasher(DefaulHashher) =&gt; BTreeMap&lt;K, V&gt;];
-<a href=#233 id=233 data-nosnippet>233</a>    // WAIT: [const_io_structs](https://github.com/rust-lang/rust/issues/78812)
-<a href=#234 id=234 data-nosnippet>234</a>    // impl_cdef![Self =&gt; Cursor, Empty, Sink];
-<a href=#235 id=235 data-nosnippet>235</a></span>}
-<a href=#236 id=236 data-nosnippet>236</a>
-<a href=#237 id=237 data-nosnippet>237</a><span class="attr">#[rustfmt::skip]
-<a href=#238 id=238 data-nosnippet>238</a></span><span class="kw">mod </span>impl_devela {
-<a href=#239 id=239 data-nosnippet>239</a>    <span class="kw">use </span><a href="#19-22"><span class="kw">super</span>::ConstDefault</a>;
-<a href=#240 id=240 data-nosnippet>240</a>    <span class="kw">use crate</span>::{
-<a href=#241 id=241 data-nosnippet>241</a>        <span class="comment">// TODO: Cast, Cycle, CycleCount
-<a href=#242 id=242 data-nosnippet>242</a>        </span><a href="../../../devela/all/struct.Interval.html">Interval</a>,
-<a href=#243 id=243 data-nosnippet>243</a>        <a href="../../../devela/all/enum.Sign.html">Sign</a>,
-<a href=#244 id=244 data-nosnippet>244</a>    };
-<a href=#245 id=245 data-nosnippet>245</a>
-<a href=#246 id=246 data-nosnippet>246</a>    <span class="kw">impl</span>&lt;T: <a href="#19-22">ConstDefault</a>&gt; <a href="#19-22">ConstDefault</a> <span class="kw">for </span><a href="../../../devela/num/struct.Cast.html"><span class="kw">crate</span>::Cast</a>&lt;T&gt; {
-<a href=#247 id=247 data-nosnippet>247</a>        <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="../../../devela/num/struct.Cast.html"><span class="kw">crate</span>::Cast</a>(T::DEFAULT);
-<a href=#248 id=248 data-nosnippet>248</a>}
-<a href=#249 id=249 data-nosnippet>249</a>
-<a href=#250 id=250 data-nosnippet>250</a>    <span class="doccomment">/// Provides a *const* default value for `Interval`, the unbounded interval $(-\infty, \infty)$.
-<a href=#251 id=251 data-nosnippet>251</a>    ///
-<a href=#252 id=252 data-nosnippet>252</a>    /// See the [`default`][Self::default] implementation for more information.
-<a href=#253 id=253 data-nosnippet>253</a>    </span><span class="kw">impl</span>&lt;T&gt; <a href="#19-22">ConstDefault</a> <span class="kw">for </span><a href="../../../devela/all/struct.Interval.html">Interval</a>&lt;T&gt; { <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="self">Self</span>::unbounded(); }
+<a href=#170 id=170 data-nosnippet>170</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T&gt; <span class="kw-2">&amp;</span>[] =&gt; <span class="kw-2">&amp;</span>[T]]; <span class="comment">// not allowed for &amp;mut [T]
+<a href=#171 id=171 data-nosnippet>171</a>
+<a href=#172 id=172 data-nosnippet>172</a>    </span><span class="kw">impl </span><a href="#21-24">ConstDefault</a> <span class="kw">for </span><span class="kw-2">&amp;</span><a href="../../../devela/all/struct.CStr.html">CStr</a> {
+<a href=#173 id=173 data-nosnippet>173</a>        <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= {
+<a href=#174 id=174 data-nosnippet>174</a>            <span class="kw">if let </span><a class="prelude-val" href="../../../devela/all/enum.Result.html">Ok</a>(s) = <a href="https://doc.rust-lang.org/nightly/core/ffi/c_str/struct.CStr.html#method.from_bytes_until_nul">CStr::from_bytes_until_nul</a>(<span class="kw-2">&amp;</span>[<span class="number">0</span>]) { <a href="#174">s</a> } <span class="kw">else </span>{ <a class="macro" href="../../../devela/all/macro.unreachable.html">unreachable!</a>[]; }
+<a href=#175 id=175 data-nosnippet>175</a>        };
+<a href=#176 id=176 data-nosnippet>176</a>    }
+<a href=#177 id=177 data-nosnippet>177</a>
+<a href=#178 id=178 data-nosnippet>178</a>    <a class="macro" href="#27-132">impl_cdef!</a>[<span class="self">Self </span>=&gt; <a href="../../../devela/all/struct.PhantomPinned.html">PhantomPinned</a>, <a href="../../../devela/all/struct.RangeFull.html">RangeFull</a>];
+<a href=#179 id=179 data-nosnippet>179</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T: ConstDefault&gt;<span class="self">Self </span>{ start: T::DEFAULT } =&gt; <a href="../../../devela/all/struct.RangeFrom.html">RangeFrom</a>&lt;T&gt;];
+<a href=#180 id=180 data-nosnippet>180</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T: ConstDefault&gt;<span class="self">Self </span>{ end: T::DEFAULT } =&gt; <a href="../../../devela/all/struct.RangeTo.html">RangeTo</a>&lt;T&gt;, <a href="../../../devela/all/struct.RangeToInclusive.html">RangeToInclusive</a>&lt;T&gt;];
+<a href=#181 id=181 data-nosnippet>181</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T: ConstDefault&gt;<span class="self">Self </span>{ start: T::DEFAULT, end: T::DEFAULT } =&gt; <a href="../../../devela/all/struct.Range.html">Range</a>&lt;T&gt;];
+<a href=#182 id=182 data-nosnippet>182</a>    <span class="comment">// this one has private fields
+<a href=#183 id=183 data-nosnippet>183</a>    </span><a class="macro" href="#27-132">impl_cdef!</a>[&lt;T: ConstDefault&gt;<a href="https://doc.rust-lang.org/nightly/core/ops/range/struct.RangeInclusive.html#method.new"><span class="self">Self</span>::new</a>(T::DEFAULT, T::DEFAULT) =&gt; <a href="../../../devela/all/struct.RangeInclusive.html">RangeInclusive</a>&lt;T&gt;];
+<a href=#184 id=184 data-nosnippet>184</a>
+<a href=#185 id=185 data-nosnippet>185</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a href="https://doc.rust-lang.org/nightly/core/cell/once/struct.OnceCell.html#method.new"><span class="self">Self</span>::new</a>() =&gt; <a href="../../../devela/all/struct.OnceCell.html">OnceCell</a>&lt;T&gt;];
+<a href=#186 id=186 data-nosnippet>186</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a href="https://doc.rust-lang.org/nightly/core/cell/struct.UnsafeCell.html#method.new"><span class="self">Self</span>::new</a>(T::DEFAULT) =&gt;
+<a href=#187 id=187 data-nosnippet>187</a>        <a href="../../../devela/all/struct.Cell.html">Cell</a>&lt;T&gt;, <a href="../../../devela/all/struct.ManuallyDrop.html">ManuallyDrop</a>&lt;T&gt;, <a href="../../../devela/all/struct.RefCell.html">RefCell</a>&lt;T&gt;, <a href="../../../devela/all/struct.UnsafeCell.html">UnsafeCell</a>&lt;T&gt;
+<a href=#188 id=188 data-nosnippet>188</a>    ];
+<a href=#189 id=189 data-nosnippet>189</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T: ConstDefault&gt; <span class="self">Self</span>(T::DEFAULT) =&gt;
+<a href=#190 id=190 data-nosnippet>190</a>        <a href="../../../devela/all/struct.PanicAssertUnwindSafe.html">AssertUnwindSafe</a>&lt;T&gt;, <a href="../../../devela/all/struct.Reverse.html">Reverse</a>&lt;T&gt;, <a href="../../../devela/all/struct.Saturating.html">Saturating</a>&lt;T&gt;, <a href="../../../devela/all/struct.Wrapping.html">Wrapping</a>&lt;T&gt;
+<a href=#191 id=191 data-nosnippet>191</a>    ];
+<a href=#192 id=192 data-nosnippet>192</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T&gt; <span class="self">Self </span>=&gt; <a href="../../../devela/all/struct.PhantomData.html">PhantomData</a>&lt;T&gt;]; <span class="comment">// no need for T: ConstDefault here
+<a href=#193 id=193 data-nosnippet>193</a>    </span><a class="macro" href="#27-132">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a class="prelude-val" href="../../../devela/all/enum.Option.html">Some</a>(T::DEFAULT) =&gt; <a class="prelude-ty" href="../../../devela/all/enum.Option.html">Option</a>&lt;T&gt;];
+<a href=#194 id=194 data-nosnippet>194</a>
+<a href=#195 id=195 data-nosnippet>195</a>    <span class="comment">// WAIT: [exclusive_wrapper](https://github.com/rust-lang/rust/issues/98407)
+<a href=#196 id=196 data-nosnippet>196</a>    // impl_cdef![&lt;T: ConstDefault&gt; Self::new(T::DEFAULT) =&gt; Exclusive&lt;T&gt;];
+<a href=#197 id=197 data-nosnippet>197</a>    // WAIT: [sync_unsafe_cell](https://github.com/rust-lang/rust/issues/95439)
+<a href=#198 id=198 data-nosnippet>198</a>    // impl_cdef![&lt;T&gt; Self::new(|| T::DEFAULT) =&gt; SyncUnsafeCell&lt;T&gt;];
+<a href=#199 id=199 data-nosnippet>199</a>    // WAIT: [ptr_alignment_type](https://github.com/rust-lang/rust/issues/102070)
+<a href=#200 id=200 data-nosnippet>200</a>    // impl_cdef![&lt;T&gt; Self::MIN =&gt; Alignment];
+<a href=#201 id=201 data-nosnippet>201</a>
+<a href=#202 id=202 data-nosnippet>202</a>    /* text */
+<a href=#203 id=203 data-nosnippet>203</a>
+<a href=#204 id=204 data-nosnippet>204</a>    </span><a class="macro" href="#27-132">impl_cdef!</a>[<span class="string">"" </span>=&gt; <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>];
+<a href=#205 id=205 data-nosnippet>205</a>
+<a href=#206 id=206 data-nosnippet>206</a>    <span class="attr">#[cfg(all(not(feature = <span class="string">"safe_text"</span>), feature = <span class="string">"unsafe_str"</span>))]
+<a href=#207 id=207 data-nosnippet>207</a>    #[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"unsafe_str"</span>)))]
+<a href=#208 id=208 data-nosnippet>208</a>    </span><span class="kw">impl </span><a href="#21-24"><span class="kw">crate</span>::ConstDefault</a> <span class="kw">for </span><span class="kw-2">&amp;mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> {
+<a href=#209 id=209 data-nosnippet>209</a>        <span class="comment">// SAFETY: The empty string is valid UTF-8.
+<a href=#210 id=210 data-nosnippet>210</a>        </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="kw">unsafe </span>{ <a href="https://doc.rust-lang.org/nightly/core/str/converts/fn.from_utf8_unchecked_mut.html">::core::str::from_utf8_unchecked_mut</a>(<span class="kw-2">&amp;mut </span>[]) };
+<a href=#211 id=211 data-nosnippet>211</a>    }
+<a href=#212 id=212 data-nosnippet>212</a>}
+<a href=#213 id=213 data-nosnippet>213</a>
+<a href=#214 id=214 data-nosnippet>214</a><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+<a href=#215 id=215 data-nosnippet>215</a>#[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"alloc"</span>)))]
+<a href=#216 id=216 data-nosnippet>216</a></span><span class="kw">mod </span>impl_alloc {
+<a href=#217 id=217 data-nosnippet>217</a>    <span class="kw">use </span><a href="../../../devela/all/struct.String.html"><span class="kw">crate</span>::String</a>;
+<a href=#218 id=218 data-nosnippet>218</a>
+<a href=#219 id=219 data-nosnippet>219</a>    <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+<a href=#220 id=220 data-nosnippet>220</a>    </span><a class="macro" href="#27-132">impl_cdef!</a>[<a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html#method.new"><span class="self">Self</span>::new</a>() =&gt; <a href="../../../devela/all/struct.String.html">String</a>];
+<a href=#221 id=221 data-nosnippet>221</a>
+<a href=#222 id=222 data-nosnippet>222</a>    <span class="comment">// TODO: fxhash, fnv, ahash
+<a href=#223 id=223 data-nosnippet>223</a>    // #[cfg(feature = "dep_hashbrown")]
+<a href=#224 id=224 data-nosnippet>224</a>    // impl_cdef![&lt;K, V&gt; Self::with_hasher(TODO) =&gt; HashMap&lt;K, V&gt;];
+<a href=#225 id=225 data-nosnippet>225</a>    // #[cfg(feature = "dep_hashbrown")]
+<a href=#226 id=226 data-nosnippet>226</a>    // impl_cdef![&lt;K&gt; Self::with_hasher(TODO) =&gt; HashSet&lt;K&gt;];
+<a href=#227 id=227 data-nosnippet>227</a></span>}
+<a href=#228 id=228 data-nosnippet>228</a>
+<a href=#229 id=229 data-nosnippet>229</a><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+<a href=#230 id=230 data-nosnippet>230</a>#[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"std"</span>)))]
+<a href=#231 id=231 data-nosnippet>231</a></span><span class="kw">mod </span>impl_std {
+<a href=#232 id=232 data-nosnippet>232</a>    <span class="kw">use </span>std::{
+<a href=#233 id=233 data-nosnippet>233</a>        <a href="../../../devela/all/struct.LazyCell.html">cell::LazyCell</a>,
+<a href=#234 id=234 data-nosnippet>234</a>        <span class="comment">// collections::hash_map::DefaultHasher
+<a href=#235 id=235 data-nosnippet>235</a>        // io::{Cursor, Empty, Sink},
+<a href=#236 id=236 data-nosnippet>236</a>        </span><a href="../../../devela/all/struct.ProcessExitCode.html">process::ExitCode</a>,
+<a href=#237 id=237 data-nosnippet>237</a>        sync::{<a href="../../../devela/all/struct.Condvar.html">Condvar</a>, <a href="../../../devela/all/struct.LazyLock.html">LazyLock</a>, <a href="../../../devela/all/struct.Mutex.html">Mutex</a>, <a href="../../../devela/all/struct.Once.html">Once</a>, <a href="../../../devela/all/struct.OnceLock.html">OnceLock</a>, <a href="../../../devela/all/struct.RwLock.html">RwLock</a>, <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Weak.html">Weak</a> <span class="kw">as </span>ArcWeak},
+<a href=#238 id=238 data-nosnippet>238</a>    };
+<a href=#239 id=239 data-nosnippet>239</a>    <span class="comment">// Types that don't implement Default:
+<a href=#240 id=240 data-nosnippet>240</a>    // - OsString: OsString { inner: Buf::from_string(String::new()) }
+<a href=#241 id=241 data-nosnippet>241</a>
+<a href=#242 id=242 data-nosnippet>242</a>    </span><a class="macro" href="#27-132">impl_cdef!</a>[<span class="self">Self</span>::SUCCESS =&gt; <a href="../../../devela/all/struct.ProcessExitCode.html">ExitCode</a>];
+<a href=#243 id=243 data-nosnippet>243</a>    <a class="macro" href="#27-132">impl_cdef!</a>[<a href="https://doc.rust-lang.org/nightly/std/sync/poison/once/struct.Once.html#method.new"><span class="self">Self</span>::new</a>() =&gt; <a href="../../../devela/all/struct.Condvar.html">Condvar</a>, <a href="../../../devela/all/struct.Once.html">Once</a>];
+<a href=#244 id=244 data-nosnippet>244</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a href="https://doc.rust-lang.org/nightly/std/sync/once_lock/struct.OnceLock.html#method.new"><span class="self">Self</span>::new</a>() =&gt; <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Weak.html">ArcWeak</a>&lt;T&gt;, <a href="../../../devela/all/struct.OnceLock.html">OnceLock</a>&lt;T&gt;];
+<a href=#245 id=245 data-nosnippet>245</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a href="https://doc.rust-lang.org/nightly/std/sync/poison/rwlock/struct.RwLock.html#method.new"><span class="self">Self</span>::new</a>(T::DEFAULT) =&gt; <a href="../../../devela/all/struct.Mutex.html">Mutex</a>&lt;T&gt;, <a href="../../../devela/all/struct.RwLock.html">RwLock</a>&lt;T&gt;];
+<a href=#246 id=246 data-nosnippet>246</a>    <a class="macro" href="#27-132">impl_cdef!</a>[&lt;T: ConstDefault&gt; <a href="https://doc.rust-lang.org/nightly/std/sync/lazy_lock/struct.LazyLock.html#method.new"><span class="self">Self</span>::new</a>(|| T::DEFAULT) =&gt; <a href="../../../devela/all/struct.LazyCell.html">LazyCell</a>&lt;T&gt;, <a href="../../../devela/all/struct.LazyLock.html">LazyLock</a>&lt;T&gt;];
+<a href=#247 id=247 data-nosnippet>247</a>
+<a href=#248 id=248 data-nosnippet>248</a>    <span class="comment">// WAIT: [const_hash](https://github.com/rust-lang/rust/issues/104061)
+<a href=#249 id=249 data-nosnippet>249</a>    // #[cfg(feature = "dep_hashbrown")]
+<a href=#250 id=250 data-nosnippet>250</a>    // impl_cdef![&lt;K, V&gt; Self::with_hasher(DefaulHashher) =&gt; BTreeMap&lt;K, V&gt;];
+<a href=#251 id=251 data-nosnippet>251</a>    // WAIT: [const_io_structs](https://github.com/rust-lang/rust/issues/78812)
+<a href=#252 id=252 data-nosnippet>252</a>    // impl_cdef![Self =&gt; Cursor, Empty, Sink];
+<a href=#253 id=253 data-nosnippet>253</a></span>}
 <a href=#254 id=254 data-nosnippet>254</a>
-<a href=#255 id=255 data-nosnippet>255</a>    <span class="kw">impl </span><a href="#19-22">ConstDefault</a> <span class="kw">for </span><a href="../../../devela/all/enum.Sign.html">Sign</a> { <span class="attr">#[doc = <span class="string">"No sign."</span>] </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="../../../devela/all/enum.Sign.html">Sign::None</a>; }
-<a href=#256 id=256 data-nosnippet>256</a>}</code></pre></div></section></main></body></html>
+<a href=#255 id=255 data-nosnippet>255</a><span class="attr">#[rustfmt::skip]
+<a href=#256 id=256 data-nosnippet>256</a></span><span class="kw">mod </span>impl_devela {
+<a href=#257 id=257 data-nosnippet>257</a>    <span class="kw">use crate</span>::{<a href="#21-24">ConstDefault</a>, <a href="../../../devela/all/macro.paste.html">paste</a>, <a href="../../../devela/all/macro.unwrap.html">unwrap</a>};
+<a href=#258 id=258 data-nosnippet>258</a>    <span class="kw">use crate</span>::{
+<a href=#259 id=259 data-nosnippet>259</a>        <span class="comment">// data //
+<a href=#260 id=260 data-nosnippet>260</a>        </span><a href="../../../devela/num/struct.Cast.html">Cast</a>,
+<a href=#261 id=261 data-nosnippet>261</a>        <span class="comment">// num //
+<a href=#262 id=262 data-nosnippet>262</a>        // TODO: Cycle, CycleCount
+<a href=#263 id=263 data-nosnippet>263</a>        </span><a href="../../../devela/all/struct.Interval.html">Interval</a>,
+<a href=#264 id=264 data-nosnippet>264</a>        <a href="../../../devela/all/enum.Sign.html">Sign</a>,
+<a href=#265 id=265 data-nosnippet>265</a>        <span class="comment">// text //
+<a href=#266 id=266 data-nosnippet>266</a>        </span><a href="../../../devela/text/enum.AsciiChar.html">AsciiChar</a>,
+<a href=#267 id=267 data-nosnippet>267</a>        <a href="../../../devela/text/struct.GraphemeNonul.html">GraphemeNonul</a>, <a href="../../../devela/text/struct.GraphemeU8.html">GraphemeU8</a>,
+<a href=#268 id=268 data-nosnippet>268</a>        <a href="../../../devela/all/struct.StringNonul.html">StringNonul</a>, <a href="../../../devela/all/struct.StringU8.html">StringU8</a>, <a href="../../../devela/all/struct.StringU16.html">StringU16</a>, <a href="../../../devela/all/struct.StringU32.html">StringU32</a>, <a href="../../../devela/all/struct.StringUsize.html">StringUsize</a>,
+<a href=#269 id=269 data-nosnippet>269</a>    };
+<a href=#270 id=270 data-nosnippet>270</a>    <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+<a href=#271 id=271 data-nosnippet>271</a>    </span><span class="kw">pub use </span><a href="../../../devela/text/struct.GraphemeString.html"><span class="kw">crate</span>::GraphemeString</a>;
+<a href=#272 id=272 data-nosnippet>272</a>
+<a href=#273 id=273 data-nosnippet>273</a>    <span class="comment">/* data */
+<a href=#274 id=274 data-nosnippet>274</a>
+<a href=#275 id=275 data-nosnippet>275</a>    </span><span class="kw">impl</span>&lt;T: <a href="#21-24">ConstDefault</a>&gt; <a href="#21-24">ConstDefault</a> <span class="kw">for </span><a href="../../../devela/num/struct.Cast.html">Cast</a>&lt;T&gt; {
+<a href=#276 id=276 data-nosnippet>276</a>        <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="../../../devela/num/struct.Cast.html">Cast</a>(T::DEFAULT);
+<a href=#277 id=277 data-nosnippet>277</a>    }
+<a href=#278 id=278 data-nosnippet>278</a>
+<a href=#279 id=279 data-nosnippet>279</a>    <span class="comment">/* num */
+<a href=#280 id=280 data-nosnippet>280</a>
+<a href=#281 id=281 data-nosnippet>281</a>    </span><span class="doccomment">/// Provides a *const* default value for `Interval`, the unbounded interval $(-\infty, \infty)$.
+<a href=#282 id=282 data-nosnippet>282</a>    ///
+<a href=#283 id=283 data-nosnippet>283</a>    /// See the [`default`][Self::default] implementation for more information.
+<a href=#284 id=284 data-nosnippet>284</a>    </span><span class="kw">impl</span>&lt;T&gt; <a href="#21-24">ConstDefault</a> <span class="kw">for </span><a href="../../../devela/all/struct.Interval.html">Interval</a>&lt;T&gt; { <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="self">Self</span>::unbounded(); }
+<a href=#285 id=285 data-nosnippet>285</a>
+<a href=#286 id=286 data-nosnippet>286</a>    <span class="kw">impl </span><a href="#21-24">ConstDefault</a> <span class="kw">for </span><a href="../../../devela/all/enum.Sign.html">Sign</a> { <span class="attr">#[doc = <span class="string">"No sign."</span>] </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="../../../devela/all/enum.Sign.html">Sign::None</a>; }
+<a href=#287 id=287 data-nosnippet>287</a>
+<a href=#288 id=288 data-nosnippet>288</a>    <span class="comment">// NOTE: NonExtreme* types have their implementation in num/niche/impls.rs
+<a href=#289 id=289 data-nosnippet>289</a>
+<a href=#290 id=290 data-nosnippet>290</a>    /* text */
+<a href=#291 id=291 data-nosnippet>291</a>
+<a href=#292 id=292 data-nosnippet>292</a>    </span><span class="kw">impl </span><a href="#21-24">ConstDefault</a> <span class="kw">for </span><a href="../../../devela/text/enum.AsciiChar.html">AsciiChar</a> {
+<a href=#293 id=293 data-nosnippet>293</a>        <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a href="../../../devela/text/enum.AsciiChar.html">AsciiChar::Null</a>;
+<a href=#294 id=294 data-nosnippet>294</a>    }
+<a href=#295 id=295 data-nosnippet>295</a>
+<a href=#296 id=296 data-nosnippet>296</a>    <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#21-24">ConstDefault</a> <span class="kw">for </span><a href="../../../devela/text/struct.GraphemeNonul.html">GraphemeNonul</a>&lt;<a href="#296">CAP</a>&gt; {
+<a href=#297 id=297 data-nosnippet>297</a>        <span class="attr">#[doc = <span class="string">"Returns an empty string.\n\n#Panics\n\nPanics if `CAP &gt; `[`u8::MAX`]."</span>]
+<a href=#298 id=298 data-nosnippet>298</a>        </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a class="macro" href="../../../devela/all/macro.unwrap.html">unwrap!</a>[ok <span class="self">Self</span>::new()];
+<a href=#299 id=299 data-nosnippet>299</a>    }
+<a href=#300 id=300 data-nosnippet>300</a>    <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+<a href=#301 id=301 data-nosnippet>301</a>    </span><span class="kw">impl </span><a href="#21-24">ConstDefault</a> <span class="kw">for </span><a href="../../../devela/text/struct.GraphemeString.html">GraphemeString</a> {
+<a href=#302 id=302 data-nosnippet>302</a>        <span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="self">Self</span>::new();
+<a href=#303 id=303 data-nosnippet>303</a>    }
+<a href=#304 id=304 data-nosnippet>304</a>    <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#21-24">ConstDefault</a> <span class="kw">for </span><a href="../../../devela/text/struct.GraphemeU8.html">GraphemeU8</a>&lt;<a href="#304">CAP</a>&gt; {
+<a href=#305 id=305 data-nosnippet>305</a>        <span class="attr">#[doc = <span class="string">"Returns an empty string.\n\n#Panics\n\nPanics if `CAP &gt; `[`u8::MAX`]."</span>]
+<a href=#306 id=306 data-nosnippet>306</a>        </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a class="macro" href="../../../devela/all/macro.unwrap.html">unwrap!</a>[ok <span class="self">Self</span>::new()];
+<a href=#307 id=307 data-nosnippet>307</a>    }
+<a href=#308 id=308 data-nosnippet>308</a>
+<a href=#309 id=309 data-nosnippet>309</a>    <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#21-24">ConstDefault</a> <span class="kw">for </span><a href="../../../devela/all/struct.StringNonul.html">StringNonul</a>&lt;<a href="#309">CAP</a>&gt; {
+<a href=#310 id=310 data-nosnippet>310</a>        <span class="attr">#[doc = <span class="string">"Returns an empty string.\n\n#Panics\n\nPanics if `CAP &gt; `[`u8::MAX`]."</span>]
+<a href=#311 id=311 data-nosnippet>311</a>        </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <a class="macro" href="../../../devela/all/macro.unwrap.html">unwrap!</a>[ok <span class="self">Self</span>::new()];
+<a href=#312 id=312 data-nosnippet>312</a>    }
+<a href=#313 id=313 data-nosnippet>313</a>    <span class="macro">macro_rules!</span> impl_cdef_for_string_u { <span class="comment">// impl ConstDefault for StringU*
+<a href=#314 id=314 data-nosnippet>314</a>        </span>() =&gt; { <span class="macro">impl_cdef_for_string_u!</span>[u8, u16, u32, usize]; };
+<a href=#315 id=315 data-nosnippet>315</a>        ($(<span class="macro-nonterminal">$t</span>:ty),+ $(,)<span class="question-mark">?</span>) =&gt; {
+<a href=#316 id=316 data-nosnippet>316</a>            $( <span class="macro">paste!</span> { <span class="macro">impl_cdef_for_string_u!</span>[@[&lt;String <span class="macro-nonterminal">$t</span>:camel&gt;], <span class="macro-nonterminal">$t</span>]; } )+
+<a href=#317 id=317 data-nosnippet>317</a>        };
+<a href=#318 id=318 data-nosnippet>318</a>        (@<span class="macro-nonterminal">$name</span>:ty, <span class="macro-nonterminal">$t</span>:ty) =&gt; { <span class="macro">paste!</span> {
+<a href=#319 id=319 data-nosnippet>319</a>            <span class="kw">impl</span>&lt;<span class="kw">const </span>CAP: usize&gt; ConstDefault <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;CAP&gt; {
+<a href=#320 id=320 data-nosnippet>320</a>                <span class="attr">#[doc = <span class="string">"Returns an empty string.\n\n#Panics\n\nPanics if `CAP &gt; `[`" </span><span class="macro-nonterminal">$t </span><span class="string">"::MAX`]."</span>]
+<a href=#321 id=321 data-nosnippet>321</a>                </span><span class="kw">const </span>DEFAULT: <span class="self">Self </span>= <span class="macro">unwrap!</span>[ok <span class="self">Self</span>::new()];
+<a href=#322 id=322 data-nosnippet>322</a>            }
+<a href=#323 id=323 data-nosnippet>323</a>        }};
+<a href=#324 id=324 data-nosnippet>324</a>    }
+<a href=#325 id=325 data-nosnippet>325</a>    <a class="macro" href="#313-324">impl_cdef_for_string_u!</a>();
+<a href=#326 id=326 data-nosnippet>326</a>}</code></pre></div></section></main></body></html>

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["cpal","mock"],"struct":["Renderer"],"trait":["Backend"],"type":["DefaultBackend"]};

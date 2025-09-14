@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Context","Pixel","Sample"],"fn":["configuration","input","input_with_dictionary","input_with_interrupt","license","output","output_as","output_as_with","output_with","version"],"mod":["chapter","context","format","network","stream"],"struct":["Flags","Input","Output"]};

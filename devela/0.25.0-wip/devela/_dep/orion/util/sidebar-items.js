@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["secure_cmp","secure_rand_bytes"]};

@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/arch/namespace.rs`."><title>namespace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/arch/namespace.rs`."><title>namespace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -120,7 +140,7 @@
 <a href=#11 id=11 data-nosnippet>11</a></span><span class="attr">#![allow(clippy::too_many_arguments)]
 <a href=#12 id=12 data-nosnippet>12</a>
 <a href=#13 id=13 data-nosnippet>13</a>#[cfg(feature = <span class="string">"dep_safe_arch"</span>)]
-<a href=#14 id=14 data-nosnippet>14</a></span><span class="kw">use </span><a href="../../../../devela/_dep/safe_arch/index.html"><span class="kw">crate</span>::_dep::safe_arch</a>::<span class="kw-2">*</span>;
+<a href=#14 id=14 data-nosnippet>14</a></span><span class="kw">use </span><span class="kw">crate</span>::_dep::safe_arch::<span class="kw-2">*</span>;
 <a href=#15 id=15 data-nosnippet>15</a>
 <a href=#16 id=16 data-nosnippet>16</a><span class="attr">#[doc = <span class="macro">crate::TAG_NAMESPACE!</span>()]
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="doccomment">/// Arch-related functionality.
@@ -1250,11 +1270,11 @@
 <a href=#1141 id=1141 data-nosnippet>1141</a>    <span class="doccomment">/// Fetches the cache line containing `addr` into all levels of the cache hierarchy,
 <a href=#1142 id=1142 data-nosnippet>1142</a>    /// anticipating write.
 <a href=#1143 id=1143 data-nosnippet>1143</a>    </span><span class="kw">pub fn </span>prefetch_et0&lt;T&gt;(addr: <span class="kw-2">&amp;</span>T) {
-<a href=#1144 id=1144 data-nosnippet>1144</a>        <a href="../../../../devela/_dep/safe_arch/fn.prefetch_et0.html">prefetch_et0</a>(<a href="#1143">addr</a>);
+<a href=#1144 id=1144 data-nosnippet>1144</a>        prefetch_et0(<a href="#1143">addr</a>);
 <a href=#1145 id=1145 data-nosnippet>1145</a>    }
 <a href=#1146 id=1146 data-nosnippet>1146</a>    <span class="doccomment">/// Fetches into L2 and higher, anticipating write.
 <a href=#1147 id=1147 data-nosnippet>1147</a>    </span><span class="kw">pub fn </span>prefetch_et1&lt;T&gt;(addr: <span class="kw-2">&amp;</span>T) {
-<a href=#1148 id=1148 data-nosnippet>1148</a>        <a href="../../../../devela/_dep/safe_arch/fn.prefetch_et1.html">prefetch_et1</a>(<a href="#1147">addr</a>);
+<a href=#1148 id=1148 data-nosnippet>1148</a>        prefetch_et1(<a href="#1147">addr</a>);
 <a href=#1149 id=1149 data-nosnippet>1149</a>    }
 <a href=#1150 id=1150 data-nosnippet>1150</a>    <span class="doccomment">/// Fetch data using the non-temporal access (NTA) hint.
 <a href=#1151 id=1151 data-nosnippet>1151</a>    ///
@@ -1262,20 +1282,20 @@
 <a href=#1153 id=1153 data-nosnippet>1153</a>    ///
 <a href=#1154 id=1154 data-nosnippet>1154</a>    /// This is used to reduce access latency without polluting the cache.
 <a href=#1155 id=1155 data-nosnippet>1155</a>    </span><span class="kw">pub fn </span>prefetch_nta&lt;T&gt;(addr: <span class="kw-2">&amp;</span>T) {
-<a href=#1156 id=1156 data-nosnippet>1156</a>        <a href="../../../../devela/_dep/safe_arch/fn.prefetch_nta.html">prefetch_nta</a>(<a href="#1155">addr</a>);
+<a href=#1156 id=1156 data-nosnippet>1156</a>        prefetch_nta(<a href="#1155">addr</a>);
 <a href=#1157 id=1157 data-nosnippet>1157</a>    }
 <a href=#1158 id=1158 data-nosnippet>1158</a>    <span class="doccomment">/// Fetches the cache line containing `addr` into all levels of the cache hierarchy.
 <a href=#1159 id=1159 data-nosnippet>1159</a>    </span><span class="kw">pub fn </span>prefetch_t0&lt;T&gt;(addr: <span class="kw-2">&amp;</span>T) {
-<a href=#1160 id=1160 data-nosnippet>1160</a>        <a href="../../../../devela/_dep/safe_arch/fn.prefetch_t0.html">prefetch_t0</a>(<a href="#1159">addr</a>);
+<a href=#1160 id=1160 data-nosnippet>1160</a>        prefetch_t0(<a href="#1159">addr</a>);
 <a href=#1161 id=1161 data-nosnippet>1161</a>    }
 <a href=#1162 id=1162 data-nosnippet>1162</a>    <span class="doccomment">/// Fetches into L2 and higher.
 <a href=#1163 id=1163 data-nosnippet>1163</a>    </span><span class="kw">pub fn </span>prefetch_t1&lt;T&gt;(addr: <span class="kw-2">&amp;</span>T) {
-<a href=#1164 id=1164 data-nosnippet>1164</a>        <a href="../../../../devela/_dep/safe_arch/fn.prefetch_t1.html">prefetch_t1</a>(<a href="#1163">addr</a>);
+<a href=#1164 id=1164 data-nosnippet>1164</a>        prefetch_t1(<a href="#1163">addr</a>);
 <a href=#1165 id=1165 data-nosnippet>1165</a>    }
 <a href=#1166 id=1166 data-nosnippet>1166</a>    <span class="doccomment">/// Fetches into L3 and higher or an implementation-specific choice
 <a href=#1167 id=1167 data-nosnippet>1167</a>    /// (e.g., L2 if there is no L3).
 <a href=#1168 id=1168 data-nosnippet>1168</a>    </span><span class="kw">pub fn </span>prefetch_t2&lt;T&gt;(addr: <span class="kw-2">&amp;</span>T) {
-<a href=#1169 id=1169 data-nosnippet>1169</a>        <a href="../../../../devela/_dep/safe_arch/fn.prefetch_t2.html">prefetch_t2</a>(<a href="#1168">addr</a>);
+<a href=#1169 id=1169 data-nosnippet>1169</a>        prefetch_t2(<a href="#1168">addr</a>);
 <a href=#1170 id=1170 data-nosnippet>1170</a>    }
 <a href=#1171 id=1171 data-nosnippet>1171</a>}
 <a href=#1172 id=1172 data-nosnippet>1172</a><a class="macro" href="#1793-1817">impl_arch!</a> {

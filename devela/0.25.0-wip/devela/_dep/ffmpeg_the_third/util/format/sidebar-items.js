@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Pixel","Sample"],"mod":["pixel","sample"]};

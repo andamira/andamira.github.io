@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/syscalls/x86_64.rs`."><title>x86_64.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/syscalls/x86_64.rs`."><title>x86_64.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -119,12 +139,12 @@
 <a href=#10 id=10 data-nosnippet>10</a>
 <a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">use super</span>::{<a href="consts/mod.rs.html#62">LinuxOffset</a>, <a href="mod.rs.html#10">shared_docs</a>::<span class="kw-2">*</span>};
 <a href=#12 id=12 data-nosnippet>12</a><span class="kw">use crate</span>::{
-<a href=#13 id=13 data-nosnippet>13</a>    <a href="consts/mod.rs.html#55">LINUX_SYS</a> <span class="kw">as </span>SYS, <a href="../namespace.rs.html#36">Linux</a>, <a href="../structs/sigaction.rs.html#21-35">LinuxSigaction</a>, <a href="../structs/stat.rs.html#13-48">LinuxStat</a>, <a href="../structs/timespec.rs.html#13-18">LinuxTimespec</a>, <a href="../../../../../../devela/all/macro.asm.html">asm</a>, <a href="../../../../../../devela/all/type.c_char.html">c_char</a>, <a href="../../../../../../devela/all/type.c_int.html">c_int</a>, <a href="../../../../../../devela/all/type.c_uint.html">c_uint</a>,
+<a href=#13 id=13 data-nosnippet>13</a>    <a href="consts/mod.rs.html#55">LINUX_SYS</a> <span class="kw">as </span>SYS, <a href="../namespace.rs.html#33">Linux</a>, <a href="../structs/sigaction.rs.html#21-35">LinuxSigaction</a>, <a href="../structs/stat.rs.html#13-48">LinuxStat</a>, <a href="../structs/timespec.rs.html#13-18">LinuxTimespec</a>, <a href="../../../../../../devela/all/macro.asm.html">asm</a>, <a href="../../../../../../devela/all/type.c_char.html">c_char</a>, <a href="../../../../../../devela/all/type.c_int.html">c_int</a>, <a href="../../../../../../devela/all/type.c_uint.html">c_uint</a>,
 <a href=#14 id=14 data-nosnippet>14</a>    <a href="../../../../../../devela/all/type.c_ulong.html">c_ulong</a>,
 <a href=#15 id=15 data-nosnippet>15</a>};
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a><span class="doccomment">/// # Syscalls: File descriptors.
-<a href=#18 id=18 data-nosnippet>18</a></span><span class="kw">impl </span><a href="../namespace.rs.html#36">Linux</a> {
+<a href=#18 id=18 data-nosnippet>18</a></span><span class="kw">impl </span><a href="../namespace.rs.html#33">Linux</a> {
 <a href=#19 id=19 data-nosnippet>19</a>    <span class="attr">#[doc = <span class="macro">SYS_READ!</span>()]
 <a href=#20 id=20 data-nosnippet>20</a>    #[must_use]
 <a href=#21 id=21 data-nosnippet>21</a>    </span><span class="kw">pub unsafe fn </span>sys_read(fd: <a href="../../../../../../devela/all/type.c_int.html">c_int</a>, buf: <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, count: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
@@ -271,7 +291,7 @@
 <a href=#162 id=162 data-nosnippet>162</a>}
 <a href=#163 id=163 data-nosnippet>163</a>
 <a href=#164 id=164 data-nosnippet>164</a><span class="doccomment">/// # Syscalls: Filesystem.
-<a href=#165 id=165 data-nosnippet>165</a></span><span class="kw">impl </span><a href="../namespace.rs.html#36">Linux</a> {
+<a href=#165 id=165 data-nosnippet>165</a></span><span class="kw">impl </span><a href="../namespace.rs.html#33">Linux</a> {
 <a href=#166 id=166 data-nosnippet>166</a>    <span class="attr">#[doc = <span class="macro">SYS_STAT!</span>()]
 <a href=#167 id=167 data-nosnippet>167</a>    #[must_use]
 <a href=#168 id=168 data-nosnippet>168</a>    </span><span class="kw">pub unsafe fn </span>sys_stat(path: <span class="kw-2">*const </span><a href="../../../../../../devela/all/type.c_char.html">c_char</a>, statbuf: <span class="kw-2">*mut </span><a href="../structs/stat.rs.html#13-48">LinuxStat</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
@@ -331,7 +351,7 @@
 <a href=#222 id=222 data-nosnippet>222</a>// - poll/epoll
 <a href=#223 id=223 data-nosnippet>223</a>// - inotify
 <a href=#224 id=224 data-nosnippet>224</a>// - signalfd
-<a href=#225 id=225 data-nosnippet>225</a></span><span class="kw">impl </span><a href="../namespace.rs.html#36">Linux</a> {
+<a href=#225 id=225 data-nosnippet>225</a></span><span class="kw">impl </span><a href="../namespace.rs.html#33">Linux</a> {
 <a href=#226 id=226 data-nosnippet>226</a>    <span class="attr">#[doc = <span class="macro">SYS_IOCTL!</span>()]
 <a href=#227 id=227 data-nosnippet>227</a>    #[must_use]
 <a href=#228 id=228 data-nosnippet>228</a>    </span><span class="kw">pub unsafe fn </span>sys_ioctl(fd: <a href="../../../../../../devela/all/type.c_int.html">c_int</a>, request: <a href="../../../../../../devela/all/type.c_ulong.html">c_ulong</a>, argp: <span class="kw-2">*mut </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
@@ -355,7 +375,7 @@
 <a href=#246 id=246 data-nosnippet>246</a>}
 <a href=#247 id=247 data-nosnippet>247</a>
 <a href=#248 id=248 data-nosnippet>248</a><span class="doccomment">/// # Syscalls: IPC.
-<a href=#249 id=249 data-nosnippet>249</a></span><span class="kw">impl </span><a href="../namespace.rs.html#36">Linux</a> {
+<a href=#249 id=249 data-nosnippet>249</a></span><span class="kw">impl </span><a href="../namespace.rs.html#33">Linux</a> {
 <a href=#250 id=250 data-nosnippet>250</a>    <span class="attr">#[doc = <span class="macro">SYS_PIPE!</span>()]
 <a href=#251 id=251 data-nosnippet>251</a>    #[must_use]
 <a href=#252 id=252 data-nosnippet>252</a>    </span><span class="kw">pub unsafe fn </span>sys_pipe(pipefd: <span class="kw-2">*mut </span><a href="../../../../../../devela/all/type.c_int.html">c_int</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
@@ -394,7 +414,7 @@
 <a href=#285 id=285 data-nosnippet>285</a><span class="doccomment">/// # Syscalls: Process control.
 <a href=#286 id=286 data-nosnippet>286</a></span><span class="comment">// TODO
 <a href=#287 id=287 data-nosnippet>287</a>// - getppid
-<a href=#288 id=288 data-nosnippet>288</a></span><span class="kw">impl </span><a href="../namespace.rs.html#36">Linux</a> {
+<a href=#288 id=288 data-nosnippet>288</a></span><span class="kw">impl </span><a href="../namespace.rs.html#33">Linux</a> {
 <a href=#289 id=289 data-nosnippet>289</a>    <span class="attr">#[doc = <span class="macro">SYS_EXIT!</span>()]
 <a href=#290 id=290 data-nosnippet>290</a>    </span><span class="kw">pub unsafe fn </span>sys_exit(status: <a href="../../../../../../devela/all/type.c_int.html">c_int</a>) -&gt; ! {
 <a href=#291 id=291 data-nosnippet>291</a>        <span class="kw">unsafe </span>{
@@ -448,105 +468,106 @@
 <a href=#339 id=339 data-nosnippet>339</a>}
 <a href=#340 id=340 data-nosnippet>340</a>
 <a href=#341 id=341 data-nosnippet>341</a><span class="doccomment">/// # Syscalls: Timing and signal handling.
-<a href=#342 id=342 data-nosnippet>342</a></span><span class="kw">impl </span><a href="../namespace.rs.html#36">Linux</a> {
+<a href=#342 id=342 data-nosnippet>342</a></span><span class="kw">impl </span><a href="../namespace.rs.html#33">Linux</a> {
 <a href=#343 id=343 data-nosnippet>343</a>    <span class="comment">// WIP:
 <a href=#344 id=344 data-nosnippet>344</a>    // - https://chat.deepseek.com/a/chat/s/9be8c7b3-cc6f-4080-8405-07aca9db6f5c
-<a href=#345 id=345 data-nosnippet>345</a>    // confirm
-<a href=#346 id=346 data-nosnippet>346</a>    // - for which arches: x86_64 and more?
-<a href=#347 id=347 data-nosnippet>347</a>    // - TODO: alternative for aaarch64, riscv, arm
-<a href=#348 id=348 data-nosnippet>348</a>    //   - X86(u64),       // TSC
-<a href=#349 id=349 data-nosnippet>349</a>    //   - Arm(u64),       // CNTVCT_EL0
-<a href=#350 id=350 data-nosnippet>350</a>    //   - RiscV(u64),     // cycle CSR
-<a href=#351 id=351 data-nosnippet>351</a>    // - CLOCK_MONOTONIC_RAW const where?
-<a href=#352 id=352 data-nosnippet>352</a>    //   - https://www.baeldung.com/linux/timekeeping-clocks
-<a href=#353 id=353 data-nosnippet>353</a>    //
-<a href=#354 id=354 data-nosnippet>354</a>    // notes
-<a href=#355 id=355 data-nosnippet>355</a>    // - To convert TSC to nanoseconds, calibrate against CLOCK_MONOTONIC:
-<a href=#356 id=356 data-nosnippet>356</a>
-<a href=#357 id=357 data-nosnippet>357</a>    </span><span class="doccomment">/// Reads TSC as a single `u64` (combines low/high bits).
-<a href=#358 id=358 data-nosnippet>358</a>    </span><span class="attr">#[must_use]
-<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="kw">pub fn </span>rdtsc() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
-<a href=#360 id=360 data-nosnippet>360</a>        <span class="kw">let </span>low: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
-<a href=#361 id=361 data-nosnippet>361</a>        <span class="kw">let </span>high: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
-<a href=#362 id=362 data-nosnippet>362</a>        <span class="kw">unsafe </span>{
-<a href=#363 id=363 data-nosnippet>363</a>            <span class="macro">asm!</span>(
-<a href=#364 id=364 data-nosnippet>364</a>                <span class="string">"rdtsc"</span>,
-<a href=#365 id=365 data-nosnippet>365</a>                out(<span class="string">"eax"</span>) <a href="#360">low</a>,
-<a href=#366 id=366 data-nosnippet>366</a>                out(<span class="string">"edx"</span>) <a href="#361">high</a>,
-<a href=#367 id=367 data-nosnippet>367</a>                options(nomem, nostack, preserves_flags)
-<a href=#368 id=368 data-nosnippet>368</a>            );
-<a href=#369 id=369 data-nosnippet>369</a>        }
-<a href=#370 id=370 data-nosnippet>370</a>        ((<a href="#361">high</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) &lt;&lt; <span class="number">32</span>) | (<a href="#360">low</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>)
-<a href=#371 id=371 data-nosnippet>371</a>    }
-<a href=#372 id=372 data-nosnippet>372</a>
-<a href=#373 id=373 data-nosnippet>373</a>    <span class="doccomment">/// Reads TSC + processor ID (serialized with `rdtscp`).
-<a href=#374 id=374 data-nosnippet>374</a>    ///
-<a href=#375 id=375 data-nosnippet>375</a>    /// Notes about the processor ID:
-<a href=#376 id=376 data-nosnippet>376</a>    /// - This is a CPU core identifier (logical/core number), not a process ID.
-<a href=#377 id=377 data-nosnippet>377</a>    /// - It is architecture-dependent (x86/x86_64 only).
-<a href=#378 id=378 data-nosnippet>378</a>    /// - Typically a small u32 (e.g., 0 to N-1 for N cores).
-<a href=#379 id=379 data-nosnippet>379</a>    </span><span class="attr">#[must_use]
-<a href=#380 id=380 data-nosnippet>380</a>    </span><span class="kw">pub fn </span>rdtscp() -&gt; (<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) {
-<a href=#381 id=381 data-nosnippet>381</a>        <span class="kw">let </span>low: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
-<a href=#382 id=382 data-nosnippet>382</a>        <span class="kw">let </span>high: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
-<a href=#383 id=383 data-nosnippet>383</a>        <span class="kw">let </span>aux: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
-<a href=#384 id=384 data-nosnippet>384</a>        <span class="kw">unsafe </span>{
-<a href=#385 id=385 data-nosnippet>385</a>            <span class="macro">asm!</span>(
-<a href=#386 id=386 data-nosnippet>386</a>                <span class="string">"rdtscp"</span>,
-<a href=#387 id=387 data-nosnippet>387</a>                out(<span class="string">"eax"</span>) <a href="#381">low</a>,
-<a href=#388 id=388 data-nosnippet>388</a>                out(<span class="string">"edx"</span>) <a href="#382">high</a>,
-<a href=#389 id=389 data-nosnippet>389</a>                out(<span class="string">"ecx"</span>) <a href="#383">aux</a>,
-<a href=#390 id=390 data-nosnippet>390</a>                options(nomem, nostack)
-<a href=#391 id=391 data-nosnippet>391</a>            );
-<a href=#392 id=392 data-nosnippet>392</a>        }
-<a href=#393 id=393 data-nosnippet>393</a>        (((<a href="#382">high</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) &lt;&lt; <span class="number">32</span>) | (<a href="#381">low</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>), <a href="#383">aux</a>)
-<a href=#394 id=394 data-nosnippet>394</a>    }
-<a href=#395 id=395 data-nosnippet>395</a>
-<a href=#396 id=396 data-nosnippet>396</a>    <span class="comment">// -----------------------------------------------------------------------------
-<a href=#397 id=397 data-nosnippet>397</a>
-<a href=#398 id=398 data-nosnippet>398</a>    </span><span class="attr">#[doc = <span class="macro">SYS_NANOSLEEP!</span>()]
-<a href=#399 id=399 data-nosnippet>399</a>    #[must_use]
-<a href=#400 id=400 data-nosnippet>400</a>    </span><span class="kw">pub unsafe fn </span>sys_nanosleep(req: <span class="kw-2">*const </span><a href="../structs/timespec.rs.html#13-18">LinuxTimespec</a>, rem: <span class="kw-2">*mut </span><a href="../structs/timespec.rs.html#13-18">LinuxTimespec</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
-<a href=#401 id=401 data-nosnippet>401</a>        <span class="kw">let </span>result;
-<a href=#402 id=402 data-nosnippet>402</a>        <span class="kw">unsafe </span>{
-<a href=#403 id=403 data-nosnippet>403</a>            <span class="macro">asm!</span>(
-<a href=#404 id=404 data-nosnippet>404</a>                <span class="string">"mov rax, {NANOSLEEP}"</span>,
-<a href=#405 id=405 data-nosnippet>405</a>                <span class="string">"syscall"</span>,
-<a href=#406 id=406 data-nosnippet>406</a>                NANOSLEEP = <span class="kw">const </span>SYS::NANOSLEEP,
-<a href=#407 id=407 data-nosnippet>407</a>                <span class="kw">in</span>(<span class="string">"rdi"</span>) <a href="#400">req</a>,
-<a href=#408 id=408 data-nosnippet>408</a>                <span class="kw">in</span>(<span class="string">"rsi"</span>) <a href="#400">rem</a>,
-<a href=#409 id=409 data-nosnippet>409</a>                lateout(<span class="string">"rax"</span>) <a href="#401">result</a>,
-<a href=#410 id=410 data-nosnippet>410</a>                lateout(<span class="string">"rcx"</span>) <span class="kw">_</span>,
-<a href=#411 id=411 data-nosnippet>411</a>                lateout(<span class="string">"r11"</span>) <span class="kw">_</span>,
-<a href=#412 id=412 data-nosnippet>412</a>                options(nostack)
-<a href=#413 id=413 data-nosnippet>413</a>            );
-<a href=#414 id=414 data-nosnippet>414</a>        }
-<a href=#415 id=415 data-nosnippet>415</a>        <a href="#401">result</a>
-<a href=#416 id=416 data-nosnippet>416</a>    }
-<a href=#417 id=417 data-nosnippet>417</a>    <span class="attr">#[doc = <span class="macro">SYS_RT_SIGACTION!</span>()]
-<a href=#418 id=418 data-nosnippet>418</a>    #[must_use]
-<a href=#419 id=419 data-nosnippet>419</a>    </span><span class="kw">pub unsafe fn </span>sys_rt_sigaction(
-<a href=#420 id=420 data-nosnippet>420</a>        sig: <a href="../../../../../../devela/all/type.c_int.html">c_int</a>,
-<a href=#421 id=421 data-nosnippet>421</a>        act: <span class="kw-2">*const </span><a href="../structs/sigaction.rs.html#21-35">LinuxSigaction</a>,
-<a href=#422 id=422 data-nosnippet>422</a>        oact: <span class="kw-2">*mut </span><a href="../structs/sigaction.rs.html#21-35">LinuxSigaction</a>,
-<a href=#423 id=423 data-nosnippet>423</a>        sigsetsize: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
-<a href=#424 id=424 data-nosnippet>424</a>    ) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
-<a href=#425 id=425 data-nosnippet>425</a>        <span class="kw">let </span>result;
-<a href=#426 id=426 data-nosnippet>426</a>        <span class="kw">unsafe </span>{
-<a href=#427 id=427 data-nosnippet>427</a>            <span class="macro">asm!</span>(
-<a href=#428 id=428 data-nosnippet>428</a>                <span class="string">"mov rax, {RT_SIGACTION}"</span>,
-<a href=#429 id=429 data-nosnippet>429</a>                <span class="string">"syscall"</span>,
-<a href=#430 id=430 data-nosnippet>430</a>                RT_SIGACTION = <span class="kw">const </span>SYS::RT_SIGACTION,
-<a href=#431 id=431 data-nosnippet>431</a>                <span class="kw">in</span>(<span class="string">"rdi"</span>) <a href="#420">sig</a>,
-<a href=#432 id=432 data-nosnippet>432</a>                <span class="kw">in</span>(<span class="string">"rsi"</span>) <a href="#421">act</a>,
-<a href=#433 id=433 data-nosnippet>433</a>                <span class="kw">in</span>(<span class="string">"rdx"</span>) <a href="#422">oact</a>,
-<a href=#434 id=434 data-nosnippet>434</a>                <span class="kw">in</span>(<span class="string">"r10"</span>) <a href="#423">sigsetsize</a>,
-<a href=#435 id=435 data-nosnippet>435</a>                lateout(<span class="string">"rax"</span>) <a href="#425">result</a>,
-<a href=#436 id=436 data-nosnippet>436</a>                lateout(<span class="string">"rcx"</span>) <span class="kw">_</span>,
-<a href=#437 id=437 data-nosnippet>437</a>                lateout(<span class="string">"r11"</span>) <span class="kw">_</span>,
-<a href=#438 id=438 data-nosnippet>438</a>                options(nostack)
-<a href=#439 id=439 data-nosnippet>439</a>            );
-<a href=#440 id=440 data-nosnippet>440</a>        }
-<a href=#441 id=441 data-nosnippet>441</a>        <a href="#425">result</a>
-<a href=#442 id=442 data-nosnippet>442</a>    }
-<a href=#443 id=443 data-nosnippet>443</a>}</code></pre></div></section></main></body></html>
+<a href=#345 id=345 data-nosnippet>345</a>    // - See also: https://github.com/metrics-rs/quanta/blob/main/src/clocks/monotonic/unix.rs
+<a href=#346 id=346 data-nosnippet>346</a>    // confirm
+<a href=#347 id=347 data-nosnippet>347</a>    // - for which arches: x86_64 and more?
+<a href=#348 id=348 data-nosnippet>348</a>    // - TODO: alternative for aaarch64, riscv, arm
+<a href=#349 id=349 data-nosnippet>349</a>    //   - X86(u64),       // TSC
+<a href=#350 id=350 data-nosnippet>350</a>    //   - Arm(u64),       // CNTVCT_EL0
+<a href=#351 id=351 data-nosnippet>351</a>    //   - RiscV(u64),     // cycle CSR
+<a href=#352 id=352 data-nosnippet>352</a>    // - CLOCK_MONOTONIC_RAW const where?
+<a href=#353 id=353 data-nosnippet>353</a>    //   - https://www.baeldung.com/linux/timekeeping-clocks
+<a href=#354 id=354 data-nosnippet>354</a>    //
+<a href=#355 id=355 data-nosnippet>355</a>    // notes
+<a href=#356 id=356 data-nosnippet>356</a>    // - To convert TSC to nanoseconds, calibrate against CLOCK_MONOTONIC:
+<a href=#357 id=357 data-nosnippet>357</a>
+<a href=#358 id=358 data-nosnippet>358</a>    </span><span class="doccomment">/// Reads TSC as a single `u64` (combines low/high bits).
+<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="attr">#[must_use]
+<a href=#360 id=360 data-nosnippet>360</a>    </span><span class="kw">pub fn </span>rdtsc() -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+<a href=#361 id=361 data-nosnippet>361</a>        <span class="kw">let </span>low: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
+<a href=#362 id=362 data-nosnippet>362</a>        <span class="kw">let </span>high: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
+<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">unsafe </span>{
+<a href=#364 id=364 data-nosnippet>364</a>            <span class="macro">asm!</span>(
+<a href=#365 id=365 data-nosnippet>365</a>                <span class="string">"rdtsc"</span>,
+<a href=#366 id=366 data-nosnippet>366</a>                out(<span class="string">"eax"</span>) <a href="#361">low</a>,
+<a href=#367 id=367 data-nosnippet>367</a>                out(<span class="string">"edx"</span>) <a href="#362">high</a>,
+<a href=#368 id=368 data-nosnippet>368</a>                options(nomem, nostack, preserves_flags)
+<a href=#369 id=369 data-nosnippet>369</a>            );
+<a href=#370 id=370 data-nosnippet>370</a>        }
+<a href=#371 id=371 data-nosnippet>371</a>        ((<a href="#362">high</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) &lt;&lt; <span class="number">32</span>) | (<a href="#361">low</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>)
+<a href=#372 id=372 data-nosnippet>372</a>    }
+<a href=#373 id=373 data-nosnippet>373</a>
+<a href=#374 id=374 data-nosnippet>374</a>    <span class="doccomment">/// Reads TSC + processor ID (serialized with `rdtscp`).
+<a href=#375 id=375 data-nosnippet>375</a>    ///
+<a href=#376 id=376 data-nosnippet>376</a>    /// Notes about the processor ID:
+<a href=#377 id=377 data-nosnippet>377</a>    /// - This is a CPU core identifier (logical/core number), not a process ID.
+<a href=#378 id=378 data-nosnippet>378</a>    /// - It is architecture-dependent (x86/x86_64 only).
+<a href=#379 id=379 data-nosnippet>379</a>    /// - Typically a small u32 (e.g., 0 to N-1 for N cores).
+<a href=#380 id=380 data-nosnippet>380</a>    </span><span class="attr">#[must_use]
+<a href=#381 id=381 data-nosnippet>381</a>    </span><span class="kw">pub fn </span>rdtscp() -&gt; (<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) {
+<a href=#382 id=382 data-nosnippet>382</a>        <span class="kw">let </span>low: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
+<a href=#383 id=383 data-nosnippet>383</a>        <span class="kw">let </span>high: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
+<a href=#384 id=384 data-nosnippet>384</a>        <span class="kw">let </span>aux: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
+<a href=#385 id=385 data-nosnippet>385</a>        <span class="kw">unsafe </span>{
+<a href=#386 id=386 data-nosnippet>386</a>            <span class="macro">asm!</span>(
+<a href=#387 id=387 data-nosnippet>387</a>                <span class="string">"rdtscp"</span>,
+<a href=#388 id=388 data-nosnippet>388</a>                out(<span class="string">"eax"</span>) <a href="#382">low</a>,
+<a href=#389 id=389 data-nosnippet>389</a>                out(<span class="string">"edx"</span>) <a href="#383">high</a>,
+<a href=#390 id=390 data-nosnippet>390</a>                out(<span class="string">"ecx"</span>) <a href="#384">aux</a>,
+<a href=#391 id=391 data-nosnippet>391</a>                options(nomem, nostack)
+<a href=#392 id=392 data-nosnippet>392</a>            );
+<a href=#393 id=393 data-nosnippet>393</a>        }
+<a href=#394 id=394 data-nosnippet>394</a>        (((<a href="#383">high</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) &lt;&lt; <span class="number">32</span>) | (<a href="#382">low</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>), <a href="#384">aux</a>)
+<a href=#395 id=395 data-nosnippet>395</a>    }
+<a href=#396 id=396 data-nosnippet>396</a>
+<a href=#397 id=397 data-nosnippet>397</a>    <span class="comment">// -----------------------------------------------------------------------------
+<a href=#398 id=398 data-nosnippet>398</a>
+<a href=#399 id=399 data-nosnippet>399</a>    </span><span class="attr">#[doc = <span class="macro">SYS_NANOSLEEP!</span>()]
+<a href=#400 id=400 data-nosnippet>400</a>    #[must_use]
+<a href=#401 id=401 data-nosnippet>401</a>    </span><span class="kw">pub unsafe fn </span>sys_nanosleep(req: <span class="kw-2">*const </span><a href="../structs/timespec.rs.html#13-18">LinuxTimespec</a>, rem: <span class="kw-2">*mut </span><a href="../structs/timespec.rs.html#13-18">LinuxTimespec</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
+<a href=#402 id=402 data-nosnippet>402</a>        <span class="kw">let </span>result;
+<a href=#403 id=403 data-nosnippet>403</a>        <span class="kw">unsafe </span>{
+<a href=#404 id=404 data-nosnippet>404</a>            <span class="macro">asm!</span>(
+<a href=#405 id=405 data-nosnippet>405</a>                <span class="string">"mov rax, {NANOSLEEP}"</span>,
+<a href=#406 id=406 data-nosnippet>406</a>                <span class="string">"syscall"</span>,
+<a href=#407 id=407 data-nosnippet>407</a>                NANOSLEEP = <span class="kw">const </span>SYS::NANOSLEEP,
+<a href=#408 id=408 data-nosnippet>408</a>                <span class="kw">in</span>(<span class="string">"rdi"</span>) <a href="#401">req</a>,
+<a href=#409 id=409 data-nosnippet>409</a>                <span class="kw">in</span>(<span class="string">"rsi"</span>) <a href="#401">rem</a>,
+<a href=#410 id=410 data-nosnippet>410</a>                lateout(<span class="string">"rax"</span>) <a href="#402">result</a>,
+<a href=#411 id=411 data-nosnippet>411</a>                lateout(<span class="string">"rcx"</span>) <span class="kw">_</span>,
+<a href=#412 id=412 data-nosnippet>412</a>                lateout(<span class="string">"r11"</span>) <span class="kw">_</span>,
+<a href=#413 id=413 data-nosnippet>413</a>                options(nostack)
+<a href=#414 id=414 data-nosnippet>414</a>            );
+<a href=#415 id=415 data-nosnippet>415</a>        }
+<a href=#416 id=416 data-nosnippet>416</a>        <a href="#402">result</a>
+<a href=#417 id=417 data-nosnippet>417</a>    }
+<a href=#418 id=418 data-nosnippet>418</a>    <span class="attr">#[doc = <span class="macro">SYS_RT_SIGACTION!</span>()]
+<a href=#419 id=419 data-nosnippet>419</a>    #[must_use]
+<a href=#420 id=420 data-nosnippet>420</a>    </span><span class="kw">pub unsafe fn </span>sys_rt_sigaction(
+<a href=#421 id=421 data-nosnippet>421</a>        sig: <a href="../../../../../../devela/all/type.c_int.html">c_int</a>,
+<a href=#422 id=422 data-nosnippet>422</a>        act: <span class="kw-2">*const </span><a href="../structs/sigaction.rs.html#21-35">LinuxSigaction</a>,
+<a href=#423 id=423 data-nosnippet>423</a>        oact: <span class="kw-2">*mut </span><a href="../structs/sigaction.rs.html#21-35">LinuxSigaction</a>,
+<a href=#424 id=424 data-nosnippet>424</a>        sigsetsize: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#425 id=425 data-nosnippet>425</a>    ) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a> {
+<a href=#426 id=426 data-nosnippet>426</a>        <span class="kw">let </span>result;
+<a href=#427 id=427 data-nosnippet>427</a>        <span class="kw">unsafe </span>{
+<a href=#428 id=428 data-nosnippet>428</a>            <span class="macro">asm!</span>(
+<a href=#429 id=429 data-nosnippet>429</a>                <span class="string">"mov rax, {RT_SIGACTION}"</span>,
+<a href=#430 id=430 data-nosnippet>430</a>                <span class="string">"syscall"</span>,
+<a href=#431 id=431 data-nosnippet>431</a>                RT_SIGACTION = <span class="kw">const </span>SYS::RT_SIGACTION,
+<a href=#432 id=432 data-nosnippet>432</a>                <span class="kw">in</span>(<span class="string">"rdi"</span>) <a href="#421">sig</a>,
+<a href=#433 id=433 data-nosnippet>433</a>                <span class="kw">in</span>(<span class="string">"rsi"</span>) <a href="#422">act</a>,
+<a href=#434 id=434 data-nosnippet>434</a>                <span class="kw">in</span>(<span class="string">"rdx"</span>) <a href="#423">oact</a>,
+<a href=#435 id=435 data-nosnippet>435</a>                <span class="kw">in</span>(<span class="string">"r10"</span>) <a href="#424">sigsetsize</a>,
+<a href=#436 id=436 data-nosnippet>436</a>                lateout(<span class="string">"rax"</span>) <a href="#426">result</a>,
+<a href=#437 id=437 data-nosnippet>437</a>                lateout(<span class="string">"rcx"</span>) <span class="kw">_</span>,
+<a href=#438 id=438 data-nosnippet>438</a>                lateout(<span class="string">"r11"</span>) <span class="kw">_</span>,
+<a href=#439 id=439 data-nosnippet>439</a>                options(nostack)
+<a href=#440 id=440 data-nosnippet>440</a>            );
+<a href=#441 id=441 data-nosnippet>441</a>        }
+<a href=#442 id=442 data-nosnippet>442</a>        <a href="#426">result</a>
+<a href=#443 id=443 data-nosnippet>443</a>    }
+<a href=#444 id=444 data-nosnippet>444</a>}</code></pre></div></section></main></body></html>

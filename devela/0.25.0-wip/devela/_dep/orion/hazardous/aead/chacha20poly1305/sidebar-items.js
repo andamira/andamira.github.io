@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["A_MAX","C_MAX","P_MAX"],"fn":["open","seal"],"struct":["Nonce","SecretKey"]};

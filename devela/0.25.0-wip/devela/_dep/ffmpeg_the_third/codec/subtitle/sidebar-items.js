@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Rect","RectMut","Type"],"mod":["flag"],"struct":["Ass","AssMut","Bitmap","BitmapMut","Flags","RectIter","RectMutIter","Subtitle","Text","TextMut"]};

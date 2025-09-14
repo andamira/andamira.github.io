@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/codec/encode/combinators.rs`."><title>combinators.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/codec/encode/combinators.rs`."><title>combinators.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -122,11 +142,11 @@
 <a href=#13 id=13 data-nosnippet>13</a>};
 <a href=#14 id=14 data-nosnippet>14</a>
 <a href=#15 id=15 data-nosnippet>15</a><span class="kw">use crate</span>::{
-<a href=#16 id=16 data-nosnippet>16</a>    <a href="../../../../../devela/all/trait.BitOr.html">BitOr</a>, <a href="../../../../../devela/all/derive.Debug.html">Debug</a>, <a href="traits.rs.html#29-38">Decodable</a>, <a href="../../../../../devela/all/trait.Deref.html">Deref</a>, <a href="traits.rs.html#45-51">Encodable</a>, <a href="traits.rs.html#61-71">EncodableLen</a>, <a href="../../../libs/base/src/text/fmt/reexports.rs.html#95">FmtResult</a>, <a href="../../../../../devela/all/trait.FmtWrite.html">FmtWrite</a>, <a href="../../../../../devela/all/struct.Formatter.html">Formatter</a>,
+<a href=#16 id=16 data-nosnippet>16</a>    <a href="../../../../../devela/all/trait.BitOr.html">BitOr</a>, <a href="../../../../../devela/all/derive.Debug.html">Debug</a>, <a href="traits.rs.html#12-21">Decodable</a>, <a href="../../../../../devela/all/trait.Deref.html">Deref</a>, <a href="traits.rs.html#28-34">Encodable</a>, <a href="traits.rs.html#44-54">EncodableLen</a>, <a href="../../../libs/base_core/src/text/fmt/reexports.rs.html#95">FmtResult</a>, <a href="../../../../../devela/all/trait.FmtWrite.html">FmtWrite</a>, <a href="../../../../../devela/all/struct.Formatter.html">Formatter</a>,
 <a href=#17 id=17 data-nosnippet>17</a>    <a href="../../../../../devela/all/struct.IoError.html">IoError</a>, <a href="../../../../../devela/all/enum.IoErrorKind.html">IoErrorKind</a>, <a href="../../../../../devela/all/trait.IoRead.html">IoRead</a>, <a href="../../../../../devela/all/type.IoResult.html">IoResult</a>, <a href="../../../../../devela/all/struct.IoTake.html">IoTake</a>, <a href="../../../../../devela/all/trait.IoWrite.html">IoWrite</a>, <a href="../../../../../devela/all/struct.NonZero.html">NonZero</a>, <a href="../../../../../devela/all/struct.PhantomData.html">PhantomData</a>, TAG_CODEC,
 <a href=#18 id=18 data-nosnippet>18</a>    <a href="../../../../../devela/all/struct.TryFromIntError.html">TryFromIntError</a>, <a href="../../../../../devela/all/macro.is.html">is</a>,
 <a href=#19 id=19 data-nosnippet>19</a>};
-<a href=#20 id=20 data-nosnippet>20</a><a class="macro" href="../../../code/util/_use.rs.html#13-63">crate::_use!</a> {basic::from_utf8}
+<a href=#20 id=20 data-nosnippet>20</a><span class="macro">crate::_use!</span> {basic::from_utf8}
 <a href=#21 id=21 data-nosnippet>21</a>
 <a href=#22 id=22 data-nosnippet>22</a><span class="attr">#[rustfmt::skip]
 <a href=#23 id=23 data-nosnippet>23</a></span><span class="kw">mod </span>endian {
@@ -317,10 +337,10 @@
 <a href=#208 id=208 data-nosnippet>208</a>        <span class="kw">type </span>Target = E;
 <a href=#209 id=209 data-nosnippet>209</a>        <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target { <a class="self" href="#209">self</a>.<a href="../../../../../devela/code/trait.AsRef.html">as_ref</a>() }
 <a href=#210 id=210 data-nosnippet>210</a>    }
-<a href=#211 id=211 data-nosnippet>211</a>    <span class="kw">impl</span>&lt;E: <a href="traits.rs.html#45-51">Encodable</a>&lt;W&gt;, W: <a href="../../../../../devela/all/trait.IoWrite.html">IoWrite</a>, F: <a href="../../../../../devela/all/trait.Fn.html">Fn</a>(<span class="kw-2">&amp;</span>E) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; <a href="traits.rs.html#45-51">Encodable</a>&lt;W&gt; <span class="kw">for </span><a href="#201">CodecIf</a>&lt;E, F&gt; {
+<a href=#211 id=211 data-nosnippet>211</a>    <span class="kw">impl</span>&lt;E: <a href="traits.rs.html#28-34">Encodable</a>&lt;W&gt;, W: <a href="../../../../../devela/all/trait.IoWrite.html">IoWrite</a>, F: <a href="../../../../../devela/all/trait.Fn.html">Fn</a>(<span class="kw-2">&amp;</span>E) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt; <a href="traits.rs.html#28-34">Encodable</a>&lt;W&gt; <span class="kw">for </span><a href="#201">CodecIf</a>&lt;E, F&gt; {
 <a href=#212 id=212 data-nosnippet>212</a>        <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W) -&gt; <a href="../../../../../devela/all/type.IoResult.html">IoResult</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
 <a href=#213 id=213 data-nosnippet>213</a>            <span class="kw">if </span>(<a class="self" href="#212">self</a>.condition)(<span class="kw-2">&amp;</span><a class="self" href="#212">self</a>.encodable) {
-<a href=#214 id=214 data-nosnippet>214</a>                <a class="self" href="#212">self</a>.encodable.<a href="traits.rs.html#50">encode</a>(<a href="#212">writer</a>)
+<a href=#214 id=214 data-nosnippet>214</a>                <a class="self" href="#212">self</a>.encodable.<a href="traits.rs.html#33">encode</a>(<a href="#212">writer</a>)
 <a href=#215 id=215 data-nosnippet>215</a>            } <span class="kw">else </span>{
 <a href=#216 id=216 data-nosnippet>216</a>                <a class="prelude-val" href="../../../../../devela/all/enum.Result.html">Ok</a>(<span class="number">0</span>)
 <a href=#217 id=217 data-nosnippet>217</a>            }
@@ -382,7 +402,7 @@
 <a href=#273 id=273 data-nosnippet>273</a>        }
 <a href=#274 id=274 data-nosnippet>274</a>    }
 <a href=#275 id=275 data-nosnippet>275</a>    <span class="kw">impl </span><a href="../../../../../devela/all/trait.Debug.html">Debug</a> <span class="kw">for </span><a href="#248">CodecFlags</a> {
-<a href=#276 id=276 data-nosnippet>276</a>        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../libs/base/src/text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
+<a href=#276 id=276 data-nosnippet>276</a>        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span><a href="../../../../../devela/all/struct.Formatter.html">Formatter</a>&lt;<span class="lifetime">'_</span>&gt;) -&gt; <a href="../../../libs/base_core/src/text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; {
 <a href=#277 id=277 data-nosnippet>277</a>            <a class="macro" href="../../../../../devela/all/macro.write.html">write!</a>(<a href="#276">f</a>, <span class="string">"CodecFlags({:08b})"</span>, u8::from(<span class="kw-2">*</span><span class="self">self</span>)) }
 <a href=#278 id=278 data-nosnippet>278</a>    }
 <a href=#279 id=279 data-nosnippet>279</a>    <span class="kw">impl </span><a href="../../../../../devela/all/trait.Deref.html">Deref</a> <span class="kw">for </span><a href="#248">CodecFlags</a> {
@@ -403,9 +423,9 @@
 <a href=#294 id=294 data-nosnippet>294</a>            <a href="#293">from</a>.<span class="number">0</span>.<a href="../../../../../devela/all/trait.IteratorInto.html">into_iter</a>().<a href="../../../../../devela/all/trait.Iterator.html">rev</a>().<a href="../../../../../devela/all/trait.Iterator.html">enumerate</a>()
 <a href=#295 id=295 data-nosnippet>295</a>                .<a href="../../../../../devela/all/trait.Iterator.html">filter_map</a>(|(i, v)| <a href="#295">v</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.bool.html#method.then_some">then_some</a>(<span class="number">1 </span>&lt;&lt; <a href="#295">i</a>)).<a href="../../../../../devela/all/trait.Iterator.html">fold</a>(<span class="number">0u8</span>, <a href="../../../../../devela/all/trait.BitOr.html">BitOr::bitor</a>) }
 <a href=#296 id=296 data-nosnippet>296</a>    }
-<a href=#297 id=297 data-nosnippet>297</a>    <span class="kw">impl</span>&lt;W: <a href="../../../../../devela/all/trait.IoWrite.html">IoWrite</a>&gt; <a href="traits.rs.html#45-51">Encodable</a>&lt;W&gt; <span class="kw">for </span><a href="#248">CodecFlags</a> {
+<a href=#297 id=297 data-nosnippet>297</a>    <span class="kw">impl</span>&lt;W: <a href="../../../../../devela/all/trait.IoWrite.html">IoWrite</a>&gt; <a href="traits.rs.html#28-34">Encodable</a>&lt;W&gt; <span class="kw">for </span><a href="#248">CodecFlags</a> {
 <a href=#298 id=298 data-nosnippet>298</a>        <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoder: <span class="kw-2">&amp;mut </span>W) -&gt; <a href="../../../../../devela/all/type.IoResult.html">IoResult</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
-<a href=#299 id=299 data-nosnippet>299</a>            <a href="../../../../../devela/code/trait.From.html">u8::from</a>(<span class="kw-2">*</span><a class="self" href="#298">self</a>).<a href="traits.rs.html#50">encode</a>(<a href="#298">encoder</a>) }
+<a href=#299 id=299 data-nosnippet>299</a>            <a href="../../../../../devela/code/trait.From.html">u8::from</a>(<span class="kw-2">*</span><a class="self" href="#298">self</a>).<a href="traits.rs.html#33">encode</a>(<a href="#298">encoder</a>) }
 <a href=#300 id=300 data-nosnippet>300</a>    }
 <a href=#301 id=301 data-nosnippet>301</a>}
 <a href=#302 id=302 data-nosnippet>302</a><span class="attr">#[rustfmt::skip]
@@ -455,11 +475,11 @@
 <a href=#346 id=346 data-nosnippet>346</a>            <span class="self">Self </span>{ <a href="#345">encodable_iter</a>, separator: <a class="prelude-val" href="../../../../../devela/all/enum.Option.html">Some</a>(<a href="#345">separator</a>) }
 <a href=#347 id=347 data-nosnippet>347</a>        }
 <a href=#348 id=348 data-nosnippet>348</a>    }
-<a href=#349 id=349 data-nosnippet>349</a>    <span class="kw">impl</span>&lt;E, S, W: <a href="../../../../../devela/all/trait.IoWrite.html">IoWrite</a>&gt; <a href="traits.rs.html#45-51">Encodable</a>&lt;W&gt; <span class="kw">for </span><a href="#333-336">CodecJoin</a>&lt;E, S&gt;
+<a href=#349 id=349 data-nosnippet>349</a>    <span class="kw">impl</span>&lt;E, S, W: <a href="../../../../../devela/all/trait.IoWrite.html">IoWrite</a>&gt; <a href="traits.rs.html#28-34">Encodable</a>&lt;W&gt; <span class="kw">for </span><a href="#333-336">CodecJoin</a>&lt;E, S&gt;
 <a href=#350 id=350 data-nosnippet>350</a>    <span class="kw">where
 <a href=#351 id=351 data-nosnippet>351</a>        </span>E: <a href="../../../../../devela/code/trait.Clone.html">Clone</a> + <a href="../../../../../devela/all/trait.IteratorInto.html">IntoIterator</a>,
-<a href=#352 id=352 data-nosnippet>352</a>        E::Item: <a href="traits.rs.html#45-51">Encodable</a>&lt;W&gt;,
-<a href=#353 id=353 data-nosnippet>353</a>        S: <a href="traits.rs.html#45-51">Encodable</a>&lt;W&gt;,
+<a href=#352 id=352 data-nosnippet>352</a>        E::Item: <a href="traits.rs.html#28-34">Encodable</a>&lt;W&gt;,
+<a href=#353 id=353 data-nosnippet>353</a>        S: <a href="traits.rs.html#28-34">Encodable</a>&lt;W&gt;,
 <a href=#354 id=354 data-nosnippet>354</a>    {
 <a href=#355 id=355 data-nosnippet>355</a>        <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W) -&gt; <a href="../../../../../devela/all/type.IoResult.html">IoResult</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
 <a href=#356 id=356 data-nosnippet>356</a>            <span class="kw">let </span><span class="kw-2">mut </span>total = <span class="number">0</span>;
@@ -512,7 +532,7 @@
 <a href=#403 id=403 data-nosnippet>403</a>        <span class="kw">fn </span>from(encoder: <a href="#395">CodecLen</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { <a href="#403">encoder</a>.size }
 <a href=#404 id=404 data-nosnippet>404</a>    }
 <a href=#405 id=405 data-nosnippet>405</a>    <span class="kw">impl </span><a href="../../../../../devela/all/trait.FmtWrite.html">FmtWrite</a> <span class="kw">for </span><a href="#395">CodecLen</a> {
-<a href=#406 id=406 data-nosnippet>406</a>        <span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a href="../../../libs/base/src/text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; { <a class="self" href="#406">self</a>.size += <a href="#406">s</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.len">len</a>(); <a class="prelude-val" href="../../../../../devela/all/enum.Result.html">Ok</a>(()) }
+<a href=#406 id=406 data-nosnippet>406</a>        <span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a href="../../../libs/base_core/src/text/fmt/reexports.rs.html#95">FmtResult</a>&lt;()&gt; { <a class="self" href="#406">self</a>.size += <a href="#406">s</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.str.html#method.len">len</a>(); <a class="prelude-val" href="../../../../../devela/all/enum.Result.html">Ok</a>(()) }
 <a href=#407 id=407 data-nosnippet>407</a>    }
 <a href=#408 id=408 data-nosnippet>408</a>    <span class="kw">impl </span><a href="../../../../../devela/all/trait.IoWrite.html">IoWrite</a> <span class="kw">for </span><a href="#395">CodecLen</a> {
 <a href=#409 id=409 data-nosnippet>409</a>        <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, slice: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a href="../../../../../devela/all/type.IoResult.html">IoResult</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; { <a class="self" href="#409">self</a>.size += <a href="#409">slice</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.len">len</a>(); <a class="prelude-val" href="../../../../../devela/all/enum.Result.html">Ok</a>(<a class="self" href="#409">self</a>.size) }
@@ -583,45 +603,45 @@
 <a href=#474 id=474 data-nosnippet>474</a>        <span class="doccomment">/// Creates a new &lt;abbr title = "Type-Length-Value"&gt;TLV&lt;/abbr&gt; combinator.
 <a href=#475 id=475 data-nosnippet>475</a>        </span><span class="kw">pub const fn </span>new(encodable: E) -&gt; <span class="self">Self </span>{ <span class="self">Self </span>{ <a href="#475">encodable</a>, phantom: <a href="../../../../../devela/all/struct.PhantomData.html">PhantomData</a>, } }
 <a href=#476 id=476 data-nosnippet>476</a>    }
-<a href=#477 id=477 data-nosnippet>477</a>    <span class="kw">impl</span>&lt;E, CodecEndian, W: <a href="../../../../../devela/all/trait.IoWrite.html">IoWrite</a>&gt; <a href="traits.rs.html#45-51">Encodable</a>&lt;W&gt; <span class="kw">for </span><a href="#469-472">CodecLenValue</a>&lt;E, CodecEndian&gt;
+<a href=#477 id=477 data-nosnippet>477</a>    <span class="kw">impl</span>&lt;E, CodecEndian, W: <a href="../../../../../devela/all/trait.IoWrite.html">IoWrite</a>&gt; <a href="traits.rs.html#28-34">Encodable</a>&lt;W&gt; <span class="kw">for </span><a href="#469-472">CodecLenValue</a>&lt;E, CodecEndian&gt;
 <a href=#478 id=478 data-nosnippet>478</a>    <span class="kw">where
-<a href=#479 id=479 data-nosnippet>479</a>        </span>E: <a href="traits.rs.html#45-51">Encodable</a>&lt;W&gt; + <a href="traits.rs.html#61-71">EncodableLen</a>,
-<a href=#480 id=480 data-nosnippet>480</a>        CodecEndian: <a href="../../../../../devela/code/trait.From.html">From</a>&lt;&lt;CodecEndian <span class="kw">as </span>CodecEndianLen&gt;::Len&gt; + <a href="traits.rs.html#45-51">Encodable</a>&lt;W&gt; + <a href="#549">CodecEndianLen</a>,
+<a href=#479 id=479 data-nosnippet>479</a>        </span>E: <a href="traits.rs.html#28-34">Encodable</a>&lt;W&gt; + <a href="traits.rs.html#44-54">EncodableLen</a>,
+<a href=#480 id=480 data-nosnippet>480</a>        CodecEndian: <a href="../../../../../devela/code/trait.From.html">From</a>&lt;&lt;CodecEndian <span class="kw">as </span>CodecEndianLen&gt;::Len&gt; + <a href="traits.rs.html#28-34">Encodable</a>&lt;W&gt; + <a href="#549">CodecEndianLen</a>,
 <a href=#481 id=481 data-nosnippet>481</a>        &lt;CodecEndian <span class="kw">as </span>CodecEndianLen&gt;::Len: <a href="../../../../../devela/code/trait.TryFrom.html">TryFrom</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
 <a href=#482 id=482 data-nosnippet>482</a>    {
 <a href=#483 id=483 data-nosnippet>483</a>        <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W) -&gt; <a href="../../../../../devela/all/type.IoResult.html">IoResult</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
-<a href=#484 id=484 data-nosnippet>484</a>            <span class="kw">let </span>len = <a class="self" href="#483">self</a>.encodable.<a href="traits.rs.html#66-70">encoded_size</a>()<span class="question-mark">?</span>;
+<a href=#484 id=484 data-nosnippet>484</a>            <span class="kw">let </span>len = <a class="self" href="#483">self</a>.encodable.<a href="traits.rs.html#49-53">encoded_size</a>()<span class="question-mark">?</span>;
 <a href=#485 id=485 data-nosnippet>485</a>            <span class="kw">let </span>len = &lt;&lt;CodecEndian <span class="kw">as </span>CodecEndianLen&gt;::Len <span class="kw">as </span>TryFrom&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;&gt;::try_from(<a href="#484">len</a>)
 <a href=#486 id=486 data-nosnippet>486</a>                .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|<span class="kw">_</span>| <a href="https://doc.rust-lang.org/nightly/std/io/error/struct.Error.html#method.new">IoError::new</a>(<a href="../../../../../devela/all/enum.IoErrorKind.html">IoErrorKind::InvalidInput</a>, <span class="string">"Length conversion failed"</span>))<span class="question-mark">?</span>;
-<a href=#487 id=487 data-nosnippet>487</a>            <span class="kw">let </span><span class="kw-2">mut </span>total = <a href="../../../../../devela/code/trait.From.html">CodecEndian::from</a>(<a href="#485">len</a>).<a href="traits.rs.html#50">encode</a>(<a href="#483">writer</a>)<span class="question-mark">?</span>;
-<a href=#488 id=488 data-nosnippet>488</a>            <a href="#487">total</a> += <a class="self" href="#483">self</a>.encodable.<a href="traits.rs.html#50">encode</a>(<a href="#483">writer</a>)<span class="question-mark">?</span>;
+<a href=#487 id=487 data-nosnippet>487</a>            <span class="kw">let </span><span class="kw-2">mut </span>total = <a href="../../../../../devela/code/trait.From.html">CodecEndian::from</a>(<a href="#485">len</a>).<a href="traits.rs.html#33">encode</a>(<a href="#483">writer</a>)<span class="question-mark">?</span>;
+<a href=#488 id=488 data-nosnippet>488</a>            <a href="#487">total</a> += <a class="self" href="#483">self</a>.encodable.<a href="traits.rs.html#33">encode</a>(<a href="#483">writer</a>)<span class="question-mark">?</span>;
 <a href=#489 id=489 data-nosnippet>489</a>            <a class="prelude-val" href="../../../../../devela/all/enum.Result.html">Ok</a>(<a href="#487">total</a>)
 <a href=#490 id=490 data-nosnippet>490</a>        }
 <a href=#491 id=491 data-nosnippet>491</a>    }
-<a href=#492 id=492 data-nosnippet>492</a>    <span class="kw">impl</span>&lt;D, O, CodecEndian, R&gt; <a href="traits.rs.html#29-38">Decodable</a>&lt;R&gt; <span class="kw">for </span><a href="#469-472">CodecLenValue</a>&lt;D, CodecEndian&gt;
+<a href=#492 id=492 data-nosnippet>492</a>    <span class="kw">impl</span>&lt;D, O, CodecEndian, R&gt; <a href="traits.rs.html#12-21">Decodable</a>&lt;R&gt; <span class="kw">for </span><a href="#469-472">CodecLenValue</a>&lt;D, CodecEndian&gt;
 <a href=#493 id=493 data-nosnippet>493</a>    <span class="kw">where
 <a href=#494 id=494 data-nosnippet>494</a>        </span><span class="comment">// D must be decodable from an IoTake wrapping &amp;mut R.
-<a href=#495 id=495 data-nosnippet>495</a>        </span><span class="kw">for</span>&lt;<span class="lifetime">'i</span>&gt; D: <a href="traits.rs.html#29-38">Decodable</a>&lt;<a href="../../../../../devela/all/struct.IoTake.html">IoTake</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'i </span><span class="kw-2">mut </span>R&gt;, Output = O&gt;,
+<a href=#495 id=495 data-nosnippet>495</a>        </span><span class="kw">for</span>&lt;<span class="lifetime">'i</span>&gt; D: <a href="traits.rs.html#12-21">Decodable</a>&lt;<a href="../../../../../devela/all/struct.IoTake.html">IoTake</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'i </span><span class="kw-2">mut </span>R&gt;, Output = O&gt;,
 <a href=#496 id=496 data-nosnippet>496</a>        <span class="comment">// CodecEndian decodes the length prefix from R and its output is the associated Len.
-<a href=#497 id=497 data-nosnippet>497</a>        </span>CodecEndian: <a href="traits.rs.html#29-38">Decodable</a>&lt;R, Output = &lt;CodecEndian <span class="kw">as </span>CodecEndianLen&gt;::Len&gt; + <a href="#549">CodecEndianLen</a>,
+<a href=#497 id=497 data-nosnippet>497</a>        </span>CodecEndian: <a href="traits.rs.html#12-21">Decodable</a>&lt;R, Output = &lt;CodecEndian <span class="kw">as </span>CodecEndianLen&gt;::Len&gt; + <a href="#549">CodecEndianLen</a>,
 <a href=#498 id=498 data-nosnippet>498</a>        R: <a href="../../../../../devela/all/trait.IoRead.html">IoRead</a>,
 <a href=#499 id=499 data-nosnippet>499</a>        <span class="kw">for</span>&lt;<span class="lifetime">'r</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">'r </span><span class="kw-2">mut </span>R: <a href="../../../../../devela/all/trait.IoRead.html">IoRead</a>,
 <a href=#500 id=500 data-nosnippet>500</a>    {
 <a href=#501 id=501 data-nosnippet>501</a>        <span class="kw">type </span>Output = O;
 <a href=#502 id=502 data-nosnippet>502</a>        <span class="kw">fn </span>decode(reader: <span class="kw-2">&amp;mut </span>R) -&gt; <a href="../../../../../devela/all/type.IoResult.html">IoResult</a>&lt;<span class="self">Self</span>::Output&gt; {
-<a href=#503 id=503 data-nosnippet>503</a>            <span class="kw">let </span>len_encoded = <a href="traits.rs.html#37">CodecEndian::decode</a>(<a href="#502">reader</a>)<span class="question-mark">?</span>;
+<a href=#503 id=503 data-nosnippet>503</a>            <span class="kw">let </span>len_encoded = <a href="traits.rs.html#20">CodecEndian::decode</a>(<a href="#502">reader</a>)<span class="question-mark">?</span>;
 <a href=#504 id=504 data-nosnippet>504</a>            <span class="kw">let </span>len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <a href="#503">len_encoded</a>.<a href="../../../../../devela/code/trait.TryInto.html">try_into</a>().<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|<span class="kw">_</span>| {
 <a href=#505 id=505 data-nosnippet>505</a>                <a href="https://doc.rust-lang.org/nightly/std/io/error/struct.Error.html#method.new">IoError::new</a>(<a href="../../../../../devela/all/enum.IoErrorKind.html">IoErrorKind::InvalidData</a>, <span class="string">"Invalid length value"</span>)
 <a href=#506 id=506 data-nosnippet>506</a>            })<span class="question-mark">?</span>;
 <a href=#507 id=507 data-nosnippet>507</a>            <span class="kw">let </span><span class="kw-2">mut </span>limited_reader = <a href="#502">reader</a>.<a href="../../../../../devela/all/trait.IoRead.html">take</a>(<a href="#504">len</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>);
-<a href=#508 id=508 data-nosnippet>508</a>            <a href="traits.rs.html#37">D::decode</a>(<span class="kw-2">&amp;mut </span><a href="#507">limited_reader</a>)
+<a href=#508 id=508 data-nosnippet>508</a>            <a href="traits.rs.html#20">D::decode</a>(<span class="kw-2">&amp;mut </span><a href="#507">limited_reader</a>)
 <a href=#509 id=509 data-nosnippet>509</a>        }
 <a href=#510 id=510 data-nosnippet>510</a>    }
 <a href=#511 id=511 data-nosnippet>511</a>
 <a href=#512 id=512 data-nosnippet>512</a>    <span class="comment">// Specialized implementation for &amp;str.
-<a href=#513 id=513 data-nosnippet>513</a>    </span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, CodecEndian&gt; <a href="traits.rs.html#29-38">Decodable</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut &amp;</span><span class="lifetime">'a </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; <span class="kw">for </span><a href="#469-472">CodecLenValue</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, CodecEndian&gt;
+<a href=#513 id=513 data-nosnippet>513</a>    </span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, CodecEndian&gt; <a href="traits.rs.html#12-21">Decodable</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut &amp;</span><span class="lifetime">'a </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt; <span class="kw">for </span><a href="#469-472">CodecLenValue</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, CodecEndian&gt;
 <a href=#514 id=514 data-nosnippet>514</a>    <span class="kw">where
-<a href=#515 id=515 data-nosnippet>515</a>        </span>CodecEndian: <a href="#549">CodecEndianLen</a> + <a href="traits.rs.html#29-38">Decodable</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut &amp;</span><span class="lifetime">'a </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
+<a href=#515 id=515 data-nosnippet>515</a>        </span>CodecEndian: <a href="#549">CodecEndianLen</a> + <a href="traits.rs.html#12-21">Decodable</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut &amp;</span><span class="lifetime">'a </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
 <a href=#516 id=516 data-nosnippet>516</a>            Output = &lt;CodecEndian <span class="kw">as </span>CodecEndianLen&gt;::Len&gt;,
 <a href=#517 id=517 data-nosnippet>517</a>        &lt;CodecEndian <span class="kw">as </span>CodecEndianLen&gt;::Len: <a href="../../../../../devela/code/trait.TryInto.html">TryInto</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
 <a href=#518 id=518 data-nosnippet>518</a>    {
@@ -633,10 +653,10 @@
 <a href=#524 id=524 data-nosnippet>524</a>                }
 <a href=#525 id=525 data-nosnippet>525</a>                <span class="kw">let </span>(s_bytes, rest) = <a href="#521">buf</a>.<a href="https://doc.rust-lang.org/nightly/core/foreigntype.slice.html#method.split_at">split_at</a>(<a href="#521">len</a>);
 <a href=#526 id=526 data-nosnippet>526</a>                <span class="kw-2">*</span><a href="#521">buf</a> = <a href="#525">rest</a>;
-<a href=#527 id=527 data-nosnippet>527</a>                <a href="../../../../../devela/_dep/simdutf8/basic/fn.from_utf8.html">from_utf8</a>(<a href="#525">s_bytes</a>)
+<a href=#527 id=527 data-nosnippet>527</a>                from_utf8(<a href="#525">s_bytes</a>)
 <a href=#528 id=528 data-nosnippet>528</a>                    .<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|<span class="kw">_</span>| <a href="https://doc.rust-lang.org/nightly/std/io/error/struct.Error.html#method.new">IoError::new</a>(<a href="../../../../../devela/all/enum.IoErrorKind.html">IoErrorKind::InvalidData</a>, <span class="string">"Invalid UTF-8"</span>))
 <a href=#529 id=529 data-nosnippet>529</a>            }
-<a href=#530 id=530 data-nosnippet>530</a>            <span class="kw">let </span>len_encoded = <a href="traits.rs.html#37">CodecEndian::decode</a>(<a href="#520">reader</a>)<span class="question-mark">?</span>;
+<a href=#530 id=530 data-nosnippet>530</a>            <span class="kw">let </span>len_encoded = <a href="traits.rs.html#20">CodecEndian::decode</a>(<a href="#520">reader</a>)<span class="question-mark">?</span>;
 <a href=#531 id=531 data-nosnippet>531</a>            <span class="kw">let </span>len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <a href="#530">len_encoded</a>.<a href="../../../../../devela/code/trait.TryInto.html">try_into</a>().<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map_err">map_err</a>(|<span class="kw">_</span>| {
 <a href=#532 id=532 data-nosnippet>532</a>                <a href="https://doc.rust-lang.org/nightly/std/io/error/struct.Error.html#method.new">IoError::new</a>(<a href="../../../../../devela/all/enum.IoErrorKind.html">IoErrorKind::InvalidData</a>, <span class="string">"Invalid length value"</span>)
 <a href=#533 id=533 data-nosnippet>533</a>            })<span class="question-mark">?</span>;

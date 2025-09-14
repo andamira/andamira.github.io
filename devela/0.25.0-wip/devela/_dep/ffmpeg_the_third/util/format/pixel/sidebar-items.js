@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ParsePixelError","Pixel"],"struct":["Descriptor"]};

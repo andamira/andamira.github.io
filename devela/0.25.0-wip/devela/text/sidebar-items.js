@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AsciiChar"],"mod":["errors","fmt","parse","str"],"struct":["Ascii","Char","GraphemeNonul","GraphemeString","GraphemeU8","IterChars","char16","char7","char8"],"trait":["Grapheme","UnicodeScalar"],"type":["char"]};
+window.SIDEBAR_ITEMS = {"enum":["AsciiChar"],"mod":["errors","fmt","parse","str"],"struct":["Ascii","Char","GraphemeNonul","GraphemeString","GraphemeU8","IterChars","char16","char7","char8"],"trait":["Grapheme"],"type":["char"]};

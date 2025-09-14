@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/table/value/build.rs`."><title>build.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/table/value/build.rs`."><title>build.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -212,8 +232,8 @@
 <a href=#103 id=103 data-nosnippet>103</a>        <span class="string">"1-Byte byte array"</span>, ByteArray1B, [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">1</span>], [def:<span class="bool-val">true</span>],
 <a href=#104 id=104 data-nosnippet>104</a>        <span class="string">"Boolean value"</span>, Bool, <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>, [def:<span class="bool-val">true</span>],
 <a href=#105 id=105 data-nosnippet>105</a>    copy@<span class="number">8_dep</span>:
-<a href=#106 id=106 data-nosnippet>106</a>        <span class="string">"8-bit signed angle"</span>, AngleI8, <span class="kw">crate</span>::Angle&lt;i8&gt;, <span class="string">"geom"</span>, <span class="string">"_int_i8"</span>, [def:<span class="bool-val">true</span>],
-<a href=#107 id=107 data-nosnippet>107</a>        <span class="string">"8-bit unsigned angle"</span>, AngleU8, <span class="kw">crate</span>::Angle&lt;u8&gt;, <span class="string">"geom"</span>, <span class="string">"_int_u8"</span>, [def:<span class="bool-val">true</span>],
+<a href=#106 id=106 data-nosnippet>106</a>        <span class="string">"8-bit signed angle"</span>, AngleI8, <a href="../../../num/geom/metric/angle/mod.rs.html#76-79"><span class="kw">crate</span>::Angle</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a>&gt;, <span class="string">"geom"</span>, <span class="string">"geom"</span>, [def:<span class="bool-val">true</span>],
+<a href=#107 id=107 data-nosnippet>107</a>        <span class="string">"8-bit unsigned angle"</span>, AngleU8, <a href="../../../num/geom/metric/angle/mod.rs.html#76-79"><span class="kw">crate</span>::Angle</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <span class="string">"geom"</span>, <span class="string">"geom"</span>, [def:<span class="bool-val">true</span>],
 <a href=#108 id=108 data-nosnippet>108</a>    copy@<span class="number">8_ptr</span>:
 <a href=#109 id=109 data-nosnippet>109</a>        <span class="string">"8-bit isize"</span>, Isize, isize, target_pointer_width = <span class="string">"8"</span>, [def:<span class="bool-val">true</span>],
 <a href=#110 id=110 data-nosnippet>110</a>        <span class="string">"8-bit usize"</span>, Usize, usize, target_pointer_width = <span class="string">"8"</span>, [def:<span class="bool-val">true</span>],
@@ -233,8 +253,8 @@
 <a href=#124 id=124 data-nosnippet>124</a>        <span class="comment">// WAIT: FIX: use flag
 <a href=#125 id=125 data-nosnippet>125</a>        // "16-bit floating-point number", F16, ::core::primitive::f16,
 <a href=#126 id=126 data-nosnippet>126</a>        //     nightly_float, nightly_float, [def:true],
-<a href=#127 id=127 data-nosnippet>127</a>        </span><span class="string">"16-bit signed angle"</span>, AngleI16, <span class="kw">crate</span>::Angle&lt;i16&gt;, <span class="string">"geom"</span>, <span class="string">"_int_i16"</span>, [def:<span class="bool-val">true</span>],
-<a href=#128 id=128 data-nosnippet>128</a>        <span class="string">"16-bit unsigned angle"</span>, AngleU16, <span class="kw">crate</span>::Angle&lt;u16&gt;, <span class="string">"geom"</span>, <span class="string">"_int_u16"</span>, [def:<span class="bool-val">true</span>],
+<a href=#127 id=127 data-nosnippet>127</a>        </span><span class="string">"16-bit signed angle"</span>, AngleI16, <a href="../../../num/geom/metric/angle/mod.rs.html#76-79"><span class="kw">crate</span>::Angle</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>&gt;, <span class="string">"geom"</span>, <span class="string">"geom"</span>, [def:<span class="bool-val">true</span>],
+<a href=#128 id=128 data-nosnippet>128</a>        <span class="string">"16-bit unsigned angle"</span>, AngleU16, <a href="../../../num/geom/metric/angle/mod.rs.html#76-79"><span class="kw">crate</span>::Angle</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>&gt;, <span class="string">"geom"</span>, <span class="string">"geom"</span>, [def:<span class="bool-val">true</span>],
 <a href=#129 id=129 data-nosnippet>129</a>    copy@<span class="number">16_ptr</span>:
 <a href=#130 id=130 data-nosnippet>130</a>        <span class="string">"16-bit isize"</span>, Isize, isize, target_pointer_width = <span class="string">"16"</span>, [def:<span class="bool-val">true</span>],
 <a href=#131 id=131 data-nosnippet>131</a>        <span class="string">"16-bit usize"</span>, Usize, usize, target_pointer_width = <span class="string">"16"</span>, [def:<span class="bool-val">true</span>],
@@ -253,8 +273,8 @@
 <a href=#144 id=144 data-nosnippet>144</a>        <span class="string">"4-Byte byte array"</span>, ByteArray4B, [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">4</span>], [def:<span class="bool-val">true</span>],
 <a href=#145 id=145 data-nosnippet>145</a>        <span class="string">"32-bit char "</span>, Char, <a href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>, [def:<span class="bool-val">true</span>],
 <a href=#146 id=146 data-nosnippet>146</a>    copy@<span class="number">32_dep</span>:
-<a href=#147 id=147 data-nosnippet>147</a>        <span class="string">"32-bit signed angle"</span>, AngleI32, <span class="kw">crate</span>::Angle&lt;i32&gt;, <span class="string">"geom"</span>, <span class="string">"_int_i32"</span>, [def:<span class="bool-val">true</span>],
-<a href=#148 id=148 data-nosnippet>148</a>        <span class="string">"32-bit unsigned angle"</span>, AngleU32, <a href="../../../num/geom/metric/angle/mod.rs.html#82-85"><span class="kw">crate</span>::Angle</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;, <span class="string">"geom"</span>, <span class="string">"_int_u32"</span>, [def:<span class="bool-val">true</span>],
+<a href=#147 id=147 data-nosnippet>147</a>        <span class="string">"32-bit signed angle"</span>, AngleI32, <a href="../../../num/geom/metric/angle/mod.rs.html#76-79"><span class="kw">crate</span>::Angle</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;, <span class="string">"geom"</span>, <span class="string">"geom"</span>, [def:<span class="bool-val">true</span>],
+<a href=#148 id=148 data-nosnippet>148</a>        <span class="string">"32-bit unsigned angle"</span>, AngleU32, <a href="../../../num/geom/metric/angle/mod.rs.html#76-79"><span class="kw">crate</span>::Angle</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;, <span class="string">"geom"</span>, <span class="string">"geom"</span>, [def:<span class="bool-val">true</span>],
 <a href=#149 id=149 data-nosnippet>149</a>    copy@<span class="number">32_ptr</span>:
 <a href=#150 id=150 data-nosnippet>150</a>        <span class="string">"32-bit isize"</span>, Isize, isize, target_pointer_width = <span class="string">"32"</span>, [def:<span class="bool-val">true</span>],
 <a href=#151 id=151 data-nosnippet>151</a>        <span class="string">"32-bit usize"</span>, Usize, usize, target_pointer_width = <span class="string">"32"</span>, [def:<span class="bool-val">true</span>],
@@ -272,8 +292,8 @@
 <a href=#163 id=163 data-nosnippet>163</a>        <span class="string">"64-bit floating-point number"</span>, F64, <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, [def:<span class="bool-val">true</span>],
 <a href=#164 id=164 data-nosnippet>164</a>        <span class="string">"8-Byte byte array"</span>, ByteArray8B, [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">8</span>], [def:<span class="bool-val">true</span>],
 <a href=#165 id=165 data-nosnippet>165</a>    copy@<span class="number">64_dep</span>:
-<a href=#166 id=166 data-nosnippet>166</a>        <span class="string">"64-bit signed angle"</span>, AngleI64, <a href="../../../num/geom/metric/angle/mod.rs.html#82-85"><span class="kw">crate</span>::Angle</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;, <span class="string">"geom"</span>, <span class="string">"_int_i64"</span>, [def:<span class="bool-val">true</span>],
-<a href=#167 id=167 data-nosnippet>167</a>        <span class="string">"64-bit unsigned angle"</span>, AngleU64, <span class="kw">crate</span>::Angle&lt;u64&gt;, <span class="string">"geom"</span>, <span class="string">"_int_u64"</span>, [def:<span class="bool-val">true</span>],
+<a href=#166 id=166 data-nosnippet>166</a>        <span class="string">"64-bit signed angle"</span>, AngleI64, <a href="../../../num/geom/metric/angle/mod.rs.html#76-79"><span class="kw">crate</span>::Angle</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;, <span class="string">"geom"</span>, <span class="string">"geom"</span>, [def:<span class="bool-val">true</span>],
+<a href=#167 id=167 data-nosnippet>167</a>        <span class="string">"64-bit unsigned angle"</span>, AngleU64, <a href="../../../num/geom/metric/angle/mod.rs.html#76-79"><span class="kw">crate</span>::Angle</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;, <span class="string">"geom"</span>, <span class="string">"geom"</span>, [def:<span class="bool-val">true</span>],
 <a href=#168 id=168 data-nosnippet>168</a>    copy@<span class="number">64_ptr</span>:
 <a href=#169 id=169 data-nosnippet>169</a>        <span class="string">"64-bit isize"</span>, Isize, <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html">isize</a>, target_pointer_width = <span class="string">"64"</span>, [def:<span class="bool-val">true</span>],
 <a href=#170 id=170 data-nosnippet>170</a>        <span class="string">"64-bit usize"</span>, Usize, <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, target_pointer_width = <span class="string">"64"</span>, [def:<span class="bool-val">true</span>],
@@ -296,8 +316,8 @@
 <a href=#187 id=187 data-nosnippet>187</a>        <span class="comment">// WAIT: FIX:use flag
 <a href=#188 id=188 data-nosnippet>188</a>        // "128-bit floating-point number", F128, ::core::primitive::f128,
 <a href=#189 id=189 data-nosnippet>189</a>        //     nightly_float, nightly_float, [def:true],
-<a href=#190 id=190 data-nosnippet>190</a>        </span><span class="string">"128-bit signed angle"</span>, AngleI128, <span class="kw">crate</span>::Angle&lt;i128&gt;, <span class="string">"geom"</span>, <span class="string">"_int_i128"</span>, [def:<span class="bool-val">true</span>],
-<a href=#191 id=191 data-nosnippet>191</a>        <span class="string">"128-bit unsigned angle"</span>, AngleU128, <span class="kw">crate</span>::Angle&lt;u128&gt;, <span class="string">"geom"</span>, <span class="string">"_int_u128"</span>, [def:<span class="bool-val">true</span>],
+<a href=#190 id=190 data-nosnippet>190</a>        </span><span class="string">"128-bit signed angle"</span>, AngleI128, <span class="kw">crate</span>::Angle&lt;i128&gt;, <span class="string">"geom"</span>, <span class="string">"geom"</span>, [def:<span class="bool-val">true</span>],
+<a href=#191 id=191 data-nosnippet>191</a>        <span class="string">"128-bit unsigned angle"</span>, AngleU128, <span class="kw">crate</span>::Angle&lt;u128&gt;, <span class="string">"geom"</span>, <span class="string">"geom"</span>, [def:<span class="bool-val">true</span>],
 <a href=#192 id=192 data-nosnippet>192</a>        <span class="string">"128-bit SystemInstant"</span>, SystemInstant, <span class="kw">crate</span>::SystemInstant, <span class="string">"std"</span>, <span class="string">"std"</span>, [def:<span class="bool-val">false</span>],
 <a href=#193 id=193 data-nosnippet>193</a>        <span class="string">"128-bit SystemTime"</span>, SystemTime, <span class="kw">crate</span>::SystemTime, <span class="string">"std"</span>, <span class="string">"std"</span>, [def:<span class="bool-val">false</span>],
 <a href=#194 id=194 data-nosnippet>194</a>    copy@<span class="number">128_ptr</span>:

@@ -1,0 +1,209 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Defines a standardized module structure with automatic re-exports and visibility handling."><title>structural_mods in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
+        integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
+        integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+</head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">structural_mods</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">structural_<wbr>mods</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#generated-modules" title="Generated Modules">Generated Modules</a></li><li><a href="#usage-patterns" title="Usage Patterns">Usage Patterns</a></li><li><a href="#notes" title="Notes">Notes</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Macro <span class="macro">structural_<wbr>mods</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>macro_rules! structural_mods {
+    (
+        // Items inside should be pub.
+        // Public items from non-public modules. They bubble up and show up in the current module.
+        $( $(_mods$($has_mods:lifetime)?)? { $($block_mods:tt)* } )?
+        //
+        // Items inside should be pub &amp; doc(inline).
+        // Public items from public modules. They bubble up but are hidden in the current module.
+        $( $(_pub_mods$($has_pub_mods:lifetime)?)? { $($block_pub_mods:tt)* } )?
+        //
+        // Items inside should be pub(crate).
+        // They are re-exported from the root of the crate.
+        $( _crate_internals { $($block_crate_internals:tt)* } )?
+        //
+        // Items inside should be pub &amp; doc(hidden).
+        // They are publicly re-exported from the root of the crate except for the top crate.
+        $( _workspace_internals { $($block_workspace_internals:tt)* } )?
+        //
+        // Items inside should be pub.
+        // They bubble up side-stepping certain feature-gates.
+        $( _always { $($block_always:tt)* } )?
+        //
+        // Items inside should be pub &amp; doc(hidden).
+        // They are publicly reexported from the root of the crate.
+        $( _hidden { $($block_hidden:tt)* } )?
+    ) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines a standardized module structure with automatic re-exports and visibility handling.</p>
+<p>This macro generates a set of structural modules that help organize exports based on their
+intended visibility and usage patterns.
+It reduces boilerplate and ensures consistency throught the workspace crates.</p>
+<div class="warning">
+<p><strong>Order Matters:</strong> The modules must be specified in the exact order shown in the examples
+below, though all modules are optional. The macro parsing is order-sensitive, and incorrect
+ordering will result in compilation errors or unexpected behavior. The <code>_all</code> module is
+automatically generated based on the presence of <code>_mods</code> and <code>_pub_mods</code> modules.</p>
+</div>
+<h2 id="generated-modules"><a class="doc-anchor" href="#generated-modules">§</a>Generated Modules</h2>
+<p>The macro can generate these optional modules:</p>
+<ul>
+<li><code>_mods</code>: Public items from non-public modules. Items should be <code>pub</code>.</li>
+<li><code>_pub_mods</code>: Public items from public modules. Items should be <code>pub</code> and have <code>doc(inline)</code>.</li>
+<li><code>_crate_internals</code>: Crate-private items (<code>pub(crate)</code> visibility) that bubble up to the top.</li>
+<li><code>_workspace_internals</code>: Workspace-visible items (<code>pub</code> but hidden from external crates).</li>
+<li><code>_always</code>: Items that bypass normal modules feature-gating and are always available.</li>
+<li><code>_hidden</code>: Public but hidden items (<code>pub</code> + <code>doc(hidden)</code>).</li>
+</ul>
+<p>Additionally, it always generates an <code>_all</code> module that aggregates exports from
+<code>_mods</code> and <code>_pub_mods</code> when they are present.</p>
+<h2 id="usage-patterns"><a class="doc-anchor" href="#usage-patterns">§</a>Usage Patterns</h2>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="macro">structural_mods!</span> {
+    _mods {
+        <span class="kw">pub use super</span>::{some_module::<span class="kw-2">*</span>, other_module::<span class="kw-2">*</span>};
+    }
+    _pub_mods {
+        <span class="attr">#[doc(inline)]
+        </span><span class="kw">pub use </span><span class="kw">super</span>::public_module::_all::<span class="kw-2">*</span>;
+    }
+    _crate_internals {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="kw">super</span>::internal_utils::<span class="kw-2">*</span>;
+    }
+    _workspace_internals {
+        <span class="kw">pub use </span><span class="kw">super</span>::workspace_tools::<span class="kw-2">*</span>;
+    }
+}</code></pre></div>
+<h2 id="notes"><a class="doc-anchor" href="#notes">§</a>Notes</h2>
+<ul>
+<li>Modules are generated with <code>#[allow(unused_imports)]</code> to prevent noise from
+intra-crate visibility boundaries</li>
+</ul>
+<div class="warning">
+<p><strong>Important Usage Note</strong>: The correct functionality of these structural modules depends on
+strict adherence to the established guidelines for the module chain throughout the entire crate
+hierarchy.</p>
+<p>Each module must properly re-export its structural components upward, culminating in
+the root <code>lib.rs</code> file, to ensure consistent visibility and proper aggregation of exports. The
+system relies on a disciplined approach to visibility modifiers and re-export patterns at each
+level of the module structure to maintain the intended public API surface and internal
+organization. Deviation from these patterns in intermediate modules may break the automatic
+aggregation mechanism and compromise the consistency of the final exported interface.</p>
+</div></div></details></section></div></main></body></html>

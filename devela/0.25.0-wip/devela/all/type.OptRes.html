@@ -1,29 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="⚖️ An optional result type that combines success, failure, and absence."><title>OptRes in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (fe5536432 2025-08-29)" data-channel="nightly" data-search-js="search-03d23683.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="⚖️ An optional result type that combines success, failure, and absence."><title>OptRes in devela::all - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0-nightly (07d246fc6 2025-08-31)" data-channel="nightly" data-search-js="search-449aa9bf.js" data-stringdex-js="stringdex-0e748618.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><script>
   document.addEventListener("DOMContentLoaded", async function() {
     // Ensure this script runs only once per page load
     if (window.scriptLoaderInitialized) return;
     window.scriptLoaderInitialized = true;
 
+    // console.log("Loaded: rustdoc-header.html:"); // DEBUG
+
     /* settings */
 
-    const crateName = "devela";
-    const allowedKatex = ["/all", "/media/color", "/num/", "/phys/"];
-    const allowedKatexChem = ["/all/", "/phys/"];
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/media/color", "/num", "/phys"],
+        katexChem: ["/all/", "/phys/"]
+      },
+      "devela_base_num": {
+        katex: ["/"],
+        katexChem: []
+      }
+    };
 
-    // Find the LAST occurrence of `/devela/` in the path
-    const path = window.location.pathname;
-    const lastCrateIndex = path.lastIndexOf(`/${crateName}/`);
-    if (lastCrateIndex === -1) return;
-    // Extract everything after the last `/devela/`
-    const relativePath = path.slice(lastCrateIndex + crateName.length + 1);
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
 
     /* load resources */
 
     try {
-      if (allowedKatex.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
       }
-      if (allowedKatexChem.some(prefix => relativePath.startsWith(prefix))) {
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
         await loadKatexChem().catch(handleMathError);
       }
     } catch (error) {
@@ -40,21 +60,21 @@
       // Load CSS, and scripts sequentially
       const katexCSS = document.createElement("link");
       katexCSS.rel = "stylesheet";
-      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css";
-      katexCSS.integrity = "sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css";
+      katexCSS.integrity = "sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP";
       katexCSS.crossOrigin = "anonymous";
       document.head.appendChild(katexCSS);
 
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js",
-        integrity: "sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js",
+        integrity: "sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js",
         integrity: "sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
       });
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/copy-tex.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/copy-tex.min.js",
         integrity: "sha384-HORx6nWi8j5/mYA+y57/9/CZc5z8HnEw4WUZWy5yOn9ToKBv1l58vJaufFAn9Zzi"
       });
 
@@ -81,7 +101,7 @@
     async function loadKatexChem() {
       console.log("Loading KaTeX MhChem plugin for:", relativePath);
       await loadScript({
-        src: "https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/mhchem.min.js",
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js",
         integrity: "sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH"
       });
     }
@@ -107,7 +127,7 @@
   });
 </script>
 
-</head><body class="rustdoc type"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">OptRes</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">OptRes</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#aliased-type">Aliased Type</a></h3><h3><a href="#variants">Variants</a></h3><ul class="block variant"><li><a href="#variant.None" title="None">None</a></li><li><a href="#variant.Some" title="Some">Some</a></li></ul><h3><a href="#trait-implementations">Trait Implementations</a></h3><ul class="block trait-implementation"><li><a href="#impl-ExtOptRes%3CT,+E%3E-for-Option%3CResult%3CT,+E%3E%3E" title="ExtOptRes&#60;T, E&#62;">ExtOptRes&#60;T, E&#62;</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Type Alias <span class="type">OptRes</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/code/result/opt_res/opt_res.rs.html#80">Source</a> </span></div><pre class="rust item-decl"><code>pub type OptRes&lt;T, E&gt; = <a class="enum" href="enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="enum" href="enum.Result.html" title="enum devela::all::Result">Result</a>&lt;T, E&gt;&gt;;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Resolution or outcome-related item'>⚖️</span>
+</head><body class="rustdoc type"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">OptRes</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.25.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">OptRes</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#aliased-type">Aliased Type</a></h3><h3><a href="#variants">Variants</a></h3><ul class="block variant"><li><a href="#variant.None" title="None">None</a></li><li><a href="#variant.Some" title="Some">Some</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Type Alias <span class="type">OptRes</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>pub type OptRes&lt;T, E&gt; = <a class="enum" href="enum.Option.html" title="enum devela::all::Option">Option</a>&lt;<a class="enum" href="enum.Result.html" title="enum devela::all::Result">Result</a>&lt;T, E&gt;&gt;;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Resolution or outcome-related item'>⚖️</span>
 An optional result type that combines success, failure, and absence.</p>
 <p>Combines <a href="enum.Option.html" title="enum devela::all::Option"><code>Option</code></a> and <a href="enum.Result.html" title="enum devela::all::Result"><code>Result</code></a> to provide a
 structured outcome type with three possible states:</p>
@@ -174,8 +194,4 @@ Processing...
     Some(<a class="enum" href="enum.Result.html" title="enum devela::all::Result">Result</a>&lt;T, E&gt;),
 }</code></pre><h2 id="variants" class="variants section-header">Variants<a href="#variants" class="anchor">§</a></h2><div class="variants"><section id="variant.None" class="variant"><a href="#variant.None" class="anchor">§</a><span class="since rightside" title="Stable since Rust version 1.0.0">1.0.0</span><h3 class="code-header">None</h3></section><div class="docblock"><p>No value.</p>
 </div><section id="variant.Some" class="variant"><a href="#variant.Some" class="anchor">§</a><span class="since rightside" title="Stable since Rust version 1.0.0">1.0.0</span><h3 class="code-header">Some(<a class="enum" href="enum.Result.html" title="enum devela::all::Result">Result</a>&lt;T, E&gt;)</h3></section><div class="docblock"><p>Some value of type <code>T</code>.</p>
-</div></div><h2 id="trait-implementations" class="section-header">Trait Implementations<a href="#trait-implementations" class="anchor">§</a></h2><div id="trait-implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-ExtOptRes%3CT,+E%3E-for-Option%3CResult%3CT,+E%3E%3E" class="impl"><a class="src rightside" href="../../src/devela/code/result/opt_res/opt_res.rs.html#215-245">Source</a><a href="#impl-ExtOptRes%3CT,+E%3E-for-Option%3CResult%3CT,+E%3E%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T, E&gt; <a class="trait" href="trait.ExtOptRes.html" title="trait devela::all::ExtOptRes">ExtOptRes</a>&lt;T, E&gt; for <a class="type" href="type.OptRes.html" title="type devela::all::OptRes">OptRes</a>&lt;T, E&gt;</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.transpose_result" class="method trait-impl"><a class="src rightside" href="../../src/devela/code/result/opt_res/opt_res.rs.html#216-222">Source</a><a href="#method.transpose_result" class="anchor">§</a><h4 class="code-header">fn <a href="trait.ExtOptRes.html#tymethod.transpose_result" class="fn">transpose_result</a>(self) -&gt; <a class="enum" href="enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="enum" href="enum.Option.html" title="enum devela::all::Option">Option</a>&lt;T&gt;, E&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;Option&lt;T&gt;, E&gt;">ⓘ</a></h4></section></summary><div class='docblock'>Transposes <code>Option&lt;Result&lt;T, E&gt;&gt;</code> into <code>Result&lt;Option&lt;T&gt;, E&gt;</code>. <a href="trait.ExtOptRes.html#tymethod.transpose_result">Read more</a></div></details><details class="toggle method-toggle" open><summary><section id="method.unwrap_or_else_result" class="method trait-impl"><a class="src rightside" href="../../src/devela/code/result/opt_res/opt_res.rs.html#224-229">Source</a><a href="#method.unwrap_or_else_result" class="anchor">§</a><h4 class="code-header">fn <a href="trait.ExtOptRes.html#tymethod.unwrap_or_else_result" class="fn">unwrap_or_else_result</a>&lt;F: <a class="trait" href="trait.FnOnce.html" title="trait devela::all::FnOnce">FnOnce</a>() -&gt; <a class="enum" href="enum.Result.html" title="enum devela::all::Result">Result</a>&lt;T, E&gt;&gt;(
-    self,
-    f: F,
-) -&gt; <a class="enum" href="enum.Result.html" title="enum devela::all::Result">Result</a>&lt;T, E&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;T, E&gt;">ⓘ</a></h4></section></summary><div class='docblock'>Unwraps the result if the <code>Option</code> is <code>Some</code>, otherwise calls the provided closure. <a href="trait.ExtOptRes.html#tymethod.unwrap_or_else_result">Read more</a></div></details><details class="toggle method-toggle" open><summary><section id="method.map_ok" class="method trait-impl"><a class="src rightside" href="../../src/devela/code/result/opt_res/opt_res.rs.html#231-233">Source</a><a href="#method.map_ok" class="anchor">§</a><h4 class="code-header">fn <a href="trait.ExtOptRes.html#tymethod.map_ok" class="fn">map_ok</a>&lt;U, F: <a class="trait" href="trait.FnOnce.html" title="trait devela::all::FnOnce">FnOnce</a>(T) -&gt; U&gt;(self, f: F) -&gt; <a class="type" href="type.OptRes.html" title="type devela::all::OptRes">OptRes</a>&lt;U, E&gt; <a href="#" class="tooltip" data-notable-ty="OptRes&lt;U, E&gt;">ⓘ</a></h4></section></summary><div class='docblock'>Applies a function to the <code>Ok</code> value inside <code>Option&lt;Result&lt;T, E&gt;&gt;</code>, if both are present. <a href="trait.ExtOptRes.html#tymethod.map_ok">Read more</a></div></details><details class="toggle method-toggle" open><summary><section id="method.map_err" class="method trait-impl"><a class="src rightside" href="../../src/devela/code/result/opt_res/opt_res.rs.html#235-237">Source</a><a href="#method.map_err" class="anchor">§</a><h4 class="code-header">fn <a href="trait.ExtOptRes.html#tymethod.map_err" class="fn">map_err</a>&lt;F, G: <a class="trait" href="trait.FnOnce.html" title="trait devela::all::FnOnce">FnOnce</a>(E) -&gt; F&gt;(self, f: G) -&gt; <a class="type" href="type.OptRes.html" title="type devela::all::OptRes">OptRes</a>&lt;T, F&gt; <a href="#" class="tooltip" data-notable-ty="OptRes&lt;T, F&gt;">ⓘ</a></h4></section></summary><div class='docblock'>Applies a function to the <code>Err</code> value inside <code>Option&lt;Result&lt;T, E&gt;&gt;</code>, if both are present. <a href="trait.ExtOptRes.html#tymethod.map_err">Read more</a></div></details><details class="toggle method-toggle" open><summary><section id="method.ok_or_default_err" class="method trait-impl"><a class="src rightside" href="../../src/devela/code/result/opt_res/opt_res.rs.html#239-244">Source</a><a href="#method.ok_or_default_err" class="anchor">§</a><h4 class="code-header">fn <a href="trait.ExtOptRes.html#tymethod.ok_or_default_err" class="fn">ok_or_default_err</a>(self) -&gt; <a class="enum" href="enum.Result.html" title="enum devela::all::Result">Result</a>&lt;T, E&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;T, E&gt;">ⓘ</a><div class="where">where
-    E: <a class="trait" href="../code/trait.Default.html" title="trait devela::code::Default">Default</a>,</div></h4></section></summary><div class='docblock'>Provides a default error if the <code>Option</code> is <code>None</code>. <a href="trait.ExtOptRes.html#tymethod.ok_or_default_err">Read more</a></div></details></div></details></div><script src="../../type.impl/devela/all/enum.Option.js" data-self-path="devela::code::result::opt_res::opt_res::OptRes" async></script><script type="text/json" id="notable-traits-data">{"OptRes<T, F>":"<h3>Notable traits for <code><a class=\"type\" href=\"type.OptRes.html\" title=\"type devela::all::OptRes\">OptRes</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"trait.ExtOptRes.html\" title=\"trait devela::all::ExtOptRes\">ExtOptRes</a>&lt;T, E&gt; for <a class=\"type\" href=\"type.OptRes.html\" title=\"type devela::all::OptRes\">OptRes</a>&lt;T, E&gt;</div>","OptRes<U, E>":"<h3>Notable traits for <code><a class=\"type\" href=\"type.OptRes.html\" title=\"type devela::all::OptRes\">OptRes</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"trait.ExtOptRes.html\" title=\"trait devela::all::ExtOptRes\">ExtOptRes</a>&lt;T, E&gt; for <a class=\"type\" href=\"type.OptRes.html\" title=\"type devela::all::OptRes\">OptRes</a>&lt;T, E&gt;</div>","Result<Option<T>, E>":"<h3>Notable traits for <code><a class=\"enum\" href=\"enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>","Result<T, E>":"<h3>Notable traits for <code><a class=\"enum\" href=\"enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"trait.ExtResult.html\" title=\"trait devela::all::ExtResult\">ExtResult</a>&lt;T, E&gt; for <a class=\"enum\" href=\"enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>
+</div></div><script src="../../type.impl/devela/all/enum.Option.js" data-self-path="devela::all::OptRes" async></script></section></div></main></body></html>

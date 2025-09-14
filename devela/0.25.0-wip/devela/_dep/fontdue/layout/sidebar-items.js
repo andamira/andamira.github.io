@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CoordinateSystem","HorizontalAlign","VerticalAlign","WrapStyle"],"struct":["CharacterData","GlyphPosition","GlyphRasterConfig","Layout","LayoutSettings","LinePosition","TextStyle"]};
