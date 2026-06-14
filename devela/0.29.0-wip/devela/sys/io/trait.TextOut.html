@@ -1,0 +1,172 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🔌 𝐓 Emits UTF-8 text to an output surface."><title>TextOut in devela::sys::io - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc trait"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">TextOut</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">TextOut</a></h2><h3><a href="#required-associated-types">Required Associated Types</a></h3><ul class="block"><li><a href="#associatedtype.Error" title="Error">Error</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.write_text" title="write_text">write_text</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.write_char" title="write_char">write_char</a></li><li><a href="#method.write_fmt" title="write_fmt">write_fmt</a></li><li><a href="#method.write_line" title="write_line">write_line</a></li></ul><h3><a href="#foreign-impls">Implementations on Foreign Types</a></h3><ul class="block"><li><a href="#impl-TextOut-for-StderrLock%3C'_%3E" title="StderrLock&#60;&#39;_&#62;">StderrLock&#60;&#39;_&#62;</a></li><li><a href="#impl-TextOut-for-StdoutLock%3C'_%3E" title="StdoutLock&#60;&#39;_&#62;">StdoutLock&#60;&#39;_&#62;</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>sys::<wbr>io</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">sys</a>::<wbr><a href="index.html">io</a></div><h1>Trait <span class="trait">TextOut</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/sys/io/text.rs.html#42-88">Source</a> </span></div><pre class="rust item-decl"><code>pub trait TextOut {
+    type <a href="#associatedtype.Error" class="associatedtype">Error</a>;
+
+    // Required method
+    fn <a href="#tymethod.write_text" class="fn">write_text</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.TextOut.html#associatedtype.Error" title="type devela::zall::TextOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a>;
+
+    // Provided methods
+    fn <a href="#method.write_line" class="fn">write_line</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.TextOut.html#associatedtype.Error" title="type devela::zall::TextOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.write_char" class="fn">write_char</a>(&amp;mut self, c: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.TextOut.html#associatedtype.Error" title="type devela::zall::TextOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.write_fmt" class="fn">write_fmt</a>(&amp;mut self, args: <a class="struct" href="../../zall/struct.FmtArguments.html" title="struct devela::zall::FmtArguments">FmtArguments</a>&lt;'_&gt;) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.TextOut.html#associatedtype.Error" title="type devela::zall::TextOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a> { ... }
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Input and output'>🔌</span> <span class='stab portability' title='Text'>𝐓</span>
+Emits UTF-8 text to an output surface.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/sys/io"><code>sys/io</code></a></sup></p>
+<hr />
+<p>This is the text-layer counterpart to <a href="../../zall/trait.IoWrite.html" title="trait devela::zall::IoWrite"><code>IoWrite</code></a>.
+It is intended for sinks whose primary semantic payload is text,
+such as terminals, log files, browser text surfaces, or formatted buffers.</p>
+<p>See also <a href="../../zall/trait.IoWrite.html" title="trait devela::zall::IoWrite"><code>IoWrite</code></a> for byte-oriented output.</p>
+</div></details><h2 id="required-associated-types" class="section-header">Required Associated Types<a href="#required-associated-types" class="anchor">§</a></h2><div class="methods"><details class="toggle" open><summary><section id="associatedtype.Error" class="method"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#46">Source</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a></h4></section></summary><div class="docblock"><p>The error returned when text emission fails.</p>
+</div></details></div><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.write_text" class="method"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#49">Source</a><h4 class="code-header">fn <a href="#tymethod.write_text" class="fn">write_text</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.TextOut.html#associatedtype.Error" title="type devela::zall::TextOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Emits <code>text</code> without appending a line ending.</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.write_line" class="method"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#54-57">Source</a><h4 class="code-header">fn <a href="#method.write_line" class="fn">write_line</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.TextOut.html#associatedtype.Error" title="type devela::zall::TextOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Emits <code>text</code> followed by <code>\n</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.write_char" class="method"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#60-63">Source</a><h4 class="code-header">fn <a href="#method.write_char" class="fn">write_char</a>(&amp;mut self, c: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.TextOut.html#associatedtype.Error" title="type devela::zall::TextOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Emits a single Unicode scalar.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.write_fmt" class="method"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#66-87">Source</a><h4 class="code-header">fn <a href="#method.write_fmt" class="fn">write_fmt</a>(&amp;mut self, args: <a class="struct" href="../../zall/struct.FmtArguments.html" title="struct devela::zall::FmtArguments">FmtArguments</a>&lt;'_&gt;) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.TextOut.html#associatedtype.Error" title="type devela::zall::TextOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Emits formatted text.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait <b>is</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety".</i></p></div><h2 id="foreign-impls" class="section-header">Implementations on Foreign Types<a href="#foreign-impls" class="anchor">§</a></h2><details class="toggle implementors-toggle"><summary><section id="impl-TextOut-for-StderrLock%3C'_%3E" class="impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#156-161">Source</a><a href="#impl-TextOut-for-StderrLock%3C'_%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.TextOut.html" title="trait devela::zall::TextOut">TextOut</a> for <a class="struct" href="https://doc.rust-lang.org/nightly/std/io/stdio/struct.StderrLock.html" title="struct std::io::stdio::StderrLock">StderrLock</a>&lt;'_&gt;</h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><div class="docblock"><p>Emits UTF-8 text to a locked standard error stream.</p>
+</div></section></summary><div class="impl-items"><section id="associatedtype.Error-1" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#157">Source</a><a href="#associatedtype.Error-1" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a></h4></section><section id="method.write_text" class="method trait-impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#158-160">Source</a><a href="#method.write_text" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.write_text" class="fn">write_text</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.TextOut.html#associatedtype.Error" title="type devela::zall::TextOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TextOut-for-StdoutLock%3C'_%3E" class="impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#142-147">Source</a><a href="#impl-TextOut-for-StdoutLock%3C'_%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.TextOut.html" title="trait devela::zall::TextOut">TextOut</a> for <a class="struct" href="https://doc.rust-lang.org/nightly/std/io/stdio/struct.StdoutLock.html" title="struct std::io::stdio::StdoutLock">StdoutLock</a>&lt;'_&gt;</h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><div class="docblock"><p>Emits UTF-8 text to a locked standard output stream.</p>
+</div></section></summary><div class="impl-items"><section id="associatedtype.Error-2" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#143">Source</a><a href="#associatedtype.Error-2" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a></h4></section><section id="method.write_text-1" class="method trait-impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#144-146">Source</a><a href="#method.write_text-1" class="anchor">§</a><h4 class="code-header">fn <a href="#tymethod.write_text" class="fn">write_text</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.TextOut.html#associatedtype.Error" title="type devela::zall::TextOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></div></details><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><div class="negative-marker"></div><details class="toggle implementors-toggle"><summary><section id="impl-TextOut-for-Empty" class="impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#109-115">Source</a><a href="#impl-TextOut-for-Empty" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.TextOut.html" title="trait devela::zall::TextOut">TextOut</a> for <a class="struct" href="../../zall/struct.IoEmpty.html" title="struct devela::zall::IoEmpty">IoEmpty</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>io</code></strong> only.</div></span><div class="docblock"><p>Discards all emitted text.</p>
+</div></section></summary><div class="impl-items"><section id="associatedtype.Error-3" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#110">Source</a><a href="#associatedtype.Error-3" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TextOut-for-JsConsole" class="impl"><a class="src rightside" href="../../../src/devela/lang/prog/ffi/js/console.rs.html#153-160">Source</a><a href="#impl-TextOut-for-JsConsole" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.TextOut.html" title="trait devela::zall::TextOut">TextOut</a> for <a class="struct" href="../../zall/struct.JsConsole.html" title="struct devela::zall::JsConsole">JsConsole</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate features <code>js</code> and <code>unsafe_ffi</code></strong> only.</div></span><div class="docblock"><p>Emits UTF-8 text to the JavaScript console.</p>
+</div></section></summary><div class="docblock"><p>This is a convenience text-sink implementation over <a href="../../zall/struct.JsConsole.html" title="struct devela::zall::JsConsole"><code>JsConsole</code></a>,
+forwarding plain text through the console’s generic log channel.</p>
+<p>For leveled diagnostic output, prefer <a href="../../zall/trait.DiagOut.html" title="trait devela::zall::DiagOut"><code>DiagOut</code></a>.</p>
+</div><div class="impl-items"><section id="associatedtype.Error-4" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/lang/prog/ffi/js/console.rs.html#154">Source</a><a href="#associatedtype.Error-4" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="enum" href="../../zall/enum.Infallible.html" title="enum devela::zall::Infallible">Infallible</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TextOut-for-Stderr" class="impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#149-154">Source</a><a href="#impl-TextOut-for-Stderr" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.TextOut.html" title="trait devela::zall::TextOut">TextOut</a> for <a class="struct" href="../../zall/struct.Stderr.html" title="struct devela::zall::Stderr">Stderr</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><div class="docblock"><p>Emits UTF-8 text to the process standard error stream.</p>
+</div></section></summary><div class="impl-items"><section id="associatedtype.Error-5" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#150">Source</a><a href="#associatedtype.Error-5" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TextOut-for-Stdout" class="impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#135-140">Source</a><a href="#impl-TextOut-for-Stdout" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.TextOut.html" title="trait devela::zall::TextOut">TextOut</a> for <a class="struct" href="../../zall/struct.Stdout.html" title="struct devela::zall::Stdout">Stdout</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><div class="docblock"><p>Emits UTF-8 text to the process standard output stream.</p>
+</div></section></summary><div class="impl-items"><section id="associatedtype.Error-6" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#136">Source</a><a href="#associatedtype.Error-6" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a></h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TextOut-for-String" class="impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#121-127">Source</a><a href="#impl-TextOut-for-String" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.TextOut.html" title="trait devela::zall::TextOut">TextOut</a> for <a class="struct" href="../../zall/struct.String.html" title="struct devela::zall::String">String</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>alloc</code></strong> only.</div></span><div class="docblock"><p>Appends emitted text into an owned UTF-8 buffer.</p>
+</div></section></summary><div class="docblock"><p>This implementation is infallible and useful for capture, accumulation,
+deferred presentation, and text-backed diagnostic sinks.</p>
+</div><div class="impl-items"><section id="associatedtype.Error-7" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/sys/io/text.rs.html#122">Source</a><a href="#associatedtype.Error-7" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="enum" href="../../zall/enum.Infallible.html" title="enum devela::zall::Infallible">Infallible</a></h4></section></div></details></div><script src="../../../trait.impl/devela/sys/io/text/trait.TextOut.js" data-ignore-extern-crates="core,alloc,std" async></script><script type="text/json" id="notable-traits-data">{"Result<(), Self::Error>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../zall/enum.Result.html\" title=\"enum devela::zall::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../zall/trait.ResultExt.html\" title=\"trait devela::zall::ResultExt\">ResultExt</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../zall/enum.Result.html\" title=\"enum devela::zall::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>

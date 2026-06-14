@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["WaveletUnitRole"],"struct":["WaveletHaar","WaveletUnitVec"],"trait":["WaveletCompressionVec","WaveletTransformVec"]};

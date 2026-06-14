@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Time sources."><title>devela::phys::time::source - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module source</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module source</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#core-model" title="Core model">Core model</a></li><li><a href="#timeline-model" title="Timeline model">Timeline model</a></li><li><a href="#numeric-vs-opaque-points" title="Numeric vs opaque points">Numeric vs opaque points</a></li><li><a href="#configurable-sources" title="Configurable sources">Configurable sources</a></li><li><a href="#design-posture" title="Design posture">Design posture</a></li><li><a href="#source-comparison" title="Source comparison">Source comparison</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#traits" title="Traits">Traits</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>phys::<wbr>time</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">phys</a>::<wbr><a href="../index.html">time</a></div><h1>Module <span>source</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/phys/time/source/mod.rs.html#3-114">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Time sources.</p>
+<p>Defines time-source traits and supporting types for storing, comparing,
+and projecting time values across different timelines.</p>
+<h3 id="core-model"><a class="doc-anchor" href="#core-model">§</a>Core model</h3>
+<p>A <a href="../../../zall/trait.TimePoint.html" title="trait devela::zall::TimePoint"><code>TimePoint</code></a> defines how a concrete point representation is ordered
+and how to compute forward elapsed time between two such points.</p>
+<p>A <a href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource"><code>TimeSource&lt;P&gt;</code></a> produces current points of type <code>P</code> and also provides
+a canonical numeric projection of both points and elapsed values as <code>u64</code>
+together with a <a href="../../../zall/enum.TimeScale.html" title="enum devela::zall::TimeScale"><code>TimeScale</code></a> describing their unit.</p>
+<p>This separates:</p>
+<ul>
+<li>the <strong>point representation</strong> (<code>P</code>),</li>
+<li>the <strong>source timeline semantics</strong>,</li>
+<li>and the <strong>canonical numeric view</strong> used for diagnostics,
+instrumentation, logging, and generic timestamp handling.</li>
+</ul>
+<h3 id="timeline-model"><a class="doc-anchor" href="#timeline-model">§</a>Timeline model</h3>
+<p>Timelines may be:</p>
+<ul>
+<li><strong>absolute</strong> (for example, Unix time),</li>
+<li><strong>relative</strong> (for example, boot time or JS origin),</li>
+<li>or <strong>synthetic</strong> (for example, process-local or user-defined).</li>
+</ul>
+<p>Sources may be <strong>monotonic</strong> or <strong>non-monotonic</strong>.</p>
+<h3 id="numeric-vs-opaque-points"><a class="doc-anchor" href="#numeric-vs-opaque-points">§</a>Numeric vs opaque points</h3>
+<p>Some APIs expose opaque points such as <a href="../../../zall/struct.SystemInstant.html" title="struct devela::zall::SystemInstant"><code>SystemInstant</code></a> or <a href="../../../zall/struct.SystemTime.html" title="struct devela::zall::SystemTime"><code>SystemTime</code></a>.
+These can still participate in the model by implementing <a href="../../../zall/trait.TimePoint.html" title="trait devela::zall::TimePoint"><code>TimePoint</code></a>,
+while <a href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource"><code>TimeSource</code></a> supplies their canonical numeric projection.</p>
+<p>Other sources use numeric point types directly, such as <code>u64</code> or <code>u32</code>,
+typically paired with a chosen <a href="../../../zall/enum.TimeScale.html" title="enum devela::zall::TimeScale"><code>TimeScale</code></a>.</p>
+<h3 id="configurable-sources"><a class="doc-anchor" href="#configurable-sources">§</a>Configurable sources</h3>
+<p><a href="../../../zall/trait.TimeSourceCfg.html" title="trait devela::zall::TimeSourceCfg"><code>TimeSourceCfg&lt;P&gt;</code></a> extends this model to source families whose behavior
+depends on a runtime configuration value, such as Linux clock IDs.</p>
+<p>Fixed sources automatically lift into <a href="../../../zall/trait.TimeSourceCfg.html" title="trait devela::zall::TimeSourceCfg"><code>TimeSourceCfg</code></a> through a trivial
+<code>()</code> configuration.</p>
+<h3 id="design-posture"><a class="doc-anchor" href="#design-posture">§</a>Design posture</h3>
+<p>The model keeps point ordering and elapsed semantics in <a href="../../../zall/trait.TimePoint.html" title="trait devela::zall::TimePoint"><code>TimePoint</code></a>,
+while source sampling, scale metadata, and canonical numeric projection
+remain in <a href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource"><code>TimeSource</code></a> and <a href="../../../zall/trait.TimeSourceCfg.html" title="trait devela::zall::TimeSourceCfg"><code>TimeSourceCfg</code></a>.</p>
+<p>This allows:</p>
+<ul>
+<li>opaque and numeric point representations,</li>
+<li>compact or wide projections,</li>
+<li>configurable clock families,</li>
+<li>and a stable <code>u64</code> + <a href="../../../zall/enum.TimeScale.html" title="enum devela::zall::TimeScale"><code>TimeScale</code></a> numeric surface
+without forcing every point type itself to be numeric.</li>
+</ul>
+<h3 id="source-comparison"><a class="doc-anchor" href="#source-comparison">§</a>Source comparison</h3><div><table><thead><tr><th>Source</th><th>Monotonic</th><th>Timeline kind</th><th>Origin / base</th><th>Canonical point forms</th></tr></thead><tbody>
+<tr><td><code>SystemTime</code></td><td>No</td><td>Absolute</td><td>Unix epoch</td><td><code>SystemTime</code>, <code>u64</code>, <code>u32</code> seconds</td></tr>
+<tr><td><code>SystemInstant</code></td><td>Yes</td><td>Synthetic</td><td>Process-local base</td><td><code>SystemInstant</code>, <code>u64</code>, <code>u32</code> micros</td></tr>
+<tr><td><code>LinuxInstant</code></td><td>Yes</td><td>Relative</td><td><code>CLOCK_MONOTONIC</code></td><td><code>u64</code>, <code>u32</code> micros</td></tr>
+<tr><td><code>LinuxTime</code></td><td>Depends</td><td>Depends</td><td>Selected clock</td><td><code>u64</code></td></tr>
+<tr><td><code>JsInstant</code></td><td>Yes</td><td>Relative</td><td>JS time origin</td><td><code>u64</code>, <code>u32</code> millis</td></tr>
+<tr><td><code>TimeFakeRef</code></td><td>No</td><td>Synthetic</td><td>User-defined</td><td><code>u64</code></td></tr>
+</tbody></table>
+</div>
+<p>Properties shown are semantic, not API guarantees.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.JsInstant.html" title="struct devela::phys::time::source::JsInstant">JsInstant</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Time'>🕘</span>
+A high-resolution timestamp based on JavaScript’s <code>performance.now()</code>.</dd><dt><a class="struct" href="struct.LinuxInstant.html" title="struct devela::phys::time::source::LinuxInstant">Linux<wbr>Instant</a><wbr><span class="stab portability" title="Available on crate feature `linux` only"><code>linux</code></span></dt><dd><span class='stab portability' title='Linux platform'>🐧</span> <span class='stab portability' title='Time'>🕘</span>
+A fast monotonic Linux time source.</dd><dt><a class="struct" href="struct.LinuxTime.html" title="struct devela::phys::time::source::LinuxTime">Linux<wbr>Time</a><wbr><span class="stab portability" title="Available on crate feature `linux` only"><code>linux</code></span></dt><dd><span class='stab portability' title='Linux platform'>🐧</span> <span class='stab portability' title='Time'>🕘</span>
+A configurable family of Linux clocks.</dd><dt><a class="struct" href="struct.SystemInstant.html" title="struct devela::phys::time::source::SystemInstant">System<wbr>Instant</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A measurement of a monotonically nondecreasing clock.</dd><dt><a class="struct" href="struct.SystemTime.html" title="struct devela::phys::time::source::SystemTime">System<wbr>Time</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A measurement of the system clock.</dd><dt><a class="struct" href="struct.TimeFake.html" title="struct devela::phys::time::source::TimeFake">Time<wbr>Fake</a><wbr><span class="stab portability" title="Available on `target_has_atomic=64` only"><code>target_has_atomic=64</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span> <span class='stab portability' title='Intentional non-real or placeholder implementation'>🎭</span>
+A test-friendly time source that allows manual control.</dd><dt><a class="struct" href="struct.TimeFakeRef.html" title="struct devela::phys::time::source::TimeFakeRef">Time<wbr>Fake<wbr>Ref</a><wbr><span class="stab portability" title="Available on `target_has_atomic=64` only"><code>target_has_atomic=64</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span> <span class='stab portability' title='Intentional non-real or placeholder implementation'>🎭</span>
+A borrowed configuration handle selecting a specific <code>TimeFake</code> timeline.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.UNIX_EPOCH.html" title="constant devela::phys::time::source::UNIX_EPOCH">UNIX_<wbr>EPOCH</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A <a href="../../../zall/struct.SystemTime.html" title="struct devela::zall::SystemTime"><code>SystemTime</code></a> anchored to “1970-01-01 00:00:00 UTC”.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.TimePoint.html" title="trait devela::phys::time::source::TimePoint">Time<wbr>Point</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A comparable representation of a point on a time-like timeline.</dd><dt><a class="trait" href="trait.TimeSource.html" title="trait devela::phys::time::source::TimeSource">Time<wbr>Source</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A source of time points with a canonical numeric projection.</dd><dt><a class="trait" href="trait.TimeSourceCfg.html" title="trait devela::phys::time::source::TimeSourceCfg">Time<wbr>Source<wbr>Cfg</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A configurable source of time points with a canonical numeric projection.</dd><dt><a class="trait" href="trait.TimeSpan.html" title="trait devela::phys::time::source::TimeSpan">Time<wbr>Span</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A comparable span on a time-like timeline.</dd></dl></section></div></main></body></html>

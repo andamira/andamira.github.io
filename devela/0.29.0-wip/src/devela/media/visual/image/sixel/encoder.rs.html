@@ -1,0 +1,408 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/media/visual/image/sixel/encoder.rs`."><title>encoder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">devela/media/visual/image/sixel/</div>encoder.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela/src/media/visual/image/sixel/encoder.rs
+<a href=#2 id=2 data-nosnippet>2</a>//
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//! Defines [`SixelEncoder`].
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
+<a href=#5 id=5 data-nosnippet>5</a>// TODO: modularize, support rgba buffer, Rgb8a buffer
+<a href=#6 id=6 data-nosnippet>6</a>
+<a href=#7 id=7 data-nosnippet>7</a></span><span class="attr">#[allow(unused, reason = <span class="string">"__dbg"</span>)]
+<a href=#8 id=8 data-nosnippet>8</a></span><span class="kw">use crate</span>::{<a href="../../../../yard/_env.rs.html#17-20">__dbg</a>, <a href="../../../../sys/log/slog.rs.html#250-374">slog</a>};
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use crate</span>::{<a href="../../../../num/fin/ord/cmp/wrapper.rs.html#51">Cmp</a>, <a href="../../../../text/ascii/digits/mod.rs.html#91">Digits</a>, <a href="../../../../data/error/other.rs.html#95-106">NotEnoughSpace</a>, <a href="../../../../code/util/is.rs.html#78-136">is</a>, <a href="../../../../code/util/lets.rs.html#58-112">lets</a>, <a href="../../../../sys/mem/view/slice/namespace/mod.rs.html#207-375">slice</a>, <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap</a>, <a href="../../../../code/util/whilst.rs.html#82-219">whilst</a>, <a href="../../../../code/util/write.rs.html#101-195">write_at</a>};
+<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use crate</span>::{<a href="char.rs.html#13">SixelChar</a>, <a href="color.rs.html#17-19">SixelColor</a>, <a href="palette.rs.html#12-15">SixelPalette</a>};
+<a href=#11 id=11 data-nosnippet>11</a>
+<a href=#12 id=12 data-nosnippet>12</a><span class="attr">#[doc = <span class="macro">crate::_tags!</span>(image term)]
+<a href=#13 id=13 data-nosnippet>13</a></span><span class="doccomment">/// Encoder for Sixel graphics with fixed buffer output
+<a href=#14 id=14 data-nosnippet>14</a></span><span class="attr">#[doc = <span class="macro">crate::_doc_meta!</span>{location(<span class="string">"media/visual/image"</span>)}]
+<a href=#15 id=15 data-nosnippet>15</a></span><span class="doccomment">///
+<a href=#16 id=16 data-nosnippet>16</a>/// # Features
+<a href=#17 id=17 data-nosnippet>17</a>/// Enabling the `unsafe_sync` and `__dbg` features defines
+<a href=#18 id=18 data-nosnippet>18</a>/// [`__LOGGER_sixel_encoder_64_64`] for diagnostic output.
+<a href=#19 id=19 data-nosnippet>19</a></span><span class="attr">#[derive(<a href="../../../../../../devela/code/derive.Clone.html">Clone</a>, <a href="../../../../../../devela/zall/derive.Debug.html">Debug</a>, <a href="../../../../../../devela/zall/derive.PartialEq.html">PartialEq</a>, <a href="../../../../../../devela/zall/derive.Eq.html">Eq</a>, <a href="../../../../../../devela/zall/derive.Hash.html">Hash</a>)]
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="kw">pub struct </span><a href="#20-24">SixelEncoder</a>&lt;<span class="kw">const </span>MAX_COLORS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
+<a href=#21 id=21 data-nosnippet>21</a>    width: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#22 id=22 data-nosnippet>22</a>    height: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#23 id=23 data-nosnippet>23</a>    palette: <a href="palette.rs.html#12-15">SixelPalette</a>&lt;<a href="#20">MAX_COLORS</a>&gt;,
+<a href=#24 id=24 data-nosnippet>24</a>}
+<a href=#25 id=25 data-nosnippet>25</a>
+<a href=#26 id=26 data-nosnippet>26</a><span class="kw">impl</span>&lt;<span class="kw">const </span>MAX_COLORS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="../../../../../../devela/code/trait.Default.html">Default</a> <span class="kw">for </span><a href="#20-24">SixelEncoder</a>&lt;<a href="#26">MAX_COLORS</a>&gt; {
+<a href=#27 id=27 data-nosnippet>27</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+<a href=#28 id=28 data-nosnippet>28</a>        <span class="self">Self</span>::<a href="#46-48">new</a>()
+<a href=#29 id=29 data-nosnippet>29</a>    }
+<a href=#30 id=30 data-nosnippet>30</a>}
+<a href=#31 id=31 data-nosnippet>31</a>
+<a href=#32 id=32 data-nosnippet>32</a><span class="macro">__dbg!</span> { <a href="../../../../sys/log/slog.rs.html#250-374">slog!</a> {
+<a href=#33 id=33 data-nosnippet>33</a>    <span class="attr">#[doc = <span class="macro">crate::_tags!</span>(debug log image term)]
+<a href=#34 id=34 data-nosnippet>34</a>    </span><span class="doccomment">/// Static debug logger for [`SixelEncoder`].
+<a href=#35 id=35 data-nosnippet>35</a>    </span><span class="attr">#[cfg_attr(nightly_doc, doc(cfg(feature = <span class="string">"__dbg"</span>)))]
+<a href=#36 id=36 data-nosnippet>36</a>    </span><span class="kw">pub </span>new sixel_encoder:<span class="number">64</span>+<span class="number">64
+<a href=#37 id=37 data-nosnippet>37</a></span>}}
+<a href=#38 id=38 data-nosnippet>38</a>
+<a href=#39 id=39 data-nosnippet>39</a><span class="doccomment">/// Methods
+<a href=#40 id=40 data-nosnippet>40</a>/// - new
+<a href=#41 id=41 data-nosnippet>41</a>/// - with_palette
+<a href=#42 id=42 data-nosnippet>42</a>/// - palette_mut
+<a href=#43 id=43 data-nosnippet>43</a>/// - encode_rgb
+<a href=#44 id=44 data-nosnippet>44</a></span><span class="kw">impl</span>&lt;<span class="kw">const </span>MAX_COLORS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#20-24">SixelEncoder</a>&lt;<a href="#44">MAX_COLORS</a>&gt; {
+<a href=#45 id=45 data-nosnippet>45</a>    <span class="doccomment">/// Create a new encoder with empty palette
+<a href=#46 id=46 data-nosnippet>46</a>    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+<a href=#47 id=47 data-nosnippet>47</a>        <span class="self">Self </span>{ width: <span class="number">0</span>, height: <span class="number">0</span>, palette: <a href="palette.rs.html#12-15">SixelPalette</a>::<a href="palette.rs.html#23">new</a>() }
+<a href=#48 id=48 data-nosnippet>48</a>    }
+<a href=#49 id=49 data-nosnippet>49</a>    <span class="doccomment">/// Create encoder with predefined palette
+<a href=#50 id=50 data-nosnippet>50</a>    </span><span class="kw">pub const fn </span>with_palette(
+<a href=#51 id=51 data-nosnippet>51</a>        width: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#52 id=52 data-nosnippet>52</a>        height: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#53 id=53 data-nosnippet>53</a>        palette: <a href="palette.rs.html#12-15">SixelPalette</a>&lt;<a href="#44">MAX_COLORS</a>&gt;,
+<a href=#54 id=54 data-nosnippet>54</a>    ) -&gt; <span class="self">Self </span>{
+<a href=#55 id=55 data-nosnippet>55</a>        <span class="self">Self </span>{ <a href="#51">width</a>, <a href="#52">height</a>, <a href="#53">palette</a> }
+<a href=#56 id=56 data-nosnippet>56</a>    }
+<a href=#57 id=57 data-nosnippet>57</a>
+<a href=#58 id=58 data-nosnippet>58</a>    <span class="doccomment">/// Get the palette (mutable)
+<a href=#59 id=59 data-nosnippet>59</a>    </span><span class="kw">pub const fn </span>palette_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><a href="palette.rs.html#12-15">SixelPalette</a>&lt;<a href="#44">MAX_COLORS</a>&gt; {
+<a href=#60 id=60 data-nosnippet>60</a>        <span class="kw-2">&amp;mut </span><a class="self" href="#59">self</a>.palette
+<a href=#61 id=61 data-nosnippet>61</a>    }
+<a href=#62 id=62 data-nosnippet>62</a>
+<a href=#63 id=63 data-nosnippet>63</a>    <span class="doccomment">/// Sixel encoding with RLE compression for repeated characters.
+<a href=#64 id=64 data-nosnippet>64</a>    ///
+<a href=#65 id=65 data-nosnippet>65</a>    /// - RLE encoding is used when the same sixel character repeats 4 or more times.
+<a href=#66 id=66 data-nosnippet>66</a>    </span><span class="attr">#[rustfmt::skip]
+<a href=#67 id=67 data-nosnippet>67</a>    </span><span class="kw">pub const fn </span>encode_rgb(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rgb: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], width: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, height: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, buf: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>])
+<a href=#68 id=68 data-nosnippet>68</a>        -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="../../../../data/error/other.rs.html#95-106">NotEnoughSpace</a>&gt; {
+<a href=#69 id=69 data-nosnippet>69</a>        <span class="macro">__dbg!</span>[<a href="../../../../sys/log/slog.rs.html#250-374">slog!</a>{clear sixel_encoder:<span class="number">64</span>+<span class="number">64</span>}]; <span class="comment">// slog point of entry
+<a href=#70 id=70 data-nosnippet>70</a>
+<a href=#71 id=71 data-nosnippet>71</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>off = <span class="number">0</span>;
+<a href=#72 id=72 data-nosnippet>72</a>        <a href="#71">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::write_sixel_start_simple(<span class="macro">slice!</span>[<span class="kw-2">mut </span>buf, off,..])];
+<a href=#73 id=73 data-nosnippet>73</a>
+<a href=#74 id=74 data-nosnippet>74</a>        <a class="self" href="#67">self</a>.width = <a href="#67">width</a>;
+<a href=#75 id=75 data-nosnippet>75</a>        <a class="self" href="#67">self</a>.height = <a href="#67">height</a>;
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a>        <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">self</span>.build_palette(rgb, width, height)];
+<a href=#78 id=78 data-nosnippet>78</a>        <a href="#71">off</a> += <a class="self" href="#67">self</a>.palette.<a href="palette.rs.html#138-146">write_definitions</a>(<a href="../../../../sys/mem/view/slice/namespace/mod.rs.html#207-375">slice!</a>[<span class="kw-2">mut </span>buf, off, ..]);
+<a href=#79 id=79 data-nosnippet>79</a>
+<a href=#80 id=80 data-nosnippet>80</a>        <span class="comment">// process each horizontal band
+<a href=#81 id=81 data-nosnippet>81</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>band_y = <span class="number">0</span>;
+<a href=#82 id=82 data-nosnippet>82</a>        <span class="kw">while </span>band_y &lt; height {
+<a href=#83 id=83 data-nosnippet>83</a>            <span class="kw">let </span>band_height = Cmp(height - band_y).min(<span class="number">6</span>);
+<a href=#84 id=84 data-nosnippet>84</a>            <span class="macro">__dbg!</span>[<span class="macro">slog!</span>{sixel_encoder:<span class="number">64</span>+<span class="number">64
+<a href=#85 id=85 data-nosnippet>85</a>                </span><span class="string">"Processing band at row "</span>, %band_y, <span class="string">" (height: "</span>, %band_height, <span class="string">")"</span>}];
+<a href=#86 id=86 data-nosnippet>86</a>
+<a href=#87 id=87 data-nosnippet>87</a>            <span class="comment">// for each color, render with RLE compression
+<a href=#88 id=88 data-nosnippet>88</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.palette.defined_colors();
+<a href=#89 id=89 data-nosnippet>89</a>            <span class="kw">while let </span><span class="prelude-val">Some</span>((idx, palette_color)) = iter.next() {
+<a href=#90 id=90 data-nosnippet>90</a>                <span class="macro">is!</span>[idx == <span class="number">0</span>, <span class="kw">continue</span>]; <span class="comment">// Skip background
+<a href=#91 id=91 data-nosnippet>91</a>
+<a href=#92 id=92 data-nosnippet>92</a>                </span><span class="macro">__dbg!</span>[<span class="macro">slog!</span>{sixel_encoder:<span class="number">64</span>+<span class="number">64 </span><span class="string">"  Rendering color #"</span>, %idx, <span class="string">" in band."</span>}];
+<a href=#93 id=93 data-nosnippet>93</a>                off += <span class="macro">unwrap!</span>[ok<span class="question-mark">? </span><span class="self">Self</span>::write_color_reference(<span class="macro">slice!</span>[<span class="kw-2">mut </span>buf, off,..], idx)];
+<a href=#94 id=94 data-nosnippet>94</a>
+<a href=#95 id=95 data-nosnippet>95</a>                <span class="comment">// build and compress sixel pattern for this color
+<a href=#96 id=96 data-nosnippet>96</a>                </span><span class="macro">lets!</span>[<span class="kw-2">mut </span>current_char = <span class="prelude-val">None</span>, <span class="kw-2">mut </span>repeat_count = <span class="number">0</span>];
+<a href=#97 id=97 data-nosnippet>97</a>                <span class="macro">whilst!</span> { x <span class="kw">in </span><span class="number">0</span>..width; {
+<a href=#98 id=98 data-nosnippet>98</a>                    <span class="kw">let </span>sixel_bits = <span class="self">self</span>.build_sixel_bits_for_color(rgb, width, x, band_y,
+<a href=#99 id=99 data-nosnippet>99</a>                        band_height, palette_color);
+<a href=#100 id=100 data-nosnippet>100</a>                    <span class="kw">let </span>sixel_char = SixelChar::from_bitmask(sixel_bits);
+<a href=#101 id=101 data-nosnippet>101</a>
+<a href=#102 id=102 data-nosnippet>102</a>                    <span class="comment">// RLE compression logic
+<a href=#103 id=103 data-nosnippet>103</a>                    // Handles lines longer than 255 by splitting long runs,
+<a href=#104 id=104 data-nosnippet>104</a>                    // outputting the current run and starting a new one with the same character
+<a href=#105 id=105 data-nosnippet>105</a>                    </span><span class="kw">let </span>is_same_char = <span class="macro">is!</span>[<span class="kw">let </span><span class="prelude-val">Some</span>(c) = current_char, sixel_char.eq(c), <span class="bool-val">false</span>];
+<a href=#106 id=106 data-nosnippet>106</a>                    <span class="kw">match </span>(is_same_char, repeat_count == <span class="number">255</span>) {
+<a href=#107 id=107 data-nosnippet>107</a>                        (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; {
+<a href=#108 id=108 data-nosnippet>108</a>                            repeat_count += <span class="number">1</span>;
+<a href=#109 id=109 data-nosnippet>109</a>                        }
+<a href=#110 id=110 data-nosnippet>110</a>                        (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; { <span class="comment">// Split run: output but keep same character
+<a href=#111 id=111 data-nosnippet>111</a>                            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(char) = current_char {
+<a href=#112 id=112 data-nosnippet>112</a>                                off += <span class="macro">unwrap!</span>[ok<span class="question-mark">? </span><span class="self">Self</span>::write_rle_run(<span class="macro">slice!</span>[<span class="kw-2">mut </span>buf, off,..],
+<a href=#113 id=113 data-nosnippet>113</a>                                    char, repeat_count)];
+<a href=#114 id=114 data-nosnippet>114</a>                            }
+<a href=#115 id=115 data-nosnippet>115</a>                            repeat_count = <span class="number">1</span>;
+<a href=#116 id=116 data-nosnippet>116</a>                        }
+<a href=#117 id=117 data-nosnippet>117</a>                        (<span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; { <span class="comment">// New run: output and switch character
+<a href=#118 id=118 data-nosnippet>118</a>                            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(char) = current_char {
+<a href=#119 id=119 data-nosnippet>119</a>                                off += <span class="macro">unwrap!</span>[ok<span class="question-mark">? </span><span class="self">Self</span>::write_rle_run(<span class="macro">slice!</span>[<span class="kw-2">mut </span>buf, off,..],
+<a href=#120 id=120 data-nosnippet>120</a>                                    char, repeat_count)];
+<a href=#121 id=121 data-nosnippet>121</a>                            }
+<a href=#122 id=122 data-nosnippet>122</a>                            current_char = <span class="prelude-val">Some</span>(sixel_char);
+<a href=#123 id=123 data-nosnippet>123</a>                            repeat_count = <span class="number">1</span>;
+<a href=#124 id=124 data-nosnippet>124</a>                        }
+<a href=#125 id=125 data-nosnippet>125</a>                    }
+<a href=#126 id=126 data-nosnippet>126</a>                }}
+<a href=#127 id=127 data-nosnippet>127</a>                <span class="comment">// output the final run
+<a href=#128 id=128 data-nosnippet>128</a>                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(char) = current_char {
+<a href=#129 id=129 data-nosnippet>129</a>                    off += <span class="macro">unwrap!</span>[ok<span class="question-mark">?
+<a href=#130 id=130 data-nosnippet>130</a>                        </span><span class="self">Self</span>::write_rle_run(<span class="macro">slice!</span>[<span class="kw-2">mut </span>buf, off,..], char, repeat_count)];
+<a href=#131 id=131 data-nosnippet>131</a>                }
+<a href=#132 id=132 data-nosnippet>132</a>                <span class="comment">// return to start for next color
+<a href=#133 id=133 data-nosnippet>133</a>                </span><span class="macro">is!</span> { idx != <span class="self">self</span>.palette.len() <span class="kw">as </span>u16 - <span class="number">1</span>, <span class="macro">write_at!</span>[buf, +=off, <span class="string">b'$'</span>];}
+<a href=#134 id=134 data-nosnippet>134</a>            }
+<a href=#135 id=135 data-nosnippet>135</a>            band_y += <span class="number">6</span>;
+<a href=#136 id=136 data-nosnippet>136</a>            <span class="macro">is!</span> { band_y &lt; height, <span class="macro">write_at!</span>[buf, +=off, <span class="string">b'-'</span>];} <span class="comment">// move to next band?
+<a href=#137 id=137 data-nosnippet>137</a>        </span>}
+<a href=#138 id=138 data-nosnippet>138</a>        <a href="#71">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::write_sixel_end(<span class="macro">slice!</span>[<span class="kw-2">mut </span>buf, off,..])];
+<a href=#139 id=139 data-nosnippet>139</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#71">off</a>)
+<a href=#140 id=140 data-nosnippet>140</a>    }
+<a href=#141 id=141 data-nosnippet>141</a>}
+<a href=#142 id=142 data-nosnippet>142</a>
+<a href=#143 id=143 data-nosnippet>143</a><span class="comment">/* helpers */
+<a href=#144 id=144 data-nosnippet>144</a>
+<a href=#145 id=145 data-nosnippet>145</a>// Methods
+<a href=#146 id=146 data-nosnippet>146</a>// - build_palette
+<a href=#147 id=147 data-nosnippet>147</a>// - build_sixel_bits_for_color
+<a href=#148 id=148 data-nosnippet>148</a>//
+<a href=#149 id=149 data-nosnippet>149</a>// IMPROVE: decouple from rgb buffer
+<a href=#150 id=150 data-nosnippet>150</a></span><span class="attr">#[rustfmt::skip]
+<a href=#151 id=151 data-nosnippet>151</a></span><span class="kw">impl</span>&lt;<span class="kw">const </span>MAX_COLORS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#20-24">SixelEncoder</a>&lt;<a href="#151">MAX_COLORS</a>&gt; {
+<a href=#152 id=152 data-nosnippet>152</a>    <span class="doccomment">/// Builds the palette from the given rgb byte buffer.
+<a href=#153 id=153 data-nosnippet>153</a>    </span><span class="kw">const fn </span>build_palette(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rgb: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], w: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, h: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;(), <a href="../../../../data/error/other.rs.html#95-106">NotEnoughSpace</a>&gt; {
+<a href=#154 id=154 data-nosnippet>154</a>        <a class="self" href="#153">self</a>.palette = <a href="palette.rs.html#12-15">SixelPalette</a>::<a href="palette.rs.html#23">new</a>();
+<a href=#155 id=155 data-nosnippet>155</a>        <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">self</span>.palette.add_color(SixelColor::BLACK)];
+<a href=#156 id=156 data-nosnippet>156</a>        <a href="../../../../code/util/whilst.rs.html#82-219">whilst!</a> { i <span class="kw">in </span><span class="number">0</span>..(w * h); {
+<a href=#157 id=157 data-nosnippet>157</a>            <span class="comment">// is![self.palette.is_full(), break]; // early termination MAYBE for another version
+<a href=#158 id=158 data-nosnippet>158</a>            </span><span class="kw">let </span>idx = i * <span class="number">3</span>;
+<a href=#159 id=159 data-nosnippet>159</a>            <span class="kw">let </span>color = SixelColor::from_rgb888(rgb[idx], rgb[idx + <span class="number">1</span>], rgb[idx + <span class="number">2</span>]);
+<a href=#160 id=160 data-nosnippet>160</a>            <span class="kw">if </span>!color.is_black() { <span class="kw">let _ </span>= <span class="self">self</span>.palette.find_or_add(color); }
+<a href=#161 id=161 data-nosnippet>161</a>        }}
+<a href=#162 id=162 data-nosnippet>162</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(())
+<a href=#163 id=163 data-nosnippet>163</a>    }
+<a href=#164 id=164 data-nosnippet>164</a>
+<a href=#165 id=165 data-nosnippet>165</a>    <span class="doccomment">/// Build sixel bits for a specific color in a column.
+<a href=#166 id=166 data-nosnippet>166</a>    </span><span class="kw">const fn </span>build_sixel_bits_for_color(<span class="kw-2">&amp;</span><span class="self">self</span>, rgb: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], width: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, x: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, band_y: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#167 id=167 data-nosnippet>167</a>        band_height: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, target_color: <a href="color.rs.html#17-19">SixelColor</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> {
+<a href=#168 id=168 data-nosnippet>168</a>        <span class="kw">let </span><span class="kw-2">mut </span>sixel_bits = <span class="number">0u8</span>;
+<a href=#169 id=169 data-nosnippet>169</a>        <a href="../../../../code/util/whilst.rs.html#82-219">whilst!</a> { dy <span class="kw">in </span><span class="number">0</span>..band_height; {
+<a href=#170 id=170 data-nosnippet>170</a>            <span class="kw">let </span>y = band_y + dy;
+<a href=#171 id=171 data-nosnippet>171</a>            <span class="kw">let </span>idx = (y * width + x) * <span class="number">3</span>;
+<a href=#172 id=172 data-nosnippet>172</a>            <span class="comment">// only process if within bounds
+<a href=#173 id=173 data-nosnippet>173</a>            </span><span class="kw">if </span>idx + <span class="number">2 </span>&lt; rgb.len() {
+<a href=#174 id=174 data-nosnippet>174</a>                <span class="kw">let </span>pixel_color = SixelColor::from_rgb888(rgb[idx], rgb[idx + <span class="number">1</span>], rgb[idx + <span class="number">2</span>]);
+<a href=#175 id=175 data-nosnippet>175</a>                <span class="kw">if </span>pixel_color.is_similar_to(target_color) { sixel_bits |= <span class="number">1 </span>&lt;&lt; dy }
+<a href=#176 id=176 data-nosnippet>176</a>            }
+<a href=#177 id=177 data-nosnippet>177</a>        }}
+<a href=#178 id=178 data-nosnippet>178</a>        <a href="#168">sixel_bits</a>
+<a href=#179 id=179 data-nosnippet>179</a>    }
+<a href=#180 id=180 data-nosnippet>180</a>}
+<a href=#181 id=181 data-nosnippet>181</a>
+<a href=#182 id=182 data-nosnippet>182</a><span class="comment">// Methods
+<a href=#183 id=183 data-nosnippet>183</a>// - write_sixel_start
+<a href=#184 id=184 data-nosnippet>184</a>// - write_sixel_start_simple
+<a href=#185 id=185 data-nosnippet>185</a>// - write_sixel_end
+<a href=#186 id=186 data-nosnippet>186</a>// - write_color_reference
+<a href=#187 id=187 data-nosnippet>187</a>// - write_rle_run
+<a href=#188 id=188 data-nosnippet>188</a></span><span class="kw">impl</span>&lt;<span class="kw">const </span>MAX_COLORS: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a href="#20-24">SixelEncoder</a>&lt;<a href="#188">MAX_COLORS</a>&gt; {
+<a href=#189 id=189 data-nosnippet>189</a>    <span class="doccomment">/// Write sixel sequence start with full raster attributes.
+<a href=#190 id=190 data-nosnippet>190</a>    ///
+<a href=#191 id=191 data-nosnippet>191</a>    /// Returns an error if the buffer doesn't have at least 21 bytes, for good measure.
+<a href=#192 id=192 data-nosnippet>192</a>    </span><span class="kw">pub const fn </span>write_sixel_start(
+<a href=#193 id=193 data-nosnippet>193</a>        buf: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
+<a href=#194 id=194 data-nosnippet>194</a>        width: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#195 id=195 data-nosnippet>195</a>        height: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#196 id=196 data-nosnippet>196</a>    ) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="../../../../data/error/other.rs.html#95-106">NotEnoughSpace</a>&gt; {
+<a href=#197 id=197 data-nosnippet>197</a>        <span class="kw">let </span>needed = <span class="number">5 </span>+ <span class="number">6 </span>+ <span class="number">5 </span>+ <span class="number">1 </span>+ <span class="number">5</span>; <span class="comment">// assume we require 5+5 digits for raster dimensions
+<a href=#198 id=198 data-nosnippet>198</a>        </span><a href="../../../../code/util/is.rs.html#78-136">is!</a>[buf.len() &lt; needed, <span class="kw">return </span><span class="prelude-val">Err</span>(NotEnoughSpace(<span class="prelude-val">Some</span>(needed)))];
+<a href=#199 id=199 data-nosnippet>199</a>
+<a href=#200 id=200 data-nosnippet>200</a>        <span class="kw">let </span>(width_digits, height_digits) = (<a href="../../../../text/ascii/digits/mod.rs.html#91">Digits</a>(<a href="#194">width</a>), <a href="../../../../text/ascii/digits/mod.rs.html#91">Digits</a>(<a href="#195">height</a>));
+<a href=#201 id=201 data-nosnippet>201</a>        <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="number">0</span>;
+<a href=#202 id=202 data-nosnippet>202</a>
+<a href=#203 id=203 data-nosnippet>203</a>        <span class="comment">// initial sequence (6 bytes)
+<a href=#204 id=204 data-nosnippet>204</a>        </span><a href="../../../../code/util/write.rs.html#101-195">write_at!</a>(
+<a href=#205 id=205 data-nosnippet>205</a>            buf, +=offset, <span class="string">b'\x1b'</span>, <span class="string">b'P'</span>, <span class="comment">// CIS
+<a href=#206 id=206 data-nosnippet>206</a>            </span><span class="string">b';'</span>, <span class="string">b'1'</span>, <span class="string">b';'</span>, <span class="comment">// p2 = 1 (transparent background)
+<a href=#207 id=207 data-nosnippet>207</a>            </span><span class="string">b'q'</span>, <span class="comment">// sixel ID
+<a href=#208 id=208 data-nosnippet>208</a>        </span>);
+<a href=#209 id=209 data-nosnippet>209</a>        <span class="comment">// raster attributes opening sequence (5 bytes)
+<a href=#210 id=210 data-nosnippet>210</a>        // https://vt100.net/docs/vt3xx-gp/chapter14.html#S14.3.2
+<a href=#211 id=211 data-nosnippet>211</a>        </span><a href="../../../../code/util/write.rs.html#101-195">write_at!</a>(buf, +=offset, <span class="string">b'"'</span>, <span class="string">b'1'</span>, <span class="string">b';'</span>, <span class="string">b'1'</span>, <span class="string">b';'</span>); <span class="comment">// pixel aspect ratio
+<a href=#212 id=212 data-nosnippet>212</a>        </span><a href="#201">offset</a> += <a href="#200">width_digits</a>.<a href="../../../../text/ascii/digits/usize.rs.html#236-238">write_digits10</a>(<a href="#193">buf</a>, <a href="#201">offset</a>);
+<a href=#213 id=213 data-nosnippet>213</a>        <a href="../../../../code/util/write.rs.html#101-195">write_at!</a>(buf, +=offset, <span class="string">b';'</span>); <span class="comment">// + 1 byte
+<a href=#214 id=214 data-nosnippet>214</a>        </span><a href="#201">offset</a> += <a href="#200">height_digits</a>.<a href="../../../../text/ascii/digits/usize.rs.html#236-238">write_digits10</a>(<a href="#193">buf</a>, <a href="#201">offset</a>);
+<a href=#215 id=215 data-nosnippet>215</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#201">offset</a>)
+<a href=#216 id=216 data-nosnippet>216</a>    }
+<a href=#217 id=217 data-nosnippet>217</a>    <span class="doccomment">/// Write sixel sequence start with full raster attributes
+<a href=#218 id=218 data-nosnippet>218</a>    </span><span class="kw">pub const fn </span>write_sixel_start_simple(buf: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="../../../../data/error/other.rs.html#95-106">NotEnoughSpace</a>&gt; {
+<a href=#219 id=219 data-nosnippet>219</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a>[buf.len() &lt; <span class="number">6</span>, <span class="kw">return </span><span class="prelude-val">Err</span>(NotEnoughSpace(<span class="prelude-val">Some</span>(<span class="number">6</span>)))];
+<a href=#220 id=220 data-nosnippet>220</a>        <a href="../../../../code/util/write.rs.html#101-195">write_at!</a>(
+<a href=#221 id=221 data-nosnippet>221</a>            buf, <span class="number">0</span>, <span class="string">b'\x1b'</span>, <span class="string">b'P'</span>, <span class="comment">// CIS
+<a href=#222 id=222 data-nosnippet>222</a>            </span><span class="string">b';'</span>, <span class="string">b'1'</span>, <span class="string">b';'</span>, <span class="comment">// p2 = 1 (transparent background)
+<a href=#223 id=223 data-nosnippet>223</a>            </span><span class="string">b'q'</span>, <span class="comment">// sixel ID
+<a href=#224 id=224 data-nosnippet>224</a>        </span>);
+<a href=#225 id=225 data-nosnippet>225</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="number">6</span>)
+<a href=#226 id=226 data-nosnippet>226</a>    }
+<a href=#227 id=227 data-nosnippet>227</a>
+<a href=#228 id=228 data-nosnippet>228</a>    <span class="doccomment">/// Write sixel sequence end.
+<a href=#229 id=229 data-nosnippet>229</a>    </span><span class="kw">pub const fn </span>write_sixel_end(buf: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="../../../../data/error/other.rs.html#95-106">NotEnoughSpace</a>&gt; {
+<a href=#230 id=230 data-nosnippet>230</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a>[buf.len() &lt; <span class="number">2</span>, <span class="kw">return </span><span class="prelude-val">Err</span>(NotEnoughSpace(<span class="prelude-val">Some</span>(<span class="number">2</span>)))];
+<a href=#231 id=231 data-nosnippet>231</a>        <a href="../../../../code/util/write.rs.html#101-195">write_at!</a>(buf, <span class="number">0</span>, <span class="string">b'\x1b'</span>, <span class="string">b'\\'</span>); <span class="comment">// string terminator C0 sequence
+<a href=#232 id=232 data-nosnippet>232</a>        </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="number">2</span>)
+<a href=#233 id=233 data-nosnippet>233</a>    }
+<a href=#234 id=234 data-nosnippet>234</a>
+<a href=#235 id=235 data-nosnippet>235</a>    <span class="doccomment">/// Write color reference (#NN)
+<a href=#236 id=236 data-nosnippet>236</a>    </span><span class="kw">const fn </span>write_color_reference(buffer: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], index: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="../../../../data/error/other.rs.html#95-106">NotEnoughSpace</a>&gt; {
+<a href=#237 id=237 data-nosnippet>237</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a>[buffer.len() &lt; <span class="number">2</span>, <span class="kw">return </span><span class="prelude-val">Err</span>(NotEnoughSpace(<span class="prelude-val">Some</span>(<span class="number">2</span>)))];
+<a href=#238 id=238 data-nosnippet>238</a>        <a href="#236">buffer</a>[<span class="number">0</span>] = <span class="string">b'#'</span>;
+<a href=#239 id=239 data-nosnippet>239</a>        <span class="kw">let </span>digits_written = <a href="../../../../text/ascii/digits/mod.rs.html#91">Digits</a>(<a href="#236">index</a>).<a href="../../../../text/ascii/digits/u16.rs.html#207-210">write_digits10_nonzero</a>(<a href="#236">buffer</a>, <span class="number">1</span>);
+<a href=#240 id=240 data-nosnippet>240</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a>[digits_written == <span class="number">0</span>, <span class="kw">return </span><span class="prelude-val">Err</span>(NotEnoughSpace(<span class="prelude-val">Some</span>(<span class="number">2</span>)))];
+<a href=#241 id=241 data-nosnippet>241</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="number">1 </span>+ <a href="#239">digits_written</a>)
+<a href=#242 id=242 data-nosnippet>242</a>    }
+<a href=#243 id=243 data-nosnippet>243</a>
+<a href=#244 id=244 data-nosnippet>244</a>    <span class="doccomment">/// Write an RLE run: either compressed `!NNN` or repeated characters.
+<a href=#245 id=245 data-nosnippet>245</a>    </span><span class="kw">const fn </span>write_rle_run(
+<a href=#246 id=246 data-nosnippet>246</a>        buffer: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
+<a href=#247 id=247 data-nosnippet>247</a>        sc: <a href="char.rs.html#13">SixelChar</a>,
+<a href=#248 id=248 data-nosnippet>248</a>        count: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
+<a href=#249 id=249 data-nosnippet>249</a>    ) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="../../../../data/error/other.rs.html#95-106">NotEnoughSpace</a>&gt; {
+<a href=#250 id=250 data-nosnippet>250</a>        <span class="kw">let </span><span class="kw-2">mut </span>off = <span class="number">0</span>;
+<a href=#251 id=251 data-nosnippet>251</a>        <span class="kw">if </span><a href="#248">count</a> &gt;= <span class="number">4 </span>{
+<a href=#252 id=252 data-nosnippet>252</a>            <span class="kw">let </span>digits = <a href="../../../../text/ascii/digits/mod.rs.html#91">Digits</a>(<a href="#248">count</a>);
+<a href=#253 id=253 data-nosnippet>253</a>            <span class="kw">let </span>dcount = <a href="#252">digits</a>.<a href="../../../../text/ascii/digits/u8.rs.html#21-23">count_digits10</a>();
+<a href=#254 id=254 data-nosnippet>254</a>            <span class="kw">let </span>needed = <span class="number">1 </span>+ <a href="#253">dcount</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>;
+<a href=#255 id=255 data-nosnippet>255</a>            <a href="../../../../code/util/is.rs.html#78-136">is!</a>[buffer.len() &lt; needed, <span class="kw">return </span><span class="prelude-val">Err</span>(NotEnoughSpace(<span class="prelude-val">Some</span>(needed)))];
+<a href=#256 id=256 data-nosnippet>256</a>
+<a href=#257 id=257 data-nosnippet>257</a>            <a href="../../../../code/util/write.rs.html#101-195">write_at!</a>[buffer, +=off, <span class="string">b'!'</span>];
+<a href=#258 id=258 data-nosnippet>258</a>            <a href="#250">off</a> += <a href="#252">digits</a>.<a href="../../../../text/ascii/digits/u8.rs.html#188-192">write_digits10</a>(<a href="#246">buffer</a>, <span class="number">1</span>);
+<a href=#259 id=259 data-nosnippet>259</a>            <a href="../../../../code/util/write.rs.html#101-195">write_at!</a>[buffer, +=off, sc.as_byte()];
+<a href=#260 id=260 data-nosnippet>260</a>            <span class="macro">__dbg!</span>[<a href="../../../../sys/log/slog.rs.html#250-374">slog!</a> {sixel_encoder:<span class="number">64</span>+<span class="number">64 </span><span class="string">"  RLE: !"</span>, %count, <span class="string">":"</span>, @sc.to_string_box(),
+<a href=#261 id=261 data-nosnippet>261</a>            <span class="string">" (saved "</span>, %count-(<span class="number">2</span>+dcount), <span class="string">" bytes)"</span>}];
+<a href=#262 id=262 data-nosnippet>262</a>        } <span class="kw">else </span>{
+<a href=#263 id=263 data-nosnippet>263</a>            <span class="macro">__dbg!</span>[<a href="../../../../sys/log/slog.rs.html#250-374">slog!</a> {sixel_encoder:<span class="number">64</span>+<span class="number">64
+<a href=#264 id=264 data-nosnippet>264</a>            </span><span class="string">"  NO RLE: "</span>, %count, <span class="string">" times "</span>, @sc.to_string_box()}];
+<a href=#265 id=265 data-nosnippet>265</a>            <a href="../../../../code/util/whilst.rs.html#82-219">whilst!</a> { _n <span class="kw">in </span><span class="number">0</span>..count; {
+<a href=#266 id=266 data-nosnippet>266</a>                <span class="macro">is!</span>[off &gt;= buffer.len(), <span class="kw">return </span><span class="prelude-val">Err</span>(NotEnoughSpace(<span class="prelude-val">Some</span>(buffer.len())))];
+<a href=#267 id=267 data-nosnippet>267</a>                <span class="macro">write_at!</span>[buffer, +=off, sc.as_byte()];
+<a href=#268 id=268 data-nosnippet>268</a>            }}
+<a href=#269 id=269 data-nosnippet>269</a>        }
+<a href=#270 id=270 data-nosnippet>270</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#250">off</a>)
+<a href=#271 id=271 data-nosnippet>271</a>    }
+<a href=#272 id=272 data-nosnippet>272</a>}
+</code></pre></div></section></main></body></html>

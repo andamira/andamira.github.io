@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["const_bool",1]],"struct":["False","True"],"trait":["ConstBool"]};

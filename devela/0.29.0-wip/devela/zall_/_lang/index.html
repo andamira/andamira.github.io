@@ -1,0 +1,227 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Language structure and meaning across domains.lang::{prog} ▽"><title>devela::zall_::_lang - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module _lang</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module _lang</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>zall_</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">zall_</a></div><h1>Module <span>_lang</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/index.rs.html#210">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Language structure and meaning across domains.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../../lang/index.html" title="mod devela::lang">lang</a>::{<a href="../../lang/prog/index.html" title="mod devela::lang::prog">prog</a>}</span> <a title='See the hierarchical view of the `lang` module' href='https://docs.rs/devela/latest/devela/lang'>▽</a></p>
+<p>All <code>lang</code> module’s items flat re-exported.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.CStr.html" title="struct devela::zall_::_lang::CStr">CStr</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Lifetime'>🍃</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Representation of a borrowed C string (See <code>CString</code>).</dd><dt><a class="struct" href="struct.CString.html" title="struct devela::zall_::_lang::CString">CString</a><wbr><span class="stab portability" title="Available on crate features `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+<span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+An owned, C-compatible, nul-terminated string with no nul bytes in the middle.</dd><dt><a class="struct" href="struct.Js.html" title="struct devela::zall_::_lang::Js">Js</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Javascript-related operations.</dd><dt><a class="struct" href="struct.JsConsole.html" title="struct devela::zall_::_lang::JsConsole">JsConsole</a><wbr><span class="stab portability" title="Available on crate features `js` and `unsafe_ffi` only"><code>js</code> and <code>unsafe_ffi</code></span></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Javascript Console.</dd><dt><a class="struct" href="struct.JsInstant.html" title="struct devela::zall_::_lang::JsInstant">JsInstant</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Time'>🕘</span>
+A high-resolution timestamp based on JavaScript’s <code>performance.now()</code>.</dd><dt><a class="struct" href="struct.JsTextRenderMetrics.html" title="struct devela::zall_::_lang::JsTextRenderMetrics">JsText<wbr>Render<wbr>Metrics</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Spatial layout'>🧱</span>
+Text Metrics.</dd><dt><a class="struct" href="struct.JsTextRenderMetricsFull.html" title="struct devela::zall_::_lang::JsTextRenderMetricsFull">JsText<wbr>Render<wbr>Metrics<wbr>Full</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Spatial layout'>🧱</span>
+Full Text Metrics.</dd><dt><a class="struct" href="struct.JsTimeout.html" title="struct devela::zall_::_lang::JsTimeout">JsTimeout</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Time'>🕘</span> <span class='stab portability' title='Identification'>🫆</span>
+A handle to a JavaScript timeout.</dd><dt><a class="struct" href="struct.Libc.html" title="struct devela::zall_::_lang::Libc">Libc</a><wbr><span class="stab portability" title="Available on crate features `unsafe_ffi` only"><code>unsafe_ffi</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Raw C/POSIX system interfaces exposed through the platform’s libc.</dd><dt><a class="struct" href="struct.ShellLex.html" title="struct devela::zall_::_lang::ShellLex">Shell<wbr>Lex</a><wbr><span class="stab portability" title="Available on crate feature `shell` only"><code>shell</code></span></dt><dd><span class='stab portability' title='Language structure'>𝕃</span> <span class='stab portability' title='Parsing'>::=</span>
+Splits shell-like input into command words.</dd><dt><a class="struct" href="struct.ShellQuote.html" title="struct devela::zall_::_lang::ShellQuote">Shell<wbr>Quote</a><wbr><span class="stab portability" title="Available on crate feature `shell` only"><code>shell</code></span></dt><dd><span class='stab portability' title='Language structure'>𝕃</span> <span class='stab portability' title='Text'>𝐓</span>
+Quotes shell words for command strings.</dd><dt><a class="struct" href="struct.g_bvec2.html" title="struct devela::zall_::_lang::g_bvec2">g_bvec2</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>bvec2</code>, a vector of 2×<a href="../../zall/type.g_bool.html" title="type devela::zall::g_bool"><code>g_bool</code></a>s.</dd><dt><a class="struct" href="struct.g_bvec3.html" title="struct devela::zall_::_lang::g_bvec3">g_bvec3</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>bvec3</code>, a vector of 3×<a href="../../zall/type.g_bool.html" title="type devela::zall::g_bool"><code>g_bool</code></a>s.</dd><dt><a class="struct" href="struct.g_bvec4.html" title="struct devela::zall_::_lang::g_bvec4">g_bvec4</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>bvec4</code>, a vector of 4×<a href="../../zall/type.g_bool.html" title="type devela::zall::g_bool"><code>g_bool</code></a>s.</dd><dt><a class="struct" href="struct.g_dmat2.html" title="struct devela::zall_::_lang::g_dmat2">g_dmat2</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>dmat2</code>, a column-major 2×2 matrix of <a href="../../zall/type.g_double.html" title="type devela::zall::g_double"><code>g_double</code></a>s.</dd><dt><a class="struct" href="struct.g_dmat3.html" title="struct devela::zall_::_lang::g_dmat3">g_dmat3</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>dmat3</code>, a column-major 3×3 matrix of <a href="../../zall/type.g_double.html" title="type devela::zall::g_double"><code>g_double</code></a>s.</dd><dt><a class="struct" href="struct.g_dmat4.html" title="struct devela::zall_::_lang::g_dmat4">g_dmat4</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>dmat4</code>, a column-major 4×4 matrix of <a href="../../zall/type.g_double.html" title="type devela::zall::g_double"><code>g_double</code></a>s.</dd><dt><a class="struct" href="struct.g_dvec2.html" title="struct devela::zall_::_lang::g_dvec2">g_dvec2</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>dvec2</code>, a vector of 2×<a href="../../zall/type.g_double.html" title="type devela::zall::g_double"><code>g_double</code></a>s.</dd><dt><a class="struct" href="struct.g_dvec3.html" title="struct devela::zall_::_lang::g_dvec3">g_dvec3</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>dvec3</code>, a vector of 3×<a href="../../zall/type.g_double.html" title="type devela::zall::g_double"><code>g_double</code></a>s.</dd><dt><a class="struct" href="struct.g_dvec4.html" title="struct devela::zall_::_lang::g_dvec4">g_dvec4</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>dvec4</code>, a vector of 4×<a href="../../zall/type.g_double.html" title="type devela::zall::g_double"><code>g_double</code></a>s.</dd><dt><a class="struct" href="struct.g_ivec2.html" title="struct devela::zall_::_lang::g_ivec2">g_ivec2</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>ivec2</code>, a vector of 2×<a href="../../zall/type.g_int.html" title="type devela::zall::g_int"><code>g_int</code></a>s.</dd><dt><a class="struct" href="struct.g_ivec3.html" title="struct devela::zall_::_lang::g_ivec3">g_ivec3</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>ivec3</code>, a vector of 3×<a href="../../zall/type.g_int.html" title="type devela::zall::g_int"><code>g_int</code></a>s.</dd><dt><a class="struct" href="struct.g_ivec4.html" title="struct devela::zall_::_lang::g_ivec4">g_ivec4</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>ivec4</code>, a vector of 4×<a href="../../zall/type.g_int.html" title="type devela::zall::g_int"><code>g_int</code></a>s.</dd><dt><a class="struct" href="struct.g_mat2.html" title="struct devela::zall_::_lang::g_mat2">g_mat2</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>mat2</code>, a column-major 2×2 matrix of <a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_mat3.html" title="struct devela::zall_::_lang::g_mat3">g_mat3</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>mat3x3</code>, a column-major 3×3 matrix of <a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_mat4.html" title="struct devela::zall_::_lang::g_mat4">g_mat4</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>mat4x4</code>, a column-major 4×4 matrix of <a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_mat2x3.html" title="struct devela::zall_::_lang::g_mat2x3">g_<wbr>mat2x3</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>mat2x3</code>, a column-major 2×3 matrix of <a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_mat2x4.html" title="struct devela::zall_::_lang::g_mat2x4">g_<wbr>mat2x4</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>mat2x4</code>, a column-major 2×4 matrix of <a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_mat3x2.html" title="struct devela::zall_::_lang::g_mat3x2">g_<wbr>mat3x2</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>mat3x2</code>, a column-major 3×2 matrix of <a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_mat3x4.html" title="struct devela::zall_::_lang::g_mat3x4">g_<wbr>mat3x4</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>mat3x4</code>, a column-major 3×4 matrix of <a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_mat4x2.html" title="struct devela::zall_::_lang::g_mat4x2">g_<wbr>mat4x2</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>mat4x2</code>, a column-major 4×2 matrix of <a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_mat4x3.html" title="struct devela::zall_::_lang::g_mat4x3">g_<wbr>mat4x3</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>mat4x3</code>, a column-major 4×3 matrix of <a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_uvec2.html" title="struct devela::zall_::_lang::g_uvec2">g_uvec2</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>ivec2</code>, a vector of 2×<a href="../../zall/type.g_uint.html" title="type devela::zall::g_uint"><code>g_uint</code></a>s.</dd><dt><a class="struct" href="struct.g_uvec3.html" title="struct devela::zall_::_lang::g_uvec3">g_uvec3</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>ivec3</code>, a vector of 3×<a href="../../zall/type.g_uint.html" title="type devela::zall::g_uint"><code>g_uint</code></a>s.</dd><dt><a class="struct" href="struct.g_uvec4.html" title="struct devela::zall_::_lang::g_uvec4">g_uvec4</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>ivec4</code>, a vector of 4×<a href="../../zall/type.g_uint.html" title="type devela::zall::g_uint"><code>g_uint</code></a>s.</dd><dt><a class="struct" href="struct.g_vec2.html" title="struct devela::zall_::_lang::g_vec2">g_vec2</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>vec2</code>, a vector of 2×<a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_vec3.html" title="struct devela::zall_::_lang::g_vec3">g_vec3</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>vec3</code>, a vector of 3×<a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_vec4.html" title="struct devela::zall_::_lang::g_vec4">g_vec4</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+Equivalent to GLSL <code>vec4</code>, a vector of 4×<a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s.</dd><dt><a class="struct" href="struct.g_vertex2.html" title="struct devela::zall_::_lang::g_vertex2">g_<wbr>vertex2</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+A convenient 2D GLSL vertex representation with <a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s (position + UV).</dd><dt><a class="struct" href="struct.g_vertex3.html" title="struct devela::zall_::_lang::g_vertex3">g_<wbr>vertex3</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Geometry'>📐</span>
+A convenient 3D GLSL vertex representation with <a href="../../zall/type.g_float.html" title="type devela::zall::g_float"><code>g_float</code></a>s (position + UV).</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.JsValue.html" title="enum devela::zall_::_lang::JsValue">JsValue</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Value semantics'>💱</span>
+A JavaScript value for FFI communication.</dd><dt><a class="enum" href="enum.ShellWordError.html" title="enum devela::zall_::_lang::ShellWordError">Shell<wbr>Word<wbr>Error</a><wbr><span class="stab portability" title="Available on crate feature `shell` only"><code>shell</code></span></dt><dd><span class='stab portability' title='Language structure'>𝕃</span> <span class='stab portability' title='Composite error'>🚩+</span>
+An error while parsing or quoting shell words.</dd><dt><a class="enum" href="enum.c_void.html" title="enum devela::zall_::_lang::c_void">c_void</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to C’s void type when used as a <a href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html" title="primitive pointer">pointer</a>.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.c_bool.html" title="type devela::zall_::_lang::c_bool">c_bool</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Logic'>∧</span>
+Equivalent to C99 <code>_Bool</code> / <code>&lt;stdbool.h&gt;</code> <code>bool</code>.</dd><dt><a class="type" href="type.c_char.html" title="type devela::zall_::_lang::c_char">c_char</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Text'>𝐓</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_double.html" title="type devela::zall_::_lang::c_double">c_<wbr>double</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_float.html" title="type devela::zall_::_lang::c_float">c_float</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_int.html" title="type devela::zall_::_lang::c_int">c_int</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_long.html" title="type devela::zall_::_lang::c_long">c_long</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_longlong.html" title="type devela::zall_::_lang::c_longlong">c_<wbr>longlong</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_mode_t.html" title="type devela::zall_::_lang::c_mode_t">c_<wbr>mode_<wbr>t</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Equivalent to C’s <code>mode_t</code> type.</dd><dt><a class="type" href="type.c_off_t.html" title="type devela::zall_::_lang::c_off_t">c_off_t</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Equivalent to C’s <code>off_t</code> type.</dd><dt><a class="type" href="type.c_schar.html" title="type devela::zall_::_lang::c_schar">c_schar</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Text'>𝐓</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_short.html" title="type devela::zall_::_lang::c_short">c_short</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_size_t.html" title="type devela::zall_::_lang::c_size_t">c_<wbr>size_<wbr>t</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Equivalent to C’s <code>size_t</code> type.</dd><dt><a class="type" href="type.c_ssize_t.html" title="type devela::zall_::_lang::c_ssize_t">c_<wbr>ssize_<wbr>t</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Equivalent to C’s <code>ssize_t</code> type.</dd><dt><a class="type" href="type.c_uchar.html" title="type devela::zall_::_lang::c_uchar">c_uchar</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Text'>𝐓</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_uint.html" title="type devela::zall_::_lang::c_uint">c_uint</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_ulong.html" title="type devela::zall_::_lang::c_ulong">c_ulong</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_ulonglong.html" title="type devela::zall_::_lang::c_ulonglong">c_<wbr>ulonglong</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.c_ushort.html" title="type devela::zall_::_lang::c_ushort">c_<wbr>ushort</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Equivalent to the corresponding C type.</dd><dt><a class="type" href="type.g_bool.html" title="type devela::zall_::_lang::g_bool">g_bool</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Logic'>∧</span>
+A GLSL boolean.</dd><dt><a class="type" href="type.g_double.html" title="type devela::zall_::_lang::g_double">g_<wbr>double</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+A GLSL double-precision floating-point number.</dd><dt><a class="type" href="type.g_float.html" title="type devela::zall_::_lang::g_float">g_float</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+A GLSL single-precision floating-point number.</dd><dt><a class="type" href="type.g_int.html" title="type devela::zall_::_lang::g_int">g_int</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+A GLSL signed 32-bit integer.</dd><dt><a class="type" href="type.g_uint.html" title="type devela::zall_::_lang::g_uint">g_uint</a><wbr><span class="stab portability" title="Available on crate feature `glsl` only"><code>glsl</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+A GLSL unsigned 32-bit integer.</dd><dt><a class="type" href="type.js_bool.html" title="type devela::zall_::_lang::js_bool">js_bool</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Logic'>∧</span>
+A JavaScript boolean (<code>true</code> / <code>false</code>).</dd><dt><a class="type" href="type.js_int32.html" title="type devela::zall_::_lang::js_int32">js_<wbr>int32</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+A JavaScript signed 32-bit integer.</dd><dt><a class="type" href="type.js_null.html" title="type devela::zall_::_lang::js_null">js_null</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Absence, emptiness or a no-op effect'>∅</span>
+The JavaScript <code>null</code> value.</dd><dt><a class="type" href="type.js_number.html" title="type devela::zall_::_lang::js_number">js_<wbr>number</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+A JavaScript Number.</dd><dt><a class="type" href="type.js_str.html" title="type devela::zall_::_lang::js_str">js_str</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Text'>𝐓</span>
+A JavaScript string reference.</dd><dt><a class="type" href="type.js_uint32.html" title="type devela::zall_::_lang::js_uint32">js_<wbr>uint32</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+A JavaScript unsigned 32-bit integer.</dd><dt><a class="type" href="type.js_undefined.html" title="type devela::zall_::_lang::js_undefined">js_<wbr>undefined</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Absence, emptiness or a no-op effect'>∅</span>
+The JavaScript <code>undefined</code> value.</dd></dl></section></div></main></body></html>

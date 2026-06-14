@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["int","real"],"struct":["Frac"],"trait":["Num","NumConst","NumRef"],"type":["NoNum"]};

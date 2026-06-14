@@ -1,0 +1,169 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🪵 Emits leveled diagnostic text."><title>DiagOut in devela::zall_::_sys - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc trait"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">DiagOut</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">DiagOut</a></h2><h3><a href="#required-associated-types">Required Associated Types</a></h3><ul class="block"><li><a href="#associatedtype.Error" title="Error">Error</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.diag" title="diag">diag</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.debug" title="debug">debug</a></li><li><a href="#method.error" title="error">error</a></li><li><a href="#method.info" title="info">info</a></li><li><a href="#method.trace" title="trace">trace</a></li><li><a href="#method.warn" title="warn">warn</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>zall_<wbr>::<wbr>_<wbr>sys</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">zall_</a>::<wbr><a href="index.html">_sys</a></div><h1>Trait <span class="trait">DiagOut</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/sys/log/diag.rs.html#30-57">Source</a> </span></div><pre class="rust item-decl"><code>pub trait DiagOut {
+    type <a href="#associatedtype.Error" class="associatedtype">Error</a>;
+
+    // Required method
+    fn <a href="#tymethod.diag" class="fn">diag</a>(&amp;mut self, level: <a class="enum" href="../../zall/enum.DiagLevel.html" title="enum devela::zall::DiagLevel">DiagLevel</a>, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a>;
+
+    // Provided methods
+    fn <a href="#method.trace" class="fn">trace</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.debug" class="fn">debug</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.info" class="fn">info</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.warn" class="fn">warn</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.error" class="fn">error</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a> { ... }
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Logging'>🪵</span>
+Emits leveled diagnostic text.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/sys/log"><code>sys/log</code></a></sup></p>
+<hr />
+<p>This is the minimal semantic sink for diagnostics.
+It layers above plain text output by attaching a <a href="../../zall/enum.DiagLevel.html" title="enum devela::zall::DiagLevel"><code>DiagLevel</code></a>
+to each emitted message.</p>
+<p>See also <a href="../../zall/trait.TextOut.html" title="trait devela::zall::TextOut"><code>TextOut</code></a> for non-leveled textual output.</p>
+</div></details><h2 id="required-associated-types" class="section-header">Required Associated Types<a href="#required-associated-types" class="anchor">§</a></h2><div class="methods"><details class="toggle" open><summary><section id="associatedtype.Error" class="method"><a class="src rightside" href="../../../src/devela/sys/log/diag.rs.html#32">Source</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a></h4></section></summary><div class="docblock"><p>The error returned when diagnostic emission fails.</p>
+</div></details></div><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.diag" class="method"><a class="src rightside" href="../../../src/devela/sys/log/diag.rs.html#35">Source</a><h4 class="code-header">fn <a href="#tymethod.diag" class="fn">diag</a>(&amp;mut self, level: <a class="enum" href="../../zall/enum.DiagLevel.html" title="enum devela::zall::DiagLevel">DiagLevel</a>, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Emits <code>text</code> with the given diagnostic <code>level</code>.</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.trace" class="method"><a class="src rightside" href="../../../src/devela/sys/log/diag.rs.html#38-40">Source</a><h4 class="code-header">fn <a href="#method.trace" class="fn">trace</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Emits a trace diagnostic.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.debug" class="method"><a class="src rightside" href="../../../src/devela/sys/log/diag.rs.html#42-44">Source</a><h4 class="code-header">fn <a href="#method.debug" class="fn">debug</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Emits a debug diagnostic.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.info" class="method"><a class="src rightside" href="../../../src/devela/sys/log/diag.rs.html#46-48">Source</a><h4 class="code-header">fn <a href="#method.info" class="fn">info</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Emits an informational diagnostic.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.warn" class="method"><a class="src rightside" href="../../../src/devela/sys/log/diag.rs.html#50-52">Source</a><h4 class="code-header">fn <a href="#method.warn" class="fn">warn</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Emits a warning diagnostic.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.error" class="method"><a class="src rightside" href="../../../src/devela/sys/log/diag.rs.html#54-56">Source</a><h4 class="code-header">fn <a href="#method.error" class="fn">error</a>(&amp;mut self, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../zall/trait.DiagOut.html#associatedtype.Error" title="type devela::zall::DiagOut::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Emits an error diagnostic.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait <b>is</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety".</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><div class="negative-marker"></div><details class="toggle implementors-toggle"><summary><section id="impl-DiagOut-for-JsConsole" class="impl"><a class="src rightside" href="../../../src/devela/lang/prog/ffi/js/console.rs.html#130-143">Source</a><a href="#impl-DiagOut-for-JsConsole" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.DiagOut.html" title="trait devela::zall::DiagOut">DiagOut</a> for <a class="struct" href="../../zall/struct.JsConsole.html" title="struct devela::zall::JsConsole">JsConsole</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate features <code>js</code> and <code>unsafe_ffi</code></strong> only.</div></span><div class="docblock"><p>Emits leveled diagnostics to the JavaScript console.</p>
+</div></section></summary><div class="docblock"><p>This implementation maps <a href="../../zall/trait.DiagOut.html" title="trait devela::zall::DiagOut"><code>DiagOut</code></a> directly onto the browser’s native
+console levels, preserving the semantic distinction between trace, debug,
+info, warning, and error output.</p>
+<p>See also <a href="../../zall/trait.TextOut.html" title="trait devela::zall::TextOut"><code>TextOut</code></a> for plain text emission.</p>
+</div><div class="impl-items"><section id="associatedtype.Error-1" class="associatedtype trait-impl"><a class="src rightside" href="../../../src/devela/lang/prog/ffi/js/console.rs.html#131">Source</a><a href="#associatedtype.Error-1" class="anchor">§</a><h4 class="code-header">type <a href="#associatedtype.Error" class="associatedtype">Error</a> = <a class="enum" href="../../zall/enum.Infallible.html" title="enum devela::zall::Infallible">Infallible</a></h4></section></div></details></div><script src="../../../trait.impl/devela/sys/log/diag/trait.DiagOut.js" async></script><script type="text/json" id="notable-traits-data">{"Result<(), Self::Error>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../zall/enum.Result.html\" title=\"enum devela::zall::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../zall/trait.ResultExt.html\" title=\"trait devela::zall::ResultExt\">ResultExt</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../zall/enum.Result.html\" title=\"enum devela::zall::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>

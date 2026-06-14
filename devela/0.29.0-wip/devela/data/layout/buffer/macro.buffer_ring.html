@@ -1,0 +1,274 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🏗️ 🗃️ Defines a ring buffer type over contiguous storage backends."><title>buffer_ring in devela::data::layout::buffer - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">buffer_ring</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">buffer_<wbr>ring</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#implemented-backends" title="Implemented backends">Implemented backends</a></li><li><a href="#index-type-requirements" title="Index type requirements">Index type requirements</a></li><li><a href="#storage-backends" title="Storage backends">Storage backends</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>data::<wbr>layout::<wbr>buffer</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">data</a>::<wbr><a href="../index.html">layout</a>::<wbr><a href="index.html">buffer</a></div><h1>Macro <span class="macro">buffer_<wbr>ring</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/data/layout/buffer/ring/definition.rs.html#100-408">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! buffer_ring {
+    (
+    // STATIC (option)
+    // struct definition + optional implementations
+
+        $(#[$attr:meta])*
+        $vis:vis struct $name:ident : $(static)? ($($I:tt)+);
+        $($rest:tt)*
+    ) =&gt; { ... };
+    ( // implementations only
+        impl $name:ident : $(static)? ($($I:tt)+); $($rest:tt)*
+    ) =&gt; { ... };
+    (
+    // VIEW:  TODO: (slice_mut, slice)
+    // struct definition + optional implementations
+
+        $(#[$_attr:meta])*
+        $_vis:vis struct $_name:ident : view ($($_I:tt)+);
+        $($_rest:tt)*
+    ) =&gt; { ... };
+    ( // implementations only
+        impl $_name:ident : view ($($_I:tt)+);
+        $($_rest:tt)*
+    ) =&gt; { ... };
+    (
+    // ALLOC TODO: (vec)
+    // struct definition + optional implementations
+
+        $(#[$_attr:meta])*
+        $_vis:vis struct $_name:ident : alloc ($($_I:tt)+);
+        $($_rest:tt)*
+    ) =&gt; { ... };
+    ( // implementations only
+        impl $_name:ident : alloc ($($_I:tt)+);
+        $($_rest:tt)*
+    ) =&gt; { ... };
+    (
+
+    /* internals */
+    %impls_static $name:ident : $I:ty, $P:ty ;) =&gt; { ... };
+    (%impls_static $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* $impl:ident) =&gt; { ... };
+    (%impls_static $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* array , $($rest:tt)*) =&gt; { ... };
+    (%impl1_static $(#[$i:meta])* $name:ident : $I:ty, $P:ty ; array) =&gt; { ... };
+    (%impls_static $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* option , $($rest:tt)*) =&gt; { ... };
+    (%impl1_static $(#[$i:meta])* $name:ident : $I:ty, $P:ty ; option) =&gt; { ... };
+    (%impls_static $_name:ident : $_I:ty, $_P:ty ; $(#[$_i:meta])* $impl:ident , $($_r:tt)*) =&gt; { ... };
+    (%impl1_static $(#[$_i:meta])* $_name:ident : $_I:ty, $_P:ty ; $impl:ident) =&gt; { ... };
+    (%impl_common_static $name:ident, $I:ty, $P:ty) =&gt; { ... };
+    (%common_tracked $name:ident, $I:ty, $P:ty) =&gt; { ... };
+    (%common_static $name:ident, $I:ty, $P:ty) =&gt; { ... };
+    (%guard_index_repr $I:ty) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+Defines a ring buffer type over contiguous storage backends.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/data/layout"><code>data/layout</code></a></sup></p>
+<hr />
+<p>The generated type represents a fixed-capacity
+circular logical range over contiguous storage.</p>
+<p>A ring tracks:</p>
+<ul>
+<li><code>head</code>: the physical start of the logical range.</li>
+<li><code>len</code>: the number of live elements.</li>
+</ul>
+<p>The tail is not stored. It is derived as <code>(head + len) % capacity</code>.</p>
+<h3 id="implemented-backends"><a class="doc-anchor" href="#implemented-backends">§</a>Implemented backends</h3>
+<p>Currently implemented:</p>
+<ul>
+<li><strong>static <code>array</code></strong>
+Fully initialized array storage (<code>[T; CAP]</code>).
+All slots always contain a valid <code>T</code>; <code>len</code> controls which slots are
+logically visible.</li>
+<li><strong>static <code>option</code></strong>
+Array of options (<code>[Option&lt;T&gt;; CAP]</code>).
+Occupied logical slots are <code>Some</code>; unused physical slots are <code>None</code>.</li>
+</ul>
+<p>Reserved for later:</p>
+<ul>
+<li><strong>static <code>uninit</code></strong></li>
+<li><strong>view backends</strong></li>
+<li><strong>alloc backends</strong></li>
+</ul>
+<h3 id="index-type-requirements"><a class="doc-anchor" href="#index-type-requirements">§</a>Index type requirements</h3>
+<p>The index type must:</p>
+<ul>
+<li>Be non-negative.</li>
+<li>Represent zero.</li>
+<li>Form a contiguous integer range.</li>
+<li>Be able to represent the full capacity.</li>
+</ul>
+<p>Primitive unsigned integers and supported niche wrappers are accepted
+through <a href="../../../zall/struct.MaybeNiche.html" title="struct devela::zall::MaybeNiche"><code>MaybeNiche</code></a>.</p>
+<h3 id="storage-backends"><a class="doc-anchor" href="#storage-backends">§</a>Storage backends</h3>
+<p>Backends are opt-in and selected after the struct declaration.</p>
+<ul>
+<li>
+<p><strong><code>array</code></strong>
+Fully initialized array storage (<code>[T; CAP]</code>).</p>
+<p>This backend separates <em>initialization</em> from <em>logical membership</em>:
+every physical slot stores a valid <code>T</code>, while <code>len</code> determines which
+elements are visible through the ring API.</p>
+<p>Operations that move values out of the array require either:</p>
+<ul>
+<li>copying (<code>*_copy</code>),</li>
+<li>an explicit replacement (<code>*_with</code>),</li>
+<li>or a convenience replacement (<code>*_default</code>, <code>*_init</code>).</li>
+</ul>
+</li>
+<li>
+<p><strong><code>option</code></strong>
+Array of options (<code>[Option&lt;T&gt;; CAP]</code>).</p>
+<p>This backend stores occupancy explicitly: occupied logical slots are
+<code>Some(T)</code>, and unused physical slots are <code>None</code>.</p>
+<p>It supports moving arbitrary <code>T</code> values in and out
+without requiring replacement values.</p>
+</li>
+</ul>
+<h3 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">buffer_ring!</span>(
+    <span class="doccomment">/// Static ring buffer.
+    </span><span class="kw">pub struct </span>RingU8: (u8);
+    array, option
+);
+
+<span class="kw">let </span><span class="kw-2">mut </span>array_ring = RingU8::&lt;i32, [i32; <span class="number">4</span>]&gt;::new_init();
+array_ring.push_back(<span class="number">10</span>).unwrap();
+array_ring.push_back(<span class="number">20</span>).unwrap();
+
+<span class="macro">assert_eq!</span>(array_ring.pop_front_copy(), <span class="prelude-val">Some</span>(<span class="number">10</span>));
+<span class="macro">assert_eq!</span>(array_ring.peek_front(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">20</span>));
+
+<span class="kw">let </span><span class="kw-2">mut </span>option_ring = RingU8::&lt;i32, [<span class="prelude-ty">Option</span>&lt;i32&gt;; <span class="number">4</span>]&gt;::new();
+option_ring.push_back(<span class="number">10</span>).unwrap();
+option_ring.push_back(<span class="number">20</span>).unwrap();
+
+<span class="macro">assert_eq!</span>(option_ring.pop_front(), <span class="prelude-val">Some</span>(<span class="number">10</span>));
+<span class="macro">assert_eq!</span>(option_ring.peek_front(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">20</span>));</code></pre></div>
+<p>See also:
+<a href="../../../zall/struct.BufferRingStaticExample.html" title="struct devela::zall::BufferRingStaticExample"><code>BufferRingStaticExample</code></a>,</p>
+</div></details></section></div></main></body></html>

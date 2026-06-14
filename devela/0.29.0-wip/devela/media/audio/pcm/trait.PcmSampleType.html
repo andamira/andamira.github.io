@@ -1,0 +1,152 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🔊 Rust sample type with a fixed PCM sample encoding."><title>PcmSampleType in devela::media::audio::pcm - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc trait"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">PcmSampleType</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">PcmSample<wbr>Type</a></h2><h3><a href="#required-associated-consts">Required Associated Constants</a></h3><ul class="block"><li><a href="#associatedconstant.SAMPLE" title="SAMPLE">SAMPLE</a></li><li><a href="#associatedconstant.SILENCE" title="SILENCE">SILENCE</a></li></ul><h3><a href="#foreign-impls">Implementations on Foreign Types</a></h3><ul class="block"><li><a href="#impl-PcmSampleType-for-f32" title="f32">f32</a></li><li><a href="#impl-PcmSampleType-for-f64" title="f64">f64</a></li><li><a href="#impl-PcmSampleType-for-i8" title="i8">i8</a></li><li><a href="#impl-PcmSampleType-for-i16" title="i16">i16</a></li><li><a href="#impl-PcmSampleType-for-i32" title="i32">i32</a></li><li><a href="#impl-PcmSampleType-for-u8" title="u8">u8</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>media::<wbr>audio::<wbr>pcm</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">media</a>::<wbr><a href="../index.html">audio</a>::<wbr><a href="index.html">pcm</a></div><h1>Trait <span class="trait">PcmSample<wbr>Type</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/media/audio/pcm/sample.rs.html#128-137">Source</a> </span></div><pre class="rust item-decl"><code>pub trait PcmSampleType: <a class="trait" href="../../../zall/trait.Copy.html" title="trait devela::zall::Copy">Copy</a> + Sealed {
+    const <a href="#associatedconstant.SAMPLE" class="constant">SAMPLE</a>: <a class="enum" href="../../../zall/enum.PcmSample.html" title="enum devela::zall::PcmSample">PcmSample</a>;
+    const <a href="#associatedconstant.SILENCE" class="constant">SILENCE</a>: Self;
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>audio</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Audio'>🔊</span>
+Rust sample type with a fixed PCM sample encoding.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/media/audio"><code>media/audio</code></a></sup></p>
+<hr />
+<p>This trait connects typed sample buffers such as <code>&amp;[i16]</code> or <code>&amp;mut [f32]</code>
+to their corresponding <a href="../../../zall/enum.PcmSample.html" title="enum devela::zall::PcmSample"><code>PcmSample</code></a> encoding.</p>
+<p>It is sealed because backend I/O depends on the Rust type layout matching
+the declared PCM sample representation.</p>
+</div></details><h2 id="required-associated-consts" class="section-header">Required Associated Constants<a href="#required-associated-consts" class="anchor">§</a></h2><div class="methods"><details class="toggle" open><summary><section id="associatedconstant.SAMPLE" class="method"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#130">Source</a><h4 class="code-header">const <a href="#associatedconstant.SAMPLE" class="constant">SAMPLE</a>: <a class="enum" href="../../../zall/enum.PcmSample.html" title="enum devela::zall::PcmSample">PcmSample</a></h4></section></summary><div class="docblock"><p>The PCM sample encoding represented by this Rust type.</p>
+</div></details><details class="toggle" open><summary><section id="associatedconstant.SILENCE" class="method"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#136">Source</a><h4 class="code-header">const <a href="#associatedconstant.SILENCE" class="constant">SILENCE</a>: Self</h4></section></summary><div class="docblock"><p>The silent value for this PCM sample type.</p>
+<p>This is the value that represents zero amplitude in the corresponding
+PCM encoding.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety".</i></p></div><h2 id="foreign-impls" class="section-header">Implementations on Foreign Types<a href="#foreign-impls" class="anchor">§</a></h2><details class="toggle implementors-toggle"><summary><section id="impl-PcmSampleType-for-f32" class="impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#impl-PcmSampleType-for-f32" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.PcmSampleType.html" title="trait devela::zall::PcmSampleType">PcmSampleType</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a></h3></section></summary><div class="impl-items"><section id="associatedconstant.SAMPLE-1" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SAMPLE-1" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SAMPLE" class="constant">SAMPLE</a>: <a class="enum" href="../../../zall/enum.PcmSample.html" title="enum devela::zall::PcmSample">PcmSample</a> = PcmSample::F32</h4></section><section id="associatedconstant.SILENCE-1" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SILENCE-1" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SILENCE" class="constant">SILENCE</a>: Self = 0.0</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-PcmSampleType-for-f64" class="impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#impl-PcmSampleType-for-f64" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.PcmSampleType.html" title="trait devela::zall::PcmSampleType">PcmSampleType</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a></h3></section></summary><div class="impl-items"><section id="associatedconstant.SAMPLE-2" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SAMPLE-2" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SAMPLE" class="constant">SAMPLE</a>: <a class="enum" href="../../../zall/enum.PcmSample.html" title="enum devela::zall::PcmSample">PcmSample</a> = PcmSample::F64</h4></section><section id="associatedconstant.SILENCE-2" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SILENCE-2" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SILENCE" class="constant">SILENCE</a>: Self = 0.0</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-PcmSampleType-for-i8" class="impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#impl-PcmSampleType-for-i8" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.PcmSampleType.html" title="trait devela::zall::PcmSampleType">PcmSampleType</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a></h3></section></summary><div class="impl-items"><section id="associatedconstant.SAMPLE-3" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SAMPLE-3" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SAMPLE" class="constant">SAMPLE</a>: <a class="enum" href="../../../zall/enum.PcmSample.html" title="enum devela::zall::PcmSample">PcmSample</a> = PcmSample::I8</h4></section><section id="associatedconstant.SILENCE-3" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SILENCE-3" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SILENCE" class="constant">SILENCE</a>: Self = 0</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-PcmSampleType-for-i16" class="impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#impl-PcmSampleType-for-i16" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.PcmSampleType.html" title="trait devela::zall::PcmSampleType">PcmSampleType</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a></h3></section></summary><div class="impl-items"><section id="associatedconstant.SAMPLE-4" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SAMPLE-4" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SAMPLE" class="constant">SAMPLE</a>: <a class="enum" href="../../../zall/enum.PcmSample.html" title="enum devela::zall::PcmSample">PcmSample</a> = PcmSample::I16</h4></section><section id="associatedconstant.SILENCE-4" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SILENCE-4" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SILENCE" class="constant">SILENCE</a>: Self = 0</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-PcmSampleType-for-i32" class="impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#impl-PcmSampleType-for-i32" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.PcmSampleType.html" title="trait devela::zall::PcmSampleType">PcmSampleType</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></h3></section></summary><div class="impl-items"><section id="associatedconstant.SAMPLE-5" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SAMPLE-5" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SAMPLE" class="constant">SAMPLE</a>: <a class="enum" href="../../../zall/enum.PcmSample.html" title="enum devela::zall::PcmSample">PcmSample</a> = PcmSample::I32</h4></section><section id="associatedconstant.SILENCE-5" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SILENCE-5" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SILENCE" class="constant">SILENCE</a>: Self = 0</h4></section></div></details><details class="toggle implementors-toggle"><summary><section id="impl-PcmSampleType-for-u8" class="impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#impl-PcmSampleType-for-u8" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.PcmSampleType.html" title="trait devela::zall::PcmSampleType">PcmSampleType</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></h3></section></summary><div class="impl-items"><section id="associatedconstant.SAMPLE-6" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SAMPLE-6" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SAMPLE" class="constant">SAMPLE</a>: <a class="enum" href="../../../zall/enum.PcmSample.html" title="enum devela::zall::PcmSample">PcmSample</a> = PcmSample::U8</h4></section><section id="associatedconstant.SILENCE-6" class="associatedconstant trait-impl"><a class="src rightside" href="../../../../src/devela/media/audio/pcm/sample.rs.html#156">Source</a><a href="#associatedconstant.SILENCE-6" class="anchor">§</a><h4 class="code-header">const <a href="#associatedconstant.SILENCE" class="constant">SILENCE</a>: Self = 128</h4></section></div></details><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"></div><script src="../../../../trait.impl/devela/media/audio/pcm/sample/trait.PcmSampleType.js" data-ignore-extern-crates="std" async></script></section></div></main></body></html>

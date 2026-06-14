@@ -1,0 +1,245 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="💯 🫗 Tests the stack size of a type."><title>test_size_of in devela::zall_::_code - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">test_size_of</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">test_<wbr>size_<wbr>of</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#modes" title="Modes">Modes</a></li><li><a href="#buffer-modes" title="Buffer modes">Buffer modes</a></li><li><a href="#panics" title="Panics">Panics</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>zall_<wbr>::<wbr>_<wbr>code</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">zall_</a>::<wbr><a href="index.html">_code</a></div><h1>Macro <span class="macro">test_<wbr>size_<wbr>of</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/code/util/asserts/test_size_of.rs.html#108-257">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! test_size_of {
+    (assert $ty:ty = $bytes:literal $(| $bits:literal)? $(; niche $wrap:ident)? $(,)?) =&gt; { ... };
+    (assert { $($rest:tt)* }) =&gt; { ... };
+    (check_into $buf:expr; $ty:ty = $bytes:literal $(| $bits:literal)? $(; niche $wrap:ident)?
+    $(,)?) =&gt; { ... };
+    (line_into $buf:expr; $ty:ty = $bytes:literal $(| $bits:literal)? $(; niche $wrap:ident)?
+    $(,)?) =&gt; { ... };
+    (probe $ty:ty $(,)?) =&gt; { ... };
+    ($name:ident : $ty:ty = $bytes:literal $(| $bits:literal)? $(; niche $wrap:ident)? $(,)?) =&gt; { ... };
+    ($name:ident : probe $ty:ty $(,)?) =&gt; { ... };
+    ($ty:ident = $bytes:literal $(| $bits:literal)? $(; niche $wrap:ident)? $(,)?
+        ) =&gt; { ... };
+    (probe $ty:ident $(,)?) =&gt; { ... };
+    (%assert_batch) =&gt; { ... };
+    (%assert_batch
+        $ty:ty = $bytes:literal $(| $bits:literal)? ; niche $wrap:ident ; $($rest:tt)*) =&gt; { ... };
+    (%assert_batch $ty:ty = $bytes:literal $(| $bits:literal)? ; $($rest:tt)*) =&gt; { ... };
+    (%assert_niche $ty:ty, Option) =&gt; { ... };
+    (%assert_niche $ty:ty, $wrap:ident) =&gt; { ... };
+    (%check_into_bits $buf:expr; $ty:ty, $bytes:expr) =&gt; { ... };
+    (%check_into_bits $buf:expr; $ty:ty, $bytes:expr, $bits:literal) =&gt; { ... };
+    (%check_into_niche $buf:expr; $ty:ty) =&gt; { ... };
+    (%check_into_niche $buf:expr; $ty:ty, Option) =&gt; { ... };
+    (%check_into_niche $buf:expr; $ty:ty, $wrap:ident) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Assertion'>💯</span> <span class='stab portability' title='Memory representation'>🫗</span>
+Tests the stack size of a type.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/code/util"><code>code/util</code></a></sup></p>
+<hr />
+<p>Optionally checks the matching bit count
+and whether <code>Option&lt;T&gt;</code> keeps the same stack size as <code>T</code>.</p>
+<p>This is a convenience macro around <a href="https://doc.rust-lang.org/nightly/core/mem/fn.size_of.html" title="fn core::mem::size_of"><code>core::mem::size_of</code></a> for probing,
+checking, or locking the expected size of a type.</p>
+<p>It supports both panicking test-oriented modes and caller-buffer modes for
+fallible diagnostics without allocation.</p>
+<h2 id="modes"><a class="doc-anchor" href="#modes">§</a>Modes</h2>
+<ul>
+<li><code>assert T = N</code>: asserts the byte-size inside an existing test.</li>
+<li><code>assert T = N|B</code>: also checks the corresponding bit count.</li>
+<li><code>assert T = N; niche Option</code>: also checks <code>Option&lt;T&gt;</code> has the same size.</li>
+<li><code>assert { T = N; ... }</code>: asserts several type sizes.</li>
+<li><code>check_into buf; T = N</code>: returns <code>(ok, type_name, message)</code>.</li>
+<li><code>line_into buf; T = N</code>: returns <code>(ok, line)</code> ready to print.</li>
+<li><code>probe T</code>: panics with the measured size.</li>
+<li><code>name: T = N</code>: generates a named unit test.</li>
+<li><code>T = N</code>: generates <code>test_size_of_T</code> for simple identifier types.</li>
+</ul>
+<p>The <code>; niche Option</code> suffix checks size preservation:
+<code>size_of::&lt;Option&lt;T&gt;&gt;() == size_of::&lt;T&gt;()</code>.</p>
+<h2 id="buffer-modes"><a class="doc-anchor" href="#buffer-modes">§</a>Buffer modes</h2>
+<p>The <code>check_into</code> and <code>line_into</code> modes write diagnostics into caller-provided
+byte storage and never panic for size mismatches.</p>
+<p><code>check_into</code> returns:</p>
+<ul>
+<li><code>true</code>, the type name, and an empty message on success.</li>
+<li><code>false</code>, the type name, and a diagnostic message on failure.</li>
+</ul>
+<p><code>line_into</code> returns:</p>
+<ul>
+<li><code>true</code> and a printable success line on success.</li>
+<li><code>false</code> and the diagnostic message on failure.</li>
+</ul>
+<p>Messages are truncated to fit the provided buffer.</p>
+<h2 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics</h2>
+<p>The <code>assert</code> modes panic when the measured byte-size does not match the
+expected value.</p>
+<p>They panic when an explicit bit count does not match the expected byte-size
+converted to bits.</p>
+<p>They panic when <code>; niche Option</code> is used and <code>Option&lt;T&gt;</code> does not have the
+same stack size as <code>T</code>.</p>
+<p>The <code>probe</code> mode always panics, intentionally, and prints the measured size.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>Assertion checks:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">test_size_of!</span>[assert u8 = <span class="number">1</span>];
+<span class="macro">test_size_of!</span>[assert u16 = <span class="number">2</span>|<span class="number">16</span>];
+<span class="macro">test_size_of!</span>[assert [u8; <span class="number">4</span>] = <span class="number">4</span>];
+<span class="macro">test_size_of!</span>[assert core::num::NonZeroU8 = <span class="number">1</span>; niche <span class="prelude-ty">Option</span>];
+
+<span class="macro">test_size_of!</span>[assert {
+    u16 = <span class="number">2</span>;
+    u32 = <span class="number">4</span>|<span class="number">32</span>;
+    [u8; <span class="number">8</span>] = <span class="number">8</span>;
+    core::num::NonZeroU8 = <span class="number">1</span>; niche <span class="prelude-ty">Option</span>;
+}];</code></pre></div>
+<p>Fallible checks:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0</span>; <span class="number">128</span>];
+
+<span class="kw">let </span>(ok, ty, msg) = <span class="macro">test_size_of!</span>[check_into <span class="kw-2">&amp;mut </span>buf; u16 = <span class="number">2</span>|<span class="number">16</span>];
+<span class="macro">assert!</span>(ok);
+<span class="macro">assert_eq!</span>(ty, <span class="string">"u16"</span>);
+<span class="macro">assert_eq!</span>(msg, <span class="string">""</span>);
+
+<span class="kw">let </span>(ok, ty, msg) = <span class="macro">test_size_of!</span>[check_into <span class="kw-2">&amp;mut </span>buf; u16 = <span class="number">1</span>];
+<span class="macro">assert!</span>(!ok);
+<span class="macro">assert_eq!</span>(ty, <span class="string">"u16"</span>);
+<span class="macro">assert!</span>(msg.contains(<span class="string">"size_of::&lt;u16&gt;() byte mismatch"</span>));</code></pre></div>
+<p>Printable checks:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0</span>; <span class="number">128</span>];
+
+<span class="kw">let </span>(ok, line) = <span class="macro">test_size_of!</span>[line_into <span class="kw-2">&amp;mut </span>buf; u16 = <span class="number">2</span>|<span class="number">16</span>];
+<span class="macro">assert!</span>(ok);
+<span class="macro">assert_eq!</span>(line, <span class="string">"ok: size_of::&lt;u16&gt;() = 2 bytes (16 bits)"</span>);</code></pre></div>
+<p>Generated tests:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">test_size_of!</span>[u32 = <span class="number">4</span>];
+<span class="macro">test_size_of!</span>[core_num_nonzero_u8: core::num::NonZeroU8 = <span class="number">1</span>; niche <span class="prelude-ty">Option</span>];
+<span class="macro">test_size_of!</span>[option_nonzero_u8: <span class="prelude-ty">Option</span>&lt;core::num::NonZeroU8&gt; = <span class="number">1</span>];</code></pre></div></div></details></section></div></main></body></html>

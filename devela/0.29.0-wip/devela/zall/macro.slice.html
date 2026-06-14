@@ -1,0 +1,363 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🛠️ Invokes `Slice` range methods using short notation."><title>slice in devela::zall - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">slice</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">slice</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#syntax" title="Syntax">Syntax</a></li><li><a href="#notes" title="Notes">Notes</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>zall</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">zall</a></div><h1>Macro <span class="macro">slice</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/sys/mem/view/slice/namespace/mod.rs.html#207-375">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! slice {
+    (
+     str_mut_checked $s:expr, $l:expr,    ..= $u:expr) =&gt; { ... };
+    (str_mut_checked $s:expr, $l:expr,    ..  $u:expr) =&gt; { ... };
+    (str_mut_checked $s:expr, $l:expr,    ..         ) =&gt; { ... };
+    (str_mut_checked $s:expr,             ..= $u:expr) =&gt; { ... };
+    (str_mut_checked $s:expr,             ..  $u:expr) =&gt; { ... };
+    (str_mut_checked $s:expr, $l:block    ..= $u:block) =&gt; { ... };
+    (str_mut_checked $s:expr, $l:block    ..  $u:block) =&gt; { ... };
+    (str_mut_checked $s:expr, $l:block    ..          ) =&gt; { ... };
+    (str_mut_checked $s:expr,             ..= $u:block) =&gt; { ... };
+    (str_mut_checked $s:expr,             ..  $u:block) =&gt; { ... };
+    (str_mut_checked $s:expr, $l:literal  ..= $u:literal) =&gt; { ... };
+    (str_mut_checked $s:expr, $l:literal  ..  $u:literal) =&gt; { ... };
+    (str_mut_checked $s:expr, $l:literal  ..            ) =&gt; { ... };
+    (str_mut_checked $s:expr,             ..= $u:literal) =&gt; { ... };
+    (str_mut_checked $s:expr,             ..  $u:literal) =&gt; { ... };
+    (
+     str_mut $s:expr, $l:expr,    ..= $u:expr) =&gt; { ... };
+    (str_mut $s:expr, $l:expr,    ..  $u:expr) =&gt; { ... };
+    (str_mut $s:expr, $l:expr,    ..         ) =&gt; { ... };
+    (str_mut $s:expr,             ..= $u:expr) =&gt; { ... };
+    (str_mut $s:expr,             ..  $u:expr) =&gt; { ... };
+    (str_mut $s:expr, $l:block    ..= $u:block) =&gt; { ... };
+    (str_mut $s:expr, $l:block    ..  $u:block) =&gt; { ... };
+    (str_mut $s:expr, $l:block    ..          ) =&gt; { ... };
+    (str_mut $s:expr,             ..= $u:block) =&gt; { ... };
+    (str_mut $s:expr,             ..  $u:block) =&gt; { ... };
+    (str_mut $s:expr, $l:literal  ..= $u:literal) =&gt; { ... };
+    (str_mut $s:expr, $l:literal  ..  $u:literal) =&gt; { ... };
+    (str_mut $s:expr, $l:literal  ..            ) =&gt; { ... };
+    (str_mut $s:expr,             ..= $u:literal) =&gt; { ... };
+    (str_mut $s:expr,             ..  $u:literal) =&gt; { ... };
+    (
+     str_checked $s:expr, $l:expr,    ..= $u:expr) =&gt; { ... };
+    (str_checked $s:expr, $l:expr,    ..  $u:expr) =&gt; { ... };
+    (str_checked $s:expr, $l:expr,    ..         ) =&gt; { ... };
+    (str_checked $s:expr,             ..= $u:expr) =&gt; { ... };
+    (str_checked $s:expr,             ..  $u:expr) =&gt; { ... };
+    (str_checked $s:expr, $l:block    ..= $u:block) =&gt; { ... };
+    (str_checked $s:expr, $l:block    ..  $u:block) =&gt; { ... };
+    (str_checked $s:expr, $l:block    ..          ) =&gt; { ... };
+    (str_checked $s:expr,             ..= $u:block) =&gt; { ... };
+    (str_checked $s:expr,             ..  $u:block) =&gt; { ... };
+    (str_checked $s:expr, $l:literal  ..= $u:literal) =&gt; { ... };
+    (str_checked $s:expr, $l:literal  ..  $u:literal) =&gt; { ... };
+    (str_checked $s:expr, $l:literal  ..            ) =&gt; { ... };
+    (str_checked $s:expr,             ..= $u:literal) =&gt; { ... };
+    (str_checked $s:expr,             ..  $u:literal) =&gt; { ... };
+    (
+     str $s:expr, $l:expr,    ..= $u:expr) =&gt; { ... };
+    (str $s:expr, $l:expr,    ..  $u:expr) =&gt; { ... };
+    (str $s:expr, $l:expr,    ..         ) =&gt; { ... };
+    (str $s:expr,             ..= $u:expr) =&gt; { ... };
+    (str $s:expr,             ..  $u:expr) =&gt; { ... };
+    (str $s:expr, $l:block    ..= $u:block) =&gt; { ... };
+    (str $s:expr, $l:block    ..  $u:block) =&gt; { ... };
+    (str $s:expr, $l:block    ..          ) =&gt; { ... };
+    (str $s:expr,             ..= $u:block) =&gt; { ... };
+    (str $s:expr,             ..  $u:block) =&gt; { ... };
+    (str $s:expr, $l:literal  ..= $u:literal) =&gt; { ... };
+    (str $s:expr, $l:literal  ..  $u:literal) =&gt; { ... };
+    (str $s:expr, $l:literal  ..            ) =&gt; { ... };
+    (str $s:expr,             ..= $u:literal) =&gt; { ... };
+    (str $s:expr,             ..  $u:literal) =&gt; { ... };
+    (
+     mut_checked $s:expr, $l:expr,    ..= $u:expr) =&gt; { ... };
+    (mut_checked $s:expr, $l:expr,    ..  $u:expr) =&gt; { ... };
+    (mut_checked $s:expr, $l:expr,    ..         ) =&gt; { ... };
+    (mut_checked $s:expr,             ..= $u:expr) =&gt; { ... };
+    (mut_checked $s:expr,             ..  $u:expr) =&gt; { ... };
+    (mut_checked $s:expr, $l:block    ..= $u:block) =&gt; { ... };
+    (mut_checked $s:expr, $l:block    ..  $u:block) =&gt; { ... };
+    (mut_checked $s:expr, $l:block    ..          ) =&gt; { ... };
+    (mut_checked $s:expr,             ..= $u:block) =&gt; { ... };
+    (mut_checked $s:expr,             ..  $u:block) =&gt; { ... };
+    (mut_checked $s:expr, $l:literal  ..= $u:literal) =&gt; { ... };
+    (mut_checked $s:expr, $l:literal  ..  $u:literal) =&gt; { ... };
+    (mut_checked $s:expr, $l:literal  ..            ) =&gt; { ... };
+    (mut_checked $s:expr,             ..= $u:literal) =&gt; { ... };
+    (mut_checked $s:expr,             ..  $u:literal) =&gt; { ... };
+    (
+     mut_unchecked $s:expr, $l:expr,    ..= $u:expr) =&gt; { ... };
+    (mut_unchecked $s:expr, $l:expr,    ..  $u:expr) =&gt; { ... };
+    (mut_unchecked $s:expr, $l:expr,    ..         ) =&gt; { ... };
+    (mut_unchecked $s:expr,             ..= $u:expr) =&gt; { ... };
+    (mut_unchecked $s:expr,             ..  $u:expr) =&gt; { ... };
+    (mut_unchecked $s:expr, $l:block    ..= $u:block) =&gt; { ... };
+    (mut_unchecked $s:expr, $l:block    ..  $u:block) =&gt; { ... };
+    (mut_unchecked $s:expr, $l:block    ..          ) =&gt; { ... };
+    (mut_unchecked $s:expr,             ..= $u:block) =&gt; { ... };
+    (mut_unchecked $s:expr,             ..  $u:block) =&gt; { ... };
+    (mut_unchecked $s:expr, $l:literal  ..= $u:literal) =&gt; { ... };
+    (mut_unchecked $s:expr, $l:literal  ..  $u:literal) =&gt; { ... };
+    (mut_unchecked $s:expr, $l:literal  ..            ) =&gt; { ... };
+    (mut_unchecked $s:expr,             ..= $u:literal) =&gt; { ... };
+    (mut_unchecked $s:expr,             ..  $u:literal) =&gt; { ... };
+    (
+     mut $s:expr, $l:expr,    ..= $u:expr) =&gt; { ... };
+    (mut $s:expr, $l:expr,    ..  $u:expr) =&gt; { ... };
+    (mut $s:expr, $l:expr,    ..         ) =&gt; { ... };
+    (mut $s:expr,             ..= $u:expr) =&gt; { ... };
+    (mut $s:expr,             ..  $u:expr) =&gt; { ... };
+    (mut $s:expr, $l:block    ..= $u:block) =&gt; { ... };
+    (mut $s:expr, $l:block    ..  $u:block) =&gt; { ... };
+    (mut $s:expr, $l:block    ..          ) =&gt; { ... };
+    (mut $s:expr,             ..= $u:block) =&gt; { ... };
+    (mut $s:expr,             ..  $u:block) =&gt; { ... };
+    (mut $s:expr, $l:literal  ..= $u:literal) =&gt; { ... };
+    (mut $s:expr, $l:literal  ..  $u:literal) =&gt; { ... };
+    (mut $s:expr, $l:literal  ..            ) =&gt; { ... };
+    (mut $s:expr,             ..= $u:literal) =&gt; { ... };
+    (mut $s:expr,             ..  $u:literal) =&gt; { ... };
+    (
+     checked $s:expr, $l:expr,    ..= $u:expr) =&gt; { ... };
+    (checked $s:expr, $l:expr,    ..  $u:expr) =&gt; { ... };
+    (checked $s:expr, $l:expr,    ..         ) =&gt; { ... };
+    (checked $s:expr,             ..= $u:expr) =&gt; { ... };
+    (checked $s:expr,             ..  $u:expr) =&gt; { ... };
+    (checked $s:expr, $l:block    ..= $u:block) =&gt; { ... };
+    (checked $s:expr, $l:block    ..  $u:block) =&gt; { ... };
+    (checked $s:expr, $l:block    ..          ) =&gt; { ... };
+    (checked $s:expr,             ..= $u:block) =&gt; { ... };
+    (checked $s:expr,             ..  $u:block) =&gt; { ... };
+    (checked $s:expr, $l:literal  ..= $u:literal) =&gt; { ... };
+    (checked $s:expr, $l:literal  ..  $u:literal) =&gt; { ... };
+    (checked $s:expr, $l:literal  ..            ) =&gt; { ... };
+    (checked $s:expr,             ..= $u:literal) =&gt; { ... };
+    (checked $s:expr,             ..  $u:literal) =&gt; { ... };
+    (
+     unchecked $s:expr, $l:expr,    ..= $u:expr) =&gt; { ... };
+    (unchecked $s:expr, $l:expr,    ..  $u:expr) =&gt; { ... };
+    (unchecked $s:expr, $l:expr,    ..         ) =&gt; { ... };
+    (unchecked $s:expr,             ..= $u:expr) =&gt; { ... };
+    (unchecked $s:expr,             ..  $u:expr) =&gt; { ... };
+    (unchecked $s:expr, $l:block    ..= $u:block) =&gt; { ... };
+    (unchecked $s:expr, $l:block    ..  $u:block) =&gt; { ... };
+    (unchecked $s:expr, $l:block    ..          ) =&gt; { ... };
+    (unchecked $s:expr,             ..= $u:block) =&gt; { ... };
+    (unchecked $s:expr,             ..  $u:block) =&gt; { ... };
+    (unchecked $s:expr, $l:literal  ..= $u:literal) =&gt; { ... };
+    (unchecked $s:expr, $l:literal  ..  $u:literal) =&gt; { ... };
+    (unchecked $s:expr, $l:literal  ..            ) =&gt; { ... };
+    (unchecked $s:expr,             ..= $u:literal) =&gt; { ... };
+    (unchecked $s:expr,             ..  $u:literal) =&gt; { ... };
+    (
+     $s:expr, $l:expr,  ..= $u:expr) =&gt; { ... };
+    ($s:expr, $l:expr,  ..  $u:expr) =&gt; { ... };
+    ($s:expr, $l:expr,  ..         ) =&gt; { ... };
+    ($s:expr,           ..= $u:expr) =&gt; { ... };
+    ($s:expr,           ..  $u:expr) =&gt; { ... };
+    ($s:expr, $l:block  ..= $u:block) =&gt; { ... };
+    ($s:expr, $l:block  ..  $u:block) =&gt; { ... };
+    ($s:expr, $l:block  ..          ) =&gt; { ... };
+    ($s:expr,           ..= $u:block) =&gt; { ... };
+    ($s:expr,           ..  $u:block) =&gt; { ... };
+    ($s:expr, $l:literal  ..= $u:literal) =&gt; { ... };
+    ($s:expr, $l:literal  ..  $u:literal) =&gt; { ... };
+    ($s:expr, $l:literal  ..            ) =&gt; { ... };
+    ($s:expr,             ..= $u:literal) =&gt; { ... };
+    ($s:expr,             ..  $u:literal) =&gt; { ... };
+    (
+    $($t:tt)*) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Utility namespace'>🛠️</span>
+Invokes <a href="struct.Slice.html" title="struct devela::zall::Slice"><code>Slice</code></a> <a href="struct.Slice.html#range-api-methods-for-subslicing" title="struct devela::zall::Slice">range methods</a> using short notation.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/sys/mem/view"><code>sys/mem/view</code></a></sup></p>
+<hr />
+<h2 id="syntax"><a class="doc-anchor" href="#syntax">§</a>Syntax</h2>
+<p><code>(s = slice, l = lower bound, u = upper bound)</code></p>
+<p><code>/* generic slices */</code></p>
+<p><code>slice![s, l, ..= u]                 // </code><a href="struct.Slice.html#method.range_inclusive" title="associated function devela::zall::Slice::range_inclusive"><code>Slice::range_inclusive</code></a><code>(s, l, u)</code>
+<code>slice![s, l, .. u]                  // </code><a href="struct.Slice.html#method.range" title="associated function devela::zall::Slice::range"><code>Slice::range</code></a><code>(s, l, u)</code>
+<code>slice![s, l, ..]                    // </code><a href="struct.Slice.html#method.range_from" title="associated function devela::zall::Slice::range_from"><code>Slice::range_from</code></a><code>(s, l, u)</code>
+<code>slice![s, ..= u]                    // </code><a href="struct.Slice.html#method.range_to_inclusive" title="associated function devela::zall::Slice::range_to_inclusive"><code>Slice::range_to_inclusive</code></a><code>(s, l, u)</code>
+<code>slice![s, .. u]                     // </code><a href="struct.Slice.html#method.range_to" title="associated function devela::zall::Slice::range_to"><code>Slice::range_to</code></a><code>(s, l, u)</code></p>
+<p><code>slice![checked s, l, ..= u]         // </code><a href="struct.Slice.html#method.range_inclusive_checked" title="associated function devela::zall::Slice::range_inclusive_checked"><code>Slice::range_inclusive_checked</code></a><code>(s, l, u)</code>
+<code>slice![checked s, l, .. u]          // </code><a href="struct.Slice.html#method.range_checked" title="associated function devela::zall::Slice::range_checked"><code>Slice::range_checked</code></a><code>(s, l, u)</code>
+<code>slice![checked s, l, ..]            // </code><a href="struct.Slice.html#method.range_from_checked" title="associated function devela::zall::Slice::range_from_checked"><code>Slice::range_from_checked</code></a><code>(s, l, u)</code>
+<code>slice![checked s, ..= u]            // </code><a href="struct.Slice.html#method.range_to_inclusive_checked" title="associated function devela::zall::Slice::range_to_inclusive_checked"><code>Slice::range_to_inclusive_checked</code></a><code>(s, l, u)</code>
+<code>slice![checked s, .. u]             // </code><a href="struct.Slice.html#method.range_to_checked" title="associated function devela::zall::Slice::range_to_checked"><code>Slice::range_to_checked</code></a><code>(s, l, u)</code></p>
+<p><code>slice![unchecked s, l, ..= u]       // </code><a href="struct.Slice.html#method.range_inclusive_unchecked" title="associated function devela::zall::Slice::range_inclusive_unchecked"><code>Slice::range_inclusive_unchecked</code></a><code>(s, l, u)</code>
+<code>slice![unchecked s, l, .. u]        // </code><a href="struct.Slice.html#method.range_unchecked" title="associated function devela::zall::Slice::range_unchecked"><code>Slice::range_unchecked</code></a><code>(s, l, u)</code>
+<code>slice![unchecked s, l, ..]          // </code><a href="struct.Slice.html#method.range_from_unchecked" title="associated function devela::zall::Slice::range_from_unchecked"><code>Slice::range_from_unchecked</code></a><code>(s, l, u)</code>
+<code>slice![unchecked s, ..= u]          // </code><a href="struct.Slice.html#method.range_to_inclusive_unchecked" title="associated function devela::zall::Slice::range_to_inclusive_unchecked"><code>Slice::range_to_inclusive_unchecked</code></a><code>(s, l, u)</code>
+<code>slice![unchecked s, .. u]           // </code><a href="struct.Slice.html#method.range_to_unchecked" title="associated function devela::zall::Slice::range_to_unchecked"><code>Slice::range_to_unchecked</code></a><code>(s, l, u)</code></p>
+<p><code>slice![mut s, l, ..= u]             // </code><a href="struct.Slice.html#method.range_inclusive_mut" title="associated function devela::zall::Slice::range_inclusive_mut"><code>Slice::range_inclusive_mut</code></a><code>(s, l, u)</code>
+<code>slice![mut s, l, .. u]              // </code><a href="struct.Slice.html#method.range_mut" title="associated function devela::zall::Slice::range_mut"><code>Slice::range_mut</code></a><code>(s, l, u)</code>
+<code>slice![mut s, l, ..]                // </code><a href="struct.Slice.html#method.range_from_mut" title="associated function devela::zall::Slice::range_from_mut"><code>Slice::range_from_mut</code></a><code>(s, l, u)</code>
+<code>slice![mut s, ..= u]                // </code><a href="struct.Slice.html#method.range_to_inclusive_mut" title="associated function devela::zall::Slice::range_to_inclusive_mut"><code>Slice::range_to_inclusive_mut</code></a><code>(s, l, u)</code>
+<code>slice![mut s, .. u]                 // </code><a href="struct.Slice.html#method.range_to_mut" title="associated function devela::zall::Slice::range_to_mut"><code>Slice::range_to_mut</code></a><code>(s, l, u)</code></p>
+<p><code>slice![mut_checked s, l, ..= u]     // </code><a href="struct.Slice.html#method.range_inclusive_mut_checked" title="associated function devela::zall::Slice::range_inclusive_mut_checked"><code>Slice::range_inclusive_mut_checked</code></a><code>(s, l, u)</code>
+<code>slice![mut_checked s, l, .. u]      // </code><a href="struct.Slice.html#method.range_mut_checked" title="associated function devela::zall::Slice::range_mut_checked"><code>Slice::range_mut_checked</code></a><code>(s, l, u)</code>
+<code>slice![mut_checked s, l, ..]        // </code><a href="struct.Slice.html#method.range_from_mut_checked" title="associated function devela::zall::Slice::range_from_mut_checked"><code>Slice::range_from_mut_checked</code></a><code>(s, l, u)</code>
+<code>slice![mut_checked s, ..= u]        // </code><a href="struct.Slice.html#method.range_to_inclusive_mut_checked" title="associated function devela::zall::Slice::range_to_inclusive_mut_checked"><code>Slice::range_to_inclusive_mut_checked</code></a><code>(s, l, u)</code>
+<code>slice![mut_checked s, .. u]         // </code><a href="struct.Slice.html#method.range_to_mut_checked" title="associated function devela::zall::Slice::range_to_mut_checked"><code>Slice::range_to_mut_checked</code></a><code>(s, l, u)</code></p>
+<p><code>slice![mut_unchecked s, l, ..= u]   // </code><a href="struct.Slice.html#method.range_inclusive_mut_unchecked" title="associated function devela::zall::Slice::range_inclusive_mut_unchecked"><code>Slice::range_inclusive_mut_unchecked</code></a><code>(s, l, u)</code>
+<code>slice![mut_unchecked s, l, .. u]    // </code><a href="struct.Slice.html#method.range_mut_unchecked" title="associated function devela::zall::Slice::range_mut_unchecked"><code>Slice::range_mut_unchecked</code></a><code>(s, l, u)</code>
+<code>slice![mut_unchecked s, l, ..]      // </code><a href="struct.Slice.html#method.range_from_mut_unchecked" title="associated function devela::zall::Slice::range_from_mut_unchecked"><code>Slice::range_from_mut_unchecked</code></a><code>(s, l, u)</code>
+<code>slice![mut_unchecked s, ..= u]      // </code><a href="struct.Slice.html#method.range_to_inclusive_mut_unchecked" title="associated function devela::zall::Slice::range_to_inclusive_mut_unchecked"><code>Slice::range_to_inclusive_mut_unchecked</code></a><code>(s, l, u)</code>
+<code>slice![mut_unchecked s, .. u]       // </code><a href="struct.Slice.html#method.range_to_mut_unchecked" title="associated function devela::zall::Slice::range_to_mut_unchecked"><code>Slice::range_to_mut_unchecked</code></a><code>(s, l, u)</code></p>
+<p><code>/* string slices */</code></p>
+<p><code>slice![str s, l, ..= u]             // </code><a href="struct.Str.html#method.range_inclusive" title="associated function devela::zall::Str::range_inclusive"><code>Str::range_inclusive</code></a><code>(s, l, u)</code>
+<code>slice![str s, l, .. u]              // </code><a href="struct.Str.html#method.range" title="associated function devela::zall::Str::range"><code>Str::range</code></a><code>(s, l, u)</code>
+<code>slice![str s, l, ..]                // </code><a href="struct.Str.html#method.range_from" title="associated function devela::zall::Str::range_from"><code>Str::range_from</code></a><code>(s, l, u)</code>
+<code>slice![str s, ..= u]                // </code><a href="struct.Str.html#method.range_to_inclusive" title="associated function devela::zall::Str::range_to_inclusive"><code>Str::range_to_inclusive</code></a><code>(s, l, u)</code>
+<code>slice![str s, .. u]                 // </code><a href="struct.Str.html#method.range_to" title="associated function devela::zall::Str::range_to"><code>Str::range_to</code></a><code>(s, l, u)</code></p>
+<p><code>slice![str_checked s, l, ..= u]     // </code><a href="struct.Str.html#method.range_inclusive_checked" title="associated function devela::zall::Str::range_inclusive_checked"><code>Str::range_inclusive_checked</code></a><code>(s, l, u)</code>
+<code>slice![str_checked s, l, .. u]      // </code><a href="struct.Str.html#method.range_checked" title="associated function devela::zall::Str::range_checked"><code>Str::range_checked</code></a><code>(s, l, u)</code>
+<code>slice![str_checked s, l, ..]        // </code><a href="struct.Str.html#method.range_from_checked" title="associated function devela::zall::Str::range_from_checked"><code>Str::range_from_checked</code></a><code>(s, l, u)</code>
+<code>slice![str_checked s, ..= u]        // </code><a href="struct.Str.html#method.range_to_inclusive_checked" title="associated function devela::zall::Str::range_to_inclusive_checked"><code>Str::range_to_inclusive_checked</code></a><code>(s, l, u)</code>
+<code>slice![str_checked s, .. u]         // </code><a href="struct.Str.html#method.range_to_checked" title="associated function devela::zall::Str::range_to_checked"><code>Str::range_to_checked</code></a><code>(s, l, u)</code></p>
+<p><code>slice![str_mut s, l, ..= u]         // </code><a href="struct.Str.html#method.range_inclusive_mut" title="associated function devela::zall::Str::range_inclusive_mut"><code>Str::range_inclusive_mut</code></a><code>(s, l, u)</code>
+<code>slice![str_mut s, l, .. u]          // </code><a href="struct.Str.html#method.range_mut" title="associated function devela::zall::Str::range_mut"><code>Str::range_mut</code></a><code>(s, l, u)</code>
+<code>slice![str_mut s, l, ..]            // </code><a href="struct.Str.html#method.range_from_mut" title="associated function devela::zall::Str::range_from_mut"><code>Str::range_from_mut</code></a><code>(s, l, u)</code>
+<code>slice![str_mut s, ..= u]            // </code><a href="struct.Str.html#method.range_to_inclusive_mut" title="associated function devela::zall::Str::range_to_inclusive_mut"><code>Str::range_to_inclusive_mut</code></a><code>(s, l, u)</code>
+<code>slice![str_mut s, .. u]             // </code><a href="struct.Str.html#method.range_to_mut" title="associated function devela::zall::Str::range_to_mut"><code>Str::range_to_mut</code></a><code>(s, l, u)</code></p>
+<p><code>slice![str_mut_checked s, l, ..= u] // </code><a href="struct.Str.html#method.range_inclusive_mut_checked" title="associated function devela::zall::Str::range_inclusive_mut_checked"><code>Str::range_inclusive_mut_checked</code></a><code>(s, l, u)</code>
+<code>slice![str_mut_checked s, l, .. u]  // </code><a href="struct.Str.html#method.range_mut_checked" title="associated function devela::zall::Str::range_mut_checked"><code>Str::range_mut_checked</code></a><code>(s, l, u)</code>
+<code>slice![str_mut_checked s, l, ..]    // </code><a href="struct.Str.html#method.range_from_mut_checked" title="associated function devela::zall::Str::range_from_mut_checked"><code>Str::range_from_mut_checked</code></a><code>(s, l, u)</code>
+<code>slice![str_mut_checked s, ..= u]    // </code><a href="struct.Str.html#method.range_to_inclusive_mut_checked" title="associated function devela::zall::Str::range_to_inclusive_mut_checked"><code>Str::range_to_inclusive_mut_checked</code></a><code>(s, l, u)</code>
+<code>slice![str_mut_checked s, .. u]     // </code><a href="struct.Str.html#method.range_to_mut_checked" title="associated function devela::zall::Str::range_to_mut_checked"><code>Str::range_to_mut_checked</code></a><code>(s, l, u)</code></p>
+<h2 id="notes"><a class="doc-anchor" href="#notes">§</a>Notes</h2>
+<ul>
+<li>Commas are always required to separate expressions: <code>slice![s, a(), ..= b()]</code></li>
+<li>Commas are optional for ranges of literals/blocks: <code>slice![s, 1..=3]</code> ≡ <code>slice![s, 1, ..=3]</code></li>
+</ul>
+</div></details></section></div></main></body></html>

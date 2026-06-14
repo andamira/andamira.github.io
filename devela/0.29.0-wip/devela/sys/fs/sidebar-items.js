@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["path"],"struct":["DirBuilder","DirEntry","File","FileMetadata","FileOpenOptions","FilePermissions","FileTimes","FileType","Fs","IterDirRead"]};

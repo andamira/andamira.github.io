@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["GameAction","GameCycle","GameLegacy","GameOutcome","GamePhase","GameRole","GameSession","GameTurn"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["LinuxSignal"],"macro":[["linux_entry",1]],"struct":["LinuxSigaction","LinuxSigactionFlags","LinuxSiginfo","LinuxSignalSet","LinuxSigset"]};

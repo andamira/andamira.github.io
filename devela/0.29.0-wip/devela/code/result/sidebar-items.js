@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Infallible","Option","Result"],"fn":["serr","sok"],"macro":[["hook",1],["morph",1],["unwrap",1]],"struct":["Mismatch","OptionFmt","OptionFmtOr","OptionFmtOrElse","Own"],"trait":["Hook","Morph","OptResExt","OptionExt","ResultExt"],"type":["InfallibleResult","OptRes"]};

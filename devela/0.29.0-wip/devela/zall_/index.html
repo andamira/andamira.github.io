@@ -1,0 +1,141 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="All crate items re-exported, grouped by their root modules."><title>devela::zall_ - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module zall_</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module zall_</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate devela</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a></div><h1>Module <span>zall_</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/index.rs.html#200">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>All crate items re-exported, grouped by their root modules.</p>
+<p><br/>Each root module appears here and provides its own flat view of all its
+public children. Together, they offer a structured alternative to the
+fully flat <code>zall</code> namespace.</p>
+<p>It is also mirrored at the crate root through a hidden <code>all_</code> module.</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="_code/index.html" title="mod devela::zall_::_code">_code</a></dt><dd>Reflective code synthesis.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../code/index.html" title="mod devela::code">code</a>::{<a href="../code/error/index.html" title="mod devela::code::error">error</a>, <a href="../code/marker/index.html" title="mod devela::code::marker">marker</a>, <a href="../code/ops/index.html" title="mod devela::code::ops">ops</a>, <a href="../code/panic/index.html" title="mod devela::code::panic">panic</a>, <a href="../code/result/index.html" title="mod devela::code::result">result</a>, <a href="../code/util/index.html" title="mod devela::code::util">util</a>}</span> <a title='See the hierarchical view of the `code` module' href='https://docs.rs/devela/latest/devela/code'>▽</a></dd><dt><a class="mod" href="_data/index.html" title="mod devela::zall_::_data">_data</a></dt><dd>Data handling and manipulation.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../data/index.html" title="mod devela::data">data</a>::{<a href="../data/access/index.html" title="mod devela::data::access">access</a>, <a href="../data/codec/index.html" title="mod devela::data::codec">codec</a>, <a href="../data/error/index.html" title="mod devela::data::error">error</a>, <a href="../data/id/index.html" title="mod devela::data::id">id</a>, <a href="../data/layout/index.html" title="mod devela::data::layout">layout</a>, <a href="../data/store/index.html" title="mod devela::data::store">store</a>, <a href="../data/topol/index.html" title="mod devela::data::topol">topol</a>, <a href="../data/value/index.html" title="mod devela::data::value">value</a>}</span> <a title='See the hierarchical view of the `data` module' href='https://docs.rs/devela/latest/devela/data'>▽</a></dd><dt><a class="mod" href="_geom/index.html" title="mod devela::zall_::_geom">_geom</a></dt><dd>Geometric types, operations, and spatial constructs.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../geom/index.html" title="mod devela::geom">geom</a>::{<a href="../geom/affine/index.html" title="mod devela::geom::affine">affine</a>, <a href="../geom/dir/index.html" title="mod devela::geom::dir">dir</a>, <a href="../geom/fig/index.html" title="mod devela::geom::fig">fig</a>, <a href="../geom/metric/index.html" title="mod devela::geom::metric">metric</a>}</span> <a title='See the hierarchical view of the `geom` module' href='https://docs.rs/devela/latest/devela/geom'>▽</a></dd><dt><a class="mod" href="_lang/index.html" title="mod devela::zall_::_lang">_lang</a></dt><dd>Language structure and meaning across domains.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../lang/index.html" title="mod devela::lang">lang</a>::{<a href="../lang/prog/index.html" title="mod devela::lang::prog">prog</a>}</span> <a title='See the hierarchical view of the `lang` module' href='https://docs.rs/devela/latest/devela/lang'>▽</a></dd><dt><a class="mod" href="_media/index.html" title="mod devela::zall_::_media">_media</a></dt><dd>Media representation, processing, and synthesis.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../media/index.html" title="mod devela::media">media</a>::{<a href="../media/audio/index.html" title="mod devela::media::audio">audio</a>, <a href="../media/font/index.html" title="mod devela::media::font">font</a>, <a href="../media/visual/index.html" title="mod devela::media::visual">visual</a>}</span> <a title='See the hierarchical view of the `media` module' href='https://docs.rs/devela/latest/devela/media'>▽</a></dd><dt><a class="mod" href="_num/index.html" title="mod devela::zall_::_num">_num</a></dt><dd>Numerical types, structures, and operations.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../num/index.html" title="mod devela::num">num</a>::{<a href="../num/dom/index.html" title="mod devela::num::dom">dom</a>, <a href="../num/error/index.html" title="mod devela::num::error">error</a>, <a href="../num/fin/index.html" title="mod devela::num::fin">fin</a>, <a href="../num/grain/index.html" title="mod devela::num::grain">grain</a>, <a href="../num/lin/index.html" title="mod devela::num::lin">lin</a>, <a href="../num/prob/index.html" title="mod devela::num::prob">prob</a>, <a href="../num/quant/index.html" title="mod devela::num::quant">quant</a>}</span> <a title='See the hierarchical view of the `num` module' href='https://docs.rs/devela/latest/devela/num'>▽</a></dd><dt><a class="mod" href="_phys/index.html" title="mod devela::zall_::_phys">_phys</a></dt><dd>Physical quantities, units, and models of the natural world.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../phys/index.html" title="mod devela::phys">phys</a>::{<a href="../phys/time/index.html" title="mod devela::phys::time">time</a>, <a href="../phys/unit/index.html" title="mod devela::phys::unit">unit</a>, <a href="../phys/wave/index.html" title="mod devela::phys::wave">wave</a>}</span> <a title='See the hierarchical view of the `phys` module' href='https://docs.rs/devela/latest/devela/phys'>▽</a></dd><dt><a class="mod" href="_run/index.html" title="mod devela::zall_::_run">_run</a></dt><dd>Temporal coordination and staging of a running system.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../run/index.html" title="mod devela::run">run</a>::{<a href="../run/cycle/index.html" title="mod devela::run::cycle">cycle</a>, <a href="../run/regime/index.html" title="mod devela::run::regime">regime</a>, <a href="../run/time/index.html" title="mod devela::run::time">time</a>}</span> <a title='See the hierarchical view of the `run` module' href='https://docs.rs/devela/latest/devela/run'>▽</a></dd><dt><a class="mod" href="_sys/index.html" title="mod devela::zall_::_sys">_sys</a></dt><dd>System interfaces and hardware abstractions.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../sys/index.html" title="mod devela::sys">sys</a>::{<a href="../sys/arch/index.html" title="mod devela::sys::arch">arch</a>, <a href="../sys/device/index.html" title="mod devela::sys::device">device</a>, <a href="../sys/env/index.html" title="mod devela::sys::env">env</a>, <a href="../sys/fs/index.html" title="mod devela::sys::fs">fs</a>, <a href="../sys/io/index.html" title="mod devela::sys::io">io</a>, <a href="../sys/log/index.html" title="mod devela::sys::log">log</a>, <a href="../sys/mem/index.html" title="mod devela::sys::mem">mem</a>, <a href="../sys/net/index.html" title="mod devela::sys::net">net</a>, <a href="../sys/os/index.html" title="mod devela::sys::os">os</a>}</span> <a title='See the hierarchical view of the `sys` module' href='https://docs.rs/devela/latest/devela/sys'>▽</a></dd><dt><a class="mod" href="_text/index.html" title="mod devela::zall_::_text">_text</a></dt><dd>Symbolic sequences, encodings, and text processing.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../text/index.html" title="mod devela::text">text</a>::{<a href="../text/ascii/index.html" title="mod devela::text::ascii">ascii</a>, <a href="../text/error/index.html" title="mod devela::text::error">error</a>, <a href="../text/fmt/index.html" title="mod devela::text::fmt">fmt</a>, <a href="../text/layout/index.html" title="mod devela::text::layout">layout</a>, <a href="../text/parse/index.html" title="mod devela::text::parse">parse</a>, <a href="../text/str/index.html" title="mod devela::text::str">str</a>, <a href="../text/unicode/index.html" title="mod devela::text::unicode">unicode</a>}</span> <a title='See the hierarchical view of the `text` module' href='https://docs.rs/devela/latest/devela/text'>▽</a></dd><dt><a class="mod" href="_ui/index.html" title="mod devela::zall_::_ui">_ui</a></dt><dd>Interactive surfaces, input semantics, and presentation state.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../ui/index.html" title="mod devela::ui">ui</a>::{<a href="../ui/event/index.html" title="mod devela::ui::event">event</a>}</span> <a title='See the hierarchical view of the `ui` module' href='https://docs.rs/devela/latest/devela/ui'>▽</a></dd><dt><a class="mod" href="_vita/index.html" title="mod devela::zall_::_vita">_vita</a></dt><dd>Lived practices of embodied beings.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../vita/index.html" title="mod devela::vita">vita</a>::{<a href="../vita/play/index.html" title="mod devela::vita::play">play</a>}</span> <a title='See the hierarchical view of the `vita` module' href='https://docs.rs/devela/latest/devela/vita'>▽</a></dd><dt><a class="mod" href="_work/index.html" title="mod devela::zall_::_work">_work</a></dt><dd>Computational work, its coordination, and its execution.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../work/index.html" title="mod devela::work">work</a>::{<a href="../work/exec/index.html" title="mod devela::work::exec">exec</a>, <a href="../work/future/index.html" title="mod devela::work::future">future</a>, <a href="../work/sync/index.html" title="mod devela::work::sync">sync</a>, <a href="../work/task/index.html" title="mod devela::work::task">task</a>}</span> <a title='See the hierarchical view of the `work` module' href='https://docs.rs/devela/latest/devela/work'>▽</a></dd></dl></section></div></main></body></html>

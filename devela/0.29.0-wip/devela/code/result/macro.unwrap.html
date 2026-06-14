@@ -1,0 +1,376 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="⚖️ An unwrapper macro that works in compile-time."><title>unwrap in devela::code::result - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">unwrap</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">unwrap</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#naming-convention" title="Naming Convention">Naming Convention</a><ul><li><a href="#prefixes" title="Prefixes">Prefixes</a></li><li><a href="#suffixes" title="Suffixes">Suffixes</a></li></ul></li><li><a href="#special-cases" title="Special Cases">Special Cases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>code::<wbr>result</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">code</a>::<wbr><a href="index.html">result</a></div><h1>Macro <span class="macro">unwrap</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/code/result/opt_res/unwrap.rs.html#41-555">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! unwrap {
+    (
+
+      // Option&lt;T&gt;
+      // ---------
+
+      // Unwraps `Some` value, or otherwise returns `None`.
+      some? $T:expr ) =&gt; { ... };
+    (
+      // Unwraps `Some` value, or panics if it&#39;s `None`.
+      some $T:expr) =&gt; { ... };
+    (
+      // Unwraps `Some` value, or panics with a message if it&#39;s `None`.
+      some_expect $T:expr, $message:expr) =&gt; { ... };
+    (
+      // Maps `Some` value or otherwise returns `None`.
+      some_map? $T:expr, |$v:ident| $some_map:expr) =&gt; { ... };
+    (
+      // Maps and unwraps `Some` value or otherwise returns `None`.
+      some_map_into? $T:expr, |$v:ident| $some_map:expr) =&gt; { ... };
+    (
+      // Maps `Some` value or panics if it&#39;s `None`.
+      some_map $T:expr, |$v:ident| $some_map:expr) =&gt; { ... };
+    (
+      // Maps `Some` value or panics with a message if it&#39;s `None`.
+      some_map_expect $T:expr, |$v:ident| $some_map:expr, $message:expr) =&gt; { ... };
+    (
+      // Maps and unwraps `Some` value or panics if it&#39;s `None`.
+      some_map_into $T:expr, |$v:ident| $some_map:expr) =&gt; { ... };
+    (
+      // Maps and unwraps `Some` value or panics with a message if it&#39;s `None`.
+      some_map_into_expect $T:expr, |$v:ident| $some_map:expr, $message:expr) =&gt; { ... };
+    (
+      // Unwraps `Some` value if `$cond` holds, otherwise returns `None`.
+      some_if? $T:expr, |$v:ident| $cond:expr) =&gt; { ... };
+    (
+      // Unwraps `Some` value if `$cond` holds, otherwise panics.
+      some_if $T:expr, |$v:ident| $cond:expr) =&gt; { ... };
+    (
+      // Unwraps `Some` value, otherwise evaluates `$fallback`.
+      some_or $T:expr, $fallback:expr) =&gt; { ... };
+    (
+      // Unwraps `Some`, treating `None` as an impossible invariant violation.
+      //
+      // Debug/safe paths panic. Optimized unsafe paths may use unchecked unreachable,
+      // so an invalid proof can become UB.
+      some_guaranteed_or_ub $T:expr $(,)?
+    ) =&gt; { ... };
+    (
+      // Transforms `Some(v)` to `Ok(v)`, and `None` to `Err($err)`.
+      some_ok_or $T:expr, $err:expr) =&gt; { ... };
+    (
+      // Unwraps `Some` value, or otherwise returns Err($err).
+      some_ok_or? $T:expr, $err:expr) =&gt; { ... };
+    (
+      // Transforms and maps `Some` value to `Ok`, and `None` to `Err($err)`.
+      some_ok_map_or $T:expr, |$v:ident| $ok_map:expr, $err:expr) =&gt; { ... };
+    (
+      // Transforms and maps `Some` value to `Ok`, or otherwise returns `Err($err)`.
+      some_ok_map_or? $T:expr, |$v:ident| $ok_map:expr, $err:expr) =&gt; { ... };
+    (
+
+      // Result&lt;T, E&gt;
+      // ------------
+
+      // Unwraps the `Ok` value, or otherwise returns the `Err` value.
+      ok? $T:expr ) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value, or panics if it&#39;s `Err`.
+      ok $T:expr ) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value, or panics with a message if it&#39;s `Err`.
+      ok_expect $T:expr, $message:expr) =&gt; { ... };
+    (
+      // Maps the `Ok` value or otherwise returns the `Err` value.
+      ok_map? $T:expr, |$v:ident| $ok_map:expr) =&gt; { ... };
+    (
+      // Maps the `Ok` value or panics if it&#39;s `Err`.
+      ok_map $T:expr, |$v:ident| $ok_map:expr) =&gt; { ... };
+    (
+      // Maps the `Ok` value or panics with a message if it&#39;s `Err`.
+      ok_map_expect $T:expr, |$v:ident| $ok_map:expr, $message:expr) =&gt; { ... };
+    (
+      // Maps and unwraps the `Ok` value or otherwise returns the `Err` value.
+      ok_map_into? $T:expr, |$v:ident| $ok_map:expr) =&gt; { ... };
+    (
+      // Maps and unwraps the `Ok` value or panics if it&#39;s `Err`.
+      ok_map_into $T:expr, |$v:ident| $ok_map:expr) =&gt; { ... };
+    (
+      // Maps and unwraps the `Ok` value or panics with a message if it&#39;s `Err`.
+      ok_map_into_expect $T:expr, |$v:ident| $ok_map:expr, $message:expr) =&gt; { ... };
+    (
+      // Maps the `Ok` value or otherwise returns the mapped `Err`.
+      ok_map_err_map? $T:expr, |$v:ident| $ok_map:expr, |$e:ident| $err_map:expr) =&gt; { ... };
+    (
+      // Maps and unwraps the `Ok` value or otherwise returns the mapped `Err`.
+      ok_map_err_map_into? $T:expr, |$v:ident| $ok_map:expr, |$e:ident| $err_map:expr) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value or otherwise returns the mapped `Err`.
+      ok_err_map? $T:expr, |$e:ident| $err_map:expr) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value; otherwise evaluates `$fallback`.
+      ok_or $T:expr, $fallback:expr) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value; otherwise returns `Err($err)`.
+      ok_or? $T:expr, $err:expr) =&gt; { ... };
+    (
+      // Unwraps `Ok`, treating `Err` as an impossible invariant violation.
+      //
+      // Debug/safe paths panic. Optimized unsafe paths may use unchecked unreachable,
+      // so an invalid proof can become UB.
+      ok_guaranteed_or_ub $T:expr $(,)?
+    ) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value if `$cond` holds;
+      // otherwise returns `$ok_err` (type Err) or propagates the original `Err`.
+      ok_if? $T:expr, |$v:ident| $cond:expr, $ok_err:expr) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value if `$cond` holds; otherwise panics.
+      ok_if $T:expr, |$v:ident| $cond:expr) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value if `$cond` holds;
+      // otherwise evaluates `$fallback`.
+      ok_if_or $T:expr, |$v:ident| $cond:expr, $fallback:expr) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value if `$cond` holds; otherwise returns `Err($ok_err)`.
+      ok_if_or_err? $T:expr, |$v:ident| $cond:expr, $ok_err:expr) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value if `$cond` holds;
+      // otherwise returns `Err($ok_err)`, or maps an existing `Err` with `$err_map`.
+      ok_if_err_map? $T:expr, |$v:ident| $cond:expr, $ok_err:expr, |$e:ident| $err_map:expr) =&gt; { ... };
+    (
+      // Transforms the `Ok` value to `Some`, and `Err` to `None`.
+      ok_some $T:expr) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value, otherwise returns `None`.
+      ok_some? $T:expr) =&gt; { ... };
+    (
+      // Transforms and maps the `Ok` value to `Some`, and `Err` to `None`.
+      ok_some_map $T:expr, |$v:ident| $some_map:expr) =&gt; { ... };
+    (
+      // Unwraps the `Ok` value, or the `Err` value.
+      // Only use when `Ok` and `Err` contain the same type.
+      ok_err $T:expr) =&gt; { ... };
+    (
+      // Unwraps the `Err` value, or returns the `Ok` value.
+      err? $T:expr ) =&gt; { ... };
+    (
+      // Unwraps the `Err` value, or panics if it&#39;s `Ok`.
+      err $T:expr ) =&gt; { ... };
+    (
+      // Unwraps the `Err` value, or panics with a message if it&#39;s `Ok`.
+      err_expect $T:expr, $message:expr) =&gt; { ... };
+    (
+      // Maps the `Err` value or otherwise returns the `Ok` value.
+      err_map? $T:expr, |$e:ident| $err_map:expr) =&gt; { ... };
+    (
+      // Maps the `Err` value or panics if it&#39;s `Ok`.
+      err_map $T:expr, |$e:ident| $err_map:expr) =&gt; { ... };
+    (
+      // Maps the `Err` value or panics with a message if it&#39;s `Ok`.
+      err_map_expect $T:expr, |$e:ident| $err_map:expr, $message:expr) =&gt; { ... };
+    (
+      // Unwraps the `Err` value; otherwise evaluates `$fallback`.
+      err_or $T:expr, $fallback:expr) =&gt; { ... };
+    (
+      // Transforms `Err(e)` to `Some(e)`, and `Ok(_)` to `None`.
+      err_some $T:expr) =&gt; { ... };
+    (
+      // Unwraps the `Err` value, otherwise returns `None`.
+      err_some? $T:expr) =&gt; { ... };
+    (
+
+      // OptRes&lt;T, E&gt;
+      // ------------
+
+      // Unwraps `Some(Ok)` value; otherwise returns either `Some(Err)` value or `None`.
+      sok? $T:expr ) =&gt; { ... };
+    (
+      // Unwraps `Some(Ok)` value, or panics if it&#39;s `Some(Err)` or `None`.
+      sok $T:expr ) =&gt; { ... };
+    (
+      // Unwraps `Some(Ok)` value, or panics with a message if it&#39;s `Some(Err)` or `None`.
+      sok_expect $T:expr, $message:expr) =&gt; { ... };
+    (
+      // Unwraps `Some(Ok)` value; otherwise evaluates `$fallback`.
+      sok_or $T:expr, $fallback:expr) =&gt; { ... };
+    (
+      // Unwraps `Some(Ok)` value; otherwise returns `Err($err)`.
+      sok_or? $T:expr, $err:expr) =&gt; { ... };
+    (
+      // Unwraps `Some(Ok)`, treating `Some(Err)` and `None` as an impossible invariant violation.
+      //
+      // Debug/safe paths panic. Optimized unsafe paths may use unchecked unreachable,
+      // so an invalid proof can become UB.
+      sok_guaranteed_or_ub $T:expr $(,)?
+    ) =&gt; { ... };
+    (
+      // Unwraps `Some(Err)` value, or panics if it&#39;s `Some(Ok)` or `None`.
+      serr $T:expr ) =&gt; { ... };
+    (
+      // Unwraps `Some(Err)` value, or panics with a message if it&#39;s `Some(Ok)` or `None`.
+      serr_expect $T:expr, $message:expr) =&gt; { ... };
+    (
+      // Unwraps `Some(Err)` value; otherwise evaluates `$fallback`.
+      serr_or $T:expr, $fallback:expr) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Outcome'>⚖️</span>
+An unwrapper macro that works in compile-time.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/code/result"><code>code/result</code></a></sup></p>
+<hr />
+<p>It supports unwrapping <a href="../../zall/enum.Option.html" title="enum devela::zall::Option"><code>Option</code></a>, <a href="../../zall/enum.Result.html" title="enum devela::zall::Result"><code>Result</code></a> and <a href="../../zall/type.OptRes.html" title="type devela::zall::OptRes"><code>OptRes</code></a>.</p>
+<h4 id="naming-convention"><a class="doc-anchor" href="#naming-convention">§</a>Naming Convention</h4><h5 id="prefixes"><a class="doc-anchor" href="#prefixes">§</a>Prefixes</h5>
+<ul>
+<li><strong><code>some_</code></strong> - <code>Option&lt;T&gt;</code></li>
+<li><strong><code>ok_</code></strong> - <code>Result&lt;T, E&gt;</code> (success case)</li>
+<li><strong><code>err_</code></strong> - <code>Result&lt;T, E&gt;</code> (error case)</li>
+<li><strong><code>sok_</code></strong> - <code>Option&lt;Result&lt;T, E&gt;&gt;</code> (<code>Some(Ok)</code>)</li>
+<li><strong><code>serr_</code></strong> - <code>Option&lt;Result&lt;T, E&gt;&gt;</code> (<code>Some(Err)</code>)</li>
+</ul>
+<h5 id="suffixes"><a class="doc-anchor" href="#suffixes">§</a>Suffixes</h5><div><table><thead><tr><th>Suffix</th><th>Behavior</th><th>Safety</th></tr></thead><tbody>
+<tr><td><code>?</code></td><td>Early return</td><td>Safe</td></tr>
+<tr><td>(none)</td><td>Panic</td><td>Safe</td></tr>
+<tr><td><code>_expect</code></td><td>Panic with message</td><td>Safe</td></tr>
+<tr><td><code>_or</code></td><td>Evaluate fallback expression</td><td>Safe</td></tr>
+<tr><td><code>_map</code></td><td>Maps the value of the previous variant</td><td>Safe</td></tr>
+<tr><td><code>_into</code></td><td>Unwraps the value explicitly</td><td>Safe</td></tr>
+<tr><td><code>_if</code></td><td>Unwrap depends on the given condition</td><td>Safe</td></tr>
+<tr><td><code>_guaranteed_or_ub</code></td><td>UB if failed (debug checks)</td><td><strong>Unsafe</strong> *</td></tr>
+</tbody></table>
+</div>
+<ul>
+<li>Requires <code>// SAFETY:</code> justification for impossible-failure invariants</li>
+</ul>
+<h4 id="special-cases"><a class="doc-anchor" href="#special-cases">§</a>Special Cases</h4>
+<ul>
+<li><code>ok_err</code>: Only when <code>Ok(v)</code> and <code>Err(v)</code> are identical types.</li>
+<li><code>some_ok_or</code>: Converts to <code>Result</code> with provided error.</li>
+<li><code>[ok|err]_some</code>: Converts to <code>Option</code>.</li>
+</ul>
+</div></details></section></div></main></body></html>

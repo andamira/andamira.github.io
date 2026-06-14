@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["WebEventKind","WebKeyLocation","WebPermission","WebPermissionState","WebWorkerError"],"struct":["Web","WebDocument","WebElement","WebEventKey","WebEventMouse","WebEventPointer","WebEventWheel","WebWindow","WebWindowState","WebWorker","WebWorkerJob"]};

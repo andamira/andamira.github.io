@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Computational work, its coordination, and its execution.work::{exec, future, sync, task} ▽"><title>devela::zall_::_work - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module _work</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module _work</a></h2><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>zall_</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">zall_</a></div><h1>Module <span>_work</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/index.rs.html#234">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Computational work, its coordination, and its execution.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../../work/index.html" title="mod devela::work">work</a>::{<a href="../../work/exec/index.html" title="mod devela::work::exec">exec</a>, <a href="../../work/future/index.html" title="mod devela::work::future">future</a>, <a href="../../work/sync/index.html" title="mod devela::work::sync">sync</a>, <a href="../../work/task/index.html" title="mod devela::work::task">task</a>}</span> <a title='See the hierarchical view of the `work` module' href='https://docs.rs/devela/latest/devela/work'>▽</a></p>
+<p>All <code>work</code> module’s items flat re-exported.
+<br/><hr></p>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.async_ready.html" title="macro devela::zall_::_work::async_ready">async_<wbr>ready</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Extracts the successful type of a <a href="../../zall/enum.AsyncPoll.html" title="enum devela::zall::AsyncPoll"><code>AsyncPoll&lt;T&gt;</code></a>.</dd><dt><a class="macro" href="macro.cmd.html" title="macro devela::zall_::_work::cmd">cmd</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Runtime'>⬡</span>
+Builds a <a href="../../zall/struct.CommandFlow.html" title="struct devela::zall::CommandFlow"><code>CommandFlow</code></a> from one or more command invocations.</dd><dt><a class="macro" href="macro.sleep4.html" title="macro devela::zall_::_work::sleep4">sleep4</a><wbr><span class="stab portability" title="Available on crate features `linux` or `std` only"><code>linux</code> or <code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Time'>🕘</span>
+A more compact thread sleep.</dd><dt><a class="macro" href="macro.thread_local.html" title="macro devela::zall_::_work::thread_local">thread_<wbr>local</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Declare a new thread local storage key of type <a href="../../zall/struct.ThreadLocalKey.html" title="struct devela::zall::ThreadLocalKey"><code>ThreadLocalKey</code></a>.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Arc.html" title="struct devela::zall_::_work::Arc">Arc</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='Lifetime'>🍃</span> <span class='stab portability' title='re-exported either from `alloc` or from the `portable-atomic-util` crate'><code>?alloc</code></span>
+A thread-safe reference-counting pointer.</dd><dt><a class="struct" href="struct.ArcWeak.html" title="struct devela::zall_::_work::ArcWeak">ArcWeak</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='Lifetime'>🍃</span> <span class='stab portability' title='re-exported either from `alloc` or from the `portable-atomic-util` crate'><code>?alloc</code></span>
+A version of <a href="../../zall/struct.Arc.html" title="struct devela::zall::Arc"><code>Arc</code></a> that holds a non-owning reference.</dd><dt><a class="struct" href="struct.AsyncContext.html" title="struct devela::zall_::_work::AsyncContext">Async<wbr>Context</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The context of an asynchronous task.</dd><dt><a class="struct" href="struct.AsyncRawWaker.html" title="struct devela::zall_::_work::AsyncRawWaker">Async<wbr>RawWaker</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Allows the implementor of a task executor to create a <a href="../../zall/struct.AsyncWaker.html" title="struct devela::zall::AsyncWaker"><code>AsyncWaker</code></a>.</dd><dt><a class="struct" href="struct.AsyncRawWakerVTable.html" title="struct devela::zall_::_work::AsyncRawWakerVTable">Async<wbr>RawWakerV<wbr>Table</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A virtual fn pointer table that specifies the behavior of a <a href="../../zall/struct.AsyncRawWaker.html" title="struct devela::zall::AsyncRawWaker"><code>AsyncRawWaker</code></a>.</dd><dt><a class="struct" href="struct.AsyncWaker.html" title="struct devela::zall_::_work::AsyncWaker">Async<wbr>Waker</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A handle for waking up a task by notifying its executor that it’s ready to run.</dd><dt><a class="struct" href="struct.Atomic.html" title="struct devela::zall_::_work::Atomic">Atomic</a><wbr><span class="stab portability" title="Available on crate features `dep_atomic` only"><code>dep_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span>
+<span class='stab portability' title='re-exported from the `atomic` crate'><code>atomic</code></span>
+A generic atomic wrapper type.</dd><dt><a class="struct" href="struct.AtomicBool.html" title="struct devela::zall_::_work::AtomicBool">Atomic<wbr>Bool</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A boolean type which can be safely shared between threads.</dd><dt><a class="struct" href="struct.AtomicF32.html" title="struct devela::zall_::_work::AtomicF32">Atomic<wbr>F32</a><wbr><span class="stab portability" title="Available on crate features `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span>
+<span class='stab portability' title='re-exported from the `portable-atomic` crate'><code>portable-atomic</code></span>
+A thread-safe floating-point type.</dd><dt><a class="struct" href="struct.AtomicF64.html" title="struct devela::zall_::_work::AtomicF64">Atomic<wbr>F64</a><wbr><span class="stab portability" title="Available on crate features `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span>
+<span class='stab portability' title='re-exported from the `portable-atomic` crate'><code>portable-atomic</code></span>
+A thread-safe floating-point type.</dd><dt><a class="struct" href="struct.AtomicI8.html" title="struct devela::zall_::_work::AtomicI8">Atomic<wbr>I8</a><wbr><span class="stab portability" title="Available on crate feature `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A thread-safe signed integer type.</dd><dt><a class="struct" href="struct.AtomicI16.html" title="struct devela::zall_::_work::AtomicI16">Atomic<wbr>I16</a><wbr><span class="stab portability" title="Available on crate feature `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A thread-safe signed integer type.</dd><dt><a class="struct" href="struct.AtomicI32.html" title="struct devela::zall_::_work::AtomicI32">Atomic<wbr>I32</a><wbr><span class="stab portability" title="Available on crate feature `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A thread-safe signed integer type.</dd><dt><a class="struct" href="struct.AtomicI64.html" title="struct devela::zall_::_work::AtomicI64">Atomic<wbr>I64</a><wbr><span class="stab portability" title="Available on crate feature `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A thread-safe signed integer type.</dd><dt><a class="struct" href="struct.AtomicI128.html" title="struct devela::zall_::_work::AtomicI128">Atomic<wbr>I128</a><wbr><span class="stab portability" title="Available on crate features `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span>
+<span class='stab portability' title='re-exported from the `portable-atomic` crate'><code>portable-atomic</code></span>
+A thread-safe signed integer type.</dd><dt><a class="struct" href="struct.AtomicIsize.html" title="struct devela::zall_::_work::AtomicIsize">Atomic<wbr>Isize</a><wbr><span class="stab portability" title="Available on crate feature `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A thread-safe signed integer type.</dd><dt><a class="struct" href="struct.AtomicPtr.html" title="struct devela::zall_::_work::AtomicPtr">Atomic<wbr>Ptr</a><wbr><span class="stab portability" title="Available on crate feature `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A raw pointer type which can be safely shared between threads.</dd><dt><a class="struct" href="struct.AtomicU8.html" title="struct devela::zall_::_work::AtomicU8">Atomic<wbr>U8</a><wbr><span class="stab portability" title="Available on crate feature `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A thread-safe signed integer type.</dd><dt><a class="struct" href="struct.AtomicU16.html" title="struct devela::zall_::_work::AtomicU16">Atomic<wbr>U16</a><wbr><span class="stab portability" title="Available on crate feature `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A thread-safe signed integer type.</dd><dt><a class="struct" href="struct.AtomicU32.html" title="struct devela::zall_::_work::AtomicU32">Atomic<wbr>U32</a><wbr><span class="stab portability" title="Available on crate feature `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A thread-safe signed integer type.</dd><dt><a class="struct" href="struct.AtomicU64.html" title="struct devela::zall_::_work::AtomicU64">Atomic<wbr>U64</a><wbr><span class="stab portability" title="Available on crate feature `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A thread-safe signed integer type.</dd><dt><a class="struct" href="struct.AtomicU128.html" title="struct devela::zall_::_work::AtomicU128">Atomic<wbr>U128</a><wbr><span class="stab portability" title="Available on crate features `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span>
+<span class='stab portability' title='re-exported from the `portable-atomic` crate'><code>portable-atomic</code></span>
+A thread-safe unsigned integer type.</dd><dt><a class="struct" href="struct.AtomicUsize.html" title="struct devela::zall_::_work::AtomicUsize">Atomic<wbr>Usize</a><wbr><span class="stab portability" title="Available on crate feature `dep_portable_atomic` only"><code>dep_portable_atomic</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='re-exported either from `core` or from the `portable-atomic` crate'><code>?core</code></span>
+A thread-safe signed integer type.</dd><dt><a class="struct" href="struct.Barrier.html" title="struct devela::zall_::_work::Barrier">Barrier</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Enables multiple threads to synchronize the beginning of some computation.</dd><dt><a class="struct" href="struct.BarrierWaitResult.html" title="struct devela::zall_::_work::BarrierWaitResult">Barrier<wbr>Wait<wbr>Result</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Outcome'>⚖️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Returned by <a href="../../zall/struct.Barrier.html#method.wait" title="method devela::zall::Barrier::wait"><code>Barrier::wait()</code></a> when all threads in it have rendezvoused.</dd><dt><a class="struct" href="struct.Command.html" title="struct devela::zall_::_work::Command">Command</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A builder for configuring and spawning new processes.</dd><dt><a class="struct" href="struct.CommandArgs.html" title="struct devela::zall_::_work::CommandArgs">Command<wbr>Args</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An iterator over the command arguments.</dd><dt><a class="struct" href="struct.CommandEnvs.html" title="struct devela::zall_::_work::CommandEnvs">Command<wbr>Envs</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An iterator over the command environment variables.</dd><dt><a class="struct" href="struct.CommandFlow.html" title="struct devela::zall_::_work::CommandFlow">Command<wbr>Flow</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Runtime'>⬡</span>
+An executable flow of OS process invocations.</dd><dt><a class="struct" href="struct.Condvar.html" title="struct devela::zall_::_work::Condvar">Condvar</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A Condition Variable.</dd><dt><a class="struct" href="struct.CoroManager.html" title="struct devela::zall_::_work::CoroManager">Coro<wbr>Manager</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+A managed dynamic collection of single-thread <a href="../../zall/struct.CoroWorker.html" title="struct devela::zall::CoroWorker"><code>CoroWorker</code></a> coroutines.</dd><dt><a class="struct" href="struct.CoroWork.html" title="struct devela::zall_::_work::CoroWork">Coro<wbr>Work</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+A future that alternates between <a href="../../zall/enum.AsyncPoll.html#variant.Ready" title="variant devela::zall::AsyncPoll::Ready"><code>Ready</code></a> and
+<a href="../../zall/enum.AsyncPoll.html#variant.Pending" title="variant devela::zall::AsyncPoll::Pending"><code>Pending</code></a> status each time it’s polled.</dd><dt><a class="struct" href="struct.CoroWorker.html" title="struct devela::zall_::_work::CoroWorker">Coro<wbr>Worker</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+Represents a single-thread stackless coroutine worker.</dd><dt><a class="struct" href="struct.ExitCode.html" title="struct devela::zall_::_work::ExitCode">Exit<wbr>Code</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Outcome'>⚖️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+The status code the process returns to its parent on normal termination.</dd><dt><a class="struct" href="struct.ExitStatus.html" title="struct devela::zall_::_work::ExitStatus">Exit<wbr>Status</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Outcome'>⚖️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Describes the result of a process after it has terminated.</dd><dt><a class="struct" href="struct.ExitStatusError.html" title="struct devela::zall_::_work::ExitStatusError">Exit<wbr>Status<wbr>Error</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Error'>🚩</span>
+Indicates that a process terminated unsuccessfully.</dd><dt><a class="struct" href="struct.FuturePending.html" title="struct devela::zall_::_work::FuturePending">Future<wbr>Pending</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A future which never resolves, representing a never finishing computation.</dd><dt><a class="struct" href="struct.FuturePollFn.html" title="struct devela::zall_::_work::FuturePollFn">Future<wbr>Poll<wbr>Fn</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A Future that wraps a function returning <a href="../../zall/enum.AsyncPoll.html" title="enum devela::zall::AsyncPoll"><code>AsyncPoll</code></a>.</dd><dt><a class="struct" href="struct.FutureReady.html" title="struct devela::zall_::_work::FutureReady">Future<wbr>Ready</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A future that is immediately ready with a value.</dd><dt><a class="struct" href="struct.LazyLock.html" title="struct devela::zall_::_work::LazyLock">Lazy<wbr>Lock</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Initialization'>🌱</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A value which is initialized on the first access.</dd><dt><a class="struct" href="struct.Mpsc.html" title="struct devela::zall_::_work::Mpsc">Mpsc</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Multi-producer, single-consumer channel operations.</dd><dt><a class="struct" href="struct.MpscIntoIter.html" title="struct devela::zall_::_work::MpscIntoIter">Mpsc<wbr>Into<wbr>Iter</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An owning iterator over messages on an <a href="../../zall/struct.MpscReceiver.html" title="struct devela::zall::MpscReceiver"><code>MpscReceiver</code></a>.</dd><dt><a class="struct" href="struct.MpscIter.html" title="struct devela::zall_::_work::MpscIter">Mpsc<wbr>Iter</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An iterator over messages on an <a href="../../zall/struct.MpscReceiver.html" title="struct devela::zall::MpscReceiver"><code>MpscReceiver</code></a></dd><dt><a class="struct" href="struct.MpscReceiveError.html" title="struct devela::zall_::_work::MpscReceiveError">Mpsc<wbr>Receive<wbr>Error</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An error returned from <a href="../../zall/struct.MpscReceiver.html#method.recv" title="method devela::zall::MpscReceiver::recv"><code>MpscReceiver::recv</code></a>.</dd><dt><a class="struct" href="struct.MpscReceiver.html" title="struct devela::zall_::_work::MpscReceiver">Mpsc<wbr>Receiver</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+The receiving half of an <a href="../../zall/struct.Mpsc.html" title="struct devela::zall::Mpsc"><code>Mpsc</code></a>
+<a href="../../zall/struct.Mpsc.html#method.channel" title="associated function devela::zall::Mpsc::channel"><code>channel</code></a> or <a href="../../zall/struct.Mpsc.html#method.sync_channel" title="associated function devela::zall::Mpsc::sync_channel"><code>sync_channel</code></a>.</dd><dt><a class="struct" href="struct.MpscSendError.html" title="struct devela::zall_::_work::MpscSendError">Mpsc<wbr>Send<wbr>Error</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An error returned from <a href="../../zall/struct.MpscSender.html#method.send" title="method devela::zall::MpscSender::send"><code>MpscSender::send</code></a> or <a href="../../zall/struct.MpscSyncSender.html#method.send" title="method devela::zall::MpscSyncSender::send"><code>MpscSyncSender::send</code></a>.</dd><dt><a class="struct" href="struct.MpscSender.html" title="struct devela::zall_::_work::MpscSender">Mpsc<wbr>Sender</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+The sending half of an <em>async</em> <code>Mpsc</code> channel.</dd><dt><a class="struct" href="struct.MpscSyncSender.html" title="struct devela::zall_::_work::MpscSyncSender">Mpsc<wbr>Sync<wbr>Sender</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+The sending half of a <em>sync</em> <code>Mpsc</code> channel.</dd><dt><a class="struct" href="struct.MpscTryIter.html" title="struct devela::zall_::_work::MpscTryIter">Mpsc<wbr>TryIter</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Attempts to yield all pending values for an <a href="../../zall/struct.MpscReceiver.html" title="struct devela::zall::MpscReceiver"><code>MpscReceiver</code></a>.</dd><dt><a class="struct" href="struct.Mutex.html" title="struct devela::zall_::_work::Mutex">Mutex</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A mutual exclusion primitive useful for protecting shared data.</dd><dt><a class="struct" href="struct.MutexGuard.html" title="struct devela::zall_::_work::MutexGuard">Mutex<wbr>Guard</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Scoped guard'>🔒</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An RAII implementation of a “scoped lock” of a mutex.</dd><dt><a class="struct" href="struct.Once.html" title="struct devela::zall_::_work::Once">Once</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A synchronization primitive for one-time global initialization.</dd><dt><a class="struct" href="struct.OnceLock.html" title="struct devela::zall_::_work::OnceLock">Once<wbr>Lock</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A synchronization primitive which can be written to only once.</dd><dt><a class="struct" href="struct.OnceState.html" title="struct devela::zall_::_work::OnceState">Once<wbr>State</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+State yielded to <a href="../../zall/struct.Once.html#method.call_once_force" title="method devela::zall::Once::call_once_force"><code>Once::call_once_force()</code></a>’s closure parameter.</dd><dt><a class="struct" href="struct.Output.html" title="struct devela::zall_::_work::Output">Output</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+The output of a finished process.</dd><dt><a class="struct" href="struct.PoisonError.html" title="struct devela::zall_::_work::PoisonError">Poison<wbr>Error</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A type of error which can be returned whenever a lock is acquired.</dd><dt><a class="struct" href="struct.Process.html" title="struct devela::zall_::_work::Process">Process</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Representation of a running or exited child process.</dd><dt><a class="struct" href="struct.ProcessStderr.html" title="struct devela::zall_::_work::ProcessStderr">Process<wbr>Stderr</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Input and output'>🔌</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A handle to a child process’s stderr.</dd><dt><a class="struct" href="struct.ProcessStdin.html" title="struct devela::zall_::_work::ProcessStdin">Process<wbr>Stdin</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Input and output'>🔌</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A handle to a child process’s standard input (stdin).</dd><dt><a class="struct" href="struct.ProcessStdout.html" title="struct devela::zall_::_work::ProcessStdout">Process<wbr>Stdout</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Input and output'>🔌</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A handle to a child process’s standard output (stdout).</dd><dt><a class="struct" href="struct.RwLock.html" title="struct devela::zall_::_work::RwLock">RwLock</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A reader-writer lock</dd><dt><a class="struct" href="struct.RwLockReadGuard.html" title="struct devela::zall_::_work::RwLockReadGuard">RwLock<wbr>Read<wbr>Guard</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+RAII structure used to release the shared read access of a lock when dropped.</dd><dt><a class="struct" href="struct.RwLockWriteGuard.html" title="struct devela::zall_::_work::RwLockWriteGuard">RwLock<wbr>Write<wbr>Guard</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+RAII structure used to release the exclusive write access of a lock when dropped.</dd><dt><a class="struct" href="struct.SpinLock.html" title="struct devela::zall_::_work::SpinLock">Spin<wbr>Lock</a><wbr><span class="stab portability" title="Available on crate feature `unsafe_sync` only"><code>unsafe_sync</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+A spinlock providing mutual exclusion without blocking.</dd><dt><a class="struct" href="struct.SpinLockGuard.html" title="struct devela::zall_::_work::SpinLockGuard">Spin<wbr>Lock<wbr>Guard</a><wbr><span class="stab portability" title="Available on crate feature `unsafe_sync` only"><code>unsafe_sync</code></span></dt><dd>A guard that grants exclusive access to a <a href="../../zall/struct.SpinLock.html" title="struct devela::zall::SpinLock"><code>SpinLock</code></a> value.</dd><dt><a class="struct" href="struct.Stdio.html" title="struct devela::zall_::_work::Stdio">Stdio</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Input and output'>🔌</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Specifies how to handle standard I/O streams in <a href="../../zall/struct.Command.html" title="struct devela::zall::Command"><code>Command</code></a>.</dd><dt><a class="struct" href="struct.Thread.html" title="struct devela::zall_::_work::Thread">Thread</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Identification'>🫆</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A handle to a thread.</dd><dt><a class="struct" href="struct.ThreadAccessError.html" title="struct devela::zall_::_work::ThreadAccessError">Thread<wbr>Access<wbr>Error</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An error returned by <a href="../../zall/struct.ThreadLocalKey.html#method.try_with" title="method devela::zall::ThreadLocalKey::try_with"><code>ThreadLocalKey::try_with</code></a>.</dd><dt><a class="struct" href="struct.ThreadBuilder.html" title="struct devela::zall_::_work::ThreadBuilder">Thread<wbr>Builder</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Thread factory, which can be used to configure the properties of a new thread.</dd><dt><a class="struct" href="struct.ThreadId.html" title="struct devela::zall_::_work::ThreadId">Thread<wbr>Id</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Identification'>🫆</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A unique identifier for a running thread.</dd><dt><a class="struct" href="struct.ThreadJoinHandle.html" title="struct devela::zall_::_work::ThreadJoinHandle">Thread<wbr>Join<wbr>Handle</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An owned permission to join on a thread (block on its termination).</dd><dt><a class="struct" href="struct.ThreadLocalKey.html" title="struct devela::zall_::_work::ThreadLocalKey">Thread<wbr>Local<wbr>Key</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A thread local storage key which owns its contents.</dd><dt><a class="struct" href="struct.ThreadScope.html" title="struct devela::zall_::_work::ThreadScope">Thread<wbr>Scope</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A scope to spawn scoped threads in.</dd><dt><a class="struct" href="struct.ThreadScopedJoinHandle.html" title="struct devela::zall_::_work::ThreadScopedJoinHandle">Thread<wbr>Scoped<wbr>Join<wbr>Handle</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An owned permission to join on a scoped thread (block on its termination).</dd><dt><a class="struct" href="struct.WaitTimeoutResult.html" title="struct devela::zall_::_work::WaitTimeoutResult">Wait<wbr>Timeout<wbr>Result</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Outcome'>⚖️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Whether a timed wait on a <a href="../../zall/struct.Condvar.html" title="struct devela::zall::Condvar"><code>Condvar</code></a> returned due to a time out or not.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.AsyncPoll.html" title="enum devela::zall_::_work::AsyncPoll">Async<wbr>Poll</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Indicates whether a value is ready or if the current task is still pending.</dd><dt><a class="enum" href="enum.AtomicOrdering.html" title="enum devela::zall_::_work::AtomicOrdering">Atomic<wbr>Ordering</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='Ordering semantics'>≤</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Atomic memory ordering.</dd><dt><a class="enum" href="enum.MpscRecvTimeoutError.html" title="enum devela::zall_::_work::MpscRecvTimeoutError">Mpsc<wbr>Recv<wbr>Timeout<wbr>Error</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Composite error'>🚩+</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Possible errors that made <a href="../../zall/struct.MpscReceiver.html#method.recv_timeout" title="method devela::zall::MpscReceiver::recv_timeout"><code>recv_timeout</code></a>
+unable to return data.</dd><dt><a class="enum" href="enum.MpscTryRecvError.html" title="enum devela::zall_::_work::MpscTryRecvError">Mpsc<wbr>TryRecv<wbr>Error</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Composite error'>🚩+</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Possible reasons that <a href="../../zall/struct.MpscReceiver.html#method.try_recv" title="method devela::zall::MpscReceiver::try_recv"><code>try_recv</code></a>
+could not return data when called.</dd><dt><a class="enum" href="enum.MpscTrySendError.html" title="enum devela::zall_::_work::MpscTrySendError">Mpsc<wbr>TrySend<wbr>Error</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Composite error'>🚩+</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Possible error outcomes for the <a href="../../zall/struct.MpscSyncSender.html#method.try_send" title="method devela::zall::MpscSyncSender::try_send"><code>try_send</code></a> method.</dd><dt><a class="enum" href="enum.TryLockError.html" title="enum devela::zall_::_work::TryLockError">TryLock<wbr>Error</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Composite error'>🚩+</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An enumeration of possible errors associated with a <a href="../../zall/type.TryLockResult.html" title="type devela::zall::TryLockResult"><code>TryLockResult</code></a>.</dd><dt><a class="enum" href="enum.CoroutineState.html" title="enum devela::zall_::_work::CoroutineState">Coroutine<wbr>State</a><wbr><span class="stab unstable" title="">Experimental</span><wbr><span class="stab portability" title="Available on `nightly_coro` only"><code>nightly_coro</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Outcome'>⚖️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The result of a coroutine resumption.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.AsyncWake.html" title="trait devela::zall_::_work::AsyncWake">Async<wbr>Wake</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span> <span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='re-exported either from `alloc` or from the `portable-atomic-util` crate'><code>?alloc</code></span>
+The implementation of waking a task on an executor.</dd><dt><a class="trait" href="trait.Future.html" title="trait devela::zall_::_work::Future">Future</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An asynchronous computation obtained by use of
+<a href="https://doc.rust-lang.org/std/keyword.async.html"><code>async</code></a>.</dd><dt><a class="trait" href="trait.FutureExt.html" title="trait devela::zall_::_work::FutureExt">Future<wbr>Ext</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+Extension trait providing additional methods for <a href="../../zall/trait.Future.html" title="trait devela::zall::Future"><code>Future</code></a>s.</dd><dt><a class="trait" href="trait.IntoFuture.html" title="trait devela::zall_::_work::IntoFuture">Into<wbr>Future</a></dt><dd><span class='stab portability' title='Value semantics'>💱</span> <span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Conversion into a <code>Future</code>.</dd><dt><a class="trait" href="trait.OutputExt.html" title="trait devela::zall_::_work::OutputExt">Output<wbr>Ext</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Extension trait providing convenience methods interpreting process <a href="../../zall/struct.Output.html" title="struct devela::zall::Output"><code>Output</code></a>.</dd><dt><a class="trait" href="trait.ProcessExt.html" title="trait devela::zall_::_work::ProcessExt">Process<wbr>Ext</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Extension trait providing additional methods for <a href="../../zall/struct.Process.html" title="struct devela::zall::Process"><code>Process</code></a>es.</dd><dt><a class="trait" href="trait.ProcessTermination.html" title="trait devela::zall_::_work::ProcessTermination">Process<wbr>Termination</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Platform-dependent'>🖥️</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A trait for implementing arbitrary return types in the <code>main</code> function.</dd><dt><a class="trait" href="trait.ThreadExt.html" title="trait devela::zall_::_work::ThreadExt">Thread<wbr>Ext</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Extension trait providing additional methods for <a href="../../zall/struct.Thread.html" title="struct devela::zall::Thread"><code>Thread</code></a>s.</dd><dt><a class="trait" href="trait.Coroutine.html" title="trait devela::zall_::_work::Coroutine">Coroutine</a><wbr><span class="stab unstable" title="">Experimental</span><wbr><span class="stab portability" title="Available on `nightly_coro` only"><code>nightly_coro</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Runtime'>⬡</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The trait implemented by builtin coroutine types.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.atomic_compiler_fence.html" title="fn devela::zall_::_work::atomic_compiler_fence">atomic_<wbr>compiler_<wbr>fence</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A compiler memory fence.</dd><dt><a class="fn" href="fn.atomic_fence.html" title="fn devela::zall_::_work::atomic_fence">atomic_<wbr>fence</a></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Atomic'>⚛️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An atomic fence.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.LockResult.html" title="type devela::zall_::_work::LockResult">Lock<wbr>Result</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Outcome'>⚖️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A type alias for the result of a lock method which can be poisoned.</dd><dt><a class="type" href="type.ThreadResult.html" title="type devela::zall_::_work::ThreadResult">Thread<wbr>Result</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Outcome'>⚖️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A specialized <a href="../../zall/enum.Result.html" title="enum devela::zall::Result"><code>Result</code></a> type for threads.</dd><dt><a class="type" href="type.TryLockResult.html" title="type devela::zall_::_work::TryLockResult">TryLock<wbr>Result</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Concurrency'>🧵</span> <span class='stab portability' title='Outcome'>⚖️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A type alias for the result of a nonblocking locking method.</dd></dl></section></div></main></body></html>

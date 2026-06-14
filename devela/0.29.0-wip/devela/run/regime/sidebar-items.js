@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["RunCap","RunCapAudio","RunCapColor","RunCapImage","RunCapInput","RunCapSystem","RunCapText","RunCapWindow","RunSystemInfo"],"trait":["RunService","RunServiceProbe"]};

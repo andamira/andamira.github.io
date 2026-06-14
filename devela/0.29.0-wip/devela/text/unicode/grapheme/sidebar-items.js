@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["GraphemeBoundary","GraphemeKind","GraphemePropCb","GraphemePropInCb"],"struct":["GraphemeMachine","GraphemeNonul","GraphemeProps","GraphemeScanner","GraphemeString","GraphemeU8"],"trait":["Grapheme"]};

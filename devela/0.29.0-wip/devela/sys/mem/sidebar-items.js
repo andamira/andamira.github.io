@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["transmute"],"macro":[["offset_of",1]],"mod":["alloc","bound","cell","layout","size","view"],"struct":["Box","Current","CurrentGuard","Discriminant","ManuallyDrop","Mem","Rc","RcWeak"],"trait":["MemExt"],"union":["MaybeUninit"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["_doc","code","data","geom","lang","media","num","phys","run","sys","text","ui","vita","work","zall","zall_"]};

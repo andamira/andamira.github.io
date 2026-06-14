@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Matrix","Vector"],"trait":["NumVector"],"type":["Vector2d","Vector3d"]};

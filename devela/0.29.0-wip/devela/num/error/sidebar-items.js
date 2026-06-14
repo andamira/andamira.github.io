@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["IntError","NicheValueError","NumError"],"struct":["IncompatibleBounds","MismatchedSizes","NoInverse","NonNegativeRequired","NonZeroRequired","Overflow","PositiveRequired"],"type":["IntResult","NumResult"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["fn_addr_eq"],"macro":[["cswap",1],["pin",1]],"struct":["CacheAlign","FatPtr","Pin","Pinned","Ptr","PtrNonNull"],"trait":["MemAligned"]};

@@ -1,0 +1,485 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/codec/crypto/tests_examples.rs`."><title>tests_examples.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">devela/data/codec/crypto/</div>tests_examples.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela/src/data/codec/crypto/tests_examples.rs
+<a href=#2 id=2 data-nosnippet>2</a>//
+<a href=#3 id=3 data-nosnippet>3</a>// TOC
+<a href=#4 id=4 data-nosnippet>4</a>// - define test example hashes
+<a href=#5 id=5 data-nosnippet>5</a>// - define test helper macros
+<a href=#6 id=6 data-nosnippet>6</a>// - tests:
+<a href=#7 id=7 data-nosnippet>7</a>//   - md5
+<a href=#8 id=8 data-nosnippet>8</a>//   - sha1
+<a href=#9 id=9 data-nosnippet>9</a>//   - sha2_256
+<a href=#10 id=10 data-nosnippet>10</a>//   - sha2_512
+<a href=#11 id=11 data-nosnippet>11</a>
+<a href=#12 id=12 data-nosnippet>12</a></span><span class="attr">#![cfg_attr(not(test), allow(unused))]
+<a href=#13 id=13 data-nosnippet>13</a>
+<a href=#14 id=14 data-nosnippet>14</a></span><span class="macro">macro_rules!</span> _doc_example {
+<a href=#15 id=15 data-nosnippet>15</a>    () =&gt; {
+<a href=#16 id=16 data-nosnippet>16</a>        <span class="string">"This implementation is allocation-free, compile-time friendly,
+<a href=#17 id=17 data-nosnippet>17</a>and supports incremental updates.
+<a href=#18 id=18 data-nosnippet>18</a>
+<a href=#19 id=19 data-nosnippet>19</a>Use [`update`][Self::update] to feed bytes and [`finalize`][Self::finalize]
+<a href=#20 id=20 data-nosnippet>20</a>to consume the state and return the digest.
+<a href=#21 id=21 data-nosnippet>21</a>
+<a href=#22 id=22 data-nosnippet>22</a>Generated with [`digest!`][crate::digest]."
+<a href=#23 id=23 data-nosnippet>23</a>    </span>};
+<a href=#24 id=24 data-nosnippet>24</a>}
+<a href=#25 id=25 data-nosnippet>25</a>
+<a href=#26 id=26 data-nosnippet>26</a><a href="digest.rs.html#104-172">crate::digest!</a> {
+<a href=#27 id=27 data-nosnippet>27</a>    <span class="attr">#[doc = <span class="macro">crate::_tags!</span>(example crypto hash)] #[doc = <span class="string">"Incremental Md5 state."</span>]
+<a href=#28 id=28 data-nosnippet>28</a>    #[doc = <span class="macro">crate::_doc_meta!</span>{location(<span class="string">"data/codec/crypto"</span>)}] #[doc = <span class="macro">_doc_example!</span>()]
+<a href=#29 id=29 data-nosnippet>29</a>    </span><span class="kw">pub struct </span><a href="#26-30">Md5</a>: Md5
+<a href=#30 id=30 data-nosnippet>30</a>}
+<a href=#31 id=31 data-nosnippet>31</a><a href="digest.rs.html#104-172">crate::digest!</a> {
+<a href=#32 id=32 data-nosnippet>32</a>    <span class="attr">#[doc = <span class="macro">crate::_tags!</span>(example crypto hash)] #[doc = <span class="string">"Incremental SHA-1 state."</span>]
+<a href=#33 id=33 data-nosnippet>33</a>    #[doc = <span class="macro">crate::_doc_meta!</span>{location(<span class="string">"data/codec/crypto"</span>)}] #[doc = <span class="macro">_doc_example!</span>()]
+<a href=#34 id=34 data-nosnippet>34</a>    </span><span class="kw">pub struct </span><a href="#31-35">Sha1</a>: Sha1
+<a href=#35 id=35 data-nosnippet>35</a>}
+<a href=#36 id=36 data-nosnippet>36</a><a href="digest.rs.html#104-172">crate::digest!</a> {
+<a href=#37 id=37 data-nosnippet>37</a>    <span class="attr">#[doc = <span class="macro">crate::_tags!</span>(example crypto hash)] #[doc = <span class="string">"Incremental SHA-256 state."</span>]
+<a href=#38 id=38 data-nosnippet>38</a>    #[doc = <span class="macro">crate::_doc_meta!</span>{location(<span class="string">"data/codec/crypto"</span>)}] #[doc = <span class="macro">_doc_example!</span>()]
+<a href=#39 id=39 data-nosnippet>39</a>    </span><span class="kw">pub struct </span><a href="#36-40">Sha256</a>: Sha256
+<a href=#40 id=40 data-nosnippet>40</a>}
+<a href=#41 id=41 data-nosnippet>41</a><a href="digest.rs.html#104-172">crate::digest!</a> {
+<a href=#42 id=42 data-nosnippet>42</a>    <span class="attr">#[doc = <span class="macro">crate::_tags!</span>(example crypto hash)] #[doc = <span class="string">"Incremental SHA-512 state."</span>]
+<a href=#43 id=43 data-nosnippet>43</a>    #[doc = <span class="macro">crate::_doc_meta!</span>{location(<span class="string">"data/codec/crypto"</span>)}] #[doc = <span class="macro">_doc_example!</span>()]
+<a href=#44 id=44 data-nosnippet>44</a>    </span><span class="kw">pub struct </span><a href="#41-45">Sha512</a>: Sha512
+<a href=#45 id=45 data-nosnippet>45</a>}
+<a href=#46 id=46 data-nosnippet>46</a><span class="comment">/*
+<a href=#47 id=47 data-nosnippet>47</a>crate::digest! {
+<a href=#48 id=48 data-nosnippet>48</a>    #[doc = crate::_tags!(example crypto hash)] #[doc = "Incremental SHA-224 state."]
+<a href=#49 id=49 data-nosnippet>49</a>    #[doc = crate::_doc_meta!{location("data/codec/crypto")}] #[doc = _doc_example!()]
+<a href=#50 id=50 data-nosnippet>50</a>    pub struct Sha224: Sha224
+<a href=#51 id=51 data-nosnippet>51</a>}
+<a href=#52 id=52 data-nosnippet>52</a>crate::digest! {
+<a href=#53 id=53 data-nosnippet>53</a>    #[doc = crate::_tags!(example crypto hash)] #[doc = "Incremental SHA-384 state."]
+<a href=#54 id=54 data-nosnippet>54</a>    #[doc = crate::_doc_meta!{location("data/codec/crypto")}] #[doc = _doc_example!()]
+<a href=#55 id=55 data-nosnippet>55</a>    pub struct Sha384: Sha384
+<a href=#56 id=56 data-nosnippet>56</a>}
+<a href=#57 id=57 data-nosnippet>57</a>crate::digest! {
+<a href=#58 id=58 data-nosnippet>58</a>    #[doc = crate::_tags!(example crypto hash)] #[doc = "Incremental SHA-512/224 state."]
+<a href=#59 id=59 data-nosnippet>59</a>    #[doc = crate::_doc_meta!{location("data/codec/crypto")}] #[doc = _doc_example!()]
+<a href=#60 id=60 data-nosnippet>60</a>    pub struct Sha512_224: Sha512_224
+<a href=#61 id=61 data-nosnippet>61</a>}
+<a href=#62 id=62 data-nosnippet>62</a>crate::digest! {
+<a href=#63 id=63 data-nosnippet>63</a>    #[doc = crate::_tags!(example crypto hash)] #[doc = "Incremental SHA-512/256 state."]
+<a href=#64 id=64 data-nosnippet>64</a>    #[doc = crate::_doc_meta!{location("data/codec/crypto")}] #[doc = _doc_example!()]
+<a href=#65 id=65 data-nosnippet>65</a>    pub struct Sha512_256: Sha512_256
+<a href=#66 id=66 data-nosnippet>66</a>}
+<a href=#67 id=67 data-nosnippet>67</a>*/
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a>/* helper macros */
+<a href=#70 id=70 data-nosnippet>70</a>
+<a href=#71 id=71 data-nosnippet>71</a></span><span class="macro">macro_rules!</span> _assert_digest_vectors {
+<a href=#72 id=72 data-nosnippet>72</a>    (<span class="macro-nonterminal">$Alg</span>:ident; $(<span class="macro-nonterminal">$input</span>:expr =&gt; <span class="macro-nonterminal">$hex</span>:literal),+ $(,)<span class="question-mark">?</span>) =&gt; {
+<a href=#73 id=73 data-nosnippet>73</a>        $( <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$Alg::digest_bytes</span>(<span class="macro-nonterminal">$input</span>).unwrap(), <span class="macro-nonterminal">$crate::Digest</span>(<span class="macro-nonterminal">$crate::_hex</span>(<span class="macro-nonterminal">$hex</span>))); )+
+<a href=#74 id=74 data-nosnippet>74</a>    };
+<a href=#75 id=75 data-nosnippet>75</a>}
+<a href=#76 id=76 data-nosnippet>76</a><span class="macro">macro_rules!</span> _assert_hmac_vectors {
+<a href=#77 id=77 data-nosnippet>77</a>    (<span class="macro-nonterminal">$Alg</span>:ident; $(<span class="macro-nonterminal">$key</span>:expr, <span class="macro-nonterminal">$data</span>:expr =&gt; <span class="macro-nonterminal">$hex</span>:literal),+ $(,)<span class="question-mark">?</span>) =&gt; {
+<a href=#78 id=78 data-nosnippet>78</a>        $( <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$Alg::hmac</span>(<span class="macro-nonterminal">$key</span>, <span class="macro-nonterminal">$data</span>).unwrap(), <span class="macro-nonterminal">$crate::Digest</span>(<span class="macro-nonterminal">$crate::_hex</span>(<span class="macro-nonterminal">$hex</span>))); )+
+<a href=#79 id=79 data-nosnippet>79</a>    };
+<a href=#80 id=80 data-nosnippet>80</a>}
+<a href=#81 id=81 data-nosnippet>81</a><span class="macro">macro_rules!</span> _assert_hotp_codes {
+<a href=#82 id=82 data-nosnippet>82</a>    (<span class="macro-nonterminal">$Alg</span>:ident, <span class="macro-nonterminal">$key</span>:expr, <span class="macro-nonterminal">$digits</span>:expr; $(<span class="macro-nonterminal">$counter</span>:expr =&gt; <span class="macro-nonterminal">$code</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; {
+<a href=#83 id=83 data-nosnippet>83</a>        $( <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$Alg::hotp</span>(<span class="macro-nonterminal">$key</span>, <span class="macro-nonterminal">$counter</span>, <span class="macro-nonterminal">$digits</span>).unwrap().code(), <span class="macro-nonterminal">$code</span>); )+
+<a href=#84 id=84 data-nosnippet>84</a>    };
+<a href=#85 id=85 data-nosnippet>85</a>}
+<a href=#86 id=86 data-nosnippet>86</a><span class="macro">macro_rules!</span> _assert_totp_codes {
+<a href=#87 id=87 data-nosnippet>87</a>    (<span class="macro-nonterminal">$Alg</span>:ident, <span class="macro-nonterminal">$key</span>:expr; $(<span class="macro-nonterminal">$time</span>:expr =&gt; <span class="macro-nonterminal">$code</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; {
+<a href=#88 id=88 data-nosnippet>88</a>        $( <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$Alg::totp_with</span>(<span class="macro-nonterminal">$key</span>, <span class="macro-nonterminal">$time</span>, <span class="number">0</span>, <span class="number">30</span>, <span class="number">8</span>).unwrap().code(), <span class="macro-nonterminal">$code</span>); )+
+<a href=#89 id=89 data-nosnippet>89</a>    };
+<a href=#90 id=90 data-nosnippet>90</a>}
+<a href=#91 id=91 data-nosnippet>91</a><span class="macro">macro_rules!</span> _digest_common_tests {
+<a href=#92 id=92 data-nosnippet>92</a>    (<span class="macro-nonterminal">$Alg</span>:ident;
+<a href=#93 id=93 data-nosnippet>93</a>        abc: <span class="macro-nonterminal">$abc</span>:literal,
+<a href=#94 id=94 data-nosnippet>94</a>        block: <span class="macro-nonterminal">$block</span>:literal,
+<a href=#95 id=95 data-nosnippet>95</a>        pad_at: <span class="macro-nonterminal">$pad_at</span>:literal,
+<a href=#96 id=96 data-nosnippet>96</a>        million_a: <span class="macro-nonterminal">$million</span>:literal $(,)<span class="question-mark">?
+<a href=#97 id=97 data-nosnippet>97</a>    </span>) =&gt; {
+<a href=#98 id=98 data-nosnippet>98</a>        <span class="attr">#[test]
+<a href=#99 id=99 data-nosnippet>99</a>        #[cfg(not(miri))] </span><span class="comment">// too slow for miri
+<a href=#100 id=100 data-nosnippet>100</a>        </span><span class="kw">fn </span>million_a() {
+<a href=#101 id=101 data-nosnippet>101</a>            <span class="kw">let </span><span class="kw-2">mut </span>digest = <span class="macro-nonterminal">$Alg::new</span>();
+<a href=#102 id=102 data-nosnippet>102</a>            <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">1_000_000 </span>{
+<a href=#103 id=103 data-nosnippet>103</a>                digest.update(<span class="string">b"a"</span>).unwrap();
+<a href=#104 id=104 data-nosnippet>104</a>            }
+<a href=#105 id=105 data-nosnippet>105</a>            <span class="macro">assert_eq!</span>(digest.finalize(), <span class="macro-nonterminal">$crate::Digest</span>(<span class="macro-nonterminal">$crate::_hex</span>(<span class="macro-nonterminal">$million</span>)));
+<a href=#106 id=106 data-nosnippet>106</a>        }
+<a href=#107 id=107 data-nosnippet>107</a>        <span class="attr">#[test]
+<a href=#108 id=108 data-nosnippet>108</a>        </span><span class="kw">fn </span>chunked_updates_match_one_shot() {
+<a href=#109 id=109 data-nosnippet>109</a>            <span class="kw">let </span>input = <span class="string">b"the quick brown fox jumps over the lazy dog"</span>;
+<a href=#110 id=110 data-nosnippet>110</a>            <span class="kw">let </span>full = <span class="macro-nonterminal">$Alg::digest_bytes</span>(input).unwrap();
+<a href=#111 id=111 data-nosnippet>111</a>            <span class="kw">let </span><span class="kw-2">mut </span>chunked = <span class="macro-nonterminal">$Alg::new</span>();
+<a href=#112 id=112 data-nosnippet>112</a>            chunked.update(<span class="string">b"the quick "</span>).unwrap();
+<a href=#113 id=113 data-nosnippet>113</a>            chunked.update(<span class="string">b"brown fox "</span>).unwrap();
+<a href=#114 id=114 data-nosnippet>114</a>            chunked.update(<span class="string">b"jumps over "</span>).unwrap();
+<a href=#115 id=115 data-nosnippet>115</a>            chunked.update(<span class="string">b"the lazy dog"</span>).unwrap();
+<a href=#116 id=116 data-nosnippet>116</a>            <span class="macro">assert_eq!</span>(full, chunked.finalize());
+<a href=#117 id=117 data-nosnippet>117</a>        }
+<a href=#118 id=118 data-nosnippet>118</a>        <span class="attr">#[test]
+<a href=#119 id=119 data-nosnippet>119</a>        </span><span class="kw">fn </span>boundary_lengths() {
+<a href=#120 id=120 data-nosnippet>120</a>            <span class="kw">let </span>lengths = [
+<a href=#121 id=121 data-nosnippet>121</a>                <span class="number">0</span>,
+<a href=#122 id=122 data-nosnippet>122</a>                <span class="number">1</span>,
+<a href=#123 id=123 data-nosnippet>123</a>                <span class="macro-nonterminal">$pad_at </span>- <span class="number">1</span>,
+<a href=#124 id=124 data-nosnippet>124</a>                <span class="macro-nonterminal">$pad_at</span>,
+<a href=#125 id=125 data-nosnippet>125</a>                <span class="macro-nonterminal">$pad_at </span>+ <span class="number">1</span>,
+<a href=#126 id=126 data-nosnippet>126</a>                <span class="macro-nonterminal">$block </span>- <span class="number">1</span>,
+<a href=#127 id=127 data-nosnippet>127</a>                <span class="macro-nonterminal">$block</span>,
+<a href=#128 id=128 data-nosnippet>128</a>                <span class="macro-nonterminal">$block </span>+ <span class="number">1</span>,
+<a href=#129 id=129 data-nosnippet>129</a>                <span class="macro-nonterminal">$block </span>* <span class="number">2 </span>- <span class="number">9</span>,
+<a href=#130 id=130 data-nosnippet>130</a>                <span class="macro-nonterminal">$block </span>* <span class="number">2 </span>- <span class="number">8</span>,
+<a href=#131 id=131 data-nosnippet>131</a>            ];
+<a href=#132 id=132 data-nosnippet>132</a>            <span class="kw">let </span><span class="kw-2">mut </span>bytes = [<span class="number">0u8</span>; <span class="number">256</span>];
+<a href=#133 id=133 data-nosnippet>133</a>            <span class="kw">for </span>len <span class="kw">in </span>lengths {
+<a href=#134 id=134 data-nosnippet>134</a>                <span class="macro">crate::whilst!</span> { i <span class="kw">in </span><span class="number">0</span>..len; { bytes[i] = i <span class="kw">as </span>u8; }}
+<a href=#135 id=135 data-nosnippet>135</a>                <span class="kw">let </span>full = <span class="macro-nonterminal">$Alg::digest_bytes</span>(<span class="kw-2">&amp;</span>bytes[..len]).unwrap();
+<a href=#136 id=136 data-nosnippet>136</a>                <span class="kw">let </span><span class="kw-2">mut </span>chunked = <span class="macro-nonterminal">$Alg::new</span>();
+<a href=#137 id=137 data-nosnippet>137</a>                <span class="kw">for </span>chunk <span class="kw">in </span>bytes[..len].chunks(<span class="number">3</span>) {
+<a href=#138 id=138 data-nosnippet>138</a>                    chunked.update(chunk).unwrap();
+<a href=#139 id=139 data-nosnippet>139</a>                }
+<a href=#140 id=140 data-nosnippet>140</a>                <span class="macro">assert_eq!</span>(full, chunked.finalize());
+<a href=#141 id=141 data-nosnippet>141</a>            }
+<a href=#142 id=142 data-nosnippet>142</a>        }
+<a href=#143 id=143 data-nosnippet>143</a>        <span class="attr">#[test]
+<a href=#144 id=144 data-nosnippet>144</a>        </span><span class="kw">fn </span>reset() {
+<a href=#145 id=145 data-nosnippet>145</a>            <span class="kw">let </span><span class="kw-2">mut </span>digest = <span class="macro-nonterminal">$Alg::new</span>();
+<a href=#146 id=146 data-nosnippet>146</a>            digest.update(<span class="string">b"abc"</span>).unwrap();
+<a href=#147 id=147 data-nosnippet>147</a>            digest.reset();
+<a href=#148 id=148 data-nosnippet>148</a>            digest.update(<span class="string">b"abc"</span>).unwrap();
+<a href=#149 id=149 data-nosnippet>149</a>            <span class="macro">assert_eq!</span>(digest.finalize(), <span class="macro-nonterminal">$crate::Digest</span>(<span class="macro-nonterminal">$crate::_hex</span>(<span class="macro-nonterminal">$abc</span>)));
+<a href=#150 id=150 data-nosnippet>150</a>        }
+<a href=#151 id=151 data-nosnippet>151</a>    };
+<a href=#152 id=152 data-nosnippet>152</a>}
+<a href=#153 id=153 data-nosnippet>153</a>
+<a href=#154 id=154 data-nosnippet>154</a><span class="kw">mod </span>md5 {
+<a href=#155 id=155 data-nosnippet>155</a>    <span class="kw">use </span><a href="#26-30"><span class="kw">super</span>::Md5</a>;
+<a href=#156 id=156 data-nosnippet>156</a>
+<a href=#157 id=157 data-nosnippet>157</a>    <span class="macro">_digest_common_tests!</span> { Md5;
+<a href=#158 id=158 data-nosnippet>158</a>        abc: <span class="string">"900150983cd24fb0d6963f7d28e17f72"</span>,
+<a href=#159 id=159 data-nosnippet>159</a>        block: <span class="number">64</span>,
+<a href=#160 id=160 data-nosnippet>160</a>        pad_at: <span class="number">56</span>,
+<a href=#161 id=161 data-nosnippet>161</a>        million_a: <span class="string">"7707d6ae4e027c70eea2a935c2296f21"</span>,
+<a href=#162 id=162 data-nosnippet>162</a>    }
+<a href=#163 id=163 data-nosnippet>163</a>
+<a href=#164 id=164 data-nosnippet>164</a>    <span class="attr">#[test]
+<a href=#165 id=165 data-nosnippet>165</a>    </span><span class="comment">// https://datatracker.ietf.org/doc/html/rfc1321#appendix-A.5
+<a href=#166 id=166 data-nosnippet>166</a>    </span><span class="kw">fn </span>known_vectors() {
+<a href=#167 id=167 data-nosnippet>167</a>        <span class="macro">_assert_digest_vectors!</span> { Md5;
+<a href=#168 id=168 data-nosnippet>168</a>            <span class="string">b"" </span>=&gt; <span class="string">"d41d8cd98f00b204e9800998ecf8427e"</span>,
+<a href=#169 id=169 data-nosnippet>169</a>            <span class="string">b"a" </span>=&gt; <span class="string">"0cc175b9c0f1b6a831c399e269772661"</span>,
+<a href=#170 id=170 data-nosnippet>170</a>            <span class="string">b"abc" </span>=&gt; <span class="string">"900150983cd24fb0d6963f7d28e17f72"</span>,
+<a href=#171 id=171 data-nosnippet>171</a>            <span class="string">b"message digest" </span>=&gt; <span class="string">"f96b697d7cb7938d525a2f31aaf161d0"</span>,
+<a href=#172 id=172 data-nosnippet>172</a>            <span class="string">b"abcdefghijklmnopqrstuvwxyz" </span>=&gt; <span class="string">"c3fcd3d76192e4007dfb496cca67e13b"</span>,
+<a href=#173 id=173 data-nosnippet>173</a>            <span class="string">b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+<a href=#174 id=174 data-nosnippet>174</a>                </span>=&gt; <span class="string">"d174ab98d277d9f5a5611c2c9f419d9f"</span>,
+<a href=#175 id=175 data-nosnippet>175</a>            <span class="string">b"12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+<a href=#176 id=176 data-nosnippet>176</a>                </span>=&gt; <span class="string">"57edf4a22be3c955ac49da2e2107b67a"</span>,
+<a href=#177 id=177 data-nosnippet>177</a>        }
+<a href=#178 id=178 data-nosnippet>178</a>    }
+<a href=#179 id=179 data-nosnippet>179</a>    <span class="attr">#[test]
+<a href=#180 id=180 data-nosnippet>180</a>    </span><span class="comment">// https://www.rfc-editor.org/rfc/rfc2202.html#section-2
+<a href=#181 id=181 data-nosnippet>181</a>    </span><span class="kw">fn </span>hmac_vectors() {
+<a href=#182 id=182 data-nosnippet>182</a>        <span class="kw">let </span>key = [<span class="number">0x0b</span>; <span class="number">16</span>];
+<a href=#183 id=183 data-nosnippet>183</a>        <span class="macro">_assert_hmac_vectors!</span> { Md5;
+<a href=#184 id=184 data-nosnippet>184</a>            <span class="kw-2">&amp;</span>key, <span class="string">b"Hi There" </span>=&gt; <span class="string">"9294727a3638bb1c13f48ef8158bfc9d"</span>,
+<a href=#185 id=185 data-nosnippet>185</a>            <span class="string">b"Jefe"</span>, <span class="string">b"what do ya want for nothing?" </span>=&gt; <span class="string">"750c783e6ab0b503eaa86e310a5db738"</span>,
+<a href=#186 id=186 data-nosnippet>186</a>        }
+<a href=#187 id=187 data-nosnippet>187</a>    }
+<a href=#188 id=188 data-nosnippet>188</a>}
+<a href=#189 id=189 data-nosnippet>189</a><span class="kw">mod </span>sha1 {
+<a href=#190 id=190 data-nosnippet>190</a>    <span class="kw">use </span><a href="#31-35"><span class="kw">super</span>::Sha1</a>;
+<a href=#191 id=191 data-nosnippet>191</a>
+<a href=#192 id=192 data-nosnippet>192</a>    <span class="macro">_digest_common_tests!</span> { Sha1;
+<a href=#193 id=193 data-nosnippet>193</a>        abc: <span class="string">"a9993e364706816aba3e25717850c26c9cd0d89d"</span>,
+<a href=#194 id=194 data-nosnippet>194</a>        block: <span class="number">64</span>,
+<a href=#195 id=195 data-nosnippet>195</a>        pad_at: <span class="number">56</span>,
+<a href=#196 id=196 data-nosnippet>196</a>        million_a: <span class="string">"34aa973cd4c4daa4f61eeb2bdbad27316534016f"</span>,
+<a href=#197 id=197 data-nosnippet>197</a>    }
+<a href=#198 id=198 data-nosnippet>198</a>
+<a href=#199 id=199 data-nosnippet>199</a>    <span class="attr">#[test]
+<a href=#200 id=200 data-nosnippet>200</a>    </span><span class="comment">// https://datatracker.ietf.org/doc/html/rfc6234#section-8.5
+<a href=#201 id=201 data-nosnippet>201</a>    </span><span class="kw">fn </span>known_vectors() {
+<a href=#202 id=202 data-nosnippet>202</a>        <span class="macro">_assert_digest_vectors!</span> { Sha1;
+<a href=#203 id=203 data-nosnippet>203</a>            <span class="string">b"" </span>=&gt; <span class="string">"da39a3ee5e6b4b0d3255bfef95601890afd80709"</span>,
+<a href=#204 id=204 data-nosnippet>204</a>            <span class="string">b"abc" </span>=&gt; <span class="string">"a9993e364706816aba3e25717850c26c9cd0d89d"</span>,
+<a href=#205 id=205 data-nosnippet>205</a>            <span class="string">b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
+<a href=#206 id=206 data-nosnippet>206</a>                </span>=&gt; <span class="string">"84983e441c3bd26ebaae4aa1f95129e5e54670f1"</span>,
+<a href=#207 id=207 data-nosnippet>207</a>        }
+<a href=#208 id=208 data-nosnippet>208</a>    }
+<a href=#209 id=209 data-nosnippet>209</a>    <span class="attr">#[test]
+<a href=#210 id=210 data-nosnippet>210</a>    </span><span class="comment">// https://www.rfc-editor.org/rfc/rfc2202#section-2
+<a href=#211 id=211 data-nosnippet>211</a>    // https://datatracker.ietf.org/doc/html/rfc6234#page-100
+<a href=#212 id=212 data-nosnippet>212</a>    </span><span class="kw">fn </span>hmac_vectors() {
+<a href=#213 id=213 data-nosnippet>213</a>        <span class="macro">_assert_hmac_vectors!</span> { Sha1;
+<a href=#214 id=214 data-nosnippet>214</a>            <span class="comment">// 1
+<a href=#215 id=215 data-nosnippet>215</a>            </span><span class="kw-2">&amp;</span>[<span class="number">0x0b</span>; <span class="number">20</span>], <span class="string">b"Hi There" </span>=&gt; <span class="string">"b617318655057264e28bc0b6fb378c8ef146be00"</span>,
+<a href=#216 id=216 data-nosnippet>216</a>            <span class="comment">// 2
+<a href=#217 id=217 data-nosnippet>217</a>            </span><span class="string">b"Jefe"</span>, <span class="string">b"what do ya want for nothing?"
+<a href=#218 id=218 data-nosnippet>218</a>                </span>=&gt; <span class="string">"effcdf6ae5eb2fa2d27416d5f184df9c259a7c79"</span>,
+<a href=#219 id=219 data-nosnippet>219</a>            <span class="comment">// 3
+<a href=#220 id=220 data-nosnippet>220</a>            </span><span class="kw-2">&amp;</span>[<span class="number">0xaa</span>; <span class="number">20</span>], <span class="kw-2">&amp;</span>[<span class="number">0xdd</span>; <span class="number">50</span>] =&gt; <span class="string">"125d7342b9ac11cd91a39af48aa17b4f63f175d3"</span>,
+<a href=#221 id=221 data-nosnippet>221</a>            <span class="comment">// 4
+<a href=#222 id=222 data-nosnippet>222</a>            </span><span class="kw-2">&amp;</span><span class="kw">crate</span>::_hex::&lt;<span class="number">25</span>&gt;(<span class="string">"0102030405060708090a0b0c0d0e0f10111213141516171819"</span>), <span class="kw-2">&amp;</span>[<span class="number">0xcd</span>; <span class="number">50</span>]
+<a href=#223 id=223 data-nosnippet>223</a>                =&gt; <span class="string">"4c9007f4026250c6bc8414f9bf50c86c2d7235da"</span>,
+<a href=#224 id=224 data-nosnippet>224</a>            <span class="comment">// 7
+<a href=#225 id=225 data-nosnippet>225</a>            </span><span class="kw-2">&amp;</span>[<span class="number">0xaa</span>; <span class="number">80</span>],
+<a href=#226 id=226 data-nosnippet>226</a>            <span class="string">b"Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data"
+<a href=#227 id=227 data-nosnippet>227</a>                </span>=&gt; <span class="string">"e8e99d0f45237d786d6bbaa7965c7808bbff1a91"</span>,
+<a href=#228 id=228 data-nosnippet>228</a>        }
+<a href=#229 id=229 data-nosnippet>229</a>    }
+<a href=#230 id=230 data-nosnippet>230</a>    <span class="attr">#[test]
+<a href=#231 id=231 data-nosnippet>231</a>    </span><span class="comment">// https://datatracker.ietf.org/doc/html/rfc4226#page-32
+<a href=#232 id=232 data-nosnippet>232</a>    </span><span class="kw">fn </span>otp_sha1_rfc4226() {
+<a href=#233 id=233 data-nosnippet>233</a>        <span class="kw">let </span>key = <span class="kw">crate</span>::_hex::&lt;<span class="number">20</span>&gt;(<span class="string">"3132333435363738393031323334353637383930"</span>);
+<a href=#234 id=234 data-nosnippet>234</a>        <span class="macro">_assert_hotp_codes!</span> { Sha1, <span class="kw-2">&amp;</span>key, <span class="number">6</span>;
+<a href=#235 id=235 data-nosnippet>235</a>            <span class="number">0 </span>=&gt; <span class="number">755224</span>, <span class="number">1 </span>=&gt; <span class="number">287082</span>, <span class="number">2 </span>=&gt; <span class="number">359152</span>, <span class="number">3 </span>=&gt; <span class="number">969429</span>, <span class="number">4 </span>=&gt; <span class="number">338314</span>,
+<a href=#236 id=236 data-nosnippet>236</a>            <span class="number">5 </span>=&gt; <span class="number">254676</span>, <span class="number">6 </span>=&gt; <span class="number">287922</span>, <span class="number">7 </span>=&gt; <span class="number">162583</span>, <span class="number">8 </span>=&gt; <span class="number">399871</span>, <span class="number">9 </span>=&gt; <span class="number">520489</span>,
+<a href=#237 id=237 data-nosnippet>237</a>        }
+<a href=#238 id=238 data-nosnippet>238</a>    }
+<a href=#239 id=239 data-nosnippet>239</a>    <span class="comment">/* https://www.rfc-editor.org/rfc/rfc6238#appendix-B */
+<a href=#240 id=240 data-nosnippet>240</a>    </span><span class="attr">#[test]
+<a href=#241 id=241 data-nosnippet>241</a>    </span><span class="kw">fn </span>otp_sha1_rfc6238() {
+<a href=#242 id=242 data-nosnippet>242</a>        <span class="macro">_assert_totp_codes!</span> { Sha1, <span class="string">b"12345678901234567890"</span>; <span class="comment">// 20
+<a href=#243 id=243 data-nosnippet>243</a>            </span><span class="number">59 </span>=&gt; <span class="number">94287082</span>,
+<a href=#244 id=244 data-nosnippet>244</a>            <span class="number">1_111_111_109 </span>=&gt; <span class="number">07081804</span>,
+<a href=#245 id=245 data-nosnippet>245</a>            <span class="number">1_111_111_111 </span>=&gt; <span class="number">14050471</span>,
+<a href=#246 id=246 data-nosnippet>246</a>            <span class="number">1_234_567_890 </span>=&gt; <span class="number">89005924</span>,
+<a href=#247 id=247 data-nosnippet>247</a>            <span class="number">2_000_000_000 </span>=&gt; <span class="number">69279037</span>,
+<a href=#248 id=248 data-nosnippet>248</a>            <span class="number">20_000_000_000 </span>=&gt; <span class="number">65353130</span>,
+<a href=#249 id=249 data-nosnippet>249</a>        }
+<a href=#250 id=250 data-nosnippet>250</a>    }
+<a href=#251 id=251 data-nosnippet>251</a>}
+<a href=#252 id=252 data-nosnippet>252</a><span class="kw">mod </span>sha2_256 {
+<a href=#253 id=253 data-nosnippet>253</a>    <span class="kw">use </span><a href="#36-40"><span class="kw">super</span>::Sha256</a>;
+<a href=#254 id=254 data-nosnippet>254</a>
+<a href=#255 id=255 data-nosnippet>255</a>    <span class="macro">_digest_common_tests!</span> { Sha256;
+<a href=#256 id=256 data-nosnippet>256</a>        abc: <span class="string">"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"</span>,
+<a href=#257 id=257 data-nosnippet>257</a>        block: <span class="number">64</span>,
+<a href=#258 id=258 data-nosnippet>258</a>        pad_at: <span class="number">56</span>,
+<a href=#259 id=259 data-nosnippet>259</a>        million_a: <span class="string">"cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0"</span>,
+<a href=#260 id=260 data-nosnippet>260</a>    }
+<a href=#261 id=261 data-nosnippet>261</a>
+<a href=#262 id=262 data-nosnippet>262</a>    <span class="attr">#[test]
+<a href=#263 id=263 data-nosnippet>263</a>    </span><span class="comment">// https://datatracker.ietf.org/doc/html/rfc6234#section-8.5
+<a href=#264 id=264 data-nosnippet>264</a>    </span><span class="kw">fn </span>known_vectors() {
+<a href=#265 id=265 data-nosnippet>265</a>        <span class="macro">_assert_digest_vectors!</span> { Sha256;
+<a href=#266 id=266 data-nosnippet>266</a>            <span class="string">b"" </span>=&gt; <span class="string">"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"</span>,
+<a href=#267 id=267 data-nosnippet>267</a>            <span class="string">b"abc" </span>=&gt; <span class="string">"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"</span>,
+<a href=#268 id=268 data-nosnippet>268</a>            <span class="string">b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq" </span>=&gt;
+<a href=#269 id=269 data-nosnippet>269</a>                <span class="string">"248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"</span>,
+<a href=#270 id=270 data-nosnippet>270</a>        }
+<a href=#271 id=271 data-nosnippet>271</a>    }
+<a href=#272 id=272 data-nosnippet>272</a>    <span class="attr">#[test]
+<a href=#273 id=273 data-nosnippet>273</a>    </span><span class="comment">// https://datatracker.ietf.org/doc/html/rfc6234#page-100
+<a href=#274 id=274 data-nosnippet>274</a>    </span><span class="kw">fn </span>hmac_vectors() {
+<a href=#275 id=275 data-nosnippet>275</a>        <span class="macro">_assert_hmac_vectors!</span> { Sha256;
+<a href=#276 id=276 data-nosnippet>276</a>            <span class="comment">// 1
+<a href=#277 id=277 data-nosnippet>277</a>            </span><span class="kw-2">&amp;</span>[<span class="number">0x0b</span>; <span class="number">20</span>], <span class="string">b"Hi There"
+<a href=#278 id=278 data-nosnippet>278</a>                </span>=&gt; <span class="string">"b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"</span>,
+<a href=#279 id=279 data-nosnippet>279</a>            <span class="comment">// 2
+<a href=#280 id=280 data-nosnippet>280</a>            </span><span class="string">b"Jefe"</span>, <span class="string">b"what do ya want for nothing?"
+<a href=#281 id=281 data-nosnippet>281</a>                </span>=&gt; <span class="string">"5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"</span>,
+<a href=#282 id=282 data-nosnippet>282</a>        }
+<a href=#283 id=283 data-nosnippet>283</a>    }
+<a href=#284 id=284 data-nosnippet>284</a>    <span class="attr">#[test]
+<a href=#285 id=285 data-nosnippet>285</a>    </span><span class="kw">fn </span>otp_sha256_rfc6238() {
+<a href=#286 id=286 data-nosnippet>286</a>        <span class="macro">_assert_totp_codes!</span> { Sha256, <span class="string">b"12345678901234567890123456789012"</span>; <span class="comment">// 32
+<a href=#287 id=287 data-nosnippet>287</a>            </span><span class="number">59 </span>=&gt; <span class="number">46119246</span>,
+<a href=#288 id=288 data-nosnippet>288</a>            <span class="number">1_111_111_109 </span>=&gt; <span class="number">68084774</span>,
+<a href=#289 id=289 data-nosnippet>289</a>            <span class="number">1_111_111_111 </span>=&gt; <span class="number">67062674</span>,
+<a href=#290 id=290 data-nosnippet>290</a>            <span class="number">1_234_567_890 </span>=&gt; <span class="number">91819424</span>,
+<a href=#291 id=291 data-nosnippet>291</a>            <span class="number">2_000_000_000 </span>=&gt; <span class="number">90698825</span>,
+<a href=#292 id=292 data-nosnippet>292</a>            <span class="number">20_000_000_000 </span>=&gt; <span class="number">77737706</span>,
+<a href=#293 id=293 data-nosnippet>293</a>        }
+<a href=#294 id=294 data-nosnippet>294</a>    }
+<a href=#295 id=295 data-nosnippet>295</a>}
+<a href=#296 id=296 data-nosnippet>296</a><span class="kw">mod </span>sha2_512 {
+<a href=#297 id=297 data-nosnippet>297</a>    <span class="kw">use </span><a href="#41-45"><span class="kw">super</span>::Sha512</a>;
+<a href=#298 id=298 data-nosnippet>298</a>
+<a href=#299 id=299 data-nosnippet>299</a>    <span class="macro">_digest_common_tests!</span> { Sha512;
+<a href=#300 id=300 data-nosnippet>300</a>        abc: <span class="string">"ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a\
+<a href=#301 id=301 data-nosnippet>301</a>              2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f"</span>,
+<a href=#302 id=302 data-nosnippet>302</a>        block: <span class="number">128</span>,
+<a href=#303 id=303 data-nosnippet>303</a>        pad_at: <span class="number">112</span>,
+<a href=#304 id=304 data-nosnippet>304</a>        million_a: <span class="string">"e718483d0ce769644e2e42c7bc15b4638e1f98b13b2044285632a803afa973eb\
+<a href=#305 id=305 data-nosnippet>305</a>                    de0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b"</span>,
+<a href=#306 id=306 data-nosnippet>306</a>    }
+<a href=#307 id=307 data-nosnippet>307</a>
+<a href=#308 id=308 data-nosnippet>308</a>    <span class="attr">#[test]
+<a href=#309 id=309 data-nosnippet>309</a>    </span><span class="comment">// https://datatracker.ietf.org/doc/html/rfc6234#section-8.5
+<a href=#310 id=310 data-nosnippet>310</a>    </span><span class="kw">fn </span>known_vectors() {
+<a href=#311 id=311 data-nosnippet>311</a>        <span class="macro">_assert_digest_vectors!</span> { Sha512;
+<a href=#312 id=312 data-nosnippet>312</a>            <span class="string">b"" </span>=&gt;
+<a href=#313 id=313 data-nosnippet>313</a>            <span class="string">"cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce\
+<a href=#314 id=314 data-nosnippet>314</a>             47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"</span>,
+<a href=#315 id=315 data-nosnippet>315</a>            <span class="string">b"abc" </span>=&gt;
+<a href=#316 id=316 data-nosnippet>316</a>            <span class="string">"ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a\
+<a href=#317 id=317 data-nosnippet>317</a>             2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f"</span>,
+<a href=#318 id=318 data-nosnippet>318</a>            <span class="string">b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq" </span>=&gt;
+<a href=#319 id=319 data-nosnippet>319</a>            <span class="string">"204a8fc6dda82f0a0ced7beb8e08a41657c16ef468b228a8279be331a703c335\
+<a href=#320 id=320 data-nosnippet>320</a>            96fd15c13b1b07f9aa1d3bea57789ca031ad85c7a71dd70354ec631238ca3445"</span>,
+<a href=#321 id=321 data-nosnippet>321</a>        }
+<a href=#322 id=322 data-nosnippet>322</a>    }
+<a href=#323 id=323 data-nosnippet>323</a>    <span class="attr">#[test]
+<a href=#324 id=324 data-nosnippet>324</a>    </span><span class="comment">// https://datatracker.ietf.org/doc/html/rfc6234#page-100
+<a href=#325 id=325 data-nosnippet>325</a>    </span><span class="kw">fn </span>hmac_vectors() {
+<a href=#326 id=326 data-nosnippet>326</a>        <span class="macro">_assert_hmac_vectors!</span> { Sha512;
+<a href=#327 id=327 data-nosnippet>327</a>           <span class="comment">// 1
+<a href=#328 id=328 data-nosnippet>328</a>           </span><span class="kw-2">&amp;</span>[<span class="number">0x0b</span>; <span class="number">20</span>], <span class="string">b"Hi There" </span>=&gt;
+<a href=#329 id=329 data-nosnippet>329</a>               <span class="string">"87aa7cdea5ef619d4ff0b4241a1d6cb02379f4e2ce4ec2787ad0b30545e17cde\
+<a href=#330 id=330 data-nosnippet>330</a>                daa833b7d6b8a702038b274eaea3f4e4be9d914eeb61f1702e696c203a126854"</span>,
+<a href=#331 id=331 data-nosnippet>331</a>           <span class="comment">// 2
+<a href=#332 id=332 data-nosnippet>332</a>           </span><span class="string">b"Jefe"</span>, <span class="string">b"what do ya want for nothing?" </span>=&gt;
+<a href=#333 id=333 data-nosnippet>333</a>               <span class="string">"164b7a7bfcf819e2e395fbe73b56e0a387bd64222e831fd610270cd7ea250554\
+<a href=#334 id=334 data-nosnippet>334</a>                9758bf75c05a994a6d034f65f8f0e6fdcaeab1a34d4a6b4b636e070a38bce737"</span>,
+<a href=#335 id=335 data-nosnippet>335</a>        }
+<a href=#336 id=336 data-nosnippet>336</a>    }
+<a href=#337 id=337 data-nosnippet>337</a>    <span class="attr">#[test]
+<a href=#338 id=338 data-nosnippet>338</a>    </span><span class="kw">fn </span>otp_sha512_rfc6238() {
+<a href=#339 id=339 data-nosnippet>339</a>        <span class="macro">_assert_totp_codes!</span> { Sha512,
+<a href=#340 id=340 data-nosnippet>340</a>            <span class="string">b"1234567890123456789012345678901234567890123456789012345678901234"</span>; <span class="comment">// 64
+<a href=#341 id=341 data-nosnippet>341</a>            </span><span class="number">59 </span>=&gt; <span class="number">90693936</span>,
+<a href=#342 id=342 data-nosnippet>342</a>            <span class="number">1_111_111_109 </span>=&gt; <span class="number">25091201</span>,
+<a href=#343 id=343 data-nosnippet>343</a>            <span class="number">1_111_111_111 </span>=&gt; <span class="number">99943326</span>,
+<a href=#344 id=344 data-nosnippet>344</a>            <span class="number">1_234_567_890 </span>=&gt; <span class="number">93441116</span>,
+<a href=#345 id=345 data-nosnippet>345</a>            <span class="number">2_000_000_000 </span>=&gt; <span class="number">38618901</span>,
+<a href=#346 id=346 data-nosnippet>346</a>            <span class="number">20_000_000_000 </span>=&gt; <span class="number">47863826</span>,
+<a href=#347 id=347 data-nosnippet>347</a>        }
+<a href=#348 id=348 data-nosnippet>348</a>    }
+<a href=#349 id=349 data-nosnippet>349</a>}
+</code></pre></div></section></main></body></html>

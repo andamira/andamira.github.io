@@ -1,0 +1,559 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/media/audio/format/wav/namespace.rs`."><title>namespace.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">devela/media/audio/format/wav/</div>namespace.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela/src/media/audio/format/wav/namespace.rs
+<a href=#2 id=2 data-nosnippet>2</a>//
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//! Defines [`PcmWav`].
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
+<a href=#5 id=5 data-nosnippet>5</a>
+<a href=#6 id=6 data-nosnippet>6</a></span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+<a href=#7 id=7 data-nosnippet>7</a></span><span class="kw">use crate</span>::{<a href="../../../../sys/fs/namespace.rs.html#20">Fs</a>, <a href="../../../../../../devela/zall/struct.Path.html">Path</a>};
+<a href=#8 id=8 data-nosnippet>8</a><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+<a href=#9 id=9 data-nosnippet>9</a></span><span class="kw">use crate</span>::{<a href="../../pcm/spec.rs.html#15-22">PcmSpec</a>, <a href="../../../../../../devela/zall/struct.Vec.html">Vec</a>, <a href="../../../../data/layout/array/vec/_reexport_alloc.rs.html#28">vec_</a>};
+<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use crate</span>::{
+<a href=#11 id=11 data-nosnippet>11</a>    <a href="buf.rs.html#31-40">PcmWavBuf</a>, <a href="error.rs.html#14-72">PcmWavError</a>, <a href="fmt.rs.html#13-46">PcmWavFmt</a>, <a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#37">Riff</a>, <a href="../../../../sys/mem/view/slice/namespace/mod.rs.html#128">Slice</a>, <a href="../../../../code/util/is.rs.html#78-136">is</a>, <a href="../../../../code/util/read.rs.html#73-133">read_at</a>, <a href="../../../../sys/mem/view/slice/namespace/mod.rs.html#207-375">slice</a>, <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap</a>, <a href="../../../../code/util/whilst.rs.html#82-219">whilst</a>, <a href="../../../../code/util/write.rs.html#101-195">write_at</a>,
+<a href=#12 id=12 data-nosnippet>12</a>};
+<a href=#13 id=13 data-nosnippet>13</a>
+<a href=#14 id=14 data-nosnippet>14</a><span class="attr">#[doc = <span class="macro">crate::_tags!</span>(audio codec)]
+<a href=#15 id=15 data-nosnippet>15</a></span><span class="doccomment">/// RIFF/WAVE operations for PCM-family audio.
+<a href=#16 id=16 data-nosnippet>16</a></span><span class="attr">#[doc = <span class="macro">crate::_doc_meta!</span>{location(<span class="string">"media/audio"</span>)}]
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="doccomment">/// `PcmWav` is a namespace for working with WAVE containers whose payload is
+<a href=#18 id=18 data-nosnippet>18</a>/// raw interleaved PCM-family audio.
+<a href=#19 id=19 data-nosnippet>19</a>///
+<a href=#20 id=20 data-nosnippet>20</a>/// It supports:
+<a href=#21 id=21 data-nosnippet>21</a>/// - parsing borrowed, owned, and file-backed WAVE bytes,
+<a href=#22 id=22 data-nosnippet>22</a>/// - writing WAVE bytes into caller-provided storage,
+<a href=#23 id=23 data-nosnippet>23</a>/// - classic integer PCM and IEEE floating-point WAVE,
+<a href=#24 id=24 data-nosnippet>24</a>/// - WAVE_FORMAT_EXTENSIBLE PCM/float subformats,
+<a href=#25 id=25 data-nosnippet>25</a>/// - conversion from parsed WAVE data to [`PcmRawBuf`].
+<a href=#26 id=26 data-nosnippet>26</a>///
+<a href=#27 id=27 data-nosnippet>27</a>/// The WAVE layer does not reinterpret sample bytes as typed slices. Use the
+<a href=#28 id=28 data-nosnippet>28</a>/// typed helpers on [`PcmRaw`] or [`PcmRawBuf`] to decode or encode samples.
+<a href=#29 id=29 data-nosnippet>29</a>///
+<a href=#30 id=30 data-nosnippet>30</a>/// [`PcmRaw`]: crate::PcmRaw
+<a href=#31 id=31 data-nosnippet>31</a>/// [`PcmRawBuf`]: crate::PcmRawBuf
+<a href=#32 id=32 data-nosnippet>32</a>///
+<a href=#33 id=33 data-nosnippet>33</a>/// # Example
+<a href=#34 id=34 data-nosnippet>34</a>/// ```
+<a href=#35 id=35 data-nosnippet>35</a>/// # use devela::{AudioChannels, PcmRaw, PcmSample, PcmSpec, PcmWav, PcmWavError, PcmWavFmt};
+<a href=#36 id=36 data-nosnippet>36</a>/// # fn main() -&gt; Result&lt;(), PcmWavError&gt; {
+<a href=#37 id=37 data-nosnippet>37</a>/// let spec = PcmSpec::new(PcmSample::I16, AudioChannels::Stereo, 44_100);
+<a href=#38 id=38 data-nosnippet>38</a>/// let fmt = PcmWavFmt::from_spec(spec)?;
+<a href=#39 id=39 data-nosnippet>39</a>///
+<a href=#40 id=40 data-nosnippet>40</a>/// // Two stereo frames: silence, then max-left/min-right.
+<a href=#41 id=41 data-nosnippet>41</a>/// let samples = [0i16, 0, i16::MAX, i16::MIN];
+<a href=#42 id=42 data-nosnippet>42</a>/// let mut pcm = [0u8; 8];
+<a href=#43 id=43 data-nosnippet>43</a>/// PcmRaw::encode_i16_le_into(&amp;mut pcm, spec, &amp;samples)?;
+<a href=#44 id=44 data-nosnippet>44</a>///
+<a href=#45 id=45 data-nosnippet>45</a>/// let len = PcmWav::write_len(fmt, pcm.len())?;
+<a href=#46 id=46 data-nosnippet>46</a>/// let mut wav_bytes = [0u8; 64];
+<a href=#47 id=47 data-nosnippet>47</a>/// let written = PcmWav::write_into(&amp;mut wav_bytes, fmt, &amp;pcm)?;
+<a href=#48 id=48 data-nosnippet>48</a>/// assert_eq!(written, len);
+<a href=#49 id=49 data-nosnippet>49</a>///
+<a href=#50 id=50 data-nosnippet>50</a>/// let wav = PcmWav::parse(&amp;wav_bytes[..written])?;
+<a href=#51 id=51 data-nosnippet>51</a>/// assert_eq!(wav.spec()?, spec);
+<a href=#52 id=52 data-nosnippet>52</a>/// assert_eq!(wav.frames(), 2);
+<a href=#53 id=53 data-nosnippet>53</a>///
+<a href=#54 id=54 data-nosnippet>54</a>/// let raw = wav.raw()?;
+<a href=#55 id=55 data-nosnippet>55</a>/// let mut decoded = [0i16; 4];
+<a href=#56 id=56 data-nosnippet>56</a>/// raw.decode_i16_le_into(&amp;mut decoded)?;
+<a href=#57 id=57 data-nosnippet>57</a>/// assert_eq!(decoded, samples);
+<a href=#58 id=58 data-nosnippet>58</a>/// # Ok(()) }
+<a href=#59 id=59 data-nosnippet>59</a>/// ```
+<a href=#60 id=60 data-nosnippet>60</a></span><span class="attr">#[derive(<a href="../../../../../../devela/zall/derive.Debug.html">Debug</a>)]
+<a href=#61 id=61 data-nosnippet>61</a></span><span class="kw">pub struct </span><a href="#61">PcmWav</a>;
+<a href=#62 id=62 data-nosnippet>62</a>
+<a href=#63 id=63 data-nosnippet>63</a><span class="doccomment">/// # Parsing
+<a href=#64 id=64 data-nosnippet>64</a></span><span class="kw">impl </span><a href="#61">PcmWav</a> {
+<a href=#65 id=65 data-nosnippet>65</a>    <span class="doccomment">/// Parses a borrowed WAVE byte region.
+<a href=#66 id=66 data-nosnippet>66</a>    ///
+<a href=#67 id=67 data-nosnippet>67</a>    /// This validates the RIFF container, finds the first `fmt ` chunk, finds
+<a href=#68 id=68 data-nosnippet>68</a>    /// the first `data` chunk, checks the basic PCM shape, and returns a
+<a href=#69 id=69 data-nosnippet>69</a>    /// byte-backed view into the original input.
+<a href=#70 id=70 data-nosnippet>70</a>    </span><span class="kw">pub const fn </span>parse(bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="buf.rs.html#31-40">PcmWavBuf</a>&lt;<span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt;, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#71 id=71 data-nosnippet>71</a>        <span class="kw">let </span>parts = <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::parse_parts(bytes)];
+<a href=#72 id=72 data-nosnippet>72</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="buf.rs.html#31-40">PcmWavBuf</a>::<a href="buf.rs.html#47-48">_new</a>(<a href="#70">bytes</a>, <a href="#71">parts</a>.fmt, <a href="#71">parts</a>.data_offset, <a href="#71">parts</a>.data_len))
+<a href=#73 id=73 data-nosnippet>73</a>    }
+<a href=#74 id=74 data-nosnippet>74</a>    <span class="doccomment">/// Parses owned WAVE bytes.
+<a href=#75 id=75 data-nosnippet>75</a>    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+<a href=#76 id=76 data-nosnippet>76</a>    </span><span class="kw">pub fn </span>from_vec(bytes: <a href="../../../../../../devela/zall/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="buf.rs.html#31-40">PcmWavBuf</a>&lt;<a href="../../../../../../devela/zall/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;&gt;, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#77 id=77 data-nosnippet>77</a>        <span class="kw">let </span>parts = <span class="self">Self</span>::parse_parts(bytes.as_slice())<span class="question-mark">?</span>;
+<a href=#78 id=78 data-nosnippet>78</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="buf.rs.html#31-40">PcmWavBuf</a>::<a href="buf.rs.html#47-48">_new</a>(<a href="#76">bytes</a>, <a href="#77">parts</a>.fmt, <a href="#77">parts</a>.data_offset, <a href="#77">parts</a>.data_len))
+<a href=#79 id=79 data-nosnippet>79</a>    }
+<a href=#80 id=80 data-nosnippet>80</a>    <span class="doccomment">/// Reads and parses a WAVE file.
+<a href=#81 id=81 data-nosnippet>81</a>    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+<a href=#82 id=82 data-nosnippet>82</a>    </span><span class="kw">pub fn </span>from_file&lt;P: <a href="../../../../../../devela/code/trait.AsRef.html">AsRef</a>&lt;<a href="../../../../../../devela/zall/struct.Path.html">Path</a>&gt;&gt;(path: P) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="buf.rs.html#31-40">PcmWavBuf</a>&lt;<a href="../../../../../../devela/zall/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;&gt;, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#83 id=83 data-nosnippet>83</a>        <span class="self">Self</span>::<a href="#76-79">from_vec</a>(Fs::read(path)<span class="question-mark">?</span>)
+<a href=#84 id=84 data-nosnippet>84</a>    }
+<a href=#85 id=85 data-nosnippet>85</a>
+<a href=#86 id=86 data-nosnippet>86</a>    <span class="doccomment">/// Parses the base WAVE `fmt` payload.
+<a href=#87 id=87 data-nosnippet>87</a>    </span><span class="kw">pub const fn </span>parse_fmt(bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="fmt.rs.html#13-46">PcmWavFmt</a>, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#88 id=88 data-nosnippet>88</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a> { bytes.len() &lt; PcmWavFmt::BASE_LEN, <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::TruncatedFmt) }
+<a href=#89 id=89 data-nosnippet>89</a>        <span class="kw">let </span>format_tag = <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>::<a href="https://doc.rust-lang.org/nightly/core/primitive.u16.html#method.from_le_bytes">from_le_bytes</a>(<a href="../../../../code/util/read.rs.html#73-133">read_at!</a>[bytes, <span class="number">0</span>, @<span class="number">2</span>]);
+<a href=#90 id=90 data-nosnippet>90</a>        <span class="kw">let </span>extra_len = <span class="kw">if </span><a href="#87">bytes</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.len">len</a>() &gt;= <a href="fmt.rs.html#13-46">PcmWavFmt</a>::<a href="fmt.rs.html#232">WAVEFORMATEX_EMPTY_LEN</a> {
+<a href=#91 id=91 data-nosnippet>91</a>            <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>::<a href="https://doc.rust-lang.org/nightly/core/primitive.u16.html#method.from_le_bytes">from_le_bytes</a>(<a href="../../../../code/util/read.rs.html#73-133">read_at!</a>[bytes, <span class="number">16</span>, @<span class="number">2</span>])
+<a href=#92 id=92 data-nosnippet>92</a>        } <span class="kw">else </span>{
+<a href=#93 id=93 data-nosnippet>93</a>            <span class="number">0
+<a href=#94 id=94 data-nosnippet>94</a>        </span>};
+<a href=#95 id=95 data-nosnippet>95</a>        <span class="kw">let </span><span class="kw-2">mut </span>fmt = <a href="fmt.rs.html#13-46">PcmWavFmt</a> {
+<a href=#96 id=96 data-nosnippet>96</a>            <a href="#89">format_tag</a>,
+<a href=#97 id=97 data-nosnippet>97</a>            subformat_tag: <a href="#89">format_tag</a>,
+<a href=#98 id=98 data-nosnippet>98</a>            channels: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>::<a href="https://doc.rust-lang.org/nightly/core/primitive.u16.html#method.from_le_bytes">from_le_bytes</a>(<a href="../../../../code/util/read.rs.html#73-133">read_at!</a>[bytes, <span class="number">2</span>, @<span class="number">2</span>]),
+<a href=#99 id=99 data-nosnippet>99</a>            sample_rate: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>::<a href="https://doc.rust-lang.org/nightly/core/primitive.u32.html#method.from_le_bytes">from_le_bytes</a>(<a href="../../../../code/util/read.rs.html#73-133">read_at!</a>[bytes, <span class="number">4</span>, @<span class="number">4</span>]),
+<a href=#100 id=100 data-nosnippet>100</a>            byte_rate: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>::<a href="https://doc.rust-lang.org/nightly/core/primitive.u32.html#method.from_le_bytes">from_le_bytes</a>(<a href="../../../../code/util/read.rs.html#73-133">read_at!</a>[bytes, <span class="number">8</span>, @<span class="number">4</span>]),
+<a href=#101 id=101 data-nosnippet>101</a>            block_align: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>::<a href="https://doc.rust-lang.org/nightly/core/primitive.u16.html#method.from_le_bytes">from_le_bytes</a>(<a href="../../../../code/util/read.rs.html#73-133">read_at!</a>[bytes, <span class="number">12</span>, @<span class="number">2</span>]),
+<a href=#102 id=102 data-nosnippet>102</a>            bits_per_sample: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>::<a href="https://doc.rust-lang.org/nightly/core/primitive.u16.html#method.from_le_bytes">from_le_bytes</a>(<a href="../../../../code/util/read.rs.html#73-133">read_at!</a>[bytes, <span class="number">14</span>, @<span class="number">2</span>]),
+<a href=#103 id=103 data-nosnippet>103</a>            valid_bits_per_sample: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>::<a href="https://doc.rust-lang.org/nightly/core/primitive.u16.html#method.from_le_bytes">from_le_bytes</a>(<a href="../../../../code/util/read.rs.html#73-133">read_at!</a>[bytes, <span class="number">14</span>, @<span class="number">2</span>]),
+<a href=#104 id=104 data-nosnippet>104</a>            channel_mask: <span class="number">0</span>,
+<a href=#105 id=105 data-nosnippet>105</a>            <a href="#90">extra_len</a>,
+<a href=#106 id=106 data-nosnippet>106</a>        };
+<a href=#107 id=107 data-nosnippet>107</a>        <span class="kw">if </span><a href="#89">format_tag</a> == <span class="self">Self</span>::<a href="#359">FORMAT_EXTENSIBLE</a> {
+<a href=#108 id=108 data-nosnippet>108</a>            <span class="kw">if </span><a href="#87">bytes</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.len">len</a>() &lt; <span class="self">Self</span>::<a href="#365">EXTENSIBLE_LEN</a> || <a href="#90">extra_len</a> &lt; <span class="self">Self</span>::<a href="#362">EXTENSIBLE_EXTRA_LEN</a> {
+<a href=#109 id=109 data-nosnippet>109</a>                <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#64">InvalidExtensibleFormat</a>);
+<a href=#110 id=110 data-nosnippet>110</a>            }
+<a href=#111 id=111 data-nosnippet>111</a>            <a href="#95">fmt</a>.valid_bits_per_sample = <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>::<a href="https://doc.rust-lang.org/nightly/core/primitive.u16.html#method.from_le_bytes">from_le_bytes</a>(<a href="../../../../code/util/read.rs.html#73-133">read_at!</a>[bytes, <span class="number">18</span>, @<span class="number">2</span>]);
+<a href=#112 id=112 data-nosnippet>112</a>            <a href="#95">fmt</a>.channel_mask = <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>::<a href="https://doc.rust-lang.org/nightly/core/primitive.u32.html#method.from_le_bytes">from_le_bytes</a>(<a href="../../../../code/util/read.rs.html#73-133">read_at!</a>[bytes, <span class="number">20</span>, @<span class="number">4</span>]);
+<a href=#113 id=113 data-nosnippet>113</a>            <span class="kw">let </span>guid = <a href="../../../../code/util/read.rs.html#73-133">read_at!</a>[bytes, <span class="number">24</span>, @<span class="number">16</span>];
+<a href=#114 id=114 data-nosnippet>114</a>            <a href="#95">fmt</a>.subformat_tag = <span class="kw">match </span><span class="self">Self</span>::<a href="#384-392">subformat_tag</a>(<a href="#113">guid</a>) {
+<a href=#115 id=115 data-nosnippet>115</a>                <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(tag) =&gt; <a href="#115">tag</a>,
+<a href=#116 id=116 data-nosnippet>116</a>                <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(<a href="#116">err</a>),
+<a href=#117 id=117 data-nosnippet>117</a>            };
+<a href=#118 id=118 data-nosnippet>118</a>        }
+<a href=#119 id=119 data-nosnippet>119</a>        <a href="#95">fmt</a>.<a href="fmt.rs.html#168-207">validate</a>()
+<a href=#120 id=120 data-nosnippet>120</a>    }
+<a href=#121 id=121 data-nosnippet>121</a>
+<a href=#122 id=122 data-nosnippet>122</a>    <span class="doccomment">/// Returns the packed byte width of a supported WAVE sample encoding.
+<a href=#123 id=123 data-nosnippet>123</a>    ///
+<a href=#124 id=124 data-nosnippet>124</a>    /// `format_tag` must be an effective sample format tag, such as
+<a href=#125 id=125 data-nosnippet>125</a>    /// [`FORMAT_PCM`](Self::FORMAT_PCM) or [`FORMAT_IEEE_FLOAT`](Self::FORMAT_IEEE_FLOAT).
+<a href=#126 id=126 data-nosnippet>126</a>    /// For WAVE_FORMAT_EXTENSIBLE, pass the resolved subformat tag instead.
+<a href=#127 id=127 data-nosnippet>127</a>    </span><span class="kw">pub const fn </span>bytes_per_sample(format_tag: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, bits: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#128 id=128 data-nosnippet>128</a>        <span class="kw">match </span>(<a href="#127">format_tag</a>, <a href="#127">bits</a>) {
+<a href=#129 id=129 data-nosnippet>129</a>            (<span class="self">Self</span>::<a href="#354">FORMAT_PCM</a>, <span class="number">8</span>) =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="number">1</span>),
+<a href=#130 id=130 data-nosnippet>130</a>            (<span class="self">Self</span>::<a href="#354">FORMAT_PCM</a>, <span class="number">16</span>) =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="number">2</span>),
+<a href=#131 id=131 data-nosnippet>131</a>            (<span class="self">Self</span>::<a href="#354">FORMAT_PCM</a>, <span class="number">24</span>) =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="number">3</span>),
+<a href=#132 id=132 data-nosnippet>132</a>            (<span class="self">Self</span>::<a href="#354">FORMAT_PCM</a>, <span class="number">32</span>) =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="number">4</span>),
+<a href=#133 id=133 data-nosnippet>133</a>            (<span class="self">Self</span>::<a href="#356">FORMAT_IEEE_FLOAT</a>, <span class="number">32</span>) =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="number">4</span>),
+<a href=#134 id=134 data-nosnippet>134</a>            (<span class="self">Self</span>::<a href="#356">FORMAT_IEEE_FLOAT</a>, <span class="number">64</span>) =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="number">8</span>),
+<a href=#135 id=135 data-nosnippet>135</a>            (<span class="kw">_</span>, other) =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#40">UnsupportedBitsPerSample</a>(<a href="#135">other</a>)),
+<a href=#136 id=136 data-nosnippet>136</a>        }
+<a href=#137 id=137 data-nosnippet>137</a>    }
+<a href=#138 id=138 data-nosnippet>138</a>    <span class="kw">const fn </span>parse_parts(bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="#404-408">PcmWavParts</a>, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#139 id=139 data-nosnippet>139</a>        <span class="kw">let </span>root = <span class="kw">match </span><a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#37">Riff</a>::<a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#79-85">root</a>(<a href="#138">bytes</a>) {
+<a href=#140 id=140 data-nosnippet>140</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(root) =&gt; <a href="#140">root</a>,
+<a href=#141 id=141 data-nosnippet>141</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#19">Riff</a>(<a href="#141">err</a>)),
+<a href=#142 id=142 data-nosnippet>142</a>        };
+<a href=#143 id=143 data-nosnippet>143</a>        <span class="kw">match </span><a href="#139">root</a>.<a href="../../../../data/codec/pack/wrap/riff/chunk.rs.html#63-66">container_type</a>() {
+<a href=#144 id=144 data-nosnippet>144</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">Some</a>(tag) <span class="kw">if </span><a href="#144">tag</a>.<a href="../../../../data/codec/bin/tag.rs.html#99-101">eq</a>(<a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#37">Riff</a>::<a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#182">WAVE</a>) =&gt; {}
+<a href=#145 id=145 data-nosnippet>145</a>            <span class="kw">_ </span>=&gt; <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#22">NotWave</a>),
+<a href=#146 id=146 data-nosnippet>146</a>        }
+<a href=#147 id=147 data-nosnippet>147</a>        <span class="kw">let </span><span class="kw-2">mut </span>chunks = <span class="kw">match </span><a href="#139">root</a>.<a href="../../../../data/codec/pack/wrap/riff/chunk.rs.html#75-78">subchunks</a>() {
+<a href=#148 id=148 data-nosnippet>148</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(chunks) =&gt; <a href="#148">chunks</a>,
+<a href=#149 id=149 data-nosnippet>149</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#19">Riff</a>(<a href="#149">err</a>)),
+<a href=#150 id=150 data-nosnippet>150</a>        };
+<a href=#151 id=151 data-nosnippet>151</a>        <span class="kw">let </span><span class="kw-2">mut </span>fmt: <a class="prelude-ty" href="../../../../../../devela/zall/enum.Option.html">Option</a>&lt;<a href="fmt.rs.html#13-46">PcmWavFmt</a>&gt; = <a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">None</a>;
+<a href=#152 id=152 data-nosnippet>152</a>        <span class="kw">let </span><span class="kw-2">mut </span>data_len = <span class="number">0usize</span>;
+<a href=#153 id=153 data-nosnippet>153</a>        <span class="kw">let </span><span class="kw-2">mut </span>data_offset = <span class="number">0usize</span>;
+<a href=#154 id=154 data-nosnippet>154</a>        <span class="kw">while let </span><span class="prelude-val">Some</span>(next) = chunks.next_chunk() {
+<a href=#155 id=155 data-nosnippet>155</a>            <span class="kw">let </span>chunk = <span class="kw">match </span>next {
+<a href=#156 id=156 data-nosnippet>156</a>                <span class="prelude-val">Ok</span>(chunk) =&gt; chunk,
+<a href=#157 id=157 data-nosnippet>157</a>                <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::Riff(err)),
+<a href=#158 id=158 data-nosnippet>158</a>            };
+<a href=#159 id=159 data-nosnippet>159</a>            <span class="kw">if </span>chunk.id().eq(Riff::FMT) {
+<a href=#160 id=160 data-nosnippet>160</a>                <span class="kw">if </span>fmt.is_none() {
+<a href=#161 id=161 data-nosnippet>161</a>                    fmt = <span class="kw">match </span><span class="self">Self</span>::parse_fmt(chunk.data()) {
+<a href=#162 id=162 data-nosnippet>162</a>                        <span class="prelude-val">Ok</span>(fmt) =&gt; <span class="prelude-val">Some</span>(fmt),
+<a href=#163 id=163 data-nosnippet>163</a>                        <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err),
+<a href=#164 id=164 data-nosnippet>164</a>                    };
+<a href=#165 id=165 data-nosnippet>165</a>                }
+<a href=#166 id=166 data-nosnippet>166</a>            } <span class="kw">else if </span>chunk.id().eq(Riff::DATA) {
+<a href=#167 id=167 data-nosnippet>167</a>                <span class="kw">if </span>data_len == <span class="number">0 </span>&amp;&amp; data_offset == <span class="number">0 </span>{
+<a href=#168 id=168 data-nosnippet>168</a>                    data_len = chunk.data().len();
+<a href=#169 id=169 data-nosnippet>169</a>                    <span class="comment">// Full WAVE byte layout:
+<a href=#170 id=170 data-nosnippet>170</a>                    // - RIFF header:       8 bytes
+<a href=#171 id=171 data-nosnippet>171</a>                    // - WAVE form tag:     4 bytes
+<a href=#172 id=172 data-nosnippet>172</a>                    // - subchunk header:   8 bytes
+<a href=#173 id=173 data-nosnippet>173</a>                    //
+<a href=#174 id=174 data-nosnippet>174</a>                    // `chunk.offset()` is relative to the subchunk region, which
+<a href=#175 id=175 data-nosnippet>175</a>                    // starts after the RIFF header and WAVE form tag.
+<a href=#176 id=176 data-nosnippet>176</a>                    </span><span class="kw">let </span><span class="prelude-val">Some</span>(offset) = <span class="number">12usize</span>.checked_add(chunk.offset()) <span class="kw">else </span>{
+<a href=#177 id=177 data-nosnippet>177</a>                        <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::Overflow);
+<a href=#178 id=178 data-nosnippet>178</a>                    };
+<a href=#179 id=179 data-nosnippet>179</a>                    <span class="kw">let </span><span class="prelude-val">Some</span>(offset) = offset.checked_add(<span class="number">8</span>) <span class="kw">else </span>{
+<a href=#180 id=180 data-nosnippet>180</a>                        <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::Overflow);
+<a href=#181 id=181 data-nosnippet>181</a>                    };
+<a href=#182 id=182 data-nosnippet>182</a>                    data_offset = offset;
+<a href=#183 id=183 data-nosnippet>183</a>                }
+<a href=#184 id=184 data-nosnippet>184</a>            }
+<a href=#185 id=185 data-nosnippet>185</a>            <span class="macro">is!</span> { fmt.is_some() &amp;&amp; (data_len != <span class="number">0 </span>|| data_offset != <span class="number">0</span>), <span class="kw">break </span>}
+<a href=#186 id=186 data-nosnippet>186</a>        }
+<a href=#187 id=187 data-nosnippet>187</a>        <span class="kw">let </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">Some</a>(fmt) = <a href="#151">fmt</a> <span class="kw">else </span>{
+<a href=#188 id=188 data-nosnippet>188</a>            <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#25">MissingFmt</a>);
+<a href=#189 id=189 data-nosnippet>189</a>        };
+<a href=#190 id=190 data-nosnippet>190</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a> { data_len == <span class="number">0 </span>&amp;&amp; data_offset == <span class="number">0</span>, <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::MissingData) }
+<a href=#191 id=191 data-nosnippet>191</a>        <span class="kw">match </span><span class="self">Self</span>::<a href="#197-203">validate_data_shape</a>(<a href="#187">fmt</a>, <a href="#152">data_len</a>) {
+<a href=#192 id=192 data-nosnippet>192</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(()) =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#404-408">PcmWavParts</a> { <a href="#187">fmt</a>, <a href="#153">data_offset</a>, <a href="#152">data_len</a> }),
+<a href=#193 id=193 data-nosnippet>193</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(err) =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(<a href="#193">err</a>),
+<a href=#194 id=194 data-nosnippet>194</a>        }
+<a href=#195 id=195 data-nosnippet>195</a>    }
+<a href=#196 id=196 data-nosnippet>196</a>    <span class="doccomment">/// Checks that the `data` chunk length is frame-aligned.
+<a href=#197 id=197 data-nosnippet>197</a>    </span><span class="kw">const fn </span>validate_data_shape(fmt: <a href="fmt.rs.html#13-46">PcmWavFmt</a>, data_len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;(), <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#198 id=198 data-nosnippet>198</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a> { fmt.block_align == <span class="number">0</span>, <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::InvalidBlockAlign) }
+<a href=#199 id=199 data-nosnippet>199</a>        <span class="kw">if </span>!<a href="#197">data_len</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.usize.html#method.is_multiple_of">is_multiple_of</a>(<a href="#197">fmt</a>.block_align <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) {
+<a href=#200 id=200 data-nosnippet>200</a>            <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#49">InvalidDataLength</a>);
+<a href=#201 id=201 data-nosnippet>201</a>        }
+<a href=#202 id=202 data-nosnippet>202</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(())
+<a href=#203 id=203 data-nosnippet>203</a>    }
+<a href=#204 id=204 data-nosnippet>204</a>}
+<a href=#205 id=205 data-nosnippet>205</a><span class="doccomment">/// # Writing
+<a href=#206 id=206 data-nosnippet>206</a></span><span class="kw">impl </span><a href="#61">PcmWav</a> {
+<a href=#207 id=207 data-nosnippet>207</a>    <span class="doccomment">/// Returns the number of bytes needed to write a minimal WAVE container.
+<a href=#208 id=208 data-nosnippet>208</a>    </span><span class="kw">pub const fn </span>write_len(fmt: <a href="fmt.rs.html#13-46">PcmWavFmt</a>, data_len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#209 id=209 data-nosnippet>209</a>        <span class="kw">let </span>fmt = <span class="kw">match </span><a href="#208">fmt</a>.<a href="fmt.rs.html#168-207">validate</a>() {
+<a href=#210 id=210 data-nosnippet>210</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(fmt) =&gt; <a href="#210">fmt</a>,
+<a href=#211 id=211 data-nosnippet>211</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(<a href="#211">err</a>),
+<a href=#212 id=212 data-nosnippet>212</a>        };
+<a href=#213 id=213 data-nosnippet>213</a>        <span class="kw">match </span><a href="#209">fmt</a>.<a href="fmt.rs.html#157-166">frames_for_data_len</a>(<a href="#208">data_len</a>) {
+<a href=#214 id=214 data-nosnippet>214</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="kw">_</span>) =&gt; {}
+<a href=#215 id=215 data-nosnippet>215</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(err) =&gt; <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(<a href="#215">err</a>),
+<a href=#216 id=216 data-nosnippet>216</a>        }
+<a href=#217 id=217 data-nosnippet>217</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a> { !Riff::fits_u32(data_len), <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::SizeOutOfRange) }
+<a href=#218 id=218 data-nosnippet>218</a>        <span class="kw">let </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">Some</a>(fmt_chunk_len) = <a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#37">Riff</a>::<a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#72-75">chunk_len</a>(<a href="#209">fmt</a>.<a href="fmt.rs.html#142-150">encoded_len</a>()) <span class="kw">else </span>{
+<a href=#219 id=219 data-nosnippet>219</a>            <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#52">Overflow</a>);
+<a href=#220 id=220 data-nosnippet>220</a>        };
+<a href=#221 id=221 data-nosnippet>221</a>        <span class="kw">let </span>fact_chunk_len = <span class="kw">if </span><a href="#209">fmt</a>.<a href="fmt.rs.html#153-155">needs_fact</a>() {
+<a href=#222 id=222 data-nosnippet>222</a>            <span class="kw">match </span><a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#37">Riff</a>::<a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#72-75">chunk_len</a>(<span class="number">4</span>) {
+<a href=#223 id=223 data-nosnippet>223</a>                <a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">Some</a>(len) =&gt; <a href="#223">len</a>,
+<a href=#224 id=224 data-nosnippet>224</a>                <a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">None</a> =&gt; <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#52">Overflow</a>),
+<a href=#225 id=225 data-nosnippet>225</a>            }
+<a href=#226 id=226 data-nosnippet>226</a>        } <span class="kw">else </span>{
+<a href=#227 id=227 data-nosnippet>227</a>            <span class="number">0
+<a href=#228 id=228 data-nosnippet>228</a>        </span>};
+<a href=#229 id=229 data-nosnippet>229</a>        <span class="kw">let </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">Some</a>(data_chunk_len) = <a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#37">Riff</a>::<a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#72-75">chunk_len</a>(<a href="#208">data_len</a>) <span class="kw">else </span>{
+<a href=#230 id=230 data-nosnippet>230</a>            <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#52">Overflow</a>);
+<a href=#231 id=231 data-nosnippet>231</a>        };
+<a href=#232 id=232 data-nosnippet>232</a>        <span class="kw">let </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">Some</a>(subchunks_len) = <a href="#218">fmt_chunk_len</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.usize.html#method.checked_add">checked_add</a>(<a href="#221">fact_chunk_len</a>) <span class="kw">else </span>{
+<a href=#233 id=233 data-nosnippet>233</a>            <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#52">Overflow</a>);
+<a href=#234 id=234 data-nosnippet>234</a>        };
+<a href=#235 id=235 data-nosnippet>235</a>        <span class="kw">let </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">Some</a>(subchunks_len) = <a href="#232">subchunks_len</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.usize.html#method.checked_add">checked_add</a>(<a href="#229">data_chunk_len</a>) <span class="kw">else </span>{
+<a href=#236 id=236 data-nosnippet>236</a>            <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#52">Overflow</a>);
+<a href=#237 id=237 data-nosnippet>237</a>        };
+<a href=#238 id=238 data-nosnippet>238</a>        <span class="comment">// The RIFF size field stores `4 + subchunks_len`.
+<a href=#239 id=239 data-nosnippet>239</a>        </span><span class="kw">let </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">Some</a>(riff_data_len) = <a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#37">Riff</a>::<a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#43">FORM_TYPE_LEN</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.usize.html#method.checked_add">checked_add</a>(<a href="#235">subchunks_len</a>) <span class="kw">else </span>{
+<a href=#240 id=240 data-nosnippet>240</a>            <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#52">Overflow</a>);
+<a href=#241 id=241 data-nosnippet>241</a>        };
+<a href=#242 id=242 data-nosnippet>242</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a> { !Riff::fits_u32(riff_data_len), <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::SizeOutOfRange) }
+<a href=#243 id=243 data-nosnippet>243</a>        <span class="kw">match </span><a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#37">Riff</a>::<a href="../../../../data/codec/pack/wrap/riff/namespace.rs.html#94-96">form_len</a>(<a href="#235">subchunks_len</a>) {
+<a href=#244 id=244 data-nosnippet>244</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">Some</a>(len) =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#244">len</a>),
+<a href=#245 id=245 data-nosnippet>245</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Option.html">None</a> =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#52">Overflow</a>),
+<a href=#246 id=246 data-nosnippet>246</a>        }
+<a href=#247 id=247 data-nosnippet>247</a>    }
+<a href=#248 id=248 data-nosnippet>248</a>    <span class="doccomment">/// Writes a minimal WAVE container into `dst`.
+<a href=#249 id=249 data-nosnippet>249</a>    ///
+<a href=#250 id=250 data-nosnippet>250</a>    /// `data` must already contain raw interleaved PCM-family sample bytes matching `fmt`.
+<a href=#251 id=251 data-nosnippet>251</a>    /// This method writes RIFF/WAVE headers and copies the payload;
+<a href=#252 id=252 data-nosnippet>252</a>    /// it does not convert typed samples.
+<a href=#253 id=253 data-nosnippet>253</a>    </span><span class="kw">pub const fn </span>write_into(
+<a href=#254 id=254 data-nosnippet>254</a>        dst: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
+<a href=#255 id=255 data-nosnippet>255</a>        fmt: <a href="fmt.rs.html#13-46">PcmWavFmt</a>,
+<a href=#256 id=256 data-nosnippet>256</a>        data: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
+<a href=#257 id=257 data-nosnippet>257</a>    ) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#258 id=258 data-nosnippet>258</a>        <span class="kw">use </span><a href="error.rs.html#14-72">PcmWavError</a> <span class="kw">as </span>E;
+<a href=#259 id=259 data-nosnippet>259</a>        <span class="kw">let </span>fmt = <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>fmt.validate()];
+<a href=#260 id=260 data-nosnippet>260</a>        <span class="kw">let </span>frames = <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>fmt.frames_for_data_len(data.len())];
+<a href=#261 id=261 data-nosnippet>261</a>        <span class="kw">let </span>len = <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::write_len(fmt, data.len())];
+<a href=#262 id=262 data-nosnippet>262</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a> { dst.len() &lt; len, <span class="kw">return </span><span class="prelude-val">Err</span>(E::NotEnoughSpace) }
+<a href=#263 id=263 data-nosnippet>263</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a> { frames &gt; u32::MAX <span class="kw">as </span>usize, <span class="kw">return </span><span class="prelude-val">Err</span>(E::SizeOutOfRange) }
+<a href=#264 id=264 data-nosnippet>264</a>        <span class="kw">let </span>fmt_len = <a href="#259">fmt</a>.<a href="fmt.rs.html#142-150">encoded_len</a>();
+<a href=#265 id=265 data-nosnippet>265</a>        <span class="kw">let </span>fmt_chunk_len = <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[some_ok_or<span class="question-mark">? </span>Riff::chunk_len(fmt_len), E::Overflow];
+<a href=#266 id=266 data-nosnippet>266</a>        <span class="kw">let </span>fact_chunk_len = <span class="kw">if </span><a href="#259">fmt</a>.<a href="fmt.rs.html#153-155">needs_fact</a>() {
+<a href=#267 id=267 data-nosnippet>267</a>            <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[some_ok_or<span class="question-mark">? </span>Riff::chunk_len(<span class="number">4</span>), E::Overflow]
+<a href=#268 id=268 data-nosnippet>268</a>        } <span class="kw">else </span>{
+<a href=#269 id=269 data-nosnippet>269</a>            <span class="number">0
+<a href=#270 id=270 data-nosnippet>270</a>        </span>};
+<a href=#271 id=271 data-nosnippet>271</a>        <span class="kw">let </span>data_chunk_len = <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[some_ok_or<span class="question-mark">? </span>Riff::chunk_len(data.len()), E::Overflow];
+<a href=#272 id=272 data-nosnippet>272</a>        <span class="kw">let </span>subchunks_len = <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[some_ok_or<span class="question-mark">?
+<a href=#273 id=273 data-nosnippet>273</a>            </span>fmt_chunk_len.checked_add(fact_chunk_len), E::Overflow];
+<a href=#274 id=274 data-nosnippet>274</a>        <span class="kw">let </span>subchunks_len = <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[some_ok_or<span class="question-mark">?
+<a href=#275 id=275 data-nosnippet>275</a>            </span>subchunks_len.checked_add(data_chunk_len), E::Overflow];
+<a href=#276 id=276 data-nosnippet>276</a>        <span class="kw">let </span><span class="kw-2">mut </span>offset = <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok_err_map<span class="question-mark">?
+<a href=#277 id=277 data-nosnippet>277</a>            </span>Riff::write_form_header(dst, Riff::WAVE, subchunks_len), |e|e.to_wav()];
+<a href=#278 id=278 data-nosnippet>278</a>        <a href="#276">offset</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a> { ok_err_map<span class="question-mark">? </span>Riff::write_chunk_header(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, offset,..],
+<a href=#279 id=279 data-nosnippet>279</a>        Riff::FMT, fmt_len), |e| e.to_wav() };
+<a href=#280 id=280 data-nosnippet>280</a>        <a href="#276">offset</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span><span class="self">Self</span>::write_fmt_payload(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, offset,..], fmt)];
+<a href=#281 id=281 data-nosnippet>281</a>        <span class="kw">if </span><a href="#259">fmt</a>.<a href="fmt.rs.html#153-155">needs_fact</a>() {
+<a href=#282 id=282 data-nosnippet>282</a>            <a href="#276">offset</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a> {ok_err_map<span class="question-mark">? </span>Riff::write_chunk_header(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, offset,..],
+<a href=#283 id=283 data-nosnippet>283</a>            Riff::FACT, <span class="number">4</span>), |e| e.to_wav() };
+<a href=#284 id=284 data-nosnippet>284</a>            <a href="#276">offset</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_u32_le(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, offset,..], frames <span class="kw">as </span>u32)];
+<a href=#285 id=285 data-nosnippet>285</a>        }
+<a href=#286 id=286 data-nosnippet>286</a>        <a href="#276">offset</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a> { ok_err_map<span class="question-mark">? </span>Riff::write_chunk_header(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, offset,..],
+<a href=#287 id=287 data-nosnippet>287</a>        Riff::DATA, data.len()), |e| e.to_wav() };
+<a href=#288 id=288 data-nosnippet>288</a>        <a href="#276">offset</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_bytes(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, offset, ..], data)];
+<a href=#289 id=289 data-nosnippet>289</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a> { Riff::pad_len(data.len()) != <span class="number">0</span>, { dst[offset] = <span class="number">0</span>; offset += <span class="number">1</span>; }}
+<a href=#290 id=290 data-nosnippet>290</a>        <a href="../../../../../../devela/zall/macro.debug_assert.html">debug_assert!</a>(offset == len);
+<a href=#291 id=291 data-nosnippet>291</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#276">offset</a>)
+<a href=#292 id=292 data-nosnippet>292</a>    }
+<a href=#293 id=293 data-nosnippet>293</a>    <span class="doccomment">/// Encodes a minimal PCM-family WAVE file into an allocated byte vector.
+<a href=#294 id=294 data-nosnippet>294</a>    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+<a href=#295 id=295 data-nosnippet>295</a>    </span><span class="kw">pub fn </span>to_vec(fmt: <a href="fmt.rs.html#13-46">PcmWavFmt</a>, data: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="../../../../../../devela/zall/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#296 id=296 data-nosnippet>296</a>        <span class="kw">let </span>len = <span class="self">Self</span>::write_len(fmt, data.len())<span class="question-mark">?</span>;
+<a href=#297 id=297 data-nosnippet>297</a>        <span class="kw">let </span><span class="kw-2">mut </span>out = <a href="../../../../data/layout/array/vec/_reexport_alloc.rs.html#28">vec_!</a>[<span class="number">0u8</span>; len];
+<a href=#298 id=298 data-nosnippet>298</a>        <span class="kw">let </span>written = <span class="self">Self</span>::write_into(<span class="kw-2">&amp;mut </span>out, fmt, data)<span class="question-mark">?</span>;
+<a href=#299 id=299 data-nosnippet>299</a>        <a href="../../../../../../devela/zall/macro.debug_assert_eq.html">debug_assert_eq!</a>(written, len);
+<a href=#300 id=300 data-nosnippet>300</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#297">out</a>)
+<a href=#301 id=301 data-nosnippet>301</a>    }
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="doccomment">/// Encodes and writes a minimal PCM-family WAVE file.
+<a href=#303 id=303 data-nosnippet>303</a>    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+<a href=#304 id=304 data-nosnippet>304</a>    </span><span class="kw">pub fn </span>to_file&lt;P: <a href="../../../../../../devela/code/trait.AsRef.html">AsRef</a>&lt;<a href="../../../../../../devela/zall/struct.Path.html">Path</a>&gt;&gt;(
+<a href=#305 id=305 data-nosnippet>305</a>        path: P,
+<a href=#306 id=306 data-nosnippet>306</a>        fmt: <a href="fmt.rs.html#13-46">PcmWavFmt</a>,
+<a href=#307 id=307 data-nosnippet>307</a>        data: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>],
+<a href=#308 id=308 data-nosnippet>308</a>    ) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;(), <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#309 id=309 data-nosnippet>309</a>        <span class="kw">let </span>bytes = <span class="self">Self</span>::to_vec(fmt, data)<span class="question-mark">?</span>;
+<a href=#310 id=310 data-nosnippet>310</a>        Fs::write(path, bytes)<span class="question-mark">?</span>;
+<a href=#311 id=311 data-nosnippet>311</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(())
+<a href=#312 id=312 data-nosnippet>312</a>    }
+<a href=#313 id=313 data-nosnippet>313</a>    <span class="doccomment">/// Encodes a minimal PCM-family WAVE file from a [`PcmSpec`].
+<a href=#314 id=314 data-nosnippet>314</a>    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+<a href=#315 id=315 data-nosnippet>315</a>    </span><span class="kw">pub fn </span>spec_to_vec(spec: <a href="../../pcm/spec.rs.html#15-22">PcmSpec</a>, data: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="../../../../../../devela/zall/struct.Vec.html">Vec</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#316 id=316 data-nosnippet>316</a>        <span class="kw">let </span>fmt = PcmWavFmt::from_spec(spec)<span class="question-mark">?</span>;
+<a href=#317 id=317 data-nosnippet>317</a>        <span class="self">Self</span>::<a href="#295-301">to_vec</a>(<a href="#316">fmt</a>, <a href="#315">data</a>)
+<a href=#318 id=318 data-nosnippet>318</a>    }
+<a href=#319 id=319 data-nosnippet>319</a>    <span class="doccomment">/// Writes the WAVE `fmt ` payload.
+<a href=#320 id=320 data-nosnippet>320</a>    </span><span class="kw">const fn </span>write_fmt_payload(dst: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], fmt: <a href="fmt.rs.html#13-46">PcmWavFmt</a>) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#321 id=321 data-nosnippet>321</a>        <span class="kw">let </span>len = <a href="#320">fmt</a>.<a href="fmt.rs.html#142-150">encoded_len</a>();
+<a href=#322 id=322 data-nosnippet>322</a>        <a href="../../../../code/util/is.rs.html#78-136">is!</a> { dst.len() &lt; len, <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::NotEnoughSpace) }
+<a href=#323 id=323 data-nosnippet>323</a>        <span class="kw">let </span><span class="kw-2">mut </span>off = <span class="number">0</span>;
+<a href=#324 id=324 data-nosnippet>324</a>        <a href="#323">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_u16_le(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, off,..], fmt.format_tag)];
+<a href=#325 id=325 data-nosnippet>325</a>        <a href="#323">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_u16_le(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, off,..], fmt.channels)];
+<a href=#326 id=326 data-nosnippet>326</a>        <a href="#323">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_u32_le(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, off,..], fmt.sample_rate)];
+<a href=#327 id=327 data-nosnippet>327</a>        <a href="#323">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_u32_le(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, off,..], fmt.byte_rate)];
+<a href=#328 id=328 data-nosnippet>328</a>        <a href="#323">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_u16_le(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, off,..], fmt.block_align)];
+<a href=#329 id=329 data-nosnippet>329</a>        <a href="#323">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_u16_le(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, off,..], fmt.bits_per_sample)];
+<a href=#330 id=330 data-nosnippet>330</a>        <span class="kw">if </span><a href="#320">fmt</a>.format_tag == <a href="#61">PcmWav</a>::<a href="#359">FORMAT_EXTENSIBLE</a> {
+<a href=#331 id=331 data-nosnippet>331</a>            <a href="../../../../code/util/is.rs.html#78-136">is!</a> {
+<a href=#332 id=332 data-nosnippet>332</a>                fmt.extra_len != PcmWav::EXTENSIBLE_EXTRA_LEN,
+<a href=#333 id=333 data-nosnippet>333</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::InvalidExtensibleFormat)
+<a href=#334 id=334 data-nosnippet>334</a>            }
+<a href=#335 id=335 data-nosnippet>335</a>            <a href="#323">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_u16_le(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, off,..], fmt.extra_len)];
+<a href=#336 id=336 data-nosnippet>336</a>            <a href="#323">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_u16_le(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, off,..], fmt.valid_bits_per_sample)];
+<a href=#337 id=337 data-nosnippet>337</a>            <a href="#323">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_u32_le(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, off,..], fmt.channel_mask)];
+<a href=#338 id=338 data-nosnippet>338</a>            <span class="kw">let </span>guid = <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>PcmWav::subformat_guid(fmt.subformat_tag)];
+<a href=#339 id=339 data-nosnippet>339</a>            <a href="../../../../code/util/write.rs.html#101-195">write_at!</a>[dst, +=off, @<span class="number">16 </span>guid];
+<a href=#340 id=340 data-nosnippet>340</a>            <span class="kw">return </span><a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#323">off</a>);
+<a href=#341 id=341 data-nosnippet>341</a>        }
+<a href=#342 id=342 data-nosnippet>342</a>        <span class="kw">if </span><a href="#321">len</a> &gt;= <a href="fmt.rs.html#13-46">PcmWavFmt</a>::<a href="fmt.rs.html#232">WAVEFORMATEX_EMPTY_LEN</a> {
+<a href=#343 id=343 data-nosnippet>343</a>            <span class="comment">// WAVEFORMATEX extension header. This writer currently supports
+<a href=#344 id=344 data-nosnippet>344</a>            // only an empty extension for non-extensible formats.
+<a href=#345 id=345 data-nosnippet>345</a>            </span><a href="#323">off</a> += <a href="../../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap!</a>[ok<span class="question-mark">? </span>write_u16_le(<span class="macro">slice!</span>[<span class="kw-2">mut </span>dst, off,..], fmt.extra_len)];
+<a href=#346 id=346 data-nosnippet>346</a>            <a href="../../../../code/util/is.rs.html#78-136">is!</a> { fmt.extra_len != <span class="number">0</span>, <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::UnsupportedEncoding) }
+<a href=#347 id=347 data-nosnippet>347</a>        }
+<a href=#348 id=348 data-nosnippet>348</a>        <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#323">off</a>)
+<a href=#349 id=349 data-nosnippet>349</a>    }
+<a href=#350 id=350 data-nosnippet>350</a>}
+<a href=#351 id=351 data-nosnippet>351</a><span class="doccomment">/// # Constants
+<a href=#352 id=352 data-nosnippet>352</a></span><span class="kw">impl </span><a href="#61">PcmWav</a> {
+<a href=#353 id=353 data-nosnippet>353</a>    <span class="doccomment">/// Integer PCM.
+<a href=#354 id=354 data-nosnippet>354</a>    </span><span class="kw">pub const </span>FORMAT_PCM: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> = <span class="number">0x0001</span>;
+<a href=#355 id=355 data-nosnippet>355</a>    <span class="doccomment">/// IEEE floating-point PCM.
+<a href=#356 id=356 data-nosnippet>356</a>    </span><span class="kw">pub const </span>FORMAT_IEEE_FLOAT: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> = <span class="number">0x0003</span>;
+<a href=#357 id=357 data-nosnippet>357</a>
+<a href=#358 id=358 data-nosnippet>358</a>    <span class="doccomment">/// Extensible WAVE format code.
+<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="kw">pub const </span>FORMAT_EXTENSIBLE: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> = <span class="number">0xFFFE</span>;
+<a href=#360 id=360 data-nosnippet>360</a>
+<a href=#361 id=361 data-nosnippet>361</a>    <span class="doccomment">/// WAVEFORMATEXTENSIBLE extension byte length.
+<a href=#362 id=362 data-nosnippet>362</a>    </span><span class="kw">pub const </span>EXTENSIBLE_EXTRA_LEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> = <span class="number">22</span>;
+<a href=#363 id=363 data-nosnippet>363</a>
+<a href=#364 id=364 data-nosnippet>364</a>    <span class="doccomment">/// WAVEFORMATEXTENSIBLE `fmt ` payload length.
+<a href=#365 id=365 data-nosnippet>365</a>    </span><span class="kw">pub const </span>EXTENSIBLE_LEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="number">40</span>;
+<a href=#366 id=366 data-nosnippet>366</a>
+<a href=#367 id=367 data-nosnippet>367</a>    <span class="doccomment">/// WAVEFORMATEXTENSIBLE PCM subformat GUID bytes.
+<a href=#368 id=368 data-nosnippet>368</a>    ///
+<a href=#369 id=369 data-nosnippet>369</a>    /// GUID: `00000001-0000-0010-8000-00AA00389B71`
+<a href=#370 id=370 data-nosnippet>370</a>    </span><span class="kw">pub const </span>SUBFORMAT_PCM: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">16</span>] = [
+<a href=#371 id=371 data-nosnippet>371</a>        <span class="number">0x01</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x10</span>, <span class="number">0x00</span>, <span class="number">0x80</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0xAA</span>, <span class="number">0x00</span>, <span class="number">0x38</span>, <span class="number">0x9B</span>,
+<a href=#372 id=372 data-nosnippet>372</a>        <span class="number">0x71</span>,
+<a href=#373 id=373 data-nosnippet>373</a>    ];
+<a href=#374 id=374 data-nosnippet>374</a>
+<a href=#375 id=375 data-nosnippet>375</a>    <span class="doccomment">/// WAVEFORMATEXTENSIBLE IEEE float subformat GUID bytes.
+<a href=#376 id=376 data-nosnippet>376</a>    ///
+<a href=#377 id=377 data-nosnippet>377</a>    /// GUID: `00000003-0000-0010-8000-00AA00389B71`
+<a href=#378 id=378 data-nosnippet>378</a>    </span><span class="kw">pub const </span>SUBFORMAT_IEEE_FLOAT: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">16</span>] = [
+<a href=#379 id=379 data-nosnippet>379</a>        <span class="number">0x03</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x10</span>, <span class="number">0x00</span>, <span class="number">0x80</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0xAA</span>, <span class="number">0x00</span>, <span class="number">0x38</span>, <span class="number">0x9B</span>,
+<a href=#380 id=380 data-nosnippet>380</a>        <span class="number">0x71</span>,
+<a href=#381 id=381 data-nosnippet>381</a>    ];
+<a href=#382 id=382 data-nosnippet>382</a>
+<a href=#383 id=383 data-nosnippet>383</a>    <span class="doccomment">/// Returns the WAVE format tag represented by a supported extensible subformat GUID.
+<a href=#384 id=384 data-nosnippet>384</a>    </span><span class="kw">pub const fn </span>subformat_tag(guid: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">16</span>]) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#385 id=385 data-nosnippet>385</a>        <span class="kw">if </span><a href="../../../../sys/mem/view/slice/namespace/mod.rs.html#128">Slice</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;::<a href="../../../../sys/mem/view/slice/namespace/eq.rs.html#43">eq</a>(<span class="kw-2">&amp;</span><a href="#384">guid</a>, <span class="kw-2">&amp;</span><span class="self">Self</span>::<a href="#370-373">SUBFORMAT_PCM</a>) {
+<a href=#386 id=386 data-nosnippet>386</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="self">Self</span>::<a href="#354">FORMAT_PCM</a>)
+<a href=#387 id=387 data-nosnippet>387</a>        } <span class="kw">else if </span><a href="../../../../sys/mem/view/slice/namespace/mod.rs.html#128">Slice</a>::&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;::<a href="../../../../sys/mem/view/slice/namespace/eq.rs.html#43">eq</a>(<span class="kw-2">&amp;</span><a href="#384">guid</a>, <span class="kw-2">&amp;</span><span class="self">Self</span>::<a href="#378-381">SUBFORMAT_IEEE_FLOAT</a>) {
+<a href=#388 id=388 data-nosnippet>388</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="self">Self</span>::<a href="#356">FORMAT_IEEE_FLOAT</a>)
+<a href=#389 id=389 data-nosnippet>389</a>        } <span class="kw">else </span>{
+<a href=#390 id=390 data-nosnippet>390</a>            <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#67">UnsupportedSubformat</a>)
+<a href=#391 id=391 data-nosnippet>391</a>        }
+<a href=#392 id=392 data-nosnippet>392</a>    }
+<a href=#393 id=393 data-nosnippet>393</a>    <span class="doccomment">/// Returns the WAVEFORMATEXTENSIBLE GUID for a supported sample format tag.
+<a href=#394 id=394 data-nosnippet>394</a>    </span><span class="kw">pub const fn </span>subformat_guid(format_tag: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="number">16</span>], <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#395 id=395 data-nosnippet>395</a>        <span class="kw">match </span><a href="#394">format_tag</a> {
+<a href=#396 id=396 data-nosnippet>396</a>            <span class="self">Self</span>::<a href="#354">FORMAT_PCM</a> =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="self">Self</span>::<a href="#370-373">SUBFORMAT_PCM</a>),
+<a href=#397 id=397 data-nosnippet>397</a>            <span class="self">Self</span>::<a href="#356">FORMAT_IEEE_FLOAT</a> =&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="self">Self</span>::<a href="#378-381">SUBFORMAT_IEEE_FLOAT</a>),
+<a href=#398 id=398 data-nosnippet>398</a>            <span class="kw">_ </span>=&gt; <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Err</a>(PcmWavError::<a href="error.rs.html#67">UnsupportedSubformat</a>),
+<a href=#399 id=399 data-nosnippet>399</a>        }
+<a href=#400 id=400 data-nosnippet>400</a>    }
+<a href=#401 id=401 data-nosnippet>401</a>}
+<a href=#402 id=402 data-nosnippet>402</a>
+<a href=#403 id=403 data-nosnippet>403</a><span class="attr">#[derive(<a href="../../../../../../devela/code/derive.Clone.html">Clone</a>, <a href="../../../../../../devela/zall/derive.Copy.html">Copy</a>)]
+<a href=#404 id=404 data-nosnippet>404</a></span><span class="kw">struct </span><a href="#404-408">PcmWavParts</a> {
+<a href=#405 id=405 data-nosnippet>405</a>    fmt: <a href="fmt.rs.html#13-46">PcmWavFmt</a>,
+<a href=#406 id=406 data-nosnippet>406</a>    data_offset: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#407 id=407 data-nosnippet>407</a>    data_len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+<a href=#408 id=408 data-nosnippet>408</a>}
+<a href=#409 id=409 data-nosnippet>409</a><span class="kw">const fn </span>write_bytes(dst: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], src: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#410 id=410 data-nosnippet>410</a>    <a href="../../../../code/util/is.rs.html#78-136">is!</a> { dst.len() &lt; src.len(), <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::NotEnoughSpace) }
+<a href=#411 id=411 data-nosnippet>411</a>    <a href="../../../../code/util/whilst.rs.html#82-219">whilst!</a> { i <span class="kw">in </span><span class="number">0</span>..src.len(); { dst[i] = src[i]; }}
+<a href=#412 id=412 data-nosnippet>412</a>    <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#409">src</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.len">len</a>())
+<a href=#413 id=413 data-nosnippet>413</a>}
+<a href=#414 id=414 data-nosnippet>414</a><span class="kw">const fn </span>write_u16_le(dst: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], value: <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#415 id=415 data-nosnippet>415</a>    <a href="../../../../code/util/is.rs.html#78-136">is!</a> { dst.len() &lt; <span class="number">2</span>, <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::NotEnoughSpace) }
+<a href=#416 id=416 data-nosnippet>416</a>    <a href="../../../../code/util/write.rs.html#101-195">write_at!</a>[dst, <span class="number">0</span>, @<span class="number">2 </span>value.to_le_bytes()];
+<a href=#417 id=417 data-nosnippet>417</a>    <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="number">2</span>)
+<a href=#418 id=418 data-nosnippet>418</a>}
+<a href=#419 id=419 data-nosnippet>419</a><span class="kw">const fn </span>write_u32_le(dst: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>], value: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a class="prelude-ty" href="../../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="error.rs.html#14-72">PcmWavError</a>&gt; {
+<a href=#420 id=420 data-nosnippet>420</a>    <a href="../../../../code/util/is.rs.html#78-136">is!</a> { dst.len() &lt; <span class="number">4</span>, <span class="kw">return </span><span class="prelude-val">Err</span>(PcmWavError::NotEnoughSpace) }
+<a href=#421 id=421 data-nosnippet>421</a>    <a href="../../../../code/util/write.rs.html#101-195">write_at!</a>[dst, <span class="number">0</span>, @<span class="number">4 </span>value.to_le_bytes()];
+<a href=#422 id=422 data-nosnippet>422</a>    <a class="prelude-val" href="../../../../../../devela/zall/enum.Result.html">Ok</a>(<span class="number">4</span>)
+<a href=#423 id=423 data-nosnippet>423</a>}
+</code></pre></div></section></main></body></html>

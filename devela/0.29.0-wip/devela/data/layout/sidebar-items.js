@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["array","buffer","dst"],"struct":["BinaryHeap","Destaque","DestaqueIter","Sort","Stack","StackIter","VecDeque"],"trait":["DataCollection","DataDeque","DataDesta","DataQueue","DataStack"],"type":["DestaqueU8","StackU8"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["arch_cmp",1],["arch_round",1],["asm",1],["detect_aarch64",1],["detect_x86",1],["global_asm",1]],"struct":["Arch","Wasm","m128","m128d","m128i","m256","m256d","m256i"]};

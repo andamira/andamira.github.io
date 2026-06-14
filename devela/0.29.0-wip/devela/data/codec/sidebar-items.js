@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CompressionMode","EncodingMode","RiffError"],"macro":[["bitfield",1],["set",1]],"mod":["crypto","hash"],"struct":["Adler32","Base","BinTag4","BitfieldExample","Crockford","Rfc4648","Rfc4648Hex","Riff","RiffChunk","RiffChunkIter"],"type":["Base16","Base32","Base32Crockford","Base32Hex","Base32Padded","Base64","Base64Padded"]};

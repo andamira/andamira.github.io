@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["arena",1]],"struct":["Alloc","ArenaExample","ArenaHandleExample","ArenaMarkExample","BareBox","Boxed","BumpAlloc","LinuxMmapAlloc","MemLayout","MemLayoutError","SystemAlloc","WasmAlloc"],"trait":["GlobalAlloc","Storage"],"type":["Bare"]};

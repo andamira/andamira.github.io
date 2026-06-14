@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BTreeMapEntry","HashMapEntry","SparseSetError","StaticMapEntry"],"macro":[["map",1]],"struct":["BTreeMap","BTreeSet","HashMap","HashSet","LinuxSparseSet","MapStaticConstU8Example","MapStaticTypeIdExample","MapStaticU16Example","SparseSetArray"],"type":["HashMapFx","HashMapStd","HashSetFx","HashSetStd"]};

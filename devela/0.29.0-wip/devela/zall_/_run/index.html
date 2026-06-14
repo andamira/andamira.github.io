@@ -1,0 +1,166 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Temporal coordination and staging of a running system.run::{cycle, regime, time} ▽"><title>devela::zall_::_run - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module _run</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module _run</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>zall_</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">zall_</a></div><h1>Module <span>_run</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/index.rs.html#223">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Temporal coordination and staging of a running system.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../../run/index.html" title="mod devela::run">run</a>::{<a href="../../run/cycle/index.html" title="mod devela::run::cycle">cycle</a>, <a href="../../run/regime/index.html" title="mod devela::run::regime">regime</a>, <a href="../../run/time/index.html" title="mod devela::run::time">time</a>}</span> <a title='See the hierarchical view of the `run` module' href='https://docs.rs/devela/latest/devela/run'>▽</a></p>
+<p>All <code>run</code> module’s items flat re-exported.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AppControlSet.html" title="struct devela::zall_::_run::AppControlSet">AppControl<wbr>Set</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Signal'>📶</span> <span class='stab portability' title='Set semantics'>⊆</span>
+A set of application control notices.</dd><dt><a class="struct" href="struct.RunCap.html" title="struct devela::zall_::_run::RunCap">RunCap</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+The capabilities supported by a <code>Runtime</code>.</dd><dt><a class="struct" href="struct.RunCapAudio.html" title="struct devela::zall_::_run::RunCapAudio">RunCap<wbr>Audio</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Audio'>🔊</span>
+Runtime audio capabilities.</dd><dt><a class="struct" href="struct.RunCapColor.html" title="struct devela::zall_::_run::RunCapColor">RunCap<wbr>Color</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Color'>🎨</span>
+Runtime color capabilities.</dd><dt><a class="struct" href="struct.RunCapImage.html" title="struct devela::zall_::_run::RunCapImage">RunCap<wbr>Image</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Image'>🖼️</span>
+Runtime image capabilities.</dd><dt><a class="struct" href="struct.RunCapInput.html" title="struct devela::zall_::_run::RunCapInput">RunCap<wbr>Input</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Human interaction'>🎮</span> <span class='stab portability' title='Set semantics'>⊆</span>
+Runtime input capabilities.</dd><dt><a class="struct" href="struct.RunCapSystem.html" title="struct devela::zall_::_run::RunCapSystem">RunCap<wbr>System</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Set semantics'>⊆</span>
+Runtime system capabilities.</dd><dt><a class="struct" href="struct.RunCapText.html" title="struct devela::zall_::_run::RunCapText">RunCap<wbr>Text</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Set semantics'>⊆</span>
+Runtime text capabilities.</dd><dt><a class="struct" href="struct.RunCapWindow.html" title="struct devela::zall_::_run::RunCapWindow">RunCap<wbr>Window</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+Runtime window capabilities.</dd><dt><a class="struct" href="struct.RunCycle.html" title="struct devela::zall_::_run::RunCycle">RunCycle</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+Manages run phases and guards phase transitions.</dd><dt><a class="struct" href="struct.RunDriver.html" title="struct devela::zall_::_run::RunDriver">RunDriver</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+Orchestrates stepwise runtime progression over a backend and an app.</dd><dt><a class="struct" href="struct.RunFrame.html" title="struct devela::zall_::_run::RunFrame">RunFrame</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Time'>🕘</span>
+A per-frame snapshot passed to rendering or other backend-facing work.</dd><dt><a class="struct" href="struct.RunPacer.html" title="struct devela::zall_::_run::RunPacer">RunPacer</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Time'>🕘</span>
+Controls presentation cadence independently of simulation.</dd><dt><a class="struct" href="struct.RunStep.html" title="struct devela::zall_::_run::RunStep">RunStep</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Time'>🕘</span>
+A per-step snapshot passed to app logic.</dd><dt><a class="struct" href="struct.RunSystemInfo.html" title="struct devela::zall_::_run::RunSystemInfo">RunSystem<wbr>Info</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+Runtime system identity metadata.</dd><dt><a class="struct" href="struct.Runtime.html" title="struct devela::zall_::_run::Runtime">Runtime</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+A handle to the live execution context of a running system.</dd><dt><a class="struct" href="struct.RuntimeTick.html" title="struct devela::zall_::_run::RuntimeTick">Runtime<wbr>Tick</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Time'>🕘</span>
+A deterministic logical execution-time counter.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.AppControl.html" title="enum devela::zall_::_run::AppControl">AppControl</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Event'>🎫</span>
+External control notice directed at an application.</dd><dt><a class="enum" href="enum.RunControl.html" title="enum devela::zall_::_run::RunControl">RunControl</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+Control returned by a runtime step.</dd><dt><a class="enum" href="enum.RunDriverError.html" title="enum devela::zall_::_run::RunDriverError">RunDriver<wbr>Error</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Error'>🚩</span>
+Errors returned while driving a runtime step.</dd><dt><a class="enum" href="enum.RunDriverFrameError.html" title="enum devela::zall_::_run::RunDriverFrameError">RunDriver<wbr>Frame<wbr>Error</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Error'>🚩</span>
+Errors returned while driving a runtime frame step.</dd><dt><a class="enum" href="enum.RunPhase.html" title="enum devela::zall_::_run::RunPhase">RunPhase</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+High-level phases of a running system.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.RunApp.html" title="trait devela::zall_::_run::RunApp">RunApp</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+App logic driven step-by-step by a runtime.</dd><dt><a class="trait" href="trait.RunBackend.html" title="trait devela::zall_::_run::RunBackend">RunBackend</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+Minimal backend contract for runtime-driven frontends.</dd><dt><a class="trait" href="trait.RunPresent.html" title="trait devela::zall_::_run::RunPresent">RunPresent</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+Presentation finalization driven by a runtime.</dd><dt><a class="trait" href="trait.RunRender.html" title="trait devela::zall_::_run::RunRender">RunRender</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+Rendering logic driven by a runtime frame.</dd><dt><a class="trait" href="trait.RunService.html" title="trait devela::zall_::_run::RunService">RunService</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+Reports runtime service metadata.</dd><dt><a class="trait" href="trait.RunServiceProbe.html" title="trait devela::zall_::_run::RunServiceProbe">RunService<wbr>Probe</a></dt><dd><span class='stab portability' title='Runtime'>⬡</span>
+Actively refreshes runtime service capabilities.</dd></dl></section></div></main></body></html>

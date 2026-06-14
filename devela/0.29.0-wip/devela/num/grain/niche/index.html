@@ -1,0 +1,271 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Specialized numeric types and behaviors."><title>devela::num::grain::niche - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module niche</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module niche</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#core-niche-types" title="Core Niche Types">Core Niche Types</a></li><li><a href="#absence-and-adapters" title="Absence and Adapters">Absence and Adapters</a></li><li><a href="#recommended-defaults" title="Recommended Defaults">Recommended Defaults</a><ul><li><a href="#nonmaxu--nonvalueumax" title="`NonMaxU*` = `NonValueU*&#60;MAX&#62;`"><code>NonMaxU*</code> = <code>NonValueU*&lt;MAX&gt;</code></a></li><li><a href="#nonmini--nonvalueimin" title="`NonMinI*` = `NonValueI*&#60;MIN&#62;`"><code>NonMinI*</code> = <code>NonValueI*&lt;MIN&gt;</code></a></li></ul></li><li><a href="#optimization-characteristics" title="Optimization Characteristics">Optimization Characteristics</a></li><li><a href="#usage-guide" title="Usage Guide">Usage Guide</a></li></ul><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>num::<wbr>grain</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">num</a>::<wbr><a href="../index.html">grain</a></div><h1>Module <span>niche</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/num/grain/niche/mod.rs.html#3-97">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Specialized numeric types and behaviors.</p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::num::grain::niche">niche</a></span>
+<a title='See the flat view of the `num` module' href='https://docs.rs/devela/latest/devela/zall_/_num'>◉</a></p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="https://doc.rust-lang.org/std/num">num</a>}</span><hr/></p>
+<p>This module provides niche-constrained numeric representations and
+related utilities for domain modeling, sentinel values, and
+memory-efficient data structures.</p>
+<p>Niche types prohibit specific values while preserving a compact
+in-memory representation, enabling zero-cost optimizations and
+improved layout efficiency.</p>
+<h3 id="core-niche-types"><a class="doc-anchor" href="#core-niche-types">§</a>Core Niche Types</h3>
+<ul>
+<li>
+<p><code>NonZero[I|U]*</code> (re-exported)</p>
+<ul>
+<li>Standard zero-prohibiting types with niche optimization.</li>
+</ul>
+</li>
+<li>
+<p><code>NonValue[I|U]*&lt;const V&gt;</code>.</p>
+<ul>
+<li>General extension of <code>NonZero*</code> guaranteeing <code>value != V</code>.</li>
+<li><strong>Implementation</strong>: Stores transformed value in <code>NonZero*</code>.</li>
+<li><strong>Optimizations</strong>: Automatic instruction selection per case.</li>
+</ul>
+</li>
+</ul>
+<h3 id="absence-and-adapters"><a class="doc-anchor" href="#absence-and-adapters">§</a>Absence and Adapters</h3>
+<ul>
+<li>
+<p><a href="../../../zall/struct.NonNiche.html" title="struct devela::zall::NonNiche"><code>NonNiche</code></a></p>
+<ul>
+<li>A concrete representation that mirrors the API of niche-constrained
+types while storing values unchanged.</li>
+<li>Useful for selecting a non-optimized but API-compatible representation.</li>
+</ul>
+</li>
+<li>
+<p><a href="../../../zall/struct.MaybeNiche.html" title="struct devela::zall::MaybeNiche"><code>MaybeNiche</code></a></p>
+<ul>
+<li>A representation-agnostic adapter over primitive integers,
+niche-optimized types, and non-optimized parallels.</li>
+<li>Enables generic code to remain independent of the chosen
+numeric representation.</li>
+</ul>
+</li>
+</ul>
+<h3 id="recommended-defaults"><a class="doc-anchor" href="#recommended-defaults">§</a>Recommended Defaults</h3><h4 id="nonmaxu--nonvalueumax"><a class="doc-anchor" href="#nonmaxu--nonvalueumax">§</a><code>NonMaxU*</code> = <code>NonValueU*&lt;MAX&gt;</code></h4>
+<ul>
+<li>Preserve zero while prohibiting <code>MAX</code>.</li>
+<li>Suitable for indices and counters where <code>MAX</code> is reserved.</li>
+<li>Ideal for: collection indices, counters, bitmask handling.</li>
+<li><strong>Optimization</strong>: Single <code>NOT</code> instruction.</li>
+</ul>
+<h4 id="nonmini--nonvalueimin"><a class="doc-anchor" href="#nonmini--nonvalueimin">§</a><code>NonMinI*</code> = <code>NonValueI*&lt;MIN&gt;</code></h4>
+<ul>
+<li>Preserve zero with a symmetric signed range.</li>
+<li>Useful when <code>MIN</code> is problematic.</li>
+<li>Ideal for: mathematical ranges, circular buffers, DSP algorithms.</li>
+<li><strong>Optimization</strong>: <code>LEA</code> instruction fusion.</li>
+</ul>
+<h3 id="optimization-characteristics"><a class="doc-anchor" href="#optimization-characteristics">§</a>Optimization Characteristics</h3><div><table><thead><tr><th>Type</th><th>Prohibits</th><th>Storage</th><th>Optimization</th><th>vs <code>NonZero*</code></th></tr></thead><tbody>
+<tr><td><code>NonMaxU*</code></td><td>MAX</td><td><code>!value</code></td><td><code>NOT</code></td><td>Keeps zero, drops MAX</td></tr>
+<tr><td><code>NonMinI*</code></td><td>MIN</td><td><code>value ^ MIN</code></td><td><code>LEA</code></td><td>Keeps zero, drops MIN</td></tr>
+<tr><td><code>NonValue*</code></td><td>Custom V</td><td><code>value ^ V</code></td><td><code>XOR</code></td><td>Fully general</td></tr>
+<tr><td><code>NonZero*</code></td><td>0</td><td>raw value</td><td>-</td><td>Classic case</td></tr>
+</tbody></table>
+</div><h3 id="usage-guide"><a class="doc-anchor" href="#usage-guide">§</a>Usage Guide</h3><div><table><thead><tr><th>Use Case</th><th>Recommended Type</th><th>Advantage</th></tr></thead><tbody>
+<tr><td>Must prohibit zero</td><td><code>NonZero*</code></td><td>Standard solution</td></tr>
+<tr><td>Custom sentinel value</td><td><code>NonValue*&lt;SENTINEL&gt;</code></td><td>Flexible prohibited value</td></tr>
+<tr><td>Index/counter handling</td><td><code>NonMaxU*</code></td><td>Avoids overflow edge cases</td></tr>
+<tr><td>Mathematical purity</td><td><code>NonMinI*</code></td><td>Mathematical clarity</td></tr>
+<tr><td>API-only abstraction</td><td><code>MaybeNiche</code></td><td>Representation-agnostic</td></tr>
+<tr><td>No constraints needed</td><td>Primitive / <code>NonNiche</code></td><td>Maximum simplicity</td></tr>
+</tbody></table>
+</div></div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.niche.html" title="macro devela::num::grain::niche::niche">niche</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span> <span class='stab portability' title='Construction'>🏗️</span>
+Creates a primitive-backed niche value with compile-time type selection.</dd><dt><a class="macro" href="macro.niche_prim.html" title="macro devela::num::grain::niche::niche_prim">niche_<wbr>prim</a></dt><dd><span class='stab portability' title='Niche memory optimizations'>⚗️</span> <span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span>
+Maps a niche representation type to its primitive carrier type.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.MaybeNiche.html" title="struct devela::num::grain::niche::MaybeNiche">Maybe<wbr>Niche</a></dt><dd><span class='stab portability' title='Conditional representation'>🤷</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A zero-cost wrapper that abstracts over niche and non-niche types.</dd><dt><a class="struct" href="struct.NonNiche.html" title="struct devela::num::grain::niche::NonNiche">NonNiche</a></dt><dd><span class='stab portability' title='Absence, emptiness or a no-op effect'>∅</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A zero-cost wrapper that mimics a niche type without using a niche.</dd><dt><a class="struct" href="struct.NonValueI8.html" title="struct devela::num::grain::niche::NonValueI8">NonValue<wbr>I8</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonValueI16.html" title="struct devela::num::grain::niche::NonValueI16">NonValue<wbr>I16</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonValueI32.html" title="struct devela::num::grain::niche::NonValueI32">NonValue<wbr>I32</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonValueI64.html" title="struct devela::num::grain::niche::NonValueI64">NonValue<wbr>I64</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonValueI128.html" title="struct devela::num::grain::niche::NonValueI128">NonValue<wbr>I128</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonValueIsize.html" title="struct devela::num::grain::niche::NonValueIsize">NonValue<wbr>Isize</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonValueU8.html" title="struct devela::num::grain::niche::NonValueU8">NonValue<wbr>U8</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonValueU16.html" title="struct devela::num::grain::niche::NonValueU16">NonValue<wbr>U16</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonValueU32.html" title="struct devela::num::grain::niche::NonValueU32">NonValue<wbr>U32</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonValueU64.html" title="struct devela::num::grain::niche::NonValueU64">NonValue<wbr>U64</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonValueU128.html" title="struct devela::num::grain::niche::NonValueU128">NonValue<wbr>U128</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonValueUsize.html" title="struct devela::num::grain::niche::NonValueUsize">NonValue<wbr>Usize</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal some specific value.</dd><dt><a class="struct" href="struct.NonZero.html" title="struct devela::num::grain::niche::NonZero">NonZero</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A value that is known not to equal zero.</dd><dt><a class="struct" href="struct.Saturating.html" title="struct devela::num::grain::niche::Saturating">Saturating</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Provides intentionally-saturating arithmetic on <code>T</code>.</dd><dt><a class="struct" href="struct.TryFromIntError.html" title="struct devela::num::grain::niche::TryFromIntError">TryFrom<wbr>IntError</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The error type returned when a checked integral type conversion fails.</dd><dt><a class="struct" href="struct.Wrapping.html" title="struct devela::num::grain::niche::Wrapping">Wrapping</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Provides intentionally-wrapped arithmetic on <code>T</code>.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.NonMaxU8.html" title="type devela::num::grain::niche::NonMaxU8">NonMax<wbr>U8</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html#associatedconstant.MAX" title="associated constant u8::MAX"><code>MAX</code></a> value.</dd><dt><a class="type" href="type.NonMaxU16.html" title="type devela::num::grain::niche::NonMaxU16">NonMax<wbr>U16</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.u16.html#associatedconstant.MAX" title="associated constant u16::MAX"><code>MAX</code></a> value.</dd><dt><a class="type" href="type.NonMaxU32.html" title="type devela::num::grain::niche::NonMaxU32">NonMax<wbr>U32</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html#associatedconstant.MAX" title="associated constant u32::MAX"><code>MAX</code></a> value.</dd><dt><a class="type" href="type.NonMaxU64.html" title="type devela::num::grain::niche::NonMaxU64">NonMax<wbr>U64</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html#associatedconstant.MAX" title="associated constant u64::MAX"><code>MAX</code></a> value.</dd><dt><a class="type" href="type.NonMaxU128.html" title="type devela::num::grain::niche::NonMaxU128">NonMax<wbr>U128</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html#associatedconstant.MAX" title="associated constant u128::MAX"><code>MAX</code></a> value.</dd><dt><a class="type" href="type.NonMaxUsize.html" title="type devela::num::grain::niche::NonMaxUsize">NonMax<wbr>Usize</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+An unsigned integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html#associatedconstant.MAX" title="associated constant usize::MAX"><code>MAX</code></a> value.</dd><dt><a class="type" href="type.NonMinI8.html" title="type devela::num::grain::niche::NonMinI8">NonMin<wbr>I8</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.i8.html#associatedconstant.MIN" title="associated constant i8::MIN"><code>MIN</code></a> value.</dd><dt><a class="type" href="type.NonMinI16.html" title="type devela::num::grain::niche::NonMinI16">NonMin<wbr>I16</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.i16.html#associatedconstant.MIN" title="associated constant i16::MIN"><code>MIN</code></a> value.</dd><dt><a class="type" href="type.NonMinI32.html" title="type devela::num::grain::niche::NonMinI32">NonMin<wbr>I32</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html#associatedconstant.MIN" title="associated constant i32::MIN"><code>MIN</code></a> value.</dd><dt><a class="type" href="type.NonMinI64.html" title="type devela::num::grain::niche::NonMinI64">NonMin<wbr>I64</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.i64.html#associatedconstant.MIN" title="associated constant i64::MIN"><code>MIN</code></a> value.</dd><dt><a class="type" href="type.NonMinI128.html" title="type devela::num::grain::niche::NonMinI128">NonMin<wbr>I128</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.i128.html#associatedconstant.MIN" title="associated constant i128::MIN"><code>MIN</code></a> value.</dd><dt><a class="type" href="type.NonMinIsize.html" title="type devela::num::grain::niche::NonMinIsize">NonMin<wbr>Isize</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A signed integer that is known not to equal its <a href="https://doc.rust-lang.org/nightly/std/primitive.isize.html#associatedconstant.MIN" title="associated constant isize::MIN"><code>MIN</code></a> value.</dd><dt><a class="type" href="type.NonZeroI8.html" title="type devela::num::grain::niche::NonZeroI8">NonZero<wbr>I8</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A signed integer that is known not to equal zero.</dd><dt><a class="type" href="type.NonZeroI16.html" title="type devela::num::grain::niche::NonZeroI16">NonZero<wbr>I16</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A signed integer that is known not to equal zero.</dd><dt><a class="type" href="type.NonZeroI32.html" title="type devela::num::grain::niche::NonZeroI32">NonZero<wbr>I32</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A signed integer that is known not to equal zero.</dd><dt><a class="type" href="type.NonZeroI64.html" title="type devela::num::grain::niche::NonZeroI64">NonZero<wbr>I64</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A signed integer that is known not to equal zero.</dd><dt><a class="type" href="type.NonZeroI128.html" title="type devela::num::grain::niche::NonZeroI128">NonZero<wbr>I128</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A signed integer that is known not to equal zero.</dd><dt><a class="type" href="type.NonZeroIsize.html" title="type devela::num::grain::niche::NonZeroIsize">NonZero<wbr>Isize</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A signed integer that is known not to equal zero.</dd><dt><a class="type" href="type.NonZeroU8.html" title="type devela::num::grain::niche::NonZeroU8">NonZero<wbr>U8</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An unsigned integer that is known not to equal zero.</dd><dt><a class="type" href="type.NonZeroU16.html" title="type devela::num::grain::niche::NonZeroU16">NonZero<wbr>U16</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An unsigned integer that is known not to equal zero.</dd><dt><a class="type" href="type.NonZeroU32.html" title="type devela::num::grain::niche::NonZeroU32">NonZero<wbr>U32</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An unsigned integer that is known not to equal zero.</dd><dt><a class="type" href="type.NonZeroU64.html" title="type devela::num::grain::niche::NonZeroU64">NonZero<wbr>U64</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An unsigned integer that is known not to equal zero.</dd><dt><a class="type" href="type.NonZeroU128.html" title="type devela::num::grain::niche::NonZeroU128">NonZero<wbr>U128</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An unsigned integer that is known not to equal zero.</dd><dt><a class="type" href="type.NonZeroUsize.html" title="type devela::num::grain::niche::NonZeroUsize">NonZero<wbr>Usize</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An unsigned integer that is known not to equal zero.</dd></dl></section></div></main></body></html>

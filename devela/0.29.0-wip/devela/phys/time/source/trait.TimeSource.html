@@ -1,0 +1,253 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🕘 A source of time points with a canonical numeric projection."><title>TimeSource in devela::phys::time::source - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc trait"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">TimeSource</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Time<wbr>Source</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#timeline-model" title="Timeline model">Timeline model</a></li><li><a href="#intended-use" title="Intended use">Intended use</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.time_elapsed_value" title="time_elapsed_value">time_elapsed_value</a></li><li><a href="#tymethod.time_is_absolute" title="time_is_absolute">time_is_absolute</a></li><li><a href="#tymethod.time_is_monotonic" title="time_is_monotonic">time_is_monotonic</a></li><li><a href="#tymethod.time_now" title="time_now">time_now</a></li><li><a href="#tymethod.time_point_value" title="time_point_value">time_point_value</a></li><li><a href="#tymethod.time_scale" title="time_scale">time_scale</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.time_elapsed_micros" title="time_elapsed_micros">time_elapsed_micros</a></li><li><a href="#method.time_elapsed_millis" title="time_elapsed_millis">time_elapsed_millis</a></li><li><a href="#method.time_elapsed_nanos" title="time_elapsed_nanos">time_elapsed_nanos</a></li><li><a href="#method.time_elapsed_seconds" title="time_elapsed_seconds">time_elapsed_seconds</a></li><li><a href="#method.time_elapsed_since" title="time_elapsed_since">time_elapsed_since</a></li><li><a href="#method.time_elapsed_since_checked" title="time_elapsed_since_checked">time_elapsed_since_checked</a></li><li><a href="#method.time_elapsed_since_value" title="time_elapsed_since_value">time_elapsed_since_value</a></li><li><a href="#method.time_now_micros" title="time_now_micros">time_now_micros</a></li><li><a href="#method.time_now_millis" title="time_now_millis">time_now_millis</a></li><li><a href="#method.time_now_millis_f64" title="time_now_millis_f64">time_now_millis_f64</a></li><li><a href="#method.time_now_nanos" title="time_now_nanos">time_now_nanos</a></li><li><a href="#method.time_now_seconds" title="time_now_seconds">time_now_seconds</a></li><li><a href="#method.time_now_value" title="time_now_value">time_now_value</a></li><li><a href="#method.time_point_micros" title="time_point_micros">time_point_micros</a></li><li><a href="#method.time_point_millis" title="time_point_millis">time_point_millis</a></li><li><a href="#method.time_point_nanos" title="time_point_nanos">time_point_nanos</a></li><li><a href="#method.time_point_seconds" title="time_point_seconds">time_point_seconds</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>phys::<wbr>time::<wbr>source</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">phys</a>::<wbr><a href="../index.html">time</a>::<wbr><a href="index.html">source</a></div><h1>Trait <span class="trait">Time<wbr>Source</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/phys/time/source/source.rs.html#43-139">Source</a> </span></div><pre class="rust item-decl"><code>pub trait TimeSource&lt;P: <a class="trait" href="../../../zall/trait.TimePoint.html" title="trait devela::zall::TimePoint">TimePoint</a>&gt; {
+<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 23 methods</span></summary>    // Required methods
+    fn <a href="#tymethod.time_is_monotonic" class="fn">time_is_monotonic</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.time_is_absolute" class="fn">time_is_absolute</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.time_scale" class="fn">time_scale</a>() -&gt; <a class="enum" href="../../../zall/enum.TimeScale.html" title="enum devela::zall::TimeScale">TimeScale</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.time_now" class="fn">time_now</a>() -&gt; P;
+<span class="item-spacer"></span>    fn <a href="#tymethod.time_point_value" class="fn">time_point_value</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>;
+<span class="item-spacer"></span>    fn <a href="#tymethod.time_elapsed_value" class="fn">time_elapsed_value</a>(elapsed: P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>;
+
+    // Provided methods
+    fn <a href="#method.time_now_value" class="fn">time_now_value</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_elapsed_since" class="fn">time_elapsed_since</a>(point: P) -&gt; P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_elapsed_since_checked" class="fn">time_elapsed_since_checked</a>(point: P) -&gt; <a class="enum" href="../../../zall/enum.Option.html" title="enum devela::zall::Option">Option</a>&lt;P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;P::Elapsed&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_elapsed_since_value" class="fn">time_elapsed_since_value</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_point_seconds" class="fn">time_point_seconds</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_point_millis" class="fn">time_point_millis</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_point_micros" class="fn">time_point_micros</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_point_nanos" class="fn">time_point_nanos</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_elapsed_seconds" class="fn">time_elapsed_seconds</a>(elapsed: P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_elapsed_millis" class="fn">time_elapsed_millis</a>(elapsed: P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_elapsed_micros" class="fn">time_elapsed_micros</a>(elapsed: P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_elapsed_nanos" class="fn">time_elapsed_nanos</a>(elapsed: P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_now_seconds" class="fn">time_now_seconds</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_now_millis" class="fn">time_now_millis</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_now_micros" class="fn">time_now_micros</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_now_nanos" class="fn">time_now_nanos</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.time_now_millis_f64" class="fn">time_now_millis_f64</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a> { ... }
+</details>}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Time'>🕘</span>
+A source of time points with a canonical numeric projection.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/phys/time/source"><code>phys/time/source</code></a></sup></p>
+<hr />
+<p><code>TimeSource&lt;P&gt;</code> separates:</p>
+<ul>
+<li>the <strong>point representation</strong> <code>P</code>,</li>
+<li>the source’s <strong>timeline properties</strong>,</li>
+<li>and a canonical <code>u64</code> projection of points and elapsed values.</li>
+</ul>
+<p>The chosen point type <code>P</code> may be opaque (for example, <code>SystemInstant</code>)
+or numeric (for example, <code>u64</code> or <code>u32</code>).</p>
+<p>The numeric projection is expressed in <a href="../../../zall/trait.TimeSource.html#tymethod.time_scale" title="associated function devela::zall::TimeSource::time_scale"><code>time_scale</code></a> units
+and is intended for diagnostics, profiling, logging, and generic timestamp handling.</p>
+<h3 id="timeline-model"><a class="doc-anchor" href="#timeline-model">§</a>Timeline model</h3>
+<ul>
+<li>The timeline may be <strong>absolute</strong> (for example, Unix time),
+<strong>relative</strong> (for example, boot time or JS origin),
+or <strong>synthetic</strong> (for example, process-local).</li>
+<li>For monotonic sources, successive calls to <a href="../../../zall/trait.TimeSource.html#tymethod.time_now" title="associated function devela::zall::TimeSource::time_now"><code>time_now</code></a>
+will never go backwards on the source timeline.</li>
+<li>For non-monotonic sources, values may jump.</li>
+</ul>
+<h3 id="intended-use"><a class="doc-anchor" href="#intended-use">§</a>Intended use</h3>
+<p>This trait is designed for:</p>
+<ul>
+<li>storing time points in different representations,</li>
+<li>measuring forward elapsed time,</li>
+<li>profiling and logging,</li>
+<li>diagnostics and instrumentation.</li>
+</ul>
+<p>It does not require the point type itself to be numeric.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.time_is_monotonic" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#50">Source</a><h4 class="code-header">fn <a href="#tymethod.time_is_monotonic" class="fn">time_is_monotonic</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns whether this source is monotonic.</p>
+<p>A monotonic source never goes backwards on its timeline.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.time_is_absolute" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#56">Source</a><h4 class="code-header">fn <a href="#tymethod.time_is_absolute" class="fn">time_is_absolute</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns whether this source provides an absolute civil timeline.</p>
+<p>If <code>true</code>, <code>time_now_*</code> returns a timestamp aligned to the Unix epoch.
+If <code>false</code>, <code>time_now_*</code> returns a relative or synthetic timeline.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.time_scale" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#60">Source</a><h4 class="code-header">fn <a href="#tymethod.time_scale" class="fn">time_scale</a>() -&gt; <a class="enum" href="../../../zall/enum.TimeScale.html" title="enum devela::zall::TimeScale">TimeScale</a></h4></section></summary><div class="docblock"><p>Returns the unit used by <a href="../../../zall/trait.TimeSource.html#tymethod.time_point_value" title="associated function devela::zall::TimeSource::time_point_value"><code>time_point_value</code></a>
+and <a href="../../../zall/trait.TimeSource.html#tymethod.time_elapsed_value" title="associated function devela::zall::TimeSource::time_elapsed_value"><code>time_elapsed_value</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.time_now" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#65">Source</a><h4 class="code-header">fn <a href="#tymethod.time_now" class="fn">time_now</a>() -&gt; P</h4></section></summary><div class="docblock"><p>Returns the current time point in the chosen representation <code>P</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.time_point_value" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#70">Source</a><h4 class="code-header">fn <a href="#tymethod.time_point_value" class="fn">time_point_value</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Converts a time point into a <code>u64</code> value in <a href="../../../zall/trait.TimeSource.html#tymethod.time_scale" title="associated function devela::zall::TimeSource::time_scale"><code>time_scale</code></a> units.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.time_elapsed_value" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#73">Source</a><h4 class="code-header">fn <a href="#tymethod.time_elapsed_value" class="fn">time_elapsed_value</a>(elapsed: P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Converts an elapsed value into a <code>u64</code> value in <a href="../../../zall/trait.TimeSource.html#tymethod.time_scale" title="associated function devela::zall::TimeSource::time_scale"><code>time_scale</code></a> units.</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.time_now_value" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#78">Source</a><h4 class="code-header">fn <a href="#method.time_now_value" class="fn">time_now_value</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Returns the current time as a <code>u64</code> value in <a href="../../../zall/trait.TimeSource.html#tymethod.time_scale" title="associated function devela::zall::TimeSource::time_scale"><code>time_scale</code></a> units.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_elapsed_since" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#81">Source</a><h4 class="code-header">fn <a href="#method.time_elapsed_since" class="fn">time_elapsed_since</a>(point: P) -&gt; P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a></h4></section></summary><div class="docblock"><p>Returns the forward elapsed value from <code>point</code> to now.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_elapsed_since_checked" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#85-87">Source</a><h4 class="code-header">fn <a href="#method.time_elapsed_since_checked" class="fn">time_elapsed_since_checked</a>(point: P) -&gt; <a class="enum" href="../../../zall/enum.Option.html" title="enum devela::zall::Option">Option</a>&lt;P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;P::Elapsed&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Returns the forward elapsed value from <code>point</code> to now,
+or <code>None</code> if it is not valid or not representable.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_elapsed_since_value" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#90-92">Source</a><h4 class="code-header">fn <a href="#method.time_elapsed_since_value" class="fn">time_elapsed_since_value</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Returns the forward elapsed value from <code>point</code> to now
+as a <code>u64</code> in <a href="../../../zall/trait.TimeSource.html#tymethod.time_scale" title="associated function devela::zall::TimeSource::time_scale"><code>time_scale</code></a> units.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_point_seconds" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#95-97">Source</a><h4 class="code-header">fn <a href="#method.time_point_seconds" class="fn">time_point_seconds</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Converts <code>point</code> to seconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_point_millis" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#99-101">Source</a><h4 class="code-header">fn <a href="#method.time_point_millis" class="fn">time_point_millis</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Converts <code>point</code> to milliseconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_point_micros" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#103-105">Source</a><h4 class="code-header">fn <a href="#method.time_point_micros" class="fn">time_point_micros</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Converts <code>point</code> to microseconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_point_nanos" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#107-109">Source</a><h4 class="code-header">fn <a href="#method.time_point_nanos" class="fn">time_point_nanos</a>(point: P) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Converts <code>point</code> to nanoseconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_elapsed_seconds" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#112-114">Source</a><h4 class="code-header">fn <a href="#method.time_elapsed_seconds" class="fn">time_elapsed_seconds</a>(elapsed: P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Converts <code>elapsed</code> to seconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_elapsed_millis" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#116-118">Source</a><h4 class="code-header">fn <a href="#method.time_elapsed_millis" class="fn">time_elapsed_millis</a>(elapsed: P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Converts <code>elapsed</code> to milliseconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_elapsed_micros" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#120-122">Source</a><h4 class="code-header">fn <a href="#method.time_elapsed_micros" class="fn">time_elapsed_micros</a>(elapsed: P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Converts <code>elapsed</code> to microseconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_elapsed_nanos" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#124-126">Source</a><h4 class="code-header">fn <a href="#method.time_elapsed_nanos" class="fn">time_elapsed_nanos</a>(elapsed: P::<a class="associatedtype" href="../../../zall/trait.TimePoint.html#associatedtype.Elapsed" title="type devela::zall::TimePoint::Elapsed">Elapsed</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Converts <code>elapsed</code> to nanoseconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_now_seconds" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#129">Source</a><h4 class="code-header">fn <a href="#method.time_now_seconds" class="fn">time_now_seconds</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Returns the current timestamp in seconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_now_millis" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#131">Source</a><h4 class="code-header">fn <a href="#method.time_now_millis" class="fn">time_now_millis</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Returns the current timestamp in milliseconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_now_micros" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#133">Source</a><h4 class="code-header">fn <a href="#method.time_now_micros" class="fn">time_now_micros</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Returns the current timestamp in microseconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_now_nanos" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#135">Source</a><h4 class="code-header">fn <a href="#method.time_now_nanos" class="fn">time_now_nanos</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Returns the current timestamp in nanoseconds.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.time_now_millis_f64" class="method"><a class="src rightside" href="../../../../src/devela/phys/time/source/source.rs.html#138">Source</a><h4 class="code-header">fn <a href="#method.time_now_millis_f64" class="fn">time_now_millis_f64</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a></h4></section></summary><div class="docblock"><p>Returns the current timestamp as milliseconds in <code>f64</code>.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety".</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><div class="negative-marker"></div><section id="impl-TimeSource%3C()%3E-for-()" class="impl"><a class="src rightside" href="../../../../src/devela/phys/time/no.rs.html#41-49">Source</a><a href="#impl-TimeSource%3C()%3E-for-()" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource">TimeSource</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt; for <a class="type" href="../../../zall/type.NoTime.html" title="type devela::zall::NoTime">NoTime</a></h3></section><section id="impl-TimeSource%3CInstant%3E-for-Instant" class="impl"><a class="src rightside" href="../../../../src/devela/phys/time/source/impl_source.rs.html#103-113">Source</a><a href="#impl-TimeSource%3CInstant%3E-for-Instant" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource">TimeSource</a>&lt;<a class="struct" href="../../../zall/struct.SystemInstant.html" title="struct devela::zall::SystemInstant">Instant</a>&gt; for <a class="struct" href="../../../zall/struct.SystemInstant.html" title="struct devela::zall::SystemInstant">SystemInstant</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span></section><section id="impl-TimeSource%3CSystemTime%3E-for-SystemTime" class="impl"><a class="src rightside" href="../../../../src/devela/phys/time/source/impl_source.rs.html#47-55">Source</a><a href="#impl-TimeSource%3CSystemTime%3E-for-SystemTime" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource">TimeSource</a>&lt;<a class="struct" href="../../../zall/struct.SystemTime.html" title="struct devela::zall::SystemTime">SystemTime</a>&gt; for <a class="struct" href="../../../zall/struct.SystemTime.html" title="struct devela::zall::SystemTime">SystemTime</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span></section><section id="impl-TimeSource%3Cu32%3E-for-JsInstant" class="impl"><a class="src rightside" href="../../../../src/devela/phys/time/source/impl_source.rs.html#176-187">Source</a><a href="#impl-TimeSource%3Cu32%3E-for-JsInstant" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource">TimeSource</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; for <a class="struct" href="../../../zall/struct.JsInstant.html" title="struct devela::zall::JsInstant">JsInstant</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>web</code> and non-Windows</strong> only.</div></span><div class="docblock"><p>Relative <code>u32</code> projection of <a href="../../../zall/struct.JsInstant.html" title="struct devela::zall::JsInstant"><code>JsInstant</code></a> in milliseconds.</p>
+</div></section><div class="docblock"><p>This compact projection favors storage size while keeping a practical range
+for browser sessions and medium-lived applications.</p>
+<p>At millisecond resolution, <code>u32</code> spans about 49.7 days.</p>
+</div><section id="impl-TimeSource%3Cu32%3E-for-LinuxInstant" class="impl"><a class="src rightside" href="../../../../src/devela/sys/os/linux/thread/time/instant.rs.html#51-67">Source</a><a href="#impl-TimeSource%3Cu32%3E-for-LinuxInstant" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource">TimeSource</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; for <a class="struct" href="../../../zall/struct.LinuxInstant.html" title="struct devela::zall::LinuxInstant">LinuxInstant</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>linux</code></strong> only.</div></span><div class="docblock"><p>Relative <code>u32</code> projection of <a href="../../../zall/struct.LinuxInstant.html" title="struct devela::zall::LinuxInstant"><code>LinuxInstant</code></a> in microseconds.</p>
+</div></section><div class="docblock"><p>This compact projection trades range for storage size while keeping
+sub-millisecond precision useful for short and medium-lived runtimes.</p>
+<p>At microsecond resolution, <code>u32</code> spans about 71.6 minutes.</p>
+</div><section id="impl-TimeSource%3Cu32%3E-for-Instant" class="impl"><a class="src rightside" href="../../../../src/devela/phys/time/source/impl_source.rs.html#135-146">Source</a><a href="#impl-TimeSource%3Cu32%3E-for-Instant" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource">TimeSource</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; for <a class="struct" href="../../../zall/struct.SystemInstant.html" title="struct devela::zall::SystemInstant">SystemInstant</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><div class="docblock"><p>Process-local monotonic <code>u32</code> projection of <a href="../../../zall/struct.SystemInstant.html" title="struct devela::zall::SystemInstant"><code>SystemInstant</code></a> in microseconds.</p>
+</div></section><div class="docblock"><p>This compact projection trades range for storage size while keeping
+sub-millisecond precision useful for short and medium-lived runtimes.</p>
+<p>At microsecond resolution, <code>u32</code> spans about 71.6 minutes,</p>
+</div><section id="impl-TimeSource%3Cu32%3E-for-SystemTime" class="impl"><a class="src rightside" href="../../../../src/devela/phys/time/source/impl_source.rs.html#74-88">Source</a><a href="#impl-TimeSource%3Cu32%3E-for-SystemTime" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource">TimeSource</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt; for <a class="struct" href="../../../zall/struct.SystemTime.html" title="struct devela::zall::SystemTime">SystemTime</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><div class="docblock"><p>Unix-time <code>u32</code> projection of <a href="../../../zall/struct.SystemTime.html" title="struct devela::zall::SystemTime"><code>SystemTime</code></a> in seconds.</p>
+</div></section><div class="docblock"><p>This gives a compact absolute projection with a range of about 136 years
+from the Unix epoch, so it remains valid until February 2106.</p>
+</div><section id="impl-TimeSource%3Cu64%3E-for-JsInstant" class="impl"><a class="src rightside" href="../../../../src/devela/phys/time/source/impl_source.rs.html#161-169">Source</a><a href="#impl-TimeSource%3Cu64%3E-for-JsInstant" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource">TimeSource</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt; for <a class="struct" href="../../../zall/struct.JsInstant.html" title="struct devela::zall::JsInstant">JsInstant</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>web</code> and non-Windows</strong> only.</div></span><div class="docblock"><p>Relative <code>u64</code> projection of <a href="../../../zall/struct.JsInstant.html" title="struct devela::zall::JsInstant"><code>JsInstant</code></a> in milliseconds.</p>
+</div></section><div class="docblock"><p>This is the canonical wide numeric projection for the browser high-resolution
+time origin. Milliseconds are the native scale exposed by the type’s public API.</p>
+<p>At millisecond resolution, <code>u64</code> spans about 584 million years.</p>
+</div><section id="impl-TimeSource%3Cu64%3E-for-LinuxInstant" class="impl"><a class="src rightside" href="../../../../src/devela/sys/os/linux/thread/time/instant.rs.html#27-42">Source</a><a href="#impl-TimeSource%3Cu64%3E-for-LinuxInstant" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource">TimeSource</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt; for <a class="struct" href="../../../zall/struct.LinuxInstant.html" title="struct devela::zall::LinuxInstant">LinuxInstant</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>linux</code></strong> only.</div></span><div class="docblock"><p>Relative <code>u64</code> projection of <a href="../../../zall/struct.LinuxInstant.html" title="struct devela::zall::LinuxInstant"><code>LinuxInstant</code></a> in nanoseconds.</p>
+</div></section><div class="docblock"><p>This is the canonical wide numeric projection for <code>CLOCK_MONOTONIC</code>.
+At nanosecond resolution, <code>u64</code> spans about 584 years.</p>
+</div><section id="impl-TimeSource%3Cu64%3E-for-Instant" class="impl"><a class="src rightside" href="../../../../src/devela/phys/time/source/impl_source.rs.html#118-128">Source</a><a href="#impl-TimeSource%3Cu64%3E-for-Instant" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource">TimeSource</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt; for <a class="struct" href="../../../zall/struct.SystemInstant.html" title="struct devela::zall::SystemInstant">SystemInstant</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><div class="docblock"><p>Process-local monotonic <code>u64</code> projection of <a href="../../../zall/struct.SystemInstant.html" title="struct devela::zall::SystemInstant"><code>SystemInstant</code></a> in nanoseconds.</p>
+</div></section><div class="docblock"><p>This is the canonical wide numeric projection:
+At nanosecond resolution, <code>u64</code> spans about 584 years.</p>
+</div><section id="impl-TimeSource%3Cu64%3E-for-SystemTime" class="impl"><a class="src rightside" href="../../../../src/devela/phys/time/source/impl_source.rs.html#60-69">Source</a><a href="#impl-TimeSource%3Cu64%3E-for-SystemTime" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../../zall/trait.TimeSource.html" title="trait devela::zall::TimeSource">TimeSource</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt; for <a class="struct" href="../../../zall/struct.SystemTime.html" title="struct devela::zall::SystemTime">SystemTime</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>std</code></strong> only.</div></span><div class="docblock"><p>Unix-time <code>u64</code> projection of <a href="../../../zall/struct.SystemTime.html" title="struct devela::zall::SystemTime"><code>SystemTime</code></a> in nanoseconds.</p>
+</div></section><div class="docblock"><p>This is the canonical wide numeric projection:
+At nanosecond resolution, <code>u64</code> spans about 584 years.</p>
+</div></div><script src="../../../../trait.impl/devela/phys/time/source/source/trait.TimeSource.js" data-ignore-extern-crates="std" async></script><script type="text/json" id="notable-traits-data">{"Option<P::Elapsed>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../zall/enum.Option.html\" title=\"enum devela::zall::Option\">Option</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../../zall/trait.OptionExt.html\" title=\"trait devela::zall::OptionExt\">OptionExt</a>&lt;T&gt; for <a class=\"enum\" href=\"../../../zall/enum.Option.html\" title=\"enum devela::zall::Option\">Option</a>&lt;T&gt;</div>"}</script></section></div></main></body></html>

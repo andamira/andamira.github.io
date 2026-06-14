@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["XError","XImageMode"],"struct":["XCpuBuffer","XDisplay","XEvent","XFrontend","XPresent","XRasterRenderer","XShmBuffer","XSurfaceFrame","XWindow"]};

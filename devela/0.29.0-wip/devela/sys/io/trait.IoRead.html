@@ -1,0 +1,579 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🔌 `?std` Allows for reading bytes from a source."><title>IoRead in devela::sys::io - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc trait"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">IoRead</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">IoRead</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.read" title="read">read</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.by_ref" title="by_ref">by_ref</a></li><li><a href="#method.bytes" title="bytes">bytes</a></li><li><a href="#method.chain" title="chain">chain</a></li><li><a href="#method.is_read_vectored" title="is_read_vectored">is_read_vectored</a></li><li><a href="#method.read_array" title="read_array">read_array</a></li><li><a href="#method.read_buf" title="read_buf">read_buf</a></li><li><a href="#method.read_buf_exact" title="read_buf_exact">read_buf_exact</a></li><li><a href="#method.read_exact" title="read_exact">read_exact</a></li><li><a href="#method.read_to_end" title="read_to_end">read_to_end</a></li><li><a href="#method.read_to_string" title="read_to_string">read_to_string</a></li><li><a href="#method.read_vectored" title="read_vectored">read_vectored</a></li><li><a href="#method.take" title="take">take</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>sys::<wbr>io</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">sys</a>::<wbr><a href="index.html">io</a></div><h1>Trait <span class="trait">IoRead</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#716">Source</a> </span></div><pre class="rust item-decl"><code>pub trait IoRead {
+<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 13 methods</span></summary>    // Required method
+    fn <a href="#tymethod.read" class="fn">read</a>(&amp;mut self, buf: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;usize, Error&gt;">ⓘ</a>;
+
+    // Provided methods
+    fn <a href="#method.read_vectored" class="fn">read_vectored</a>(
+        &amp;mut self,
+        bufs: &amp;mut [<a class="struct" href="../../zall/struct.IoSliceMut.html" title="struct devela::zall::IoSliceMut">IoSliceMut</a>&lt;'_&gt;],
+    ) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;usize, Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.is_read_vectored" class="fn">is_read_vectored</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.read_to_end" class="fn">read_to_end</a>(&amp;mut self, buf: &amp;mut <a class="struct" href="../../zall/struct.Vec.html" title="struct devela::zall::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;usize, Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.read_to_string" class="fn">read_to_string</a>(&amp;mut self, buf: &amp;mut <a class="struct" href="../../zall/struct.String.html" title="struct devela::zall::String">String</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;usize, Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.read_exact" class="fn">read_exact</a>(&amp;mut self, buf: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.read_buf" class="fn">read_buf</a>(&amp;mut self, buf: <a class="struct" href="https://doc.rust-lang.org/nightly/core/io/borrowed_buf/struct.BorrowedCursor.html" title="struct core::io::borrowed_buf::BorrowedCursor">BorrowedCursor</a>&lt;'_, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.read_buf_exact" class="fn">read_buf_exact</a>(
+        &amp;mut self,
+        cursor: <a class="struct" href="https://doc.rust-lang.org/nightly/core/io/borrowed_buf/struct.BorrowedCursor.html" title="struct core::io::borrowed_buf::BorrowedCursor">BorrowedCursor</a>&lt;'_, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;,
+    ) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Error&gt;">ⓘ</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.by_ref" class="fn">by_ref</a>(&amp;mut self) -&gt; &amp;mut Self
+       <span class="where">where Self: <a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.bytes" class="fn">bytes</a>(self) -&gt; <a class="struct" href="../../zall/struct.IoBytes.html" title="struct devela::zall::IoBytes">Bytes</a>&lt;Self&gt; <a href="#" class="tooltip" data-notable-ty="Bytes&lt;Self&gt;">ⓘ</a>
+       <span class="where">where Self: <a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.chain" class="fn">chain</a>&lt;R&gt;(self, next: R) -&gt; <a class="struct" href="../../zall/struct.IoChain.html" title="struct devela::zall::IoChain">Chain</a>&lt;Self, R&gt; <a href="#" class="tooltip" data-notable-ty="Chain&lt;Self, R&gt;">ⓘ</a>
+       <span class="where">where R: <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a>,
+             Self: <a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.take" class="fn">take</a>(self, limit: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a class="struct" href="../../zall/struct.IoTake.html" title="struct devela::zall::IoTake">Take</a>&lt;Self&gt; <a href="#" class="tooltip" data-notable-ty="Take&lt;Self&gt;">ⓘ</a>
+       <span class="where">where Self: <a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.read_array" class="fn">read_array</a>&lt;const N: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;(&amp;mut self) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">N</a>], <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;[u8; N], Error&gt;">ⓘ</a>
+       <span class="where">where Self: <a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a></span> { ... }
+</details>}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Input and output'>🔌</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`
+or recreated if `not(std)`'><code>?std</code></span>
+Allows for reading bytes from a source.</p>
+<hr />
+<p><sup title='re-exported from `devela`'><a href="https://docs.rs/devela/latest/devela/sys/io"><code>📍</code></a></sup><sup class='_doc_location' title='location in `devela`'><b><a href="https://docs.rs/devela/latest/devela/sys/io"><code>sys/io</code></a></b></sup> <sup>re-exported from <a title='location in `std`' href="https://doc.rust-lang.org/std/io/">std::io</a> <code>::Read</code> as <code>IoRead</code> </sup></p>
+<hr />
+<hr />
+<p><span class='stab portability' title='Upstream/original documentation'>📜</span><br>
+The <code>Read</code> trait allows for reading bytes from a source.</p>
+<p>Implementors of the <code>Read</code> trait are called ‘readers’.</p>
+<p>Readers are defined by one required method, <a href="../../zall/trait.IoRead.html#tymethod.read" title="method devela::zall::IoRead::read"><code>read()</code></a>. Each call to <a href="../../zall/trait.IoRead.html#tymethod.read" title="method devela::zall::IoRead::read"><code>read()</code></a>
+will attempt to pull bytes from this source into a provided buffer. A
+number of other methods are implemented in terms of <a href="../../zall/trait.IoRead.html#tymethod.read" title="method devela::zall::IoRead::read"><code>read()</code></a>, giving
+implementors a number of ways to read bytes while only needing to implement
+a single method.</p>
+<p>Readers are intended to be composable with one another. Many implementors
+throughout <a href="https://doc.rust-lang.org/nightly/std/io/index.html" title="mod std::io"><code>std::io</code></a> take and provide types which implement the <code>Read</code>
+trait.</p>
+<p>Please note that each call to <a href="../../zall/trait.IoRead.html#tymethod.read" title="method devela::zall::IoRead::read"><code>read()</code></a> may involve a system call, and
+therefore, using something that implements <a href="../../zall/trait.IoBufRead.html" title="trait devela::zall::IoBufRead"><code>BufRead</code></a>, such as
+<a href="../../zall/struct.IoBufReader.html" title="struct devela::zall::IoBufReader"><code>BufReader</code></a>, will be more efficient.</p>
+<p>Repeated calls to the reader use the same cursor, so for example
+calling <code>read_to_end</code> twice on a <a href="../../zall/struct.File.html" title="struct devela::zall::File"><code>File</code></a> will only return the file’s
+contents once. It’s recommended to first call <code>rewind()</code> in that case.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p><a href="../../zall/struct.File.html" title="struct devela::zall::File"><code>File</code></a>s implement <code>Read</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::fs::File;
+
+<span class="kw">fn </span>main() -&gt; io::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">"foo.txt"</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0</span>; <span class="number">10</span>];
+
+    <span class="comment">// read up to 10 bytes
+    </span>f.read(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::new();
+    <span class="comment">// read the whole file
+    </span>f.read_to_end(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
+
+    <span class="comment">// read into a String, so that you don't need to do the conversion.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>buffer = String::new();
+    f.read_to_string(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
+
+    <span class="comment">// and more! See the other methods for more details.
+    </span><span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>Read from <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a> because <a href="https://doc.rust-lang.org/nightly/std/primitive.slice.html" title="primitive slice"><code>&amp;[u8]</code></a> implements <code>Read</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+
+<span class="kw">fn </span>main() -&gt; io::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>b = <span class="string">"This string will be read"</span>.as_bytes();
+    <span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0</span>; <span class="number">10</span>];
+
+    <span class="comment">// read up to 10 bytes
+    </span>b.read(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
+
+    <span class="comment">// etc... it works exactly as a File does!
+    </span><span class="prelude-val">Ok</span>(())
+}</code></pre></div></div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.read" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#797">Source</a></span><h4 class="code-header">fn <a href="#tymethod.read" class="fn">read</a>(&amp;mut self, buf: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;usize, Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Pull some bytes from this source into the specified buffer, returning
+how many bytes were read.</p>
+<p>This function does not provide any guarantees about whether it blocks
+waiting for data, but if an object needs to block for a read and cannot,
+it will typically signal this via an <a href="../../zall/enum.Result.html#variant.Err" title="variant devela::zall::Result::Err"><code>Err</code></a> return value.</p>
+<p>If the return value of this method is <a href="../../zall/enum.Result.html#variant.Ok" title="variant devela::zall::Result::Ok"><code>Ok(n)</code></a>, then implementations must
+guarantee that <code>0 &lt;= n &lt;= buf.len()</code>. A nonzero <code>n</code> value indicates
+that the buffer <code>buf</code> has been filled in with <code>n</code> bytes of data from this
+source. If <code>n</code> is <code>0</code>, then it can indicate one of two scenarios:</p>
+<ol>
+<li>This reader has reached its “end of file” and will likely no longer
+be able to produce bytes. Note that this does not mean that the
+reader will <em>always</em> no longer be able to produce bytes. As an example,
+on Linux, this method will call the <code>recv</code> syscall for a <a href="../../zall/struct.TcpStream.html" title="struct devela::zall::TcpStream"><code>TcpStream</code></a>,
+where returning zero indicates the connection was shut down correctly. While
+for <a href="../../zall/struct.File.html" title="struct devela::zall::File"><code>File</code></a>, it is possible to reach the end of file and get zero as result,
+but if more data is appended to the file, future calls to <code>read</code> will return
+more data.</li>
+<li>The buffer specified was 0 bytes in length.</li>
+</ol>
+<p>It is not an error if the returned value <code>n</code> is smaller than the buffer size,
+even when the reader is not at the end of the stream yet.
+This may happen for example because fewer bytes are actually available right now
+(e. g. being close to end-of-file) or because read() was interrupted by a signal.</p>
+<p>As this trait is safe to implement, callers in unsafe code cannot rely on
+<code>n &lt;= buf.len()</code> for safety.
+Extra care needs to be taken when <code>unsafe</code> functions are used to access the read bytes.
+Callers have to ensure that no unchecked out-of-bounds accesses are possible even if
+<code>n &gt; buf.len()</code>.</p>
+<p><em>Implementations</em> of this method can make no assumptions about the contents of <code>buf</code> when
+this function is called. It is recommended that implementations only write data to <code>buf</code>
+instead of reading its contents.</p>
+<p>Correspondingly, however, <em>callers</em> of this method in unsafe code must not assume
+any guarantees about how the implementation uses <code>buf</code>. The trait is safe to implement,
+so it is possible that the code that’s supposed to write to the buffer might also read
+from it. It is your responsibility to make sure that <code>buf</code> is initialized
+before calling <code>read</code>. Calling <code>read</code> with an uninitialized <code>buf</code> (of the kind one
+obtains via <a href="../../zall/union.MaybeUninit.html" title="union devela::zall::MaybeUninit"><code>MaybeUninit&lt;T&gt;</code></a>) is not safe, and can lead to undefined behavior.</p>
+<h5 id="errors"><a class="doc-anchor" href="#errors">§</a>Errors</h5>
+<p>If this function encounters any form of I/O or other error, an error
+variant will be returned. If an error is returned then it must be
+guaranteed that no bytes were read.</p>
+<p>An error of the <a href="../../zall/enum.IoErrorKind.html#variant.Interrupted" title="variant devela::zall::IoErrorKind::Interrupted"><code>ErrorKind::Interrupted</code></a> kind is non-fatal and the read
+operation should be retried if there is nothing else to do.</p>
+<h5 id="examples-1"><a class="doc-anchor" href="#examples-1">§</a>Examples</h5>
+<p><a href="../../zall/struct.File.html" title="struct devela::zall::File"><code>File</code></a>s implement <code>Read</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::fs::File;
+
+<span class="kw">fn </span>main() -&gt; io::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">"foo.txt"</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0</span>; <span class="number">10</span>];
+
+    <span class="comment">// read up to 10 bytes
+    </span><span class="kw">let </span>n = f.read(<span class="kw-2">&amp;mut </span>buffer[..])<span class="question-mark">?</span>;
+
+    <span class="macro">println!</span>(<span class="string">"The bytes: {:?}"</span>, <span class="kw-2">&amp;</span>buffer[..n]);
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div></div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.read_vectored" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.36.0">1.36.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#809">Source</a></span><h4 class="code-header">fn <a href="#method.read_vectored" class="fn">read_vectored</a>(&amp;mut self, bufs: &amp;mut [<a class="struct" href="../../zall/struct.IoSliceMut.html" title="struct devela::zall::IoSliceMut">IoSliceMut</a>&lt;'_&gt;]) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;usize, Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Like <code>read</code>, except that it reads into a slice of buffers.</p>
+<p>Data is copied to fill each buffer in order, with the final buffer
+written to possibly being only partially filled. This method must
+behave equivalently to a single call to <code>read</code> with concatenated
+buffers.</p>
+<p>The default implementation calls <code>read</code> with either the first nonempty
+buffer provided, or an empty one if none exists.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.is_read_vectored" class="method"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#822">Source</a><h4 class="code-header">fn <a href="#method.is_read_vectored" class="fn">is_read_vectored</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section><span class="item-info"><div class="stab unstable"><span class="emoji">🔬</span><span>This is a nightly-only experimental API. (<code>can_vector</code>)</span></div></span></summary><div class="docblock"><p>Determines if this <code>Read</code>er has an efficient <code>read_vectored</code>
+implementation.</p>
+<p>If a <code>Read</code>er does not override the default <code>read_vectored</code>
+implementation, code using it may want to avoid the method all together
+and coalesce writes into a single buffer for higher performance.</p>
+<p>The default implementation returns <code>false</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.read_to_end" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#919">Source</a></span><h4 class="code-header">fn <a href="#method.read_to_end" class="fn">read_to_end</a>(&amp;mut self, buf: &amp;mut <a class="struct" href="../../zall/struct.Vec.html" title="struct devela::zall::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;usize, Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Reads all bytes until EOF in this source, placing them into <code>buf</code>.</p>
+<p>All bytes read from this source will be appended to the specified buffer
+<code>buf</code>. This function will continuously call <a href="../../zall/trait.IoRead.html#tymethod.read" title="method devela::zall::IoRead::read"><code>read()</code></a> to append more data to
+<code>buf</code> until <a href="../../zall/trait.IoRead.html#tymethod.read" title="method devela::zall::IoRead::read"><code>read()</code></a> returns either <a href="../../zall/enum.Result.html#variant.Ok" title="variant devela::zall::Result::Ok"><code>Ok(0)</code></a> or an error of
+non-<a href="../../zall/enum.IoErrorKind.html#variant.Interrupted" title="variant devela::zall::IoErrorKind::Interrupted"><code>ErrorKind::Interrupted</code></a> kind.</p>
+<p>If successful, this function will return the total number of bytes read.</p>
+<h5 id="errors-1"><a class="doc-anchor" href="#errors-1">§</a>Errors</h5>
+<p>If this function encounters an error of the kind
+<a href="../../zall/enum.IoErrorKind.html#variant.Interrupted" title="variant devela::zall::IoErrorKind::Interrupted"><code>ErrorKind::Interrupted</code></a> then the error is ignored and the operation
+will continue.</p>
+<p>If any other read error is encountered then this function immediately
+returns. Any bytes which have already been read will be appended to
+<code>buf</code>.</p>
+<h5 id="examples-2"><a class="doc-anchor" href="#examples-2">§</a>Examples</h5>
+<p><a href="../../zall/struct.File.html" title="struct devela::zall::File"><code>File</code></a>s implement <code>Read</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::fs::File;
+
+<span class="kw">fn </span>main() -&gt; io::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">"foo.txt"</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::new();
+
+    <span class="comment">// read the whole file
+    </span>f.read_to_end(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>(See also the <a href="https://doc.rust-lang.org/nightly/std/fs/fn.read.html" title="fn std::fs::read"><code>std::fs::read</code></a> convenience function for reading from a
+file.)</p>
+<h6 id="implementing-read_to_end"><a class="doc-anchor" href="#implementing-read_to_end">§</a>Implementing <code>read_to_end</code></h6>
+<p>When implementing the <code>io::Read</code> trait, it is recommended to allocate
+memory using <a href="../../zall/struct.Vec.html#method.try_reserve" title="method devela::zall::Vec::try_reserve"><code>Vec::try_reserve</code></a>. However, this behavior is not guaranteed
+by all implementations, and <code>read_to_end</code> may not handle out-of-memory
+situations gracefully.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn </span>read_to_end(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest_vec: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; io::Result&lt;usize&gt; {
+    <span class="kw">let </span>initial_vec_len = dest_vec.len();
+    <span class="kw">loop </span>{
+        <span class="kw">let </span>src_buf = <span class="self">self</span>.example_datasource.fill_buf()<span class="question-mark">?</span>;
+        <span class="kw">if </span>src_buf.is_empty() {
+            <span class="kw">break</span>;
+        }
+        dest_vec.try_reserve(src_buf.len())<span class="question-mark">?</span>;
+        dest_vec.extend_from_slice(src_buf);
+
+        <span class="comment">// Any irreversible side effects should happen after `try_reserve` succeeds,
+        // to avoid losing data on allocation error.
+        </span><span class="kw">let </span>read = src_buf.len();
+        <span class="self">self</span>.example_datasource.consume(read);
+    }
+    <span class="prelude-val">Ok</span>(dest_vec.len() - initial_vec_len)
+}</code></pre></div><h5 id="usage-notes"><a class="doc-anchor" href="#usage-notes">§</a>Usage Notes</h5>
+<p><code>read_to_end</code> attempts to read a source until EOF, but many sources are continuous streams
+that do not send EOF. In these cases, <code>read_to_end</code> will block indefinitely. Standard input
+is one such stream which may be finite if piped, but is typically continuous. For example,
+<code>cat file | my-rust-program</code> will correctly terminate with an <code>EOF</code> upon closure of cat.
+Reading user input or running programs that remain open indefinitely will never terminate
+the stream with <code>EOF</code> (e.g. <code>yes | my-rust-program</code>).</p>
+<p>Using <code>.lines()</code> with a <a href="../../zall/struct.IoBufReader.html" title="struct devela::zall::IoBufReader"><code>BufReader</code></a> or using <a href="../../zall/trait.IoRead.html#tymethod.read" title="method devela::zall::IoRead::read"><code>read</code></a> can provide a better solution</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.read_to_string" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#975">Source</a></span><h4 class="code-header">fn <a href="#method.read_to_string" class="fn">read_to_string</a>(&amp;mut self, buf: &amp;mut <a class="struct" href="../../zall/struct.String.html" title="struct devela::zall::String">String</a>) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;usize, Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Reads all bytes until EOF in this source, appending them to <code>buf</code>.</p>
+<p>If successful, this function returns the number of bytes which were read
+and appended to <code>buf</code>.</p>
+<h5 id="errors-2"><a class="doc-anchor" href="#errors-2">§</a>Errors</h5>
+<p>If the data in this stream is <em>not</em> valid UTF-8 then an error is
+returned and <code>buf</code> is unchanged.</p>
+<p>See <a href="../../zall/trait.IoRead.html#method.read_to_end" title="method devela::zall::IoRead::read_to_end"><code>read_to_end</code></a> for other error semantics.</p>
+<h5 id="examples-3"><a class="doc-anchor" href="#examples-3">§</a>Examples</h5>
+<p><a href="../../zall/struct.File.html" title="struct devela::zall::File"><code>File</code></a>s implement <code>Read</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::fs::File;
+
+<span class="kw">fn </span>main() -&gt; io::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">"foo.txt"</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>buffer = String::new();
+
+    f.read_to_string(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>(See also the <a href="https://doc.rust-lang.org/nightly/std/fs/fn.read_to_string.html" title="fn std::fs::read_to_string"><code>std::fs::read_to_string</code></a> convenience function for
+reading from a file.)</p>
+<h5 id="usage-notes-1"><a class="doc-anchor" href="#usage-notes-1">§</a>Usage Notes</h5>
+<p><code>read_to_string</code> attempts to read a source until EOF, but many sources are continuous streams
+that do not send EOF. In these cases, <code>read_to_string</code> will block indefinitely. Standard input
+is one such stream which may be finite if piped, but is typically continuous. For example,
+<code>cat file | my-rust-program</code> will correctly terminate with an <code>EOF</code> upon closure of cat.
+Reading user input or running programs that remain open indefinitely will never terminate
+the stream with <code>EOF</code> (e.g. <code>yes | my-rust-program</code>).</p>
+<p>Using <code>.lines()</code> with a <a href="../../zall/struct.IoBufReader.html" title="struct devela::zall::IoBufReader"><code>BufReader</code></a> or using <a href="../../zall/trait.IoRead.html#tymethod.read" title="method devela::zall::IoRead::read"><code>read</code></a> can provide a better solution</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.read_exact" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.6.0">1.6.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#1028">Source</a></span><h4 class="code-header">fn <a href="#method.read_exact" class="fn">read_exact</a>(&amp;mut self, buf: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Error&gt;">ⓘ</a></h4></section></summary><div class="docblock"><p>Reads the exact number of bytes required to fill <code>buf</code>.</p>
+<p>This function reads as many bytes as necessary to completely fill the
+specified buffer <code>buf</code>.</p>
+<p><em>Implementations</em> of this method can make no assumptions about the contents of <code>buf</code> when
+this function is called. It is recommended that implementations only write data to <code>buf</code>
+instead of reading its contents. The documentation on <a href="../../zall/trait.IoRead.html#tymethod.read" title="method devela::zall::IoRead::read"><code>read</code></a> has a more detailed
+explanation of this subject.</p>
+<h5 id="errors-3"><a class="doc-anchor" href="#errors-3">§</a>Errors</h5>
+<p>If this function encounters an error of the kind
+<a href="../../zall/enum.IoErrorKind.html#variant.Interrupted" title="variant devela::zall::IoErrorKind::Interrupted"><code>ErrorKind::Interrupted</code></a> then the error is ignored and the operation
+will continue.</p>
+<p>If this function encounters an “end of file” before completely filling
+the buffer, it returns an error of the kind <a href="../../zall/enum.IoErrorKind.html#variant.UnexpectedEof" title="variant devela::zall::IoErrorKind::UnexpectedEof"><code>ErrorKind::UnexpectedEof</code></a>.
+The contents of <code>buf</code> are unspecified in this case.</p>
+<p>If any other read error is encountered then this function immediately
+returns. The contents of <code>buf</code> are unspecified in this case.</p>
+<p>If this function returns an error, it is unspecified how many bytes it
+has read, but it will never read more than would be necessary to
+completely fill the buffer.</p>
+<h5 id="examples-4"><a class="doc-anchor" href="#examples-4">§</a>Examples</h5>
+<p><a href="../../zall/struct.File.html" title="struct devela::zall::File"><code>File</code></a>s implement <code>Read</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::fs::File;
+
+<span class="kw">fn </span>main() -&gt; io::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">"foo.txt"</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0</span>; <span class="number">10</span>];
+
+    <span class="comment">// read exactly 10 bytes
+    </span>f.read_exact(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div></div></details><details class="toggle method-toggle" open><summary><section id="method.read_buf" class="method"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#1041">Source</a><h4 class="code-header">fn <a href="#method.read_buf" class="fn">read_buf</a>(&amp;mut self, buf: <a class="struct" href="https://doc.rust-lang.org/nightly/core/io/borrowed_buf/struct.BorrowedCursor.html" title="struct core::io::borrowed_buf::BorrowedCursor">BorrowedCursor</a>&lt;'_, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Error&gt;">ⓘ</a></h4></section><span class="item-info"><div class="stab unstable"><span class="emoji">🔬</span><span>This is a nightly-only experimental API. (<code>read_buf</code>)</span></div></span></summary><div class="docblock"><p>Pull some bytes from this source into the specified buffer.</p>
+<p>This is equivalent to the <a href="../../zall/trait.IoRead.html#tymethod.read" title="method devela::zall::IoRead::read"><code>read</code></a> method, except that it is passed a <a href="https://doc.rust-lang.org/nightly/core/io/borrowed_buf/struct.BorrowedCursor.html" title="struct core::io::borrowed_buf::BorrowedCursor"><code>BorrowedCursor</code></a> rather than <code>[u8]</code> to allow use
+with uninitialized buffers. The new data will be appended to any existing contents of <code>buf</code>.</p>
+<p>The default implementation delegates to <code>read</code>.</p>
+<p>This method makes it possible to return both data and an error but it is advised against.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.read_buf_exact" class="method"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#1064">Source</a><h4 class="code-header">fn <a href="#method.read_buf_exact" class="fn">read_buf_exact</a>(
+    &amp;mut self,
+    cursor: <a class="struct" href="https://doc.rust-lang.org/nightly/core/io/borrowed_buf/struct.BorrowedCursor.html" title="struct core::io::borrowed_buf::BorrowedCursor">BorrowedCursor</a>&lt;'_, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;,
+) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Error&gt;">ⓘ</a></h4></section><span class="item-info"><div class="stab unstable"><span class="emoji">🔬</span><span>This is a nightly-only experimental API. (<code>read_buf</code>)</span></div></span></summary><div class="docblock"><p>Reads the exact number of bytes required to fill <code>cursor</code>.</p>
+<p>This is similar to the <a href="../../zall/trait.IoRead.html#method.read_exact" title="method devela::zall::IoRead::read_exact"><code>read_exact</code></a> method, except
+that it is passed a <a href="https://doc.rust-lang.org/nightly/core/io/borrowed_buf/struct.BorrowedCursor.html" title="struct core::io::borrowed_buf::BorrowedCursor"><code>BorrowedCursor</code></a> rather than <code>[u8]</code> to allow use
+with uninitialized buffers.</p>
+<h5 id="errors-4"><a class="doc-anchor" href="#errors-4">§</a>Errors</h5>
+<p>If this function encounters an error of the kind <a href="../../zall/enum.IoErrorKind.html#variant.Interrupted" title="variant devela::zall::IoErrorKind::Interrupted"><code>ErrorKind::Interrupted</code></a>
+then the error is ignored and the operation will continue.</p>
+<p>If this function encounters an “end of file” before completely filling
+the buffer, it returns an error of the kind <a href="../../zall/enum.IoErrorKind.html#variant.UnexpectedEof" title="variant devela::zall::IoErrorKind::UnexpectedEof"><code>ErrorKind::UnexpectedEof</code></a>.</p>
+<p>If any other read error is encountered then this function immediately
+returns.</p>
+<p>If this function returns an error, all bytes read will be appended to <code>cursor</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.by_ref" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#1103-1105">Source</a></span><h4 class="code-header">fn <a href="#method.by_ref" class="fn">by_ref</a>(&amp;mut self) -&gt; &amp;mut Self<div class="where">where
+    Self: <a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a>,</div></h4></section></summary><div class="docblock"><p>Creates a “by reference” adapter for this instance of <code>Read</code>.</p>
+<p>The returned adapter also implements <code>Read</code> and will simply borrow this
+current reader.</p>
+<h5 id="examples-5"><a class="doc-anchor" href="#examples-5">§</a>Examples</h5>
+<p><a href="../../zall/struct.File.html" title="struct devela::zall::File"><code>File</code></a>s implement <code>Read</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::io::Read;
+<span class="kw">use </span>std::fs::File;
+
+<span class="kw">fn </span>main() -&gt; io::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">"foo.txt"</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>other_buffer = Vec::new();
+
+    {
+        <span class="kw">let </span>reference = f.by_ref();
+
+        <span class="comment">// read at most 5 bytes
+        </span>reference.take(<span class="number">5</span>).read_to_end(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
+
+    } <span class="comment">// drop our &amp;mut reference so we can use f again
+
+    // original file still usable, read the rest
+    </span>f.read_to_end(<span class="kw-2">&amp;mut </span>other_buffer)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div></div></details><details class="toggle method-toggle" open><summary><section id="method.bytes" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#1146-1148">Source</a></span><h4 class="code-header">fn <a href="#method.bytes" class="fn">bytes</a>(self) -&gt; <a class="struct" href="../../zall/struct.IoBytes.html" title="struct devela::zall::IoBytes">Bytes</a>&lt;Self&gt; <a href="#" class="tooltip" data-notable-ty="Bytes&lt;Self&gt;">ⓘ</a><div class="where">where
+    Self: <a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a>,</div></h4></section></summary><div class="docblock"><p>Transforms this <code>Read</code> instance to an <a href="../../zall/trait.Iterator.html" title="trait devela::zall::Iterator"><code>Iterator</code></a> over its bytes.</p>
+<p>The returned type implements <a href="../../zall/trait.Iterator.html" title="trait devela::zall::Iterator"><code>Iterator</code></a> where the <a href="../../zall/trait.Iterator.html#associatedtype.Item" title="associated type devela::zall::Iterator::Item"><code>Item</code></a> is
+<code><a href="../../zall/enum.Result.html" title="Result">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html" title="primitive u8">u8</a>, <a href="../../zall/struct.IoError.html" title="io::Error">io::Error</a>&gt;</code>.
+The yielded item is <a href="../../zall/enum.Result.html#variant.Ok" title="variant devela::zall::Result::Ok"><code>Ok</code></a> if a byte was successfully read and <a href="../../zall/enum.Result.html#variant.Err" title="variant devela::zall::Result::Err"><code>Err</code></a>
+otherwise. EOF is mapped to returning <a href="../../zall/enum.Option.html#variant.None" title="variant devela::zall::Option::None"><code>None</code></a> from this iterator.</p>
+<p>The default implementation calls <code>read</code> for each byte,
+which can be very inefficient for data that’s not in memory,
+such as <a href="../../zall/struct.File.html" title="fs::File"><code>File</code></a>. Consider using a <a href="../../zall/struct.IoBufReader.html" title="struct devela::zall::IoBufReader"><code>BufReader</code></a> in such cases.</p>
+<h5 id="examples-6"><a class="doc-anchor" href="#examples-6">§</a>Examples</h5>
+<p><a href="../../zall/struct.File.html" title="fs::File"><code>File</code></a>s implement <code>Read</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::io::BufReader;
+<span class="kw">use </span>std::fs::File;
+
+<span class="kw">fn </span>main() -&gt; io::Result&lt;()&gt; {
+    <span class="kw">let </span>f = BufReader::new(File::open(<span class="string">"foo.txt"</span>)<span class="question-mark">?</span>);
+
+    <span class="kw">for </span>byte <span class="kw">in </span>f.bytes() {
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, byte<span class="question-mark">?</span>);
+    }
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div></div></details><details class="toggle method-toggle" open><summary><section id="method.chain" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#1184-1186">Source</a></span><h4 class="code-header">fn <a href="#method.chain" class="fn">chain</a>&lt;R&gt;(self, next: R) -&gt; <a class="struct" href="../../zall/struct.IoChain.html" title="struct devela::zall::IoChain">Chain</a>&lt;Self, R&gt; <a href="#" class="tooltip" data-notable-ty="Chain&lt;Self, R&gt;">ⓘ</a><div class="where">where
+    R: <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a>,
+    Self: <a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a>,</div></h4></section></summary><div class="docblock"><p>Creates an adapter which will chain this stream with another.</p>
+<p>The returned <code>Read</code> instance will first read all bytes from this object
+until EOF is encountered. Afterwards the output is equivalent to the
+output of <code>next</code>.</p>
+<h5 id="examples-7"><a class="doc-anchor" href="#examples-7">§</a>Examples</h5>
+<p><a href="../../zall/struct.File.html" title="struct devela::zall::File"><code>File</code></a>s implement <code>Read</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::fs::File;
+
+<span class="kw">fn </span>main() -&gt; io::Result&lt;()&gt; {
+    <span class="kw">let </span>f1 = File::open(<span class="string">"foo.txt"</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>f2 = File::open(<span class="string">"bar.txt"</span>)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span><span class="kw-2">mut </span>handle = f1.chain(f2);
+    <span class="kw">let </span><span class="kw-2">mut </span>buffer = String::new();
+
+    <span class="comment">// read the value into a String. We could use any Read method here,
+    // this is just one example.
+    </span>handle.read_to_string(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div></div></details><details class="toggle method-toggle" open><summary><section id="method.take" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#1223-1225">Source</a></span><h4 class="code-header">fn <a href="#method.take" class="fn">take</a>(self, limit: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a class="struct" href="../../zall/struct.IoTake.html" title="struct devela::zall::IoTake">Take</a>&lt;Self&gt; <a href="#" class="tooltip" data-notable-ty="Take&lt;Self&gt;">ⓘ</a><div class="where">where
+    Self: <a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a>,</div></h4></section></summary><div class="docblock"><p>Creates an adapter which will read at most <code>limit</code> bytes from it.</p>
+<p>This function returns a new instance of <code>Read</code> which will read at most
+<code>limit</code> bytes, after which it will always return EOF (<a href="../../zall/enum.Result.html#variant.Ok" title="variant devela::zall::Result::Ok"><code>Ok(0)</code></a>). Any
+read errors will not count towards the number of bytes read and future
+calls to <a href="../../zall/trait.IoRead.html#tymethod.read" title="method devela::zall::IoRead::read"><code>read()</code></a> may succeed.</p>
+<h5 id="examples-8"><a class="doc-anchor" href="#examples-8">§</a>Examples</h5>
+<p><a href="../../zall/struct.File.html" title="struct devela::zall::File"><code>File</code></a>s implement <code>Read</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::fs::File;
+
+<span class="kw">fn </span>main() -&gt; io::Result&lt;()&gt; {
+    <span class="kw">let </span>f = File::open(<span class="string">"foo.txt"</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0</span>; <span class="number">5</span>];
+
+    <span class="comment">// read at most five bytes
+    </span><span class="kw">let </span><span class="kw-2">mut </span>handle = f.take(<span class="number">5</span>);
+
+    handle.read(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div></div></details><details class="toggle method-toggle" open><summary><section id="method.read_array" class="method"><a class="src rightside" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#1258-1260">Source</a><h4 class="code-header">fn <a href="#method.read_array" class="fn">read_array</a>&lt;const N: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;(&amp;mut self) -&gt; <a class="enum" href="../../zall/enum.Result.html" title="enum devela::zall::Result">Result</a>&lt;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">N</a>], <a class="struct" href="../../zall/struct.IoError.html" title="struct devela::zall::IoError">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;[u8; N], Error&gt;">ⓘ</a><div class="where">where
+    Self: <a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a>,</div></h4></section><span class="item-info"><div class="stab unstable"><span class="emoji">🔬</span><span>This is a nightly-only experimental API. (<code>read_array</code>)</span></div></span></summary><div class="docblock"><p>Read and return a fixed array of bytes from this source.</p>
+<p>This function uses an array sized based on a const generic size known at compile time. You
+can specify the size with turbofish (<code>reader.read_array::&lt;8&gt;()</code>), or let type inference
+determine the number of bytes needed based on how the return value gets used. For instance,
+this function works well with functions like <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html#method.from_le_bytes" title="associated function u64::from_le_bytes"><code>u64::from_le_bytes</code></a> to turn an array of
+bytes into an integer of the same size.</p>
+<p>Like <code>read_exact</code>, if this function encounters an “end of file” before reading the desired
+number of bytes, it returns an error of the kind <a href="../../zall/enum.IoErrorKind.html#variant.UnexpectedEof" title="variant devela::zall::IoErrorKind::UnexpectedEof"><code>ErrorKind::UnexpectedEof</code></a>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#![feature(read_array)]
+</span><span class="kw">use </span>std::io::Cursor;
+<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+
+<span class="kw">fn </span>main() -&gt; std::io::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = Cursor::new([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">8</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>]);
+    <span class="kw">let </span>x = u64::from_le_bytes(buf.read_array()<span class="question-mark">?</span>);
+    <span class="kw">let </span>y = u32::from_be_bytes(buf.read_array()<span class="question-mark">?</span>);
+    <span class="kw">let </span>z = u16::from_be_bytes(buf.read_array()<span class="question-mark">?</span>);
+    <span class="macro">assert_eq!</span>(x, <span class="number">0x807060504030201</span>);
+    <span class="macro">assert_eq!</span>(y, <span class="number">0x9080706</span>);
+    <span class="macro">assert_eq!</span>(z, <span class="number">0x504</span>);
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div></div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait <b>is</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety".</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><div class="negative-marker"></div><section id="impl-Read-for-%26File" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/fs.rs.html#1321">Source</a></span><a href="#impl-Read-for-%26File" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for &amp;<a class="struct" href="../../zall/struct.File.html" title="struct devela::zall::File">File</a></h3></section><section id="impl-Read-for-%26PipeReader" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.87.0">1.87.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/pipe.rs.html#216">Source</a></span><a href="#impl-Read-for-%26PipeReader" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for &amp;<a class="struct" href="../../zall/struct.IoPipeReader.html" title="struct devela::zall::IoPipeReader">PipeReader</a></h3></section><section id="impl-Read-for-%26Stdin" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.78.0">1.78.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/stdio.rs.html#475">Source</a></span><a href="#impl-Read-for-%26Stdin" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for &amp;<a class="struct" href="../../zall/struct.Stdin.html" title="struct devela::zall::Stdin">Stdin</a></h3></section><section id="impl-Read-for-%26TcpStream" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/net/tcp.rs.html#719">Source</a></span><a href="#impl-Read-for-%26TcpStream" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for &amp;<a class="struct" href="../../zall/struct.TcpStream.html" title="struct devela::zall::TcpStream">TcpStream</a></h3></section><section id="impl-Read-for-%26%5Bu8%5D" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/impls.rs.html#299">Source</a></span><a href="#impl-Read-for-%26%5Bu8%5D" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for &amp;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]</h3><div class="docblock"><p>Read is implemented for <code>&amp;[u8]</code> by copying from the slice.</p>
+</div></section><div class="docblock"><p>Note that reading updates the slice to point to the yet unread part.
+The slice will be empty when EOF is reached.</p>
+</div><section id="impl-Read-for-Arc%3CFile%3E" class="impl"><a href="#impl-Read-for-Arc%3CFile%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for devela::zall::<a class="struct" href="../../zall/struct.Arc.html" title="struct devela::zall::Arc">Arc</a>&lt;<a class="struct" href="../../zall/struct.File.html" title="struct devela::zall::File">File</a>&gt;</h3></section><section id="impl-Read-for-ChildStderr" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/process.rs.html#481">Source</a></span><a href="#impl-Read-for-ChildStderr" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.ProcessStderr.html" title="struct devela::zall::ProcessStderr">ChildStderr</a></h3></section><section id="impl-Read-for-ChildStdout" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/process.rs.html#411">Source</a></span><a href="#impl-Read-for-ChildStdout" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.ProcessStdout.html" title="struct devela::zall::ProcessStdout">ChildStdout</a></h3></section><section id="impl-Read-for-Empty" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/util.rs.html#13">Source</a></span><a href="#impl-Read-for-Empty" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.IoEmpty.html" title="struct devela::zall::IoEmpty">Empty</a></h3></section><section id="impl-Read-for-File" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/fs.rs.html#1493">Source</a></span><a href="#impl-Read-for-File" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.File.html" title="struct devela::zall::File">File</a></h3></section><section id="impl-Read-for-PipeReader" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.87.0">1.87.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/pipe.rs.html#236">Source</a></span><a href="#impl-Read-for-PipeReader" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.IoPipeReader.html" title="struct devela::zall::IoPipeReader">PipeReader</a></h3></section><section id="impl-Read-for-Repeat" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/util.rs.html#191">Source</a></span><a href="#impl-Read-for-Repeat" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.IoRepeat.html" title="struct devela::zall::IoRepeat">Repeat</a></h3></section><section id="impl-Read-for-Stdin" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/stdio.rs.html#446">Source</a></span><a href="#impl-Read-for-Stdin" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.Stdin.html" title="struct devela::zall::Stdin">Stdin</a></h3></section><section id="impl-Read-for-StdinLock%3C'_%3E" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/stdio.rs.html#512">Source</a></span><a href="#impl-Read-for-StdinLock%3C'_%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="https://doc.rust-lang.org/nightly/std/io/stdio/struct.StdinLock.html" title="struct std::io::stdio::StdinLock">StdinLock</a>&lt;'_&gt;</h3></section><section id="impl-Read-for-TcpStream" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/net/tcp.rs.html#680">Source</a></span><a href="#impl-Read-for-TcpStream" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.TcpStream.html" title="struct devela::zall::TcpStream">TcpStream</a></h3></section><section id="impl-Read-for-UnixStream" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.10.0">1.10.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/os/unix/net/stream.rs.html#610">Source</a></span><a href="#impl-Read-for-UnixStream" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="https://doc.rust-lang.org/nightly/std/os/unix/net/stream/struct.UnixStream.html" title="struct std::os::unix::net::stream::UnixStream">UnixStream</a></h3></section><section id="impl-Read-for-%26UnixStream" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.10.0">1.10.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/os/unix/net/stream.rs.html#630">Source</a></span><a href="#impl-Read-for-%26UnixStream" class="anchor">§</a><h3 class="code-header">impl&lt;'a&gt; <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for &amp;'a <a class="struct" href="https://doc.rust-lang.org/nightly/std/os/unix/net/stream/struct.UnixStream.html" title="struct std::os::unix::net::stream::UnixStream">UnixStream</a></h3></section><section id="impl-Read-for-VecDeque%3Cu8,+A%3E" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.63.0">1.63.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/impls.rs.html#523">Source</a></span><a href="#impl-Read-for-VecDeque%3Cu8,+A%3E" class="anchor">§</a><h3 class="code-header">impl&lt;A&gt; <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.VecDeque.html" title="struct devela::zall::VecDeque">VecDeque</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, A&gt;<div class="where">where
+    A: <a class="trait" href="https://doc.rust-lang.org/nightly/core/alloc/trait.Allocator.html" title="trait core::alloc::Allocator">Allocator</a>,</div></h3><div class="docblock"><p>Read is implemented for <code>VecDeque&lt;u8&gt;</code> by consuming bytes from the front of the <code>VecDeque</code>.</p>
+</div></section><section id="impl-Read-for-%26mut+R" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/impls.rs.html#14">Source</a></span><a href="#impl-Read-for-%26mut+R" class="anchor">§</a><h3 class="code-header">impl&lt;R&gt; <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut R</a><div class="where">where
+    R: <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> + ?<a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a>,</div></h3></section><section id="impl-Read-for-Arc%3CR%3E" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.73.0">1.73.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/impls.rs.html#721-724">Source</a></span><a href="#impl-Read-for-Arc%3CR%3E" class="anchor">§</a><h3 class="code-header">impl&lt;R&gt; <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for alloc::sync::<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html" title="struct alloc::sync::Arc">Arc</a>&lt;R&gt;<div class="where">where
+    R: <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> + IoHandle + ?<a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a>,
+    <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a R</a>: for&lt;'a&gt; <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a>,</div></h3></section><section id="impl-Read-for-Box%3CR%3E" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/impls.rs.html#153">Source</a></span><a href="#impl-Read-for-Box%3CR%3E" class="anchor">§</a><h3 class="code-header">impl&lt;R&gt; <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.Box.html" title="struct devela::zall::Box">Box</a>&lt;R&gt;<div class="where">where
+    R: <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> + ?<a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a>,</div></h3></section><section id="impl-Read-for-BufReader%3CR%3E" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/buffered/bufreader.rs.html#338">Source</a></span><a href="#impl-Read-for-BufReader%3CR%3E" class="anchor">§</a><h3 class="code-header">impl&lt;R&gt; <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.IoBufReader.html" title="struct devela::zall::IoBufReader">BufReader</a>&lt;R&gt;<div class="where">where
+    R: <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> + ?<a class="trait" href="../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a>,</div></h3></section><section id="impl-Read-for-Chain%3CT,+U%3E" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#2393">Source</a></span><a href="#impl-Read-for-Chain%3CT,+U%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.IoChain.html" title="struct devela::zall::IoChain">Chain</a>&lt;T, U&gt;<div class="where">where
+    T: <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a>,
+    U: <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a>,</div></h3></section><section id="impl-Read-for-Cursor%3CT%3E" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/cursor.rs.html#48-50">Source</a></span><a href="#impl-Read-for-Cursor%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.IoCursor.html" title="struct devela::zall::IoCursor">Cursor</a>&lt;T&gt;<div class="where">where
+    T: <a class="trait" href="../../code/trait.AsRef.html" title="trait devela::code::AsRef">AsRef</a>&lt;[<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]&gt;,</div></h3></section><section id="impl-Read-for-Take%3CT%3E" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/std/io/mod.rs.html#2502">Source</a></span><a href="#impl-Read-for-Take%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a> for <a class="struct" href="../../zall/struct.IoTake.html" title="struct devela::zall::IoTake">Take</a>&lt;T&gt;<div class="where">where
+    T: <a class="trait" href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead">Read</a>,</div></h3></section></div><script src="../../../trait.impl/std/io/trait.Read.js" data-ignore-extern-crates="std,core,alloc,portable_atomic_util" async></script><script type="text/json" id="notable-traits-data">{"Bytes<Self>":"<h3>Notable traits for <code><a class=\"struct\" href=\"../../zall/struct.IoBytes.html\" title=\"struct devela::zall::IoBytes\">Bytes</a>&lt;R&gt;</code></h3><pre><code><div class=\"where\">impl&lt;R&gt; <a class=\"trait\" href=\"../../zall/trait.Iterator.html\" title=\"trait devela::zall::Iterator\">Iterator</a> for <a class=\"struct\" href=\"../../zall/struct.IoBytes.html\" title=\"struct devela::zall::IoBytes\">Bytes</a>&lt;R&gt;<div class=\"where\">where\n    R: <a class=\"trait\" href=\"../../zall/trait.IoRead.html\" title=\"trait devela::zall::IoRead\">Read</a>,</div></div><div class=\"where\">    type <a href=\"../../zall/trait.Iterator.html#associatedtype.Item\" class=\"associatedtype\">Item</a> = <a class=\"enum\" href=\"../../zall/enum.Result.html\" title=\"enum devela::zall::Result\">Result</a>&lt;<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u8.html\">u8</a>, <a class=\"struct\" href=\"../../zall/struct.IoError.html\" title=\"struct devela::zall::IoError\">Error</a>&gt;;</div>","Chain<Self, R>":"<h3>Notable traits for <code><a class=\"struct\" href=\"../../zall/struct.IoChain.html\" title=\"struct devela::zall::IoChain\">Chain</a>&lt;T, U&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, U&gt; <a class=\"trait\" href=\"../../zall/trait.IoRead.html\" title=\"trait devela::zall::IoRead\">Read</a> for <a class=\"struct\" href=\"../../zall/struct.IoChain.html\" title=\"struct devela::zall::IoChain\">Chain</a>&lt;T, U&gt;<div class=\"where\">where\n    T: <a class=\"trait\" href=\"../../zall/trait.IoRead.html\" title=\"trait devela::zall::IoRead\">Read</a>,\n    U: <a class=\"trait\" href=\"../../zall/trait.IoRead.html\" title=\"trait devela::zall::IoRead\">Read</a>,</div></div>","Result<(), Error>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../zall/enum.Result.html\" title=\"enum devela::zall::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../zall/trait.ResultExt.html\" title=\"trait devela::zall::ResultExt\">ResultExt</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../zall/enum.Result.html\" title=\"enum devela::zall::Result\">Result</a>&lt;T, E&gt;</div>","Result<[u8; N], Error>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../zall/enum.Result.html\" title=\"enum devela::zall::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../zall/trait.ResultExt.html\" title=\"trait devela::zall::ResultExt\">ResultExt</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../zall/enum.Result.html\" title=\"enum devela::zall::Result\">Result</a>&lt;T, E&gt;</div>","Result<usize, Error>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../zall/enum.Result.html\" title=\"enum devela::zall::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../zall/trait.ResultExt.html\" title=\"trait devela::zall::ResultExt\">ResultExt</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../zall/enum.Result.html\" title=\"enum devela::zall::Result\">Result</a>&lt;T, E&gt;</div>","Take<Self>":"<h3>Notable traits for <code><a class=\"struct\" href=\"../../zall/struct.IoTake.html\" title=\"struct devela::zall::IoTake\">Take</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../zall/trait.IoRead.html\" title=\"trait devela::zall::IoRead\">Read</a> for <a class=\"struct\" href=\"../../zall/struct.IoTake.html\" title=\"struct devela::zall::IoTake\">Take</a>&lt;T&gt;<div class=\"where\">where\n    T: <a class=\"trait\" href=\"../../zall/trait.IoRead.html\" title=\"trait devela::zall::IoRead\">Read</a>,</div></div>"}</script></section></div></main></body></html>

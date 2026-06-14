@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"derive":["Eq","Ord","PartialEq","PartialOrd"],"enum":["Ordering"],"macro":[["cmp",1]],"struct":["Cmp","Order","Reverse"],"trait":["Eq","Ord","PartialEq","PartialOrd"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["rand_pcg",1],["rand_xorshift",1]],"struct":["Lcg16","Pcg32","RandFake","RandQualities","SplitMix64","StdRand","Xabc","XorShift128","XorShift128p","XorShift16","XorShift32","XorShift64","XorShift8","Xoroshiro128pp","Xyza8a","Xyza8b"],"trait":["FromRand","FromRandTry","Rand","RandSeedable","RandTry"]};

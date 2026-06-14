@@ -1,0 +1,195 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🎲 Infallible source of raw random data."><title>Rand in devela::num::prob::rand - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc trait"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Rand</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Rand</a></h2><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.rand_below" title="rand_below">rand_below</a></li><li><a href="#method.rand_choose_reservoir" title="rand_choose_reservoir">rand_choose_reservoir</a></li><li><a href="#method.rand_choose_scored" title="rand_choose_scored">rand_choose_scored</a></li><li><a href="#method.rand_fill_bytes" title="rand_fill_bytes">rand_fill_bytes</a></li><li><a href="#method.rand_next_bool" title="rand_next_bool">rand_next_bool</a></li><li><a href="#method.rand_next_u8" title="rand_next_u8">rand_next_u8</a></li><li><a href="#method.rand_next_u16" title="rand_next_u16">rand_next_u16</a></li><li><a href="#method.rand_next_u32" title="rand_next_u32">rand_next_u32</a></li><li><a href="#method.rand_next_u64" title="rand_next_u64">rand_next_u64</a></li><li><a href="#method.rand_next_u128" title="rand_next_u128">rand_next_u128</a></li><li><a href="#method.rand_range" title="rand_range">rand_range</a></li><li><a href="#method.rand_roll" title="rand_roll">rand_roll</a></li><li><a href="#method.rand_shuffle" title="rand_shuffle">rand_shuffle</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>num::<wbr>prob::<wbr>rand</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">num</a>::<wbr><a href="../index.html">prob</a>::<wbr><a href="index.html">rand</a></div><h1>Trait <span class="trait">Rand</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/num/prob/rand/rand.rs.html#258-355">Source</a> </span></div><pre class="rust item-decl"><code>pub trait Rand: <a class="trait" href="../../../zall/trait.RandTry.html" title="trait devela::zall::RandTry">RandTry</a>&lt;Error = <a class="enum" href="../../../zall/enum.Infallible.html" title="enum devela::zall::Infallible">Infallible</a>&gt; {
+<details class="toggle type-contents-toggle"><summary class="hideme"><span>Show 13 methods</span></summary>    // Provided methods
+    fn <a href="#method.rand_next_u128" class="fn">rand_next_u128</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_next_u64" class="fn">rand_next_u64</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_next_u32" class="fn">rand_next_u32</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_next_u16" class="fn">rand_next_u16</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_next_u8" class="fn">rand_next_u8</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_next_bool" class="fn">rand_next_bool</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_fill_bytes" class="fn">rand_fill_bytes</a>(&amp;mut self, buf: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_below" class="fn">rand_below</a>(&amp;mut self, upper: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_range" class="fn">rand_range</a>(&amp;mut self, low: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, high: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_roll" class="fn">rand_roll</a>(&amp;mut self, sides: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_shuffle" class="fn">rand_shuffle</a>&lt;T&gt;(&amp;mut self, slice: &amp;mut <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">[T]</a>) { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_choose_reservoir" class="fn">rand_choose_reservoir</a>&lt;I, F&gt;(
+        &amp;mut self,
+        iter: I,
+        valid: F,
+    ) -&gt; <a class="enum" href="../../../zall/enum.Option.html" title="enum devela::zall::Option">Option</a>&lt;I::<a class="associatedtype" href="../../../zall/trait.IteratorInto.html#associatedtype.Item" title="type devela::zall::IteratorInto::Item">Item</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;I::Item&gt;">ⓘ</a>
+       <span class="where">where I: <a class="trait" href="../../../zall/trait.IteratorInto.html" title="trait devela::zall::IteratorInto">IntoIterator</a>,
+             F: <a class="trait" href="../../../zall/trait.FnMut.html" title="trait devela::zall::FnMut">FnMut</a>(&amp;I::<a class="associatedtype" href="../../../zall/trait.IteratorInto.html#associatedtype.Item" title="type devela::zall::IteratorInto::Item">Item</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rand_choose_scored" class="fn">rand_choose_scored</a>&lt;I, F&gt;(&amp;mut self, iter: I, valid: F) -&gt; <a class="enum" href="../../../zall/enum.Option.html" title="enum devela::zall::Option">Option</a>&lt;I::<a class="associatedtype" href="../../../zall/trait.IteratorInto.html#associatedtype.Item" title="type devela::zall::IteratorInto::Item">Item</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;I::Item&gt;">ⓘ</a>
+       <span class="where">where I: <a class="trait" href="../../../zall/trait.IteratorInto.html" title="trait devela::zall::IteratorInto">IntoIterator</a>,
+             F: <a class="trait" href="../../../zall/trait.FnMut.html" title="trait devela::zall::FnMut">FnMut</a>(&amp;I::<a class="associatedtype" href="../../../zall/trait.IteratorInto.html#associatedtype.Item" title="type devela::zall::IteratorInto::Item">Item</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></span> { ... }
+</details>}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Randomness'>🎲</span>
+Infallible source of raw random data.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/num/prob/rand"><code>num/prob/rand</code></a></sup></p>
+<hr />
+<p><code>Rand</code> is implemented automatically for every <a href="../../../zall/trait.RandTry.html" title="trait devela::zall::RandTry"><code>RandTry</code></a> source
+whose error type is <a href="../../../zall/enum.Infallible.html" title="enum devela::zall::Infallible"><code>Infallible</code></a>.</p>
+<p>Determinism, reproducibility, cryptographic suitability, weakness,
+external state, and blocking behavior are described by the source
+characteristics inherited from <a href="../../../zall/trait.RandTry.html" title="trait devela::zall::RandTry"><code>RandTry</code></a>.</p>
+</div></details><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.rand_next_u128" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#265-267">Source</a><h4 class="code-header">fn <a href="#method.rand_next_u128" class="fn">rand_next_u128</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a></h4></section></summary><div class="docblock"><p>Returns the next random <code>u128</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_next_u64" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#270-272">Source</a><h4 class="code-header">fn <a href="#method.rand_next_u64" class="fn">rand_next_u64</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Returns the next random <code>u64</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_next_u32" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#275-277">Source</a><h4 class="code-header">fn <a href="#method.rand_next_u32" class="fn">rand_next_u32</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></h4></section></summary><div class="docblock"><p>Returns the next random <code>u32</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_next_u16" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#280-282">Source</a><h4 class="code-header">fn <a href="#method.rand_next_u16" class="fn">rand_next_u16</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a></h4></section></summary><div class="docblock"><p>Returns the next random <code>u16</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_next_u8" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#285-287">Source</a><h4 class="code-header">fn <a href="#method.rand_next_u8" class="fn">rand_next_u8</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></h4></section></summary><div class="docblock"><p>Returns the next random <code>u8</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_next_bool" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#290-292">Source</a><h4 class="code-header">fn <a href="#method.rand_next_bool" class="fn">rand_next_bool</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Produces a random boolean.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_fill_bytes" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#296-298">Source</a><h4 class="code-header">fn <a href="#method.rand_fill_bytes" class="fn">rand_fill_bytes</a>(&amp;mut self, buf: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>])</h4></section></summary><div class="docblock"><p>Fills the buffer with generated bytes.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_below" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#306-308">Source</a><h4 class="code-header">fn <a href="#method.rand_below" class="fn">rand_below</a>(&amp;mut self, upper: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Returns a uniformly random integer in <code>0..upper</code>.</p>
+<p>Uses rejection sampling to avoid modulo bias.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_range" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#315-317">Source</a><h4 class="code-header">fn <a href="#method.rand_range" class="fn">rand_range</a>(&amp;mut self, low: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, high: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Returns a uniformly random integer in <code>low..high</code>.</p>
+<h5 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics</h5>
+<p>Panics if <code>low &gt;= high</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_roll" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#325-327">Source</a><h4 class="code-header">fn <a href="#method.rand_roll" class="fn">rand_roll</a>(&amp;mut self, sides: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></h4></section></summary><div class="docblock"><p>Rolls a fair die with a number of <code>sides</code>.</p>
+<p>Returns a value in <code>1..=sides</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_shuffle" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#332-334">Source</a><h4 class="code-header">fn <a href="#method.rand_shuffle" class="fn">rand_shuffle</a>&lt;T&gt;(&amp;mut self, slice: &amp;mut <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">[T]</a>)</h4></section></summary><div class="docblock"><p>Shuffles the elements of the slice in place.</p>
+<p>Uses the Fisher–Yates algorithm.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_choose_reservoir" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#342-345">Source</a><h4 class="code-header">fn <a href="#method.rand_choose_reservoir" class="fn">rand_choose_reservoir</a>&lt;I, F&gt;(&amp;mut self, iter: I, valid: F) -&gt; <a class="enum" href="../../../zall/enum.Option.html" title="enum devela::zall::Option">Option</a>&lt;I::<a class="associatedtype" href="../../../zall/trait.IteratorInto.html#associatedtype.Item" title="type devela::zall::IteratorInto::Item">Item</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;I::Item&gt;">ⓘ</a><div class="where">where
+    I: <a class="trait" href="../../../zall/trait.IteratorInto.html" title="trait devela::zall::IteratorInto">IntoIterator</a>,
+    F: <a class="trait" href="../../../zall/trait.FnMut.html" title="trait devela::zall::FnMut">FnMut</a>(&amp;I::<a class="associatedtype" href="../../../zall/trait.IteratorInto.html#associatedtype.Item" title="type devela::zall::IteratorInto::Item">Item</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,</div></h4></section></summary><div class="docblock"><p>Chooses one valid item using reservoir sampling.</p>
+<p>This is uniform over all valid items and uses one pass.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rand_choose_scored" class="method"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#351-354">Source</a><h4 class="code-header">fn <a href="#method.rand_choose_scored" class="fn">rand_choose_scored</a>&lt;I, F&gt;(&amp;mut self, iter: I, valid: F) -&gt; <a class="enum" href="../../../zall/enum.Option.html" title="enum devela::zall::Option">Option</a>&lt;I::<a class="associatedtype" href="../../../zall/trait.IteratorInto.html#associatedtype.Item" title="type devela::zall::IteratorInto::Item">Item</a>&gt; <a href="#" class="tooltip" data-notable-ty="Option&lt;I::Item&gt;">ⓘ</a><div class="where">where
+    I: <a class="trait" href="../../../zall/trait.IteratorInto.html" title="trait devela::zall::IteratorInto">IntoIterator</a>,
+    F: <a class="trait" href="../../../zall/trait.FnMut.html" title="trait devela::zall::FnMut">FnMut</a>(&amp;I::<a class="associatedtype" href="../../../zall/trait.IteratorInto.html#associatedtype.Item" title="type devela::zall::IteratorInto::Item">Item</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,</div></h4></section></summary><div class="docblock"><p>Chooses one valid item using random scores.</p>
+<p>Each valid item receives a random score. The highest score wins.
+Ties are resolved uniformly.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety".</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><div class="negative-marker"></div><section id="impl-Rand-for-R" class="impl"><a class="src rightside" href="../../../../src/devela/num/prob/rand/rand.rs.html#245">Source</a><a href="#impl-Rand-for-R" class="anchor">§</a><h3 class="code-header">impl&lt;R&gt; <a class="trait" href="../../../zall/trait.Rand.html" title="trait devela::zall::Rand">Rand</a> for R<div class="where">where
+    R: <a class="trait" href="../../../zall/trait.RandTry.html" title="trait devela::zall::RandTry">RandTry</a>&lt;Error = <a class="enum" href="../../../zall/enum.Infallible.html" title="enum devela::zall::Infallible">Infallible</a>&gt; + ?<a class="trait" href="../../../zall/trait.Sized.html" title="trait devela::zall::Sized">Sized</a>,</div></h3></section></div><script src="../../../../trait.impl/devela/num/prob/rand/rand/trait.Rand.js" async></script><script type="text/json" id="notable-traits-data">{"Option<I::Item>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../../zall/enum.Option.html\" title=\"enum devela::zall::Option\">Option</a>&lt;T&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T&gt; <a class=\"trait\" href=\"../../../zall/trait.OptionExt.html\" title=\"trait devela::zall::OptionExt\">OptionExt</a>&lt;T&gt; for <a class=\"enum\" href=\"../../../zall/enum.Option.html\" title=\"enum devela::zall::Option\">Option</a>&lt;T&gt;</div>"}</script></section></div></main></body></html>

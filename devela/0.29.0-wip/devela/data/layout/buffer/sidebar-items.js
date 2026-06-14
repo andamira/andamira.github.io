@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["buffer_linear",1],["buffer_ring",1]],"struct":["BufferLinearAllocExample","BufferLinearStaticExample","BufferLinearViewExample","BufferRingStaticExample"]};

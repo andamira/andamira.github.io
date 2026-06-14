@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["cast",1]],"mod":["niche","wide"],"struct":["Cast"],"trait":["PrimCast","PrimFloat","PrimInt","PrimJoin","PrimScalar","PrimSint","PrimSplit","PrimUint"]};

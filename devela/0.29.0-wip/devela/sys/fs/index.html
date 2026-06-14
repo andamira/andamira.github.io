@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Filesystem abstractions."><title>devela::sys::fs - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module fs</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module fs</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>sys</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">sys</a></div><h1>Module <span>fs</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/sys/fs/mod.rs.html#3-41">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Filesystem abstractions.</p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::sys::fs">fs</a></span>
+<a title='See the flat view of the `sys` module' href='https://docs.rs/devela/latest/devela/zall_/_sys'>◉</a></p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'>Extends: std::{<a href="https://doc.rust-lang.org/std/fs">fs</a>, <a href="https://doc.rust-lang.org/std/path">path</a>}</span><hr/></p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="path/index.html" title="mod devela::sys::fs::path">path</a></dt><dd>Cross-platform path manipulation.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.DirBuilder.html" title="struct devela::sys::fs::DirBuilder">DirBuilder</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='File system'>📁</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A builder used to create directories in various manners.</dd><dt><a class="struct" href="struct.DirEntry.html" title="struct devela::sys::fs::DirEntry">DirEntry</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='File system'>📁</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Entries returned by the ReadDir iterator.</dd><dt><a class="struct" href="struct.File.html" title="struct devela::sys::fs::File">File</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='File system'>📁</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+An object providing access to an open file on the filesystem.</dd><dt><a class="struct" href="struct.FileMetadata.html" title="struct devela::sys::fs::FileMetadata">File<wbr>Metadata</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='File system'>📁</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Metadata information about a file.</dd><dt><a class="struct" href="struct.FileOpenOptions.html" title="struct devela::sys::fs::FileOpenOptions">File<wbr>Open<wbr>Options</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='File system'>📁</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Options and flags which can be used to configure how a file is opened.</dd><dt><a class="struct" href="struct.FilePermissions.html" title="struct devela::sys::fs::FilePermissions">File<wbr>Permissions</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='File system'>📁</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Representation of the various permissions on a file.</dd><dt><a class="struct" href="struct.FileTimes.html" title="struct devela::sys::fs::FileTimes">File<wbr>Times</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='File system'>📁</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Representation of the various timestamps on a file.</dd><dt><a class="struct" href="struct.FileType.html" title="struct devela::sys::fs::FileType">File<wbr>Type</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='File system'>📁</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Represents a type of file with accessors for each file type.</dd><dt><a class="struct" href="struct.Fs.html" title="struct devela::sys::fs::Fs">Fs</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='File system'>📁</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Filesystem-related operations.</dd><dt><a class="struct" href="struct.IterDirRead.html" title="struct devela::sys::fs::IterDirRead">Iter<wbr>DirRead</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='File system'>📁</span> <span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Iterator over the entries in a directory.</dd></dl></section></div></main></body></html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Physical quantities, units, and models of the natural world.phys::{time, unit, wave} ▽"><title>devela::zall_::_phys - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module _phys</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module _phys</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>zall_</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">zall_</a></div><h1>Module <span>_phys</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/index.rs.html#221">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Physical quantities, units, and models of the natural world.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../../phys/index.html" title="mod devela::phys">phys</a>::{<a href="../../phys/time/index.html" title="mod devela::phys::time">time</a>, <a href="../../phys/unit/index.html" title="mod devela::phys::unit">unit</a>, <a href="../../phys/wave/index.html" title="mod devela::phys::wave">wave</a>}</span> <a title='See the hierarchical view of the `phys` module' href='https://docs.rs/devela/latest/devela/phys'>▽</a></p>
+<p>All <code>phys</code> module’s items flat re-exported.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Duration.html" title="struct devela::zall_::_phys::Duration">Duration</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A span of time, with <code>u64</code> seconds and <code>u32</code> nanoseconds.</dd><dt><a class="struct" href="struct.DurationErrorTryFromFloatSecs.html" title="struct devela::zall_::_phys::DurationErrorTryFromFloatSecs">Duration<wbr>Error<wbr>TryFrom<wbr>Float<wbr>Secs</a></dt><dd><span class='stab portability' title='Time'>🕘</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Error returned from converting floating-point seconds into a <a href="../../zall/struct.Duration.html" title="struct devela::zall::Duration"><code>Duration</code></a>.</dd><dt><a class="struct" href="struct.JsInstant.html" title="struct devela::zall_::_phys::JsInstant">JsInstant</a><wbr><span class="stab portability" title="Available on crate feature `js` only"><code>js</code></span></dt><dd><span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='Time'>🕘</span>
+A high-resolution timestamp based on JavaScript’s <code>performance.now()</code>.</dd><dt><a class="struct" href="struct.LinuxInstant.html" title="struct devela::zall_::_phys::LinuxInstant">Linux<wbr>Instant</a><wbr><span class="stab portability" title="Available on crate feature `linux` only"><code>linux</code></span></dt><dd><span class='stab portability' title='Linux platform'>🐧</span> <span class='stab portability' title='Time'>🕘</span>
+A fast monotonic Linux time source.</dd><dt><a class="struct" href="struct.LinuxTime.html" title="struct devela::zall_::_phys::LinuxTime">Linux<wbr>Time</a><wbr><span class="stab portability" title="Available on crate feature `linux` only"><code>linux</code></span></dt><dd><span class='stab portability' title='Linux platform'>🐧</span> <span class='stab portability' title='Time'>🕘</span>
+A configurable family of Linux clocks.</dd><dt><a class="struct" href="struct.StdSystemTimeError.html" title="struct devela::zall_::_phys::StdSystemTimeError">StdSystem<wbr>Time<wbr>Error</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Error returned from <a href="../../zall/struct.SystemTime.html" title="struct devela::zall::SystemTime"><code>SystemTime</code></a> <code>duration_since</code> and <code>elapsed</code>.</dd><dt><a class="struct" href="struct.SystemInstant.html" title="struct devela::zall_::_phys::SystemInstant">System<wbr>Instant</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A measurement of a monotonically nondecreasing clock.</dd><dt><a class="struct" href="struct.SystemTime.html" title="struct devela::zall_::_phys::SystemTime">System<wbr>Time</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A measurement of the system clock.</dd><dt><a class="struct" href="struct.SystemTimeError.html" title="struct devela::zall_::_phys::SystemTimeError">System<wbr>Time<wbr>Error</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+<span class='stab portability' title='Error'>🚩</span>
+Returned from <code>duration_since</code> and <code>elapsed</code> on <code>SystemTime</code>.</dd><dt><a class="struct" href="struct.TimeDelta.html" title="struct devela::zall_::_phys::TimeDelta">Time<wbr>Delta</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A signed duration of time, stored as an <code>(i64, i32)</code> pair of secs and nanos.</dd><dt><a class="struct" href="struct.TimeFake.html" title="struct devela::zall_::_phys::TimeFake">Time<wbr>Fake</a><wbr><span class="stab portability" title="Available on `target_has_atomic=64` only"><code>target_has_atomic=64</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span> <span class='stab portability' title='Intentional non-real or placeholder implementation'>🎭</span>
+A test-friendly time source that allows manual control.</dd><dt><a class="struct" href="struct.TimeFakeRef.html" title="struct devela::zall_::_phys::TimeFakeRef">Time<wbr>Fake<wbr>Ref</a><wbr><span class="stab portability" title="Available on `target_has_atomic=64` only"><code>target_has_atomic=64</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span> <span class='stab portability' title='Intentional non-real or placeholder implementation'>🎭</span>
+A borrowed configuration handle selecting a specific <code>TimeFake</code> timeline.</dd><dt><a class="struct" href="struct.TimeSplit.html" title="struct devela::zall_::_phys::TimeSplit">Time<wbr>Split</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A full time split from years to nanoseconds.</dd><dt><a class="struct" href="struct.TimeUnixI64.html" title="struct devela::zall_::_phys::TimeUnixI64">Time<wbr>Unix<wbr>I64</a><wbr><span class="stab portability" title="Available on crate feature `time` only"><code>time</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+64-bit Unix time, supporting negative values.</dd><dt><a class="struct" href="struct.TimeUnixU32.html" title="struct devela::zall_::_phys::TimeUnixU32">Time<wbr>Unix<wbr>U32</a><wbr><span class="stab portability" title="Available on crate feature `time` only"><code>time</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+32-bit Unix time, supporting only non-negative values.</dd><dt><a class="struct" href="struct.Timecode.html" title="struct devela::zall_::_phys::Timecode">Timecode</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+Timecode splitting and formatting.</dd><dt><a class="struct" href="struct.Timed.html" title="struct devela::zall_::_phys::Timed">Timed</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A value paired with a time-like companion.</dd><dt><a class="struct" href="struct.Timeout.html" title="struct devela::zall_::_phys::Timeout">Timeout</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+<span class='stab portability' title='Error'>🚩</span>
+The operation has exceeded the allowed execution time.</dd><dt><a class="struct" href="struct.WaveletHaar.html" title="struct devela::zall_::_phys::WaveletHaar">Wavelet<wbr>Haar</a><wbr><span class="stab portability" title="Available on crate feature `wave` only"><code>wave</code></span></dt><dd><span class='stab portability' title='Wave and signal analysis'>〰️</span>
+A Haar wavelet is a simple, piecewise-constant wavelet.</dd><dt><a class="struct" href="struct.WaveletUnitVec.html" title="struct devela::zall_::_phys::WaveletUnitVec">Wavelet<wbr>Unit<wbr>Vec</a><wbr><span class="stab portability" title="Available on crate features `alloc` and `wave` only"><code>alloc</code> and <code>wave</code></span></dt><dd><span class='stab portability' title='Wave and signal analysis'>〰️</span>
+A single unit of the wavelet decomposition at a specific level and position.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.Month.html" title="enum devela::zall_::_phys::Month">Month</a><wbr><span class="stab portability" title="Available on crate feature `time` only"><code>time</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+The months of the year.</dd><dt><a class="enum" href="enum.TimeError.html" title="enum devela::zall_::_phys::TimeError">Time<wbr>Error</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Composite error'>🚩+</span>
+<span class='stab portability' title='Time'>🕘</span>
+A time-related composite error.</dd><dt><a class="enum" href="enum.TimeScale.html" title="enum devela::zall_::_phys::TimeScale">Time<wbr>Scale</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+Describes the conceptual scale at which time is expressed or interpreted.</dd><dt><a class="enum" href="enum.UnitBi.html" title="enum devela::zall_::_phys::UnitBi">UnitBi</a><wbr><span class="stab portability" title="Available on crate feature `unit` only"><code>unit</code></span></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Binary unit prefixes.</dd><dt><a class="enum" href="enum.UnitSi.html" title="enum devela::zall_::_phys::UnitSi">UnitSi</a><wbr><span class="stab portability" title="Available on crate feature `unit` only"><code>unit</code></span></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+SI (metric) unit prefixes.</dd><dt><a class="enum" href="enum.WaveletUnitRole.html" title="enum devela::zall_::_phys::WaveletUnitRole">Wavelet<wbr>Unit<wbr>Role</a><wbr><span class="stab portability" title="Available on crate feature `wave` only"><code>wave</code></span></dt><dd><span class='stab portability' title='Wave and signal analysis'>〰️</span>
+Distinguishes the role of a component in wavelet analysis.</dd><dt><a class="enum" href="enum.Weekday.html" title="enum devela::zall_::_phys::Weekday">Weekday</a><wbr><span class="stab portability" title="Available on crate feature `time` only"><code>time</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+The days of the week.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.UNIX_EPOCH.html" title="constant devela::zall_::_phys::UNIX_EPOCH">UNIX_<wbr>EPOCH</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A <a href="../../zall/struct.SystemTime.html" title="struct devela::zall::SystemTime"><code>SystemTime</code></a> anchored to “1970-01-01 00:00:00 UTC”.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.TimePoint.html" title="trait devela::zall_::_phys::TimePoint">Time<wbr>Point</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A comparable representation of a point on a time-like timeline.</dd><dt><a class="trait" href="trait.TimeSource.html" title="trait devela::zall_::_phys::TimeSource">Time<wbr>Source</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A source of time points with a canonical numeric projection.</dd><dt><a class="trait" href="trait.TimeSourceCfg.html" title="trait devela::zall_::_phys::TimeSourceCfg">Time<wbr>Source<wbr>Cfg</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A configurable source of time points with a canonical numeric projection.</dd><dt><a class="trait" href="trait.TimeSpan.html" title="trait devela::zall_::_phys::TimeSpan">Time<wbr>Span</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A comparable span on a time-like timeline.</dd><dt><a class="trait" href="trait.Unit.html" title="trait devela::zall_::_phys::Unit">Unit</a><wbr><span class="stab portability" title="Available on crate feature `unit` only"><code>unit</code></span></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Common trait for unit prefixes.</dd><dt><a class="trait" href="trait.WaveletCompressionVec.html" title="trait devela::zall_::_phys::WaveletCompressionVec">Wavelet<wbr>Compression<wbr>Vec</a><wbr><span class="stab portability" title="Available on crate features `alloc` and `wave` only"><code>alloc</code> and <code>wave</code></span></dt><dd><span class='stab portability' title='Wave and signal analysis'>〰️</span>
+Trait for lossy compression of wavelet coefficients.</dd><dt><a class="trait" href="trait.WaveletTransformVec.html" title="trait devela::zall_::_phys::WaveletTransformVec">Wavelet<wbr>Transform<wbr>Vec</a><wbr><span class="stab portability" title="Available on crate features `alloc` and `wave` only"><code>alloc</code> and <code>wave</code></span></dt><dd><span class='stab portability' title='Wave and signal analysis'>〰️</span>
+Trait defining essential wavelet transform operations.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.is_leap_year.html" title="fn devela::zall_::_phys::is_leap_year">is_<wbr>leap_<wbr>year</a><wbr><span class="stab portability" title="Available on crate feature `time` only"><code>time</code></span></dt><dd><span class='stab portability' title='Time'>🕘</span>
+Returns <code>true</code> if the provided <code>year</code> is a leap year.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.MaybeTimed.html" title="type devela::zall_::_phys::MaybeTimed">Maybe<wbr>Timed</a></dt><dd><span class='stab portability' title='Time'>🕘</span> <span class='stab portability' title='Conditional representation'>🤷</span>
+A value paired with an optional time-like companion.</dd><dt><a class="type" href="type.NoTime.html" title="type devela::zall_::_phys::NoTime">NoTime</a></dt><dd><span class='stab portability' title='Absence, emptiness or a no-op effect'>∅</span> <span class='stab portability' title='Time'>🕘</span>
+Represents the absence of time.</dd><dt><a class="type" href="type.TimeSplitHourNano.html" title="type devela::zall_::_phys::TimeSplitHourNano">Time<wbr>Split<wbr>Hour<wbr>Nano</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A time split from hours to nanoseconds.</dd><dt><a class="type" href="type.TimeSplitHourNanoNorm.html" title="type devela::zall_::_phys::TimeSplitHourNanoNorm">Time<wbr>Split<wbr>Hour<wbr>Nano<wbr>Norm</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A time split from hours to nanoseconds, normalized <em>(128b payload)</em>.</dd><dt><a class="type" href="type.TimeSplitHourSec.html" title="type devela::zall_::_phys::TimeSplitHourSec">Time<wbr>Split<wbr>Hour<wbr>Sec</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A time split from hours to seconds.</dd><dt><a class="type" href="type.TimeSplitHourSecNorm.html" title="type devela::zall_::_phys::TimeSplitHourSecNorm">Time<wbr>Split<wbr>Hour<wbr>SecNorm</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A time split from hours to seconds, normalized <em>(80b payload)</em>.</dd><dt><a class="type" href="type.TimeSplitMilliNano.html" title="type devela::zall_::_phys::TimeSplitMilliNano">Time<wbr>Split<wbr>Milli<wbr>Nano</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A time split from milliseconds to nanoseconds.</dd><dt><a class="type" href="type.TimeSplitMilliNanoNorm.html" title="type devela::zall_::_phys::TimeSplitMilliNanoNorm">Time<wbr>Split<wbr>Milli<wbr>Nano<wbr>Norm</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A time split from milliseconds to nanoseconds, normalized <em>(48b payload)</em>.</dd><dt><a class="type" href="type.TimeSplitNorm.html" title="type devela::zall_::_phys::TimeSplitNorm">Time<wbr>Split<wbr>Norm</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A time split from years to nanoseconds, normalized <em>(152b payload)</em>.</dd><dt><a class="type" href="type.TimeSplitYearDay.html" title="type devela::zall_::_phys::TimeSplitYearDay">Time<wbr>Split<wbr>Year<wbr>Day</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A time split from years to days.</dd><dt><a class="type" href="type.TimeSplitYearDayNorm.html" title="type devela::zall_::_phys::TimeSplitYearDayNorm">Time<wbr>Split<wbr>Year<wbr>DayNorm</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A time split from years to days, normalized <em>(80b payload)</em>.</dd><dt><a class="type" href="type.TimeSplitYearSec.html" title="type devela::zall_::_phys::TimeSplitYearSec">Time<wbr>Split<wbr>Year<wbr>Sec</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A time split from years to seconds.</dd><dt><a class="type" href="type.TimeSplitYearSecNorm.html" title="type devela::zall_::_phys::TimeSplitYearSecNorm">Time<wbr>Split<wbr>Year<wbr>SecNorm</a></dt><dd><span class='stab portability' title='Time'>🕘</span>
+A time split from years to seconds, normalized <em>(104b payload)</em>.</dd></dl></section></div></main></body></html>

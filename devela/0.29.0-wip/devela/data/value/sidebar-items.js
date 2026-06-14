@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Oneof","ValueKind","ValueKind4"],"mod":["tuple"],"type":["NoData"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["handle",1],["id_seq",1]],"struct":["HandleSpanExample","IdPin","IdPinBox","IdRegistry"]};

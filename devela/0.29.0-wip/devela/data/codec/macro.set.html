@@ -1,0 +1,305 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🏗️ ⊆ ▫️ Defines a compact set backed by an integer bit mask."><title>set in devela::data::codec - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">set</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">set</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#generated-type-surface" title="Generated type surface">Generated type surface</a><ul><li><a href="#traits-and-operators" title="Traits and operators">Traits and operators</a></li><li><a href="#custom-impl-blocks" title="Custom impl blocks">Custom impl blocks</a></li></ul></li><li><a href="#generated-methods" title="Generated methods">Generated methods</a><ul><li><a href="#core-construction-and-access" title="Core construction and access">Core construction and access</a></li><li><a href="#core-predicates" title="Core predicates">Core predicates</a></li><li><a href="#by-value-modification" title="By-value modification">By-value modification</a></li><li><a href="#set-algebra" title="Set algebra">Set algebra</a></li><li><a href="#in-place-modification" title="In-place modification">In-place modification</a></li><li><a href="#per-constant-methods" title="Per-constant methods">Per-constant methods</a></li><li><a href="#reserved-set-names" title="Reserved set names">Reserved set names</a></li></ul></li><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>data::<wbr>codec</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">data</a>::<wbr><a href="index.html">codec</a></div><h1>Macro <span class="macro">set</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/data/codec/bin/bit/set/definition.rs.html#13-421">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! set {
+    {
+        $(#[$struct_attrs:meta])*
+        $vis:vis struct $Set:ident($T:ty) {
+            $(
+                $(#[$f_attrs:meta])*
+                $f:ident = $( $start:tt $(..= $end:tt)? ),+ $(,)?;
+            )*
+        }
+        $( traits( $( ! $no_trait:ident ),* $(,)? ); )?
+        $( // optional impl blocks
+            $(#[$impl_attrs:meta])*
+            impl { $($user_impl:item)* }
+        )*
+    } =&gt; { ... };
+    (%mask $T:ty; $($start:tt $(..= $end:tt)?),+ $(,)?) =&gt; { ... };
+    (%item $T:ty; $bit:tt) =&gt; { ... };
+    (%item $T:ty; $start:tt ..= $end:tt) =&gt; { ... };
+    (%guard_allowed_type $Set:ident, $T:ty) =&gt; { ... };
+    ($($tt:tt)*) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Set semantics'>⊆</span> <span class='stab portability' title='Bit-focused'>▫️</span>
+Defines a compact set backed by an integer bit mask.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/data/codec"><code>data/codec</code></a></sup></p>
+<hr />
+<p>Each named constant represents one or more bits.</p>
+<p>Constants may be defined from single bit indices,
+inclusive bit ranges, or comma-separated mixtures of both.</p>
+<h2 id="generated-type-surface"><a class="doc-anchor" href="#generated-type-surface">§</a>Generated type surface</h2><h3 id="traits-and-operators"><a class="doc-anchor" href="#traits-and-operators">§</a>Traits and operators</h3>
+<p>The generated struct always derives <code>Clone</code> and <code>Copy</code>.</p>
+<p>By default, the macro also implements common value traits:
+<code>Debug</code>, <code>DebugExt</code>, <code>Default</code>, <code>PartialEq</code>, <code>Eq</code>, <code>PartialOrd</code>, <code>Ord</code> and <code>Hash</code>.</p>
+<ul>
+<li><code>DebugExt</code> is generated with a <code>Self: Debug</code> bound, so suppressing the generated
+<code>Debug</code> implementation still works when <code>Debug</code> is provided by the caller.</li>
+</ul>
+<p>It also implements formatting traits for viewing the raw set bits:
+<code>Display</code>, <code>Binary</code>, <code>Octal</code>, <code>LowerHex</code> and <code>UpperHex</code>.</p>
+<p>Selected generated trait implementations may be suppressed with a
+<code>traits(!Trait, ...)</code> section after the declarations:</p>
+<p><code>traits(!Debug, !DebugExt, !Default);</code></p>
+<p>This is useful when the caller wants to provide a custom implementation,
+derive the trait externally, or keep the generated type surface smaller.</p>
+<p>The macro also implements the standard bitwise/set operators and their
+assignment variants: <code>BitOr</code>, <code>BitOrAssign</code>, <code>BitAnd</code>, <code>BitAndAssign</code>,
+<code>BitXor</code>, <code>BitXorAssign</code>, <code>Sub</code>, <code>SubAssign</code> and <code>Not</code>.</p>
+<p>These operators form the canonical algebraic surface of the set and cannot be
+suppressed with <code>traits(...)</code>.</p>
+<h3 id="custom-impl-blocks"><a class="doc-anchor" href="#custom-impl-blocks">§</a>Custom impl blocks</h3>
+<p>One or more custom <code>impl { ... }</code> blocks may be provided after the declarations
+and optional <code>traits(...)</code> section.</p>
+<p>Custom impl blocks are emitted before all generated associated constants and
+methods, and may still refer to them through <code>Self</code>.</p>
+<h2 id="generated-methods"><a class="doc-anchor" href="#generated-methods">§</a>Generated methods</h2>
+<p>For a generated set type <code>Set</code>, the macro defines the following methods.</p>
+<h3 id="core-construction-and-access"><a class="doc-anchor" href="#core-construction-and-access">§</a>Core construction and access</h3>
+<ul>
+<li><code>new()</code></li>
+<li><code>from_bits(bits)</code></li>
+<li><code>bits()</code></li>
+<li><code>all()</code></li>
+</ul>
+<h3 id="core-predicates"><a class="doc-anchor" href="#core-predicates">§</a>Core predicates</h3>
+<ul>
+<li><code>is_empty()</code></li>
+<li><code>is_full()</code></li>
+<li><code>contains(other)</code></li>
+<li><code>has(other)</code></li>
+<li><code>intersects(other)</code></li>
+<li><code>is_subset(other)</code></li>
+<li><code>is_superset(other)</code></li>
+</ul>
+<p><code>contains</code> and <code>has</code> return whether all bits in <code>other</code> are present.
+<code>has</code> is a shorter alias intended for flag-like use.</p>
+<h3 id="by-value-modification"><a class="doc-anchor" href="#by-value-modification">§</a>By-value modification</h3>
+<ul>
+<li><code>with(other)</code></li>
+<li><code>without(other)</code></li>
+<li><code>toggled(other)</code></li>
+<li><code>with_if(condition, other)</code></li>
+</ul>
+<h3 id="set-algebra"><a class="doc-anchor" href="#set-algebra">§</a>Set algebra</h3>
+<ul>
+<li><code>union(other)</code></li>
+<li><code>intersection(other)</code></li>
+<li><code>difference(other)</code></li>
+<li><code>symmetric_difference(other)</code></li>
+</ul>
+<h3 id="in-place-modification"><a class="doc-anchor" href="#in-place-modification">§</a>In-place modification</h3>
+<ul>
+<li><code>clear()</code></li>
+<li><code>insert(other)</code></li>
+<li><code>remove(other)</code></li>
+<li><code>toggle(other)</code></li>
+</ul>
+<h3 id="per-constant-methods"><a class="doc-anchor" href="#per-constant-methods">§</a>Per-constant methods</h3>
+<p>For each named constant <code>NAME</code>, the macro generates:</p>
+<ul>
+<li><code>contains_name()</code></li>
+<li><code>intersects_name()</code></li>
+<li><code>with_name()</code></li>
+<li><code>with_name_if(condition)</code></li>
+<li><code>without_name()</code></li>
+<li><code>set_name()</code></li>
+<li><code>set_name_if(condition)</code></li>
+<li><code>unset_name()</code></li>
+</ul>
+<p>For constants declared as a single bit, it also generates:</p>
+<ul>
+<li><code>has_name()</code></li>
+</ul>
+<p>For grouped constants, use <code>contains_name()</code> for “all bits are present”
+and <code>intersects_name()</code> for “at least one bit is present”.</p>
+<h3 id="reserved-set-names"><a class="doc-anchor" href="#reserved-set-names">§</a>Reserved set names</h3>
+<p>Some set names are reserved because their generated methods
+would collide with common methods. Avoid:</p>
+<ul>
+<li><code>IF</code></li>
+</ul>
+<p>The names <code>EMPTY</code>, <code>FULL</code>, <code>SUBSET</code>, and <code>SUPERSET</code> are discouraged
+because their generated <code>is_*</code> methods conflict with methods provided by the set API.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">set!</span> {
+    <span class="doccomment">/// A small set example.
+    </span><span class="kw">pub struct </span>SmallSet(u16) {
+        <span class="doccomment">/// A single bit.
+        </span>A = <span class="number">0</span>;
+
+        <span class="doccomment">/// Another single bit.
+        </span>B = <span class="number">1</span>;
+
+        <span class="doccomment">/// A grouped constant from explicit bits.
+        </span>AB = <span class="number">0</span>, <span class="number">1</span>;
+
+        <span class="doccomment">/// A grouped constant from an inclusive range.
+        </span>BC = <span class="number">1</span>..=<span class="number">2</span>;
+
+        <span class="doccomment">/// A grouped constant from mixed bits and ranges.
+        </span>MIXED = <span class="number">0</span>, <span class="number">3</span>..=<span class="number">5</span>, <span class="number">7</span>;
+    }
+
+    <span class="comment">// Suppresses selected generated trait implementations.
+    </span>traits(!Default, !Hash);
+
+    <span class="doccomment">/// Custom semantic helpers emitted before generated methods.
+    </span><span class="kw">impl </span>{
+        <span class="doccomment">/// A custom named combination.
+        </span><span class="kw">pub const </span>ABC: <span class="self">Self </span>= <span class="self">Self</span>::AB.with_bc();
+
+        <span class="kw">pub const fn </span>contains_abc(<span class="self">self</span>) -&gt; bool { <span class="self">self</span>.contains(<span class="self">Self</span>::ABC) }
+    }
+}
+
+<span class="kw">let </span><span class="kw-2">mut </span>s = SmallSet::new()
+    .with_a()
+    .with_mixed_if(<span class="bool-val">true</span>);
+
+<span class="macro">assert!</span>(s.has_a());
+<span class="macro">assert!</span>(s.contains_mixed());
+<span class="macro">assert!</span>(s.intersects_ab());
+
+s.unset_a();
+<span class="macro">assert!</span>(!s.has_a());</code></pre></div>
+<ul>
+<li>Some examples of structs defined with the <code>set!</code> macro are:
+<a href="../../zall/struct.AsciiSet.html" title="struct devela::zall::AsciiSet"><code>AsciiSet</code></a>, <a href="../../zall/struct.EventButtons.html" title="struct devela::zall::EventButtons"><code>EventButtons</code></a>, <a href="../../zall/struct.RunCapInput.html" title="struct devela::zall::RunCapInput"><code>RunCapInput</code></a>.</li>
+<li>Another macro that leverages <code>set!</code> is: <a href="../../zall/macro.enumset.html" title="macro devela::zall::enumset"><code>enumset!</code></a>.</li>
+<li>See also the <a href="../../zall/macro.bitfield.html" title="macro devela::zall::bitfield"><code>bitfield!</code></a> macro.</li>
+</ul>
+</div></details></section></div></main></body></html>

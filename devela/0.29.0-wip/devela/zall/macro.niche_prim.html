@@ -1,0 +1,315 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="⚗️ ⚙️ Maps a niche representation type to its primitive carrier type."><title>niche_prim in devela::zall - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">niche_prim</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">niche_<wbr>prim</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#supported-forms" title="Supported forms">Supported forms</a></li><li><a href="#closed-world-behavior" title="Closed-world behavior">Closed-world behavior</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>zall</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">zall</a></div><h1>Macro <span class="macro">niche_<wbr>prim</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/num/grain/niche/macros.rs.html#202">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! niche_prim {
+    ($head:ident :: $($rest:tt)+) =&gt; { ... };
+    (i8 $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; i8 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; i8 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroI8 $($_:tt)*) =&gt; { ... };
+    (NonMinI8 $($_:tt)*) =&gt; { ... };
+    (NonValueI8 $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; i8 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; i8 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; i8 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroI8 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMinI8 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueI8 &gt; $($_:tt)*) =&gt; { ... };
+    (i16 $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; i16 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; i16 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroI16 $($_:tt)*) =&gt; { ... };
+    (NonMinI16 $($_:tt)*) =&gt; { ... };
+    (NonValueI16 $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; i16 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; i16 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; i16 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroI16 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMinI16 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueI16 &gt; $($_:tt)*) =&gt; { ... };
+    (i32 $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; i32 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; i32 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroI32 $($_:tt)*) =&gt; { ... };
+    (NonMinI32 $($_:tt)*) =&gt; { ... };
+    (NonValueI32 $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; i32 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; i32 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; i32 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroI32 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMinI32 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueI32 &gt; $($_:tt)*) =&gt; { ... };
+    (i64 $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; i64 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; i64 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroI64 $($_:tt)*) =&gt; { ... };
+    (NonMinI64 $($_:tt)*) =&gt; { ... };
+    (NonValueI64 $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; i64 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; i64 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; i64 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroI64 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMinI64 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueI64 &gt; $($_:tt)*) =&gt; { ... };
+    (i128 $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; i128 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; i128 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroI128 $($_:tt)*) =&gt; { ... };
+    (NonMinI128 $($_:tt)*) =&gt; { ... };
+    (NonValueI128 $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; i128 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; i128 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; i128 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroI128 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMinI128 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueI128 &gt; $($_:tt)*) =&gt; { ... };
+    (isize $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; isize &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; isize &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroIsize $($_:tt)*) =&gt; { ... };
+    (NonMinIsize $($_:tt)*) =&gt; { ... };
+    (NonValueIsize $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; isize &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; isize &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; isize &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroIsize &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMinIsize &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueIsize &gt; $($_:tt)*) =&gt; { ... };
+    (u8 $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; u8 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; u8 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroU8 $($_:tt)*) =&gt; { ... };
+    (NonMaxU8 $($_:tt)*) =&gt; { ... };
+    (NonValueU8 $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; u8 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; u8 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; u8 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroU8 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMaxU8 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueU8 &gt; $($_:tt)*) =&gt; { ... };
+    (u16 $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; u16 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; u16 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroU16 $($_:tt)*) =&gt; { ... };
+    (NonMaxU16 $($_:tt)*) =&gt; { ... };
+    (NonValueU16 $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; u16 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; u16 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; u16 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroU16 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMaxU16 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueU16 &gt; $($_:tt)*) =&gt; { ... };
+    (u32 $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; u32 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; u32 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroU32 $($_:tt)*) =&gt; { ... };
+    (NonMaxU32 $($_:tt)*) =&gt; { ... };
+    (NonValueU32 $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; u32 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; u32 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; u32 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroU32 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMaxU32 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueU32 &gt; $($_:tt)*) =&gt; { ... };
+    (u64 $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; u64 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; u64 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroU64 $($_:tt)*) =&gt; { ... };
+    (NonMaxU64 $($_:tt)*) =&gt; { ... };
+    (NonValueU64 $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; u64 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; u64 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; u64 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroU64 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMaxU64 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueU64 &gt; $($_:tt)*) =&gt; { ... };
+    (u128 $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; u128 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; u128 &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroU128 $($_:tt)*) =&gt; { ... };
+    (NonMaxU128 $($_:tt)*) =&gt; { ... };
+    (NonValueU128 $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; u128 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; u128 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; u128 &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroU128 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMaxU128 &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueU128 &gt; $($_:tt)*) =&gt; { ... };
+    (usize $($_:tt)*) =&gt; { ... };
+    (NonNiche &lt; usize &gt; $($_:tt)*) =&gt; { ... };
+    (NonZero &lt; usize &gt; $($_:tt)*) =&gt; { ... };
+    (NonZeroUsize $($_:tt)*) =&gt; { ... };
+    (NonMaxUsize $($_:tt)*) =&gt; { ... };
+    (NonValueUsize $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; usize &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonNiche &lt; usize &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZero &lt; usize &gt;&gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonZeroUsize &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonMaxUsize &gt; $($_:tt)*) =&gt; { ... };
+    (MaybeNiche &lt; NonValueUsize &gt; $($_:tt)*) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Niche memory optimizations'>⚗️</span> <span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span>
+Maps a niche representation type to its primitive carrier type.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/num/grain/niche"><code>num/grain/niche</code></a></sup></p>
+<hr />
+<p><code>niche_prim!</code> performs a purely syntactic, compile-time mapping from a
+supported niche type (for example <code>NonMaxU8</code>, <code>NonValueU16&lt;…&gt;</code>,
+<code>MaybeNiche&lt;NonZero&lt;i32&gt;&gt;</code>) to its underlying primitive numeric type
+(<code>u8</code>, <code>u16</code>, <code>i32</code>, …).</p>
+<p>This macro is intended for use in type position, including type aliases,
+signatures, and const contexts.</p>
+<h3 id="supported-forms"><a class="doc-anchor" href="#supported-forms">§</a>Supported forms</h3>
+<p>For each supported primitive <code>P</code>, the following spellings are recognized:</p>
+<ul>
+<li><code>P</code></li>
+<li><code>NonNiche&lt;P&gt;</code></li>
+<li><code>NonZero&lt;P&gt;</code> and <code>NonZeroP</code></li>
+<li><code>NonMaxP</code> (for unsigned primitives)</li>
+<li><code>NonMinP</code> (for signed primitives)</li>
+<li><code>NonValueP&lt;…&gt;</code></li>
+<li><code>MaybeNiche&lt;P&gt;</code></li>
+<li><code>MaybeNiche&lt;NonNiche&lt;P&gt;&gt;</code></li>
+<li><code>MaybeNiche&lt;NonZero&lt;P&gt;&gt;</code> and <code>MaybeNiche&lt;NonZeroP&gt;</code></li>
+<li><code>MaybeNiche&lt;NonMaxP&gt; (for unsigned primitives)</code></li>
+<li><code>MaybeNiche&lt;NonMinP&gt; (for signed primitives)</code></li>
+<li><code>MaybeNiche&lt;NonValueP&lt;…&gt;&gt;</code></li>
+</ul>
+<p>The mapping is shallow and exact: only the explicitly supported spellings are matched.</p>
+<h3 id="closed-world-behavior"><a class="doc-anchor" href="#closed-world-behavior">§</a>Closed-world behavior</h3>
+<p>The set of recognized niche types is intentionally fixed and mirrors the
+niche representations provided by this crate. User-defined wrappers or
+arbitrary nesting are not supported.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: <span class="macro">niche_prim!</span>(NonValueU8&lt;<span class="number">43</span>&gt;) = <span class="number">3_u8</span>;</code></pre></div></div></details></section></div></main></body></html>

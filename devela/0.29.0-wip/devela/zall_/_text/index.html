@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Symbolic sequences, encodings, and text processing.text::{ascii, error, fmt, layout, parse, str, unicode} ▽"><title>devela::zall_::_text - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module _text</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module _text</a></h2><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li><li><a href="#derives" title="Derive Macros">Derive Macros</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>zall_</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">zall_</a></div><h1>Module <span>_text</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/index.rs.html#227">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Symbolic sequences, encodings, and text processing.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../../text/index.html" title="mod devela::text">text</a>::{<a href="../../text/ascii/index.html" title="mod devela::text::ascii">ascii</a>, <a href="../../text/error/index.html" title="mod devela::text::error">error</a>, <a href="../../text/fmt/index.html" title="mod devela::text::fmt">fmt</a>, <a href="../../text/layout/index.html" title="mod devela::text::layout">layout</a>, <a href="../../text/parse/index.html" title="mod devela::text::parse">parse</a>, <a href="../../text/str/index.html" title="mod devela::text::str">str</a>, <a href="../../text/unicode/index.html" title="mod devela::text::unicode">unicode</a>}</span> <a title='See the hierarchical view of the `text` module' href='https://docs.rs/devela/latest/devela/text'>▽</a></p>
+<p>All <code>text</code> module’s items flat re-exported.</p>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.ch.html" title="macro devela::zall_::_text::ch">ch</a></dt><dd><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Text'>𝐓</span>
+Concisely creates any kind of Unicode scalar.</dd><dt><a class="macro" href="macro.fmtcat.html" title="macro devela::zall_::_text::fmtcat">fmtcat</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+Writes concatenated formatted data into a byte buffer.</dd><dt><a class="macro" href="macro.format.html" title="macro devela::zall_::_text::format">format</a><wbr><span class="stab portability" title="Available on crate features `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Construction'>🏗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+Creates a String using interpolation of runtime expressions.</dd><dt><a class="macro" href="macro.format_args.html" title="macro devela::zall_::_text::format_args">format_<wbr>args</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Constructs parameters for the other string-formatting macros.</dd><dt><a class="macro" href="macro.format_buf.html" title="macro devela::zall_::_text::format_buf">format_<wbr>buf</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+Returns a formatted <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>str</code></a> slice backed by a buffer, non-allocating.</dd><dt><a class="macro" href="macro.write.html" title="macro devela::zall_::_text::write">write</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Writes formatted data into a buffer.</dd><dt><a class="macro" href="macro.writeln.html" title="macro devela::zall_::_text::writeln">writeln</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Writes formatted data into a buffer, with a newline appended.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AsciiLut.html" title="struct devela::zall_::_text::AsciiLut">Ascii<wbr>Lut</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+A text-related <abbr title='Look-up Table'>LUT</abbr> namespace.</dd><dt><a class="struct" href="struct.AsciiSet.html" title="struct devela::zall_::_text::AsciiSet">Ascii<wbr>Set</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Set semantics'>⊆</span>
+A finite set of ASCII characters.</dd><dt><a class="struct" href="struct.ByteSearch.html" title="struct devela::zall_::_text::ByteSearch">Byte<wbr>Search</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Parsing'>::=</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+A utility struct for searching bytes in slices.</dd><dt><a class="struct" href="struct.CStr.html" title="struct devela::zall_::_text::CStr">CStr</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Lifetime'>🍃</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Representation of a borrowed C string (See <code>CString</code>).</dd><dt><a class="struct" href="struct.CString.html" title="struct devela::zall_::_text::CString">CString</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+<span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+An owned, C-compatible, nul-terminated string with no nul bytes in the middle.</dd><dt><a class="struct" href="struct.Char.html" title="struct devela::zall_::_text::Char">Char</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Unicode scalars-related low-level <em>const</em> operations.</dd><dt><a class="struct" href="struct.CharIter.html" title="struct devela::zall_::_text::CharIter">Char<wbr>Iter</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+An iterator over Unicode scalars.</dd><dt><a class="struct" href="struct.DebugList.html" title="struct devela::zall_::_text::DebugList">Debug<wbr>List</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Debugging'>🐛</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A struct to help with <a href="../../zall/trait.Debug.html" title="trait devela::zall::Debug"><code>Debug</code></a> implementations.</dd><dt><a class="struct" href="struct.DebugMap.html" title="struct devela::zall_::_text::DebugMap">Debug<wbr>Map</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Debugging'>🐛</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A struct to help with <a href="../../zall/trait.Debug.html" title="trait devela::zall::Debug"><code>Debug</code></a> implementations.</dd><dt><a class="struct" href="struct.DebugSet.html" title="struct devela::zall_::_text::DebugSet">Debug<wbr>Set</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Debugging'>🐛</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A struct to help with <a href="../../zall/trait.Debug.html" title="trait devela::zall::Debug"><code>Debug</code></a> implementations.</dd><dt><a class="struct" href="struct.DebugStruct.html" title="struct devela::zall_::_text::DebugStruct">Debug<wbr>Struct</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Debugging'>🐛</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A struct to help with <a href="../../zall/trait.Debug.html" title="trait devela::zall::Debug"><code>Debug</code></a> implementations.</dd><dt><a class="struct" href="struct.DebugTuple.html" title="struct devela::zall_::_text::DebugTuple">Debug<wbr>Tuple</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Debugging'>🐛</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A struct to help with <a href="../../zall/trait.Debug.html" title="trait devela::zall::Debug"><code>Debug</code></a> implementations.</dd><dt><a class="struct" href="struct.DebugWith.html" title="struct devela::zall_::_text::DebugWith">Debug<wbr>With</a></dt><dd>A <a href="../../zall/trait.Debug.html" title="trait devela::zall::Debug"><code>Debug</code></a> adapter for formatting a value with a <a href="../../zall/trait.DebugExt.html" title="trait devela::zall::DebugExt"><code>DebugExt</code></a> context.</dd><dt><a class="struct" href="struct.Digits.html" title="struct devela::zall_::_text::Digits">Digits</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Provides ASCII digit operations and conversions for unsigned integer primitives.</dd><dt><a class="struct" href="struct.Fmt.html" title="struct devela::zall_::_text::Fmt">Fmt</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+A string formatting namespace.</dd><dt><a class="struct" href="struct.FmtArguments.html" title="struct devela::zall_::_text::FmtArguments">FmtArguments</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Represents a safely precompiled version of a format string and its arguments.</dd><dt><a class="struct" href="struct.FmtError.html" title="struct devela::zall_::_text::FmtError">FmtError</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The error type which is returned from formatting a message into a stream.</dd><dt><a class="struct" href="struct.FmtFromFn.html" title="struct devela::zall_::_text::FmtFromFn">FmtFrom<wbr>Fn</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Implements <a href="../../zall/trait.Debug.html" title="trait devela::zall::Debug"><code>Debug</code></a> and <a href="../../zall/trait.Display.html" title="trait devela::zall::Display"><code>Display</code></a> via the provided closure.</dd><dt><a class="struct" href="struct.FmtNum.html" title="struct devela::zall_::_text::FmtNum">FmtNum</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Const number formatter.</dd><dt><a class="struct" href="struct.FmtNumConf.html" title="struct devela::zall_::_text::FmtNumConf">FmtNum<wbr>Conf</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Configuration for numeric formatting.</dd><dt><a class="struct" href="struct.FmtNumGroup.html" title="struct devela::zall_::_text::FmtNumGroup">FmtNum<wbr>Group</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Numeric digit grouping configuration.</dd><dt><a class="struct" href="struct.FmtNumShape.html" title="struct devela::zall_::_text::FmtNumShape">FmtNum<wbr>Shape</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Describes the structural shape of a formatted number.</dd><dt><a class="struct" href="struct.FmtWriter.html" title="struct devela::zall_::_text::FmtWriter">FmtWriter</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+A specialized formatter with a fixed byte buffer and truncation detection.</dd><dt><a class="struct" href="struct.Formatter.html" title="struct devela::zall_::_text::Formatter">Formatter</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Configuration for formatting.</dd><dt><a class="struct" href="struct.FromUtf8Error.html" title="struct devela::zall_::_text::FromUtf8Error">From<wbr>Utf8<wbr>Error</a><wbr><span class="stab portability" title="Available on crate features `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+A possible error value when converting a String from a UTF-8 byte vector.</dd><dt><a class="struct" href="struct.GraphemeMachine.html" title="struct devela::zall_::_text::GraphemeMachine">Grapheme<wbr>Machine</a><wbr><span class="stab portability" title="Available on crate feature `grapheme` only"><code>grapheme</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+Streaming <abbr title='Extended Grapheme Cluster'>EGC</abbr> boundary detector.
+Streaming grapheme cluster boundary detector.</dd><dt><a class="struct" href="struct.GraphemeNonul.html" title="struct devela::zall_::_text::GraphemeNonul">Grapheme<wbr>Nonul</a><wbr><span class="stab portability" title="Available on crate feature `grapheme` only"><code>grapheme</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+An <abbr title='Extended Grapheme Cluster'>EGC</abbr> backed by a <a href="../../zall/struct.StringNonul.html" title="struct devela::zall::StringNonul"><code>StringNonul</code></a>.</dd><dt><a class="struct" href="struct.GraphemeProps.html" title="struct devela::zall_::_text::GraphemeProps">Grapheme<wbr>Props</a><wbr><span class="stab portability" title="Available on crate feature `grapheme` only"><code>grapheme</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+Combined <abbr title='Extended Grapheme Cluster'>EGC</abbr> break properties for a single code point.</dd><dt><a class="struct" href="struct.GraphemeScanner.html" title="struct devela::zall_::_text::GraphemeScanner">Grapheme<wbr>Scanner</a><wbr><span class="stab portability" title="Available on crate feature `grapheme` only"><code>grapheme</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Iterator or iterator adapter'>🔄</span>
+Scans text and detects grapheme cluster boundaries during iteration.</dd><dt><a class="struct" href="struct.GraphemeString.html" title="struct devela::zall_::_text::GraphemeString">Grapheme<wbr>String</a><wbr><span class="stab portability" title="Available on crate features `alloc` and `grapheme` only"><code>alloc</code> and <code>grapheme</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+An <abbr title="Extended Grapheme Cluster">EGC</abbr> backed by a <a href="../../zall/struct.String.html" title="struct devela::zall::String"><code>String</code></a>.</dd><dt><a class="struct" href="struct.GraphemeU8.html" title="struct devela::zall_::_text::GraphemeU8">Grapheme<wbr>U8</a><wbr><span class="stab portability" title="Available on crate feature `grapheme` only"><code>grapheme</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+An <abbr title='Extended Grapheme Cluster'>EGC</abbr> backed by a <a href="../../zall/struct.StringU8.html" title="struct devela::zall::StringU8"><code>StringU8</code></a>.</dd><dt><a class="struct" href="struct.InvalidChar.html" title="struct devela::zall_::_text::InvalidChar">Invalid<wbr>Char</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+<span class='stab portability' title='Error'>🚩</span>
+An invalid given character was found.</dd><dt><a class="struct" href="struct.InvalidUtf8.html" title="struct devela::zall_::_text::InvalidUtf8">Invalid<wbr>Utf8</a></dt><dd><span class='stab portability' title='String storage and views'>🧶</span>
+<span class='stab portability' title='Error'>🚩</span>
+Invalid UTF-8 found while interpreting a byte sequence.</dd><dt><a class="struct" href="struct.OsStr.html" title="struct devela::zall_::_text::OsStr">OsStr</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Lifetime'>🍃</span> <span class='stab portability' title='Platform-dependent'>🖥️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Borrowed reference to an OS string (See <a href="../../zall/struct.OsString.html" title="struct devela::zall::OsString"><code>OsString</code></a>).</dd><dt><a class="struct" href="struct.OsString.html" title="struct devela::zall_::_text::OsString">OsString</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Platform-dependent'>🖥️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A type for owned, mutable native strings, interconvertible with Rust strings.</dd><dt><a class="struct" href="struct.ParseFloatError.html" title="struct devela::zall_::_text::ParseFloatError">Parse<wbr>Float<wbr>Error</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Parsing'>::=</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An error which can be returned when parsing an float.</dd><dt><a class="struct" href="struct.ParseIntError.html" title="struct devela::zall_::_text::ParseIntError">Parse<wbr>IntError</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Parsing'>::=</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An error which can be returned when parsing an integer.</dd><dt><a class="struct" href="struct.Str.html" title="struct devela::zall_::_text::Str">Str</a></dt><dd><span class='stab portability' title='String storage and views'>🧶</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+A string slice namespace.</dd><dt><a class="struct" href="struct.StrBuf.html" title="struct devela::zall_::_text::StrBuf">StrBuf</a></dt><dd><span class='stab portability' title='String storage and views'>🧶</span>
+A borrowed UTF-8 string buffer over caller-provided bytes.</dd><dt><a class="struct" href="struct.String.html" title="struct devela::zall_::_text::String">String</a><wbr><span class="stab portability" title="Available on crate features `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+<span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+A UTF-8–encoded, growable string.</dd><dt><a class="struct" href="struct.StringNonul.html" title="struct devela::zall_::_text::StringNonul">String<wbr>Nonul</a></dt><dd><span class='stab portability' title='String storage and views'>🧶</span>
+A null-terminated UTF-8 string with up to <code>u8::MAX</code> bytes capacity.</dd><dt><a class="struct" href="struct.StringSmallAlloc.html" title="struct devela::zall_::_text::StringSmallAlloc">String<wbr>Small<wbr>Alloc</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='String storage and views'>🧶</span>
+A UTF-8 string with inline storage and heap spillover.</dd><dt><a class="struct" href="struct.StringU8.html" title="struct devela::zall_::_text::StringU8">String<wbr>U8</a></dt><dd><span class='stab portability' title='String storage and views'>🧶</span>
+A UTF-8 string with fixed capacity that stores length explicitly.</dd><dt><a class="struct" href="struct.TextCursor.html" title="struct devela::zall_::_text::TextCursor">Text<wbr>Cursor</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+Continuation point within a caller-defined text traversal.</dd><dt><a class="struct" href="struct.TextIndex.html" title="struct devela::zall_::_text::TextIndex">Text<wbr>Index</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Spatial layout'>🧱</span>
+Position within a caller-defined text-oriented sequence.</dd><dt><a class="struct" href="struct.TextLayout.html" title="struct devela::zall_::_text::TextLayout">Text<wbr>Layout</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Spatial layout'>🧱</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Text layout engine configuration.</dd><dt><a class="struct" href="struct.TextLayoutSpan.html" title="struct devela::zall_::_text::TextLayoutSpan">Text<wbr>Layout<wbr>Span</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Spatial layout'>🧱</span> <span class='stab portability' title='Quantitative relations'>📏</span>
+Mapping between a contiguous text range and its consumed inline space.</dd><dt><a class="struct" href="struct.TextLayoutStep.html" title="struct devela::zall_::_text::TextLayoutStep">Text<wbr>Layout<wbr>Step</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Spatial layout'>🧱</span> <span class='stab portability' title='Outcome'>⚖️</span>
+Result of a single text layout step.</dd><dt><a class="struct" href="struct.TextParseError.html" title="struct devela::zall_::_text::TextParseError">Text<wbr>Parse<wbr>Error</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Parsing'>::=</span> <span class='stab portability' title='Error'>🚩</span>
+A text parsing failure paired with its cursor location.</dd><dt><a class="struct" href="struct.TextRange.html" title="struct devela::zall_::_text::TextRange">Text<wbr>Range</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+A half-open range within a caller-defined text-oriented sequence.</dd><dt><a class="struct" href="struct.TextScanner.html" title="struct devela::zall_::_text::TextScanner">Text<wbr>Scanner</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Parsing'>::=</span>
+A byte scanner over source text.</dd><dt><a class="struct" href="struct.TextSymbol.html" title="struct devela::zall_::_text::TextSymbol">Text<wbr>Symbol</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Spatial layout'>🧱</span> <span class='stab portability' title='Input and output'>🔌</span>
+Layout participation record for a single text symbol.</dd><dt><a class="struct" href="struct.Textel.html" title="struct devela::zall_::_text::Textel">Textel</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+A textual element carried by a rendering cell.</dd><dt><a class="struct" href="struct.Translit.html" title="struct devela::zall_::_text::Translit">Translit</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Utility namespace'>🛠️</span>
+Lossy text transliteration utilities.</dd><dt><a class="struct" href="struct.char7.html" title="struct devela::zall_::_text::char7">char7</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+A 7-bit <a href="https://www.unicode.org/glossary/#unicode_scalar_value">Unicode scalar</a>, limited to <a href="https://en.wikipedia.org/wiki/Basic_Latin_(Unicode_block)">basic latin</a> subset
+(ASCII).</dd><dt><a class="struct" href="struct.char8.html" title="struct devela::zall_::_text::char8">char8</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+An 8-bit <a href="https://www.unicode.org/glossary/#unicode_scalar_value">Unicode scalar</a>, limited to <a href="https://en.wikipedia.org/wiki/Basic_Latin_(Unicode_block)">basic latin</a>
+and <a href="https://en.wikipedia.org/wiki/Latin-1_Supplement">latin-1</a> subsets.</dd><dt><a class="struct" href="struct.char16.html" title="struct devela::zall_::_text::char16">char16</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+A 16-bit <a href="https://www.unicode.org/glossary/#unicode_scalar_value">Unicode scalar</a>, limited to the
+<a href="https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane">Basic Multilingual Plane</a> subset.</dd><dt><a class="struct" href="struct.charu.html" title="struct devela::zall_::_text::charu">charu</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+A 32-bit <a href="https://www.unicode.org/glossary/#unicode_scalar_value">Unicode scalar</a>, with UTF-8 representation.</dd><dt><a class="struct" href="struct.charu_niche.html" title="struct devela::zall_::_text::charu_niche">charu_<wbr>niche</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+A 32-bit <a href="https://www.unicode.org/glossary/#unicode_scalar_value">Unicode scalar</a>, with UTF-8 representation,
+and niche-memory optimization.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.CharAscii.html" title="enum devela::zall_::_text::CharAscii">Char<wbr>Ascii</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+One of 128 Unicode characters (<code>U+0000</code> to <code>U+007F</code>), the ASCII subset.</dd><dt><a class="enum" href="enum.FmtAlignment.html" title="enum devela::zall_::_text::FmtAlignment">FmtAlignment</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Possible alignments returned by <code>Formatter::align</code>.</dd><dt><a class="enum" href="enum.FmtNumSign.html" title="enum devela::zall_::_text::FmtNumSign">FmtNum<wbr>Sign</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Controls how the sign of a number is formatted.</dd><dt><a class="enum" href="enum.GraphemeBoundary.html" title="enum devela::zall_::_text::GraphemeBoundary">Grapheme<wbr>Boundary</a><wbr><span class="stab portability" title="Available on crate feature `grapheme` only"><code>grapheme</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+Indicates how to handle a code point when detecting grapheme cluster boundaries.</dd><dt><a class="enum" href="enum.GraphemeKind.html" title="enum devela::zall_::_text::GraphemeKind">Grapheme<wbr>Kind</a><wbr><span class="stab portability" title="Available on crate feature `grapheme` only"><code>grapheme</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+The kinds of supported graphemes.</dd><dt><a class="enum" href="enum.GraphemePropCb.html" title="enum devela::zall_::_text::GraphemePropCb">Grapheme<wbr>Prop<wbr>Cb</a><wbr><span class="stab portability" title="Available on crate feature `grapheme` only"><code>grapheme</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+<abbr title='Extended Grapheme Cluster'>EGC</abbr> property values from Unicode Standard Annex #29.</dd><dt><a class="enum" href="enum.GraphemePropInCb.html" title="enum devela::zall_::_text::GraphemePropInCb">Grapheme<wbr>Prop<wbr>InCb</a><wbr><span class="stab portability" title="Available on crate feature `grapheme` only"><code>grapheme</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+Break property for Indic scripts that prevents splitting within orthographic syllables.</dd><dt><a class="enum" href="enum.InvalidText.html" title="enum devela::zall_::_text::InvalidText">Invalid<wbr>Text</a></dt><dd><span class='stab portability' title='Composite error'>🚩+</span>
+<span class='stab portability' title='Text'>𝐓</span>
+An error composite of <a href="../../zall/struct.InvalidChar.html" title="struct devela::zall::InvalidChar"><code>InvalidChar</code></a> + <a href="../../zall/struct.InvalidUtf8.html" title="struct devela::zall::InvalidUtf8"><code>InvalidUtf8</code></a> + <a href="../../zall/struct.MismatchedCapacity.html" title="struct devela::zall::MismatchedCapacity"><code>MismatchedCapacity</code></a>.</dd><dt><a class="enum" href="enum.ParseIntErrorKind.html" title="enum devela::zall_::_text::ParseIntErrorKind">Parse<wbr>IntError<wbr>Kind</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Parsing'>::=</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Kinds of errors that can cause parsing an integer to fail.</dd><dt><a class="enum" href="enum.TextCohesion.html" title="enum devela::zall_::_text::TextCohesion">Text<wbr>Cohesion</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Spatial layout'>🧱</span>
+Spatial cohesion rules for a text symbol during layout.</dd><dt><a class="enum" href="enum.TextError.html" title="enum devela::zall_::_text::TextError">Text<wbr>Error</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+<span class='stab portability' title='Composite error'>🚩+</span>
+A text-related composite error.</dd><dt><a class="enum" href="enum.TextFit.html" title="enum devela::zall_::_text::TextFit">TextFit</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Spatial layout'>🧱</span> <span class='stab portability' title='Outcome'>⚖️</span>
+Result of testing whether text fits within an inline extent.</dd><dt><a class="enum" href="enum.TextParseErrorKind.html" title="enum devela::zall_::_text::TextParseErrorKind">Text<wbr>Parse<wbr>Error<wbr>Kind</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Parsing'>::=</span> <span class='stab portability' title='Error'>🚩</span>
+The category of a text parsing failure.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Binary.html" title="trait devela::zall_::_text::Binary">Binary</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+<code>b</code> formatting.</dd><dt><a class="trait" href="trait.Debug.html" title="trait devela::zall_::_text::Debug">Debug</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Debugging'>🐛</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+<code>?</code> formatting. (Derivable)</dd><dt><a class="trait" href="trait.DebugExt.html" title="trait devela::zall_::_text::DebugExt">Debug<wbr>Ext</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Debugging'>🐛</span>
+Extension for contextual debugging.</dd><dt><a class="trait" href="trait.Display.html" title="trait devela::zall_::_text::Display">Display</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Format trait for an empty format, <code>{}</code>.</dd><dt><a class="trait" href="trait.FmtWrite.html" title="trait devela::zall_::_text::FmtWrite">FmtWrite</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Writing or formatting into Unicode-accepting buffers or streams.</dd><dt><a class="trait" href="trait.FromStr.html" title="trait devela::zall_::_text::FromStr">FromStr</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Lifetime'>🍃</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Parse a value from a string.</dd><dt><a class="trait" href="trait.Grapheme.html" title="trait devela::zall_::_text::Grapheme">Grapheme</a><wbr><span class="stab portability" title="Available on crate feature `grapheme` only"><code>grapheme</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+Common trait for <abbr title="Extended Grapheme Cluster">EGC</abbr> types.</dd><dt><a class="trait" href="trait.LowerExp.html" title="trait devela::zall_::_text::LowerExp">Lower<wbr>Exp</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+<code>e</code> formatting.</dd><dt><a class="trait" href="trait.LowerHex.html" title="trait devela::zall_::_text::LowerHex">Lower<wbr>Hex</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+<code>x</code> formatting.</dd><dt><a class="trait" href="trait.Octal.html" title="trait devela::zall_::_text::Octal">Octal</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+<code>o</code> formatting.</dd><dt><a class="trait" href="trait.Pointer.html" title="trait devela::zall_::_text::Pointer">Pointer</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+<code>p</code> formatting.</dd><dt><a class="trait" href="trait.StrExt.html" title="trait devela::zall_::_text::StrExt">StrExt</a></dt><dd><span class='stab portability' title='String storage and views'>🧶</span>
+Extension trait providing additional methods for <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html" title="primitive str"><code>&amp;str</code></a>.</dd><dt><a class="trait" href="trait.StringExt.html" title="trait devela::zall_::_text::StringExt">String<wbr>Ext</a><wbr><span class="stab portability" title="Available on crate feature `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='String storage and views'>🧶</span>
+Extension trait providing additional methods for <a href="../../zall/struct.String.html" title="struct devela::zall::String"><code>String</code></a>.</dd><dt><a class="trait" href="trait.ToString.html" title="trait devela::zall_::_text::ToString">ToString</a><wbr><span class="stab portability" title="Available on crate features `alloc` only"><code>alloc</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Value semantics'>💱</span>
+<span class='stab portability' title='re-exported from rust&#39;s `alloc`'><code>alloc</code></span>
+A trait for converting a value to a <a href="../../zall/struct.String.html" title="struct devela::zall::String"><code>String</code></a>.</dd><dt><a class="trait" href="trait.UnicodeScalar.html" title="trait devela::zall_::_text::UnicodeScalar">Unicode<wbr>Scalar</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+Common trait for Unicode scalar types.</dd><dt><a class="trait" href="trait.UpperExp.html" title="trait devela::zall_::_text::UpperExp">Upper<wbr>Exp</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+<code>E</code> formatting.</dd><dt><a class="trait" href="trait.UpperHex.html" title="trait devela::zall_::_text::UpperHex">Upper<wbr>Hex</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+<code>X</code> formatting.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.FmtResult.html" title="type devela::zall_::_text::FmtResult">FmtResult</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Outcome'>⚖️</span>
+The type returned by formatter methods.</dd><dt><a class="type" href="type.TextResult.html" title="type devela::zall_::_text::TextResult">Text<wbr>Result</a></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Outcome'>⚖️</span>
+A text-related result.</dd><dt><a class="type" href="type.TextUnit.html" title="type devela::zall_::_text::TextUnit">Text<wbr>Unit</a></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+Basic text-domain unit.</dd><dt><a class="type" href="type.char.html" title="type devela::zall_::_text::char">char</a></dt><dd><span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Text'>𝐓</span>
+<span class="stab portability" title="re-exported from rust's `core`"><code>core</code></span>
+A 32-bit <a href="https://www.unicode.org/glossary/#unicode_scalar_value">Unicode scalar</a>.</dd></dl><h2 id="derives" class="section-header">Derive Macros<a href="#derives" class="anchor">§</a></h2><dl class="item-table"><dt><a class="derive" href="derive.Debug.html" title="derive devela::zall_::_text::Debug">Debug</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span> <span class='stab portability' title='Debugging'>🐛</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+<code>?</code> formatting. (Derivable)</dd></dl></section></div></main></body></html>

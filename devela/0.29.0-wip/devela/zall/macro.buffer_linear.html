@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🏗️ 🗃️ Defines a linear buffer type over contiguous storage backends."><title>buffer_linear in devela::zall - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">buffer_linear</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">buffer_<wbr>linear</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#ownership-regimes" title="Ownership regimes">Ownership regimes</a></li><li><a href="#index-type-requirements" title="Index type requirements">Index type requirements</a></li><li><a href="#storage-backends" title="Storage backends">Storage backends</a><ul><li><a href="#fixed-capacity-backends" title="Fixed-capacity backends">Fixed-capacity backends</a></li><li><a href="#view-backends" title="View backends">View backends</a></li><li><a href="#alloc-backends" title="Alloc backends">Alloc backends</a></li></ul></li><li><a href="#examples" title="Examples">Examples</a><ul><li><a href="#static-buffer-default" title="Static buffer (default)">Static buffer (default)</a></li><li><a href="#view-buffer" title="View buffer">View buffer</a></li><li><a href="#alloc-buffer" title="Alloc buffer">Alloc buffer</a></li><li><a href="#separate-implementation-blocks" title="Separate implementation blocks">Separate implementation blocks</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>zall</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">zall</a></div><h1>Macro <span class="macro">buffer_<wbr>linear</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/data/layout/buffer/linear/definition.rs.html#141-566">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! buffer_linear {
+    (
+    // STATIC (array, uninit, option)
+    // struct definition + optional implementations
+
+        $(#[$attr:meta])*                                        // attributes
+        $vis:vis struct $name:ident : $(static)? ($($I:tt)+);    // visibility, name, index type
+        $($rest:tt)*                                             // impls
+    ) =&gt; { ... };
+    ( // implementations only
+        impl $name:ident : $(static)? ($($I:tt)+) ; $($rest:tt)*  // for name, index type, impls
+    ) =&gt; { ... };
+    (
+    // VIEW (slice_mut, slice)
+    // struct definition + optional implementations
+
+        $(#[$attr:meta])*                                        // attributes
+        $vis:vis struct $name:ident : view ($($I:tt)+);          // visibility, name, index type
+        $($rest:tt)*                                             // impls
+    ) =&gt; { ... };
+    ( // implementations only
+        impl $name:ident : view ($($I:tt)+) ; $($rest:tt)*       // for name, index type, impls
+    ) =&gt; { ... };
+    (
+    // ALLOC (vec)
+    // struct definition + optional implementations
+
+        $(#[$attr:meta])*                                        // attributes
+        $vis:vis struct $name:ident : alloc ($($I:tt)+);         // visibility, name, index type
+        $($rest:tt)*                                             // impls
+    ) =&gt; { ... };
+    ( // implementations only
+        impl $name:ident : alloc ($($I:tt)+) ; $($rest:tt)*      // for name, index type, impls
+    ) =&gt; { ... };
+    (
+
+    /* internals */
+     %impls_static $name:ident : $I:ty, $P:ty ;) =&gt; { ... };
+    (%impls_static $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* $impl:ident) =&gt; { ... };
+    (%impls_static $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* array , $($rest:tt)*) =&gt; { ... };
+    (%impl1_static $(#[$i:meta])* $name:ident : $I:ty, $P:ty; array) =&gt; { ... };
+    (%impls_static $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* uninit , $($rest:tt)*) =&gt; { ... };
+    (%impl1_static $(#[$i:meta])* $name:ident : $I:ty, $P:ty; uninit) =&gt; { ... };
+    (%impls_static $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* option , $($rest:tt)*) =&gt; { ... };
+    (%impl1_static $(#[$i:meta])* $name:ident : $I:ty, $P:ty; option) =&gt; { ... };
+    (%impls_view $name:ident : $I:ty, $P:ty ;) =&gt; { ... };
+    (%impls_view $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* $impl:ident) =&gt; { ... };
+    (%impls_view $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* slice_mut , $($rest:tt)*) =&gt; { ... };
+    (%impl1_view $(#[$i:meta])* $name:ident : $I:ty, $P:ty ; slice_mut) =&gt; { ... };
+    (%impls_view $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* slice , $($rest:tt)*) =&gt; { ... };
+    (%impl1_view $(#[$i:meta])* $name:ident : $I:ty, $P:ty ; slice) =&gt; { ... };
+    (%impls_alloc $name:ident : $I:ty, $P:ty ;) =&gt; { ... };
+    (%impls_alloc $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* $impl:ident) =&gt; { ... };
+    (%impls_alloc $name:ident : $I:ty, $P:ty ; $(#[$i:meta])* vec , $($rest:tt)*) =&gt; { ... };
+    (%impl1_alloc $(#[$i:meta])* $name:ident : $I:ty, $P:ty; vec) =&gt; { ... };
+    (%impls_static $name:ident : $_I:ty, $_P:ty ; $(#[$_i:meta])* $impl:ident , $($_r:tt)*) =&gt; { ... };
+    (%impls_view $name:ident : $_I:ty, $_P:ty ; $(#[$_i:meta])* $impl:ident , $($_r:tt)*) =&gt; { ... };
+    (%impls_alloc $name:ident : $_I:ty, $_P:ty ; $(#[$_i:meta])* $impl:ident , $($_r:tt)*) =&gt; { ... };
+    (%impl_common_static $name:ident, $I:ty, $P:ty) =&gt; { ... };
+    (%impl_common_view $name:ident, $I:ty, $P:ty) =&gt; { ... };
+    (%impl_common_alloc $name:ident, $I:ty, $P:ty) =&gt; { ... };
+    (%common_tracked $name:ident, $I:ty, $P:ty) =&gt; { ... };
+    (%common_delegated $name:ident, $I:ty, $P:ty) =&gt; { ... };
+    (%common_static $name:ident, $I:ty, $P:ty) =&gt; { ... };
+    (%common_view $name:ident, $I:ty, $P:ty) =&gt; { ... };
+    (%common_iter_visit $name:ident, $I:ty, $P:ty) =&gt; { ... };
+    (%guard_index_repr $I:ty) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+Defines a linear buffer type over contiguous storage backends.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/data/layout"><code>data/layout</code></a></sup></p>
+<hr />
+<p>The generated type represents a logical range over contiguous
+storage, using an index type to track length and bounds.</p>
+<h3 id="ownership-regimes"><a class="doc-anchor" href="#ownership-regimes">§</a>Ownership regimes</h3>
+<p>The macro supports three regimes:</p>
+<ul>
+<li>
+<p><strong>static</strong> (default)
+The buffer owns its fixed-capacity storage backend.
+The optional <code>static</code> specifier can be omitted.</p>
+</li>
+<li>
+<p><strong>View</strong>
+The buffer is a non-owning view over externally provided storage.
+The <code>view</code> specifier is required.</p>
+</li>
+<li>
+<p><strong>Alloc</strong>
+The buffer owns heap-allocated storage.
+The <code>alloc</code> specifier is required.</p>
+</li>
+</ul>
+<h3 id="index-type-requirements"><a class="doc-anchor" href="#index-type-requirements">§</a>Index type requirements</h3>
+<p>The index type must:</p>
+<ul>
+<li>Be non-negative</li>
+<li>Represent zero</li>
+<li>Form a contiguous integer range</li>
+<li>Be able to represent all valid buffer positions</li>
+</ul>
+<p>Primitive unsigned integers and supported niche wrappers are accepted
+(see <a href="struct.MaybeNiche.html" title="struct devela::zall::MaybeNiche"><code>MaybeNiche</code></a>).</p>
+<h3 id="storage-backends"><a class="doc-anchor" href="#storage-backends">§</a>Storage backends</h3>
+<p>Backends are opt-in and selected by listing them after the struct declaration.</p>
+<h4 id="fixed-capacity-backends"><a class="doc-anchor" href="#fixed-capacity-backends">§</a>Fixed-capacity backends</h4>
+<ul>
+<li>
+<p><strong><code>array</code></strong>
+Fully initialized fixed-size array (<code>[T; CAP]</code>).
+Logical length is tracked separately from capacity.</p>
+</li>
+<li>
+<p><strong><code>uninit</code></strong>
+Partially initialized array (<code>[MaybeUninit&lt;T&gt;; CAP]</code>).
+Logical length tracks initialized elements and controls drop.</p>
+</li>
+<li>
+<p><strong><code>option</code></strong>
+Array of options (<code>[Option&lt;T&gt;; CAP]</code>).
+<code>Some</code> marks initialized elements; <code>None</code> marks unused slots.</p>
+</li>
+</ul>
+<h4 id="view-backends"><a class="doc-anchor" href="#view-backends">§</a>View backends</h4>
+<ul>
+<li>
+<p><strong><code>slice_mut</code></strong>
+Exclusive slice (<code>&amp;mut [T]</code>).
+The slice provides backing storage and determines capacity.</p>
+</li>
+<li>
+<p><strong><code>slice</code></strong>
+Shared slice (<code>&amp;[T]</code>).
+Read-only view over a contiguous logical range.</p>
+</li>
+</ul>
+<h4 id="alloc-backends"><a class="doc-anchor" href="#alloc-backends">§</a>Alloc backends</h4>
+<p>Requires the <code>alloc</code> crate to be linked:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">extern crate </span>alloc;</code></pre></div>
+<ul>
+<li><strong><code>vec</code></strong>
+Growable <code>Vec&lt;T&gt;</code> storage.</li>
+</ul>
+<hr />
+<p>Only explicitly enabled backends generate implementations.
+Constructors and methods depend on the selected backends.</p>
+<h3 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h3><h4 id="static-buffer-default"><a class="doc-anchor" href="#static-buffer-default">§</a>Static buffer (default)</h4>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">buffer_linear!</span>(
+    <span class="doccomment">/// Static linear buffer.
+    </span><span class="kw">pub struct </span>BufferU8: (u8); array
+);
+<span class="kw">let </span><span class="kw-2">mut </span>buf = BufferU8::&lt;i32, [i32; <span class="number">8</span>]&gt;::new_init();
+buf.push_back(<span class="number">10</span>).unwrap();
+buf.push_back(<span class="number">20</span>).unwrap();
+<span class="macro">assert_eq!</span>(buf.as_slice(), <span class="kw-2">&amp;</span>[<span class="number">10</span>, <span class="number">20</span>]);</code></pre></div><h4 id="view-buffer"><a class="doc-anchor" href="#view-buffer">§</a>View buffer</h4>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">buffer_linear!</span>(
+    <span class="doccomment">/// Read-only linear view.
+    </span><span class="kw">pub struct </span>BufferViewU8: view (u8); slice
+);
+<span class="kw">let </span>storage = [<span class="number">1u8</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
+<span class="kw">let </span>buf = BufferViewU8::try_from_slice(<span class="kw-2">&amp;</span>storage).unwrap();
+<span class="macro">assert_eq!</span>(buf.len_prim(), <span class="number">4</span>);
+<span class="macro">assert_eq!</span>(buf.peek_back(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">4</span>));</code></pre></div><h4 id="alloc-buffer"><a class="doc-anchor" href="#alloc-buffer">§</a>Alloc buffer</h4>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">buffer_linear!</span>(
+    <span class="doccomment">/// Dynamic linear buffer.
+    </span><span class="kw">pub struct </span>BufferU8: alloc (u8); vec
+);
+<span class="kw">let </span><span class="kw-2">mut </span>buf = BufferU8::new();
+buf.push_back(<span class="number">10</span>);
+buf.push_back(<span class="number">20</span>);
+<span class="macro">assert_eq!</span>(buf.as_slice(), <span class="kw-2">&amp;</span>[<span class="number">10</span>, <span class="number">20</span>]);</code></pre></div><h4 id="separate-implementation-blocks"><a class="doc-anchor" href="#separate-implementation-blocks">§</a>Separate implementation blocks</h4>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">buffer_linear!</span>(<span class="kw">pub struct </span>BufferSplit: view (u8););
+<span class="macro">buffer_linear!</span>(<span class="kw">impl </span>BufferSplit: view (u8); slice, slice_mut);</code></pre></div>
+<p>See also:
+<a href="struct.BufferLinearStaticExample.html" title="struct devela::zall::BufferLinearStaticExample"><code>BufferLinearStaticExample</code></a>,
+<a href="struct.BufferLinearViewExample.html" title="struct devela::zall::BufferLinearViewExample"><code>BufferLinearViewExample</code></a>,
+<a href="struct.BufferLinearAllocExample.html" title="struct devela::zall::BufferLinearAllocExample"><code>BufferLinearAllocExample</code></a>.</p>
+</div></details></section></div></main></body></html>

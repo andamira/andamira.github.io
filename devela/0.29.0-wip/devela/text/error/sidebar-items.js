@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["InvalidText","TextError"],"struct":["InvalidChar","InvalidUtf8"],"type":["TextResult"]};

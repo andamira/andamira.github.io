@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"derive":["Clone","Default"],"fn":["any_type_name","identity"],"mod":["error","marker","ops","panic","result","util"],"struct":["CodeLocation","CodeSpan","ScopeGuard","TypeId","Version","VersionFull"],"trait":["Any","AnyExt","AsMut","AsRef","Clone","ConstInit","Default","From","Into","Introspect","TryFrom","TryInto"]};

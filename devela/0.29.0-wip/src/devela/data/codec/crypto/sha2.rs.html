@@ -1,0 +1,536 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/data/codec/crypto/sha2.rs`."><title>sha2.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">devela/data/codec/crypto/</div>sha2.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela/src/data/codec/crypto/sha2.rs
+<a href=#2 id=2 data-nosnippet>2</a>//
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//! Defines SHA2 secure hash algorithms.
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
+<a href=#5 id=5 data-nosnippet>5</a>
+<a href=#6 id=6 data-nosnippet>6</a></span><span class="attr">#[doc = <span class="macro">crate::_tags!</span>(crypto hash)]
+<a href=#7 id=7 data-nosnippet>7</a></span><span class="doccomment">/// Implements SHA-2 digest methods for a concrete hash type.
+<a href=#8 id=8 data-nosnippet>8</a></span><span class="attr">#[doc = <span class="macro">crate::_doc_meta!</span>{location(<span class="string">"data/codec/crypto"</span>)}]
+<a href=#9 id=9 data-nosnippet>9</a></span><span class="doccomment">///
+<a href=#10 id=10 data-nosnippet>10</a>/// Supports the SHA-2 32-bit-word core used by SHA-224 and SHA-256, and the
+<a href=#11 id=11 data-nosnippet>11</a>/// SHA-2 64-bit-word core used by SHA-384, SHA-512, and SHA-512/t variants.
+<a href=#12 id=12 data-nosnippet>12</a>///
+<a href=#13 id=13 data-nosnippet>13</a>/// The selected word type determines the machine shape: word size, block size,
+<a href=#14 id=14 data-nosnippet>14</a>/// length-field size, schedule size, round constants, and compression functions.
+<a href=#15 id=15 data-nosnippet>15</a>/// The invocation supplies the concrete digest size, output truncation shape,
+<a href=#16 id=16 data-nosnippet>16</a>/// display name, and initial hash state.
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="comment">//
+<a href=#18 id=18 data-nosnippet>18</a>// References:
+<a href=#19 id=19 data-nosnippet>19</a>// - FIPS 180-4, Secure Hash Standard.
+<a href=#20 id=20 data-nosnippet>20</a>// - RFC 6234, US Secure Hash Algorithms.
+<a href=#21 id=21 data-nosnippet>21</a>// - RFC 2104, Keyed-Hash Message Authentication Code.
+<a href=#22 id=22 data-nosnippet>22</a>// - RFC 4231, Test Vectors for HMAC-SHA-224, HMAC-SHA-256, HMAC-SHA-384, and HMAC-SHA-512.
+<a href=#23 id=23 data-nosnippet>23</a></span><span class="attr">#[doc(hidden)]
+<a href=#24 id=24 data-nosnippet>24</a>#[macro_export]
+<a href=#25 id=25 data-nosnippet>25</a></span><span class="macro">macro_rules!</span> __crypto_impl_sha2 {
+<a href=#26 id=26 data-nosnippet>26</a>    ($(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
+<a href=#27 id=27 data-nosnippet>27</a>     <span class="macro-nonterminal">$vis</span>:vis <span class="kw">struct </span><span class="macro-nonterminal">$Self</span>:ident;
+<a href=#28 id=28 data-nosnippet>28</a>     word: u32,
+<a href=#29 id=29 data-nosnippet>29</a>     doc: <span class="macro-nonterminal">$DOC</span>:literal,
+<a href=#30 id=30 data-nosnippet>30</a>     digest_bits: <span class="macro-nonterminal">$digest_bits</span>:literal,
+<a href=#31 id=31 data-nosnippet>31</a>     digest_len: <span class="macro-nonterminal">$digest_len</span>:literal,
+<a href=#32 id=32 data-nosnippet>32</a>     output_words: <span class="macro-nonterminal">$output_words</span>:literal,
+<a href=#33 id=33 data-nosnippet>33</a>     output_tail_bytes: <span class="macro-nonterminal">$output_tail_bytes</span>:tt,
+<a href=#34 id=34 data-nosnippet>34</a>     initial_state: [$(<span class="macro-nonterminal">$initial_state</span>:literal),+ $(,)<span class="question-mark">?</span>]
+<a href=#35 id=35 data-nosnippet>35</a>    ) =&gt; {
+<a href=#36 id=36 data-nosnippet>36</a>        <span class="macro-nonterminal">$crate::__crypto_impl_sha2</span>! {
+<a href=#37 id=37 data-nosnippet>37</a>            %common
+<a href=#38 id=38 data-nosnippet>38</a>            $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
+<a href=#39 id=39 data-nosnippet>39</a>            <span class="macro-nonterminal">$vis </span><span class="kw">struct </span><span class="macro-nonterminal">$Self</span>;
+<a href=#40 id=40 data-nosnippet>40</a>            doc: <span class="macro-nonterminal">$DOC</span>,
+<a href=#41 id=41 data-nosnippet>41</a>            digest_bits: <span class="macro-nonterminal">$digest_bits</span>,
+<a href=#42 id=42 data-nosnippet>42</a>            digest_len: <span class="macro-nonterminal">$digest_len</span>,
+<a href=#43 id=43 data-nosnippet>43</a>            output_words: <span class="macro-nonterminal">$output_words</span>,
+<a href=#44 id=44 data-nosnippet>44</a>            output_tail_bytes: <span class="macro-nonterminal">$output_tail_bytes</span>,
+<a href=#45 id=45 data-nosnippet>45</a>            word: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
+<a href=#46 id=46 data-nosnippet>46</a>            len_bits: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>,
+<a href=#47 id=47 data-nosnippet>47</a>            block_len: <span class="number">64</span>,
+<a href=#48 id=48 data-nosnippet>48</a>            pad_at: <span class="number">56</span>,
+<a href=#49 id=49 data-nosnippet>49</a>            schedule_len: <span class="number">64</span>,
+<a href=#50 id=50 data-nosnippet>50</a>            word_bytes: <span class="number">4</span>,
+<a href=#51 id=51 data-nosnippet>51</a>            full_len: <span class="number">32</span>,
+<a href=#52 id=52 data-nosnippet>52</a>            k: <span class="macro-nonterminal">$crate::__SHA2_32_K</span>,
+<a href=#53 id=53 data-nosnippet>53</a>            initial_state: [$(<span class="macro-nonterminal">$initial_state</span>),+]
+<a href=#54 id=54 data-nosnippet>54</a>        }
+<a href=#55 id=55 data-nosnippet>55</a>        <span class="kw">impl </span><span class="macro-nonterminal">$Self </span>{
+<a href=#56 id=56 data-nosnippet>56</a>            <span class="kw">const fn </span>ch(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, y: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, z: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> { (x &amp; y) ^ ((!x) &amp; z) }
+<a href=#57 id=57 data-nosnippet>57</a>            <span class="kw">const fn </span>maj(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, y: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, z: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> { (x &amp; y) ^ (x &amp; z) ^ (y &amp; z) }
+<a href=#58 id=58 data-nosnippet>58</a>            <span class="kw">const fn </span>big_sigma0(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
+<a href=#59 id=59 data-nosnippet>59</a>                x.rotate_right(<span class="number">2</span>) ^ x.rotate_right(<span class="number">13</span>) ^ x.rotate_right(<span class="number">22</span>) }
+<a href=#60 id=60 data-nosnippet>60</a>            <span class="kw">const fn </span>big_sigma1(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
+<a href=#61 id=61 data-nosnippet>61</a>                x.rotate_right(<span class="number">6</span>) ^ x.rotate_right(<span class="number">11</span>) ^ x.rotate_right(<span class="number">25</span>) }
+<a href=#62 id=62 data-nosnippet>62</a>            <span class="kw">const fn </span>small_sigma0(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
+<a href=#63 id=63 data-nosnippet>63</a>                x.rotate_right(<span class="number">7</span>) ^ x.rotate_right(<span class="number">18</span>) ^ (x &gt;&gt; <span class="number">3</span>) }
+<a href=#64 id=64 data-nosnippet>64</a>            <span class="kw">const fn </span>small_sigma1(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a> {
+<a href=#65 id=65 data-nosnippet>65</a>                x.rotate_right(<span class="number">17</span>) ^ x.rotate_right(<span class="number">19</span>) ^ (x &gt;&gt; <span class="number">10</span>) }
+<a href=#66 id=66 data-nosnippet>66</a>        }
+<a href=#67 id=67 data-nosnippet>67</a>    };
+<a href=#68 id=68 data-nosnippet>68</a>    ($(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
+<a href=#69 id=69 data-nosnippet>69</a>     <span class="macro-nonterminal">$vis</span>:vis <span class="kw">struct </span><span class="macro-nonterminal">$Self</span>:ident;
+<a href=#70 id=70 data-nosnippet>70</a>     word: u64,
+<a href=#71 id=71 data-nosnippet>71</a>     doc: <span class="macro-nonterminal">$DOC</span>:literal,
+<a href=#72 id=72 data-nosnippet>72</a>     digest_bits: <span class="macro-nonterminal">$digest_bits</span>:literal,
+<a href=#73 id=73 data-nosnippet>73</a>     digest_len: <span class="macro-nonterminal">$digest_len</span>:literal,
+<a href=#74 id=74 data-nosnippet>74</a>     output_words: <span class="macro-nonterminal">$output_words</span>:literal,
+<a href=#75 id=75 data-nosnippet>75</a>     output_tail_bytes: <span class="macro-nonterminal">$output_tail_bytes</span>:tt,
+<a href=#76 id=76 data-nosnippet>76</a>     initial_state: [$(<span class="macro-nonterminal">$initial_state</span>:literal),+ $(,)<span class="question-mark">?</span>]
+<a href=#77 id=77 data-nosnippet>77</a>    ) =&gt; {
+<a href=#78 id=78 data-nosnippet>78</a>        <span class="macro-nonterminal">$crate::__crypto_impl_sha2</span>! {
+<a href=#79 id=79 data-nosnippet>79</a>            %common
+<a href=#80 id=80 data-nosnippet>80</a>            $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
+<a href=#81 id=81 data-nosnippet>81</a>            <span class="macro-nonterminal">$vis </span><span class="kw">struct </span><span class="macro-nonterminal">$Self</span>;
+<a href=#82 id=82 data-nosnippet>82</a>            doc: <span class="macro-nonterminal">$DOC</span>,
+<a href=#83 id=83 data-nosnippet>83</a>            digest_bits: <span class="macro-nonterminal">$digest_bits</span>,
+<a href=#84 id=84 data-nosnippet>84</a>            digest_len: <span class="macro-nonterminal">$digest_len</span>,
+<a href=#85 id=85 data-nosnippet>85</a>            output_words: <span class="macro-nonterminal">$output_words</span>,
+<a href=#86 id=86 data-nosnippet>86</a>            output_tail_bytes: <span class="macro-nonterminal">$output_tail_bytes</span>,
+<a href=#87 id=87 data-nosnippet>87</a>            word: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>,
+<a href=#88 id=88 data-nosnippet>88</a>            len_bits: <a href="https://doc.rust-lang.org/nightly/std/primitive.u128.html">u128</a>,
+<a href=#89 id=89 data-nosnippet>89</a>            block_len: <span class="number">128</span>,
+<a href=#90 id=90 data-nosnippet>90</a>            pad_at: <span class="number">112</span>,
+<a href=#91 id=91 data-nosnippet>91</a>            schedule_len: <span class="number">80</span>,
+<a href=#92 id=92 data-nosnippet>92</a>            word_bytes: <span class="number">8</span>,
+<a href=#93 id=93 data-nosnippet>93</a>            full_len: <span class="number">64</span>,
+<a href=#94 id=94 data-nosnippet>94</a>            k: <span class="macro-nonterminal">$crate::__SHA2_64_K</span>,
+<a href=#95 id=95 data-nosnippet>95</a>            initial_state: [$(<span class="macro-nonterminal">$initial_state</span>),+]
+<a href=#96 id=96 data-nosnippet>96</a>        }
+<a href=#97 id=97 data-nosnippet>97</a>        <span class="kw">impl </span><span class="macro-nonterminal">$Self </span>{
+<a href=#98 id=98 data-nosnippet>98</a>            <span class="kw">const fn </span>ch(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, y: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, z: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { (x &amp; y) ^ ((!x) &amp; z) }
+<a href=#99 id=99 data-nosnippet>99</a>            <span class="kw">const fn </span>maj(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, y: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, z: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> { (x &amp; y) ^ (x &amp; z) ^ (y &amp; z) }
+<a href=#100 id=100 data-nosnippet>100</a>            <span class="kw">const fn </span>big_sigma0(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+<a href=#101 id=101 data-nosnippet>101</a>                x.rotate_right(<span class="number">28</span>) ^ x.rotate_right(<span class="number">34</span>) ^ x.rotate_right(<span class="number">39</span>) }
+<a href=#102 id=102 data-nosnippet>102</a>            <span class="kw">const fn </span>big_sigma1(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+<a href=#103 id=103 data-nosnippet>103</a>                x.rotate_right(<span class="number">14</span>) ^ x.rotate_right(<span class="number">18</span>) ^ x.rotate_right(<span class="number">41</span>) }
+<a href=#104 id=104 data-nosnippet>104</a>            <span class="kw">const fn </span>small_sigma0(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+<a href=#105 id=105 data-nosnippet>105</a>                x.rotate_right(<span class="number">1</span>) ^ x.rotate_right(<span class="number">8</span>) ^ (x &gt;&gt; <span class="number">7</span>) }
+<a href=#106 id=106 data-nosnippet>106</a>            <span class="kw">const fn </span>small_sigma1(x: <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a> {
+<a href=#107 id=107 data-nosnippet>107</a>                x.rotate_right(<span class="number">19</span>) ^ x.rotate_right(<span class="number">61</span>) ^ (x &gt;&gt; <span class="number">6</span>) }
+<a href=#108 id=108 data-nosnippet>108</a>        }
+<a href=#109 id=109 data-nosnippet>109</a>    };
+<a href=#110 id=110 data-nosnippet>110</a>    (%common
+<a href=#111 id=111 data-nosnippet>111</a>     $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
+<a href=#112 id=112 data-nosnippet>112</a>     <span class="macro-nonterminal">$vis</span>:vis <span class="kw">struct </span><span class="macro-nonterminal">$Self</span>:ident;
+<a href=#113 id=113 data-nosnippet>113</a>     doc: <span class="macro-nonterminal">$DOC</span>:literal,
+<a href=#114 id=114 data-nosnippet>114</a>     digest_bits: <span class="macro-nonterminal">$digest_bits</span>:literal,
+<a href=#115 id=115 data-nosnippet>115</a>     digest_len: <span class="macro-nonterminal">$digest_len</span>:literal,
+<a href=#116 id=116 data-nosnippet>116</a>     output_words: <span class="macro-nonterminal">$output_words</span>:literal,
+<a href=#117 id=117 data-nosnippet>117</a>     output_tail_bytes: <span class="macro-nonterminal">$output_tail_bytes</span>:tt,
+<a href=#118 id=118 data-nosnippet>118</a>     word: <span class="macro-nonterminal">$word</span>:tt,
+<a href=#119 id=119 data-nosnippet>119</a>     len_bits: <span class="macro-nonterminal">$len_bits</span>:ty,
+<a href=#120 id=120 data-nosnippet>120</a>     block_len: <span class="macro-nonterminal">$block_len</span>:literal,
+<a href=#121 id=121 data-nosnippet>121</a>     pad_at: <span class="macro-nonterminal">$pad_at</span>:literal,
+<a href=#122 id=122 data-nosnippet>122</a>     schedule_len: <span class="macro-nonterminal">$schedule_len</span>:literal,
+<a href=#123 id=123 data-nosnippet>123</a>     word_bytes: <span class="macro-nonterminal">$word_bytes</span>:tt,
+<a href=#124 id=124 data-nosnippet>124</a>     full_len: <span class="macro-nonterminal">$full_len</span>:literal,
+<a href=#125 id=125 data-nosnippet>125</a>     k: <span class="macro-nonterminal">$K</span>:path,
+<a href=#126 id=126 data-nosnippet>126</a>     initial_state: [$(<span class="macro-nonterminal">$initial_state</span>:literal),+ $(,)<span class="question-mark">?</span>]
+<a href=#127 id=127 data-nosnippet>127</a>    ) =&gt; {
+<a href=#128 id=128 data-nosnippet>128</a>        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
+<a href=#129 id=129 data-nosnippet>129</a>        <span class="attr">#[derive(<a href="tests_examples.rs.html#41-45">Clone</a>, Copy, <a href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html">Debug</a>, <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">PartialEq</a>, Eq, Hash)]
+<a href=#130 id=130 data-nosnippet>130</a>        </span><span class="macro-nonterminal">$vis </span><span class="kw">struct </span><span class="macro-nonterminal">$Self </span>{
+<a href=#131 id=131 data-nosnippet>131</a>            state: [<span class="macro-nonterminal">$word</span>; <span class="number">8</span>],
+<a href=#132 id=132 data-nosnippet>132</a>            len_bits: <span class="macro-nonterminal">$len_bits</span>,
+<a href=#133 id=133 data-nosnippet>133</a>            block: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="macro-nonterminal">$Self::BLOCK_LEN</span>],
+<a href=#134 id=134 data-nosnippet>134</a>            block_len: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
+<a href=#135 id=135 data-nosnippet>135</a>        }
+<a href=#136 id=136 data-nosnippet>136</a>        <span class="kw">impl </span><span class="macro-nonterminal">$crate::ConstInit </span><span class="kw">for </span><span class="macro-nonterminal">$Self </span>{ <span class="kw">const </span>INIT: <span class="macro-nonterminal">$Self </span>= <span class="macro-nonterminal">$Self::new</span>(); }
+<a href=#137 id=137 data-nosnippet>137</a>        <span class="kw">impl </span>Default <span class="kw">for </span><span class="macro-nonterminal">$Self </span>{ <span class="kw">fn </span>default() -&gt; <span class="macro-nonterminal">$Self </span>{ <span class="macro-nonterminal">$Self::new</span>() } }
+<a href=#138 id=138 data-nosnippet>138</a>
+<a href=#139 id=139 data-nosnippet>139</a>        <span class="kw">impl </span><span class="macro-nonterminal">$Self </span>{
+<a href=#140 id=140 data-nosnippet>140</a>            <span class="kw">const </span>__: [(); <span class="macro-nonterminal">$digest_len</span>] = [(); <span class="macro-nonterminal">$output_words </span>* <span class="macro-nonterminal">$word_bytes </span>+ <span class="macro-nonterminal">$output_tail_bytes</span>];
+<a href=#141 id=141 data-nosnippet>141</a>
+<a href=#142 id=142 data-nosnippet>142</a>            <span class="doccomment">/// The digest size in bytes.
+<a href=#143 id=143 data-nosnippet>143</a>            </span><span class="kw">pub const </span>DIGEST_LEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="macro-nonterminal">$digest_len</span>;
+<a href=#144 id=144 data-nosnippet>144</a>            <span class="doccomment">/// The internal block size in bytes.
+<a href=#145 id=145 data-nosnippet>145</a>            </span><span class="kw">pub const </span>BLOCK_LEN: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> = <span class="macro-nonterminal">$block_len</span>;
+<a href=#146 id=146 data-nosnippet>146</a>
+<a href=#147 id=147 data-nosnippet>147</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a new "</span>, <span class="macro-nonterminal">$DOC</span>, <span class="string">" state."</span>)]
+<a href=#148 id=148 data-nosnippet>148</a>            </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+<a href=#149 id=149 data-nosnippet>149</a>                <span class="self">Self </span>{
+<a href=#150 id=150 data-nosnippet>150</a>                    state: [ $(<span class="macro-nonterminal">$initial_state</span>),+ ],
+<a href=#151 id=151 data-nosnippet>151</a>                    len_bits: <span class="number">0</span>,
+<a href=#152 id=152 data-nosnippet>152</a>                    block: [<span class="number">0</span>; <span class="macro-nonterminal">$Self::BLOCK_LEN</span>],
+<a href=#153 id=153 data-nosnippet>153</a>                    block_len: <span class="number">0</span>,
+<a href=#154 id=154 data-nosnippet>154</a>                }
+<a href=#155 id=155 data-nosnippet>155</a>            }
+<a href=#156 id=156 data-nosnippet>156</a>            <span class="doccomment">/// Returns the number of message bits already accepted.
+<a href=#157 id=157 data-nosnippet>157</a>            </span><span class="kw">pub const fn </span>len_bits(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="macro-nonterminal">$len_bits </span>{ <span class="self">self</span>.len_bits }
+<a href=#158 id=158 data-nosnippet>158</a>            <span class="doccomment">/// Returns `true` if no message bytes have been accepted.
+<a href=#159 id=159 data-nosnippet>159</a>            </span><span class="kw">pub const fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { <span class="self">self</span>.len_bits == <span class="number">0 </span>}
+<a href=#160 id=160 data-nosnippet>160</a>            <span class="doccomment">/// Resets the state to its initial value.
+<a href=#161 id=161 data-nosnippet>161</a>            </span><span class="kw">pub const fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) { <span class="kw-2">*</span><span class="self">self </span>= <span class="macro-nonterminal">$Self::new</span>(); }
+<a href=#162 id=162 data-nosnippet>162</a>
+<a href=#163 id=163 data-nosnippet>163</a>            <span class="doccomment">/// Updates the digest state with `bytes`.
+<a href=#164 id=164 data-nosnippet>164</a>            ///
+<a href=#165 id=165 data-nosnippet>165</a>            /// # Errors
+<a href=#166 id=166 data-nosnippet>166</a>            /// Returns [`LengthOverflow`] if the total message length would exceed
+<a href=#167 id=167 data-nosnippet>167</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="macro-nonterminal">$DOC</span>, <span class="string">"'s "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$len_bits</span>), <span class="string">" bit-length field."</span>)]
+<a href=#168 id=168 data-nosnippet>168</a>            </span><span class="doccomment">///
+<a href=#169 id=169 data-nosnippet>169</a>            /// [`LengthOverflow`]: crate::CryptoError::LengthOverflow
+<a href=#170 id=170 data-nosnippet>170</a>            </span><span class="kw">pub const fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../devela/zall/enum.Result.html">Result</a>&lt;(), <span class="macro-nonterminal">$crate::CryptoError</span>&gt; {
+<a href=#171 id=171 data-nosnippet>171</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(add_bits) = (bytes.len() <span class="kw">as </span><span class="macro-nonterminal">$len_bits</span>).checked_mul(<span class="number">8</span>) <span class="kw">else </span>{
+<a href=#172 id=172 data-nosnippet>172</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::CryptoError::LengthOverflow</span>);
+<a href=#173 id=173 data-nosnippet>173</a>                };
+<a href=#174 id=174 data-nosnippet>174</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(new_len_bits) = <span class="self">self</span>.len_bits.checked_add(add_bits) <span class="kw">else </span>{
+<a href=#175 id=175 data-nosnippet>175</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::CryptoError::LengthOverflow</span>);
+<a href=#176 id=176 data-nosnippet>176</a>                };
+<a href=#177 id=177 data-nosnippet>177</a>                <span class="self">self</span>.len_bits = new_len_bits;
+<a href=#178 id=178 data-nosnippet>178</a>                <span class="self">self</span>.write_blocks(bytes);
+<a href=#179 id=179 data-nosnippet>179</a>                <span class="prelude-val">Ok</span>(())
+<a href=#180 id=180 data-nosnippet>180</a>            }
+<a href=#181 id=181 data-nosnippet>181</a>            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Computes the "</span>, <span class="macro-nonterminal">$DOC</span>, <span class="string">" digest of `bytes`."</span>)]
+<a href=#182 id=182 data-nosnippet>182</a>            </span><span class="doccomment">///
+<a href=#183 id=183 data-nosnippet>183</a>            /// # Errors
+<a href=#184 id=184 data-nosnippet>184</a>            /// Returns [`LengthOverflow`]
+<a href=#185 id=185 data-nosnippet>185</a>            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"if `bytes` exceeds "</span>, <span class="macro-nonterminal">$DOC</span>, <span class="string">"'s supported message length."</span>)]
+<a href=#186 id=186 data-nosnippet>186</a>            </span><span class="doccomment">///
+<a href=#187 id=187 data-nosnippet>187</a>            /// [`LengthOverflow`]: crate::CryptoError::LengthOverflow
+<a href=#188 id=188 data-nosnippet>188</a>            </span><span class="kw">pub const fn </span>digest_bytes(bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>])
+<a href=#189 id=189 data-nosnippet>189</a>                -&gt; <a class="prelude-ty" href="../../../../../devela/zall/enum.Result.html">Result</a>&lt;<span class="macro-nonterminal">$crate::Digest</span>&lt;{ <span class="macro-nonterminal">$Self::DIGEST_LEN </span>}&gt;, <span class="macro-nonterminal">$crate::CryptoError</span>&gt; {
+<a href=#190 id=190 data-nosnippet>190</a>                <span class="kw">let </span><span class="kw-2">mut </span>sha = <span class="self">Self</span>::new();
+<a href=#191 id=191 data-nosnippet>191</a>                <span class="macro-nonterminal">$crate::unwrap</span>![ok<span class="question-mark">? </span>sha.update(bytes)];
+<a href=#192 id=192 data-nosnippet>192</a>                <span class="prelude-val">Ok</span>(sha.finalize())
+<a href=#193 id=193 data-nosnippet>193</a>            }
+<a href=#194 id=194 data-nosnippet>194</a>
+<a href=#195 id=195 data-nosnippet>195</a>            <span class="macro-nonterminal">$crate::__crypto_impl_hmac</span>![<span class="macro-nonterminal">$Self</span>];
+<a href=#196 id=196 data-nosnippet>196</a>
+<a href=#197 id=197 data-nosnippet>197</a>            <span class="doccomment">/// Finalizes the digest and consumes the state.
+<a href=#198 id=198 data-nosnippet>198</a>            ///
+<a href=#199 id=199 data-nosnippet>199</a>            /// This method cannot fail.
+<a href=#200 id=200 data-nosnippet>200</a>            </span><span class="kw">pub const fn </span>finalize(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="macro-nonterminal">$crate::Digest</span>&lt;{ <span class="macro-nonterminal">$Self::DIGEST_LEN </span>}&gt; {
+<a href=#201 id=201 data-nosnippet>201</a>                <span class="kw">let </span>len_bits = <span class="self">self</span>.len_bits;
+<a href=#202 id=202 data-nosnippet>202</a>                <span class="self">self</span>.push_padding_byte(<span class="number">0x80</span>);
+<a href=#203 id=203 data-nosnippet>203</a>                <span class="kw">while </span><span class="self">self</span>.block_len != <span class="macro-nonterminal">$pad_at </span>{ <span class="self">self</span>.push_padding_byte(<span class="number">0</span>); }
+<a href=#204 id=204 data-nosnippet>204</a>                <span class="kw">let </span>len = len_bits.to_be_bytes();
+<a href=#205 id=205 data-nosnippet>205</a>                <span class="macro-nonterminal">$crate::whilst</span>! { i <span class="kw">in </span><span class="number">0</span>..len.len(); { <span class="self">self</span>.push_padding_byte(len[i]); }}
+<a href=#206 id=206 data-nosnippet>206</a>                <span class="kw">let </span><span class="kw-2">mut </span>out = [<span class="number">0u8</span>; <span class="macro-nonterminal">$digest_len</span>];
+<a href=#207 id=207 data-nosnippet>207</a>                <span class="macro-nonterminal">$crate::__crypto_impl_sha2</span>! { %write_digest
+<a href=#208 id=208 data-nosnippet>208</a>                    out: out, state: <span class="self">self</span>.state,
+<a href=#209 id=209 data-nosnippet>209</a>                    word_bytes: <span class="macro-nonterminal">$word_bytes</span>,
+<a href=#210 id=210 data-nosnippet>210</a>                    output_words: <span class="macro-nonterminal">$output_words</span>,
+<a href=#211 id=211 data-nosnippet>211</a>                    output_tail_bytes: <span class="macro-nonterminal">$output_tail_bytes
+<a href=#212 id=212 data-nosnippet>212</a>                </span>}
+<a href=#213 id=213 data-nosnippet>213</a>                <span class="macro-nonterminal">$crate::Digest</span>(out)
+<a href=#214 id=214 data-nosnippet>214</a>            }
+<a href=#215 id=215 data-nosnippet>215</a>
+<a href=#216 id=216 data-nosnippet>216</a>            <span class="comment">/* private helpers*/
+<a href=#217 id=217 data-nosnippet>217</a>            </span><span class="kw">const </span>K: [<span class="macro-nonterminal">$word</span>; <span class="macro-nonterminal">$schedule_len</span>] = <span class="macro-nonterminal">$K</span>;
+<a href=#218 id=218 data-nosnippet>218</a>
+<a href=#219 id=219 data-nosnippet>219</a>            <span class="kw">const fn </span>write_blocks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) {
+<a href=#220 id=220 data-nosnippet>220</a>                <span class="kw">if </span><span class="self">self</span>.block_len != <span class="number">0 </span>{
+<a href=#221 id=221 data-nosnippet>221</a>                    <span class="kw">let </span>used = <span class="self">self</span>.block_len <span class="kw">as </span>usize;
+<a href=#222 id=222 data-nosnippet>222</a>                    <span class="kw">let </span>free = <span class="macro-nonterminal">$Self::BLOCK_LEN </span>- used;
+<a href=#223 id=223 data-nosnippet>223</a>                    <span class="kw">let </span>take = <span class="macro-nonterminal">$crate::cmp</span>![min free, bytes.len()];
+<a href=#224 id=224 data-nosnippet>224</a>                    <span class="macro-nonterminal">$crate::Slice::range_mut</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>.block, used, used + take)
+<a href=#225 id=225 data-nosnippet>225</a>                        .copy_from_slice(<span class="macro-nonterminal">$crate::Slice::range_to</span>(<span class="kw-2">&amp;</span>bytes, take));
+<a href=#226 id=226 data-nosnippet>226</a>                    <span class="self">self</span>.block_len += take <span class="kw">as </span>u8;
+<a href=#227 id=227 data-nosnippet>227</a>                    bytes = <span class="macro-nonterminal">$crate::Slice::range_from</span>(<span class="kw-2">&amp;</span>bytes, take);
+<a href=#228 id=228 data-nosnippet>228</a>                    <span class="kw">if </span><span class="self">self</span>.block_len <span class="kw">as </span>usize == <span class="macro-nonterminal">$Self::BLOCK_LEN </span>{
+<a href=#229 id=229 data-nosnippet>229</a>                        <span class="kw">let </span>block = <span class="self">self</span>.block;
+<a href=#230 id=230 data-nosnippet>230</a>                        <span class="self">self</span>.process_block(<span class="kw-2">&amp;</span>block);
+<a href=#231 id=231 data-nosnippet>231</a>                        <span class="self">self</span>.block_len = <span class="number">0</span>;
+<a href=#232 id=232 data-nosnippet>232</a>                    }
+<a href=#233 id=233 data-nosnippet>233</a>                }
+<a href=#234 id=234 data-nosnippet>234</a>                <span class="kw">while </span>bytes.len() &gt;= <span class="macro-nonterminal">$Self::BLOCK_LEN </span>{
+<a href=#235 id=235 data-nosnippet>235</a>                    <span class="kw">let </span><span class="kw-2">mut </span>block = [<span class="number">0u8</span>; <span class="macro-nonterminal">$Self::BLOCK_LEN</span>];
+<a href=#236 id=236 data-nosnippet>236</a>                    block.copy_from_slice(<span class="macro-nonterminal">$crate::Slice::range_to</span>(<span class="kw-2">&amp;</span>bytes, <span class="macro-nonterminal">$Self::BLOCK_LEN</span>));
+<a href=#237 id=237 data-nosnippet>237</a>                    <span class="self">self</span>.process_block(<span class="kw-2">&amp;</span>block);
+<a href=#238 id=238 data-nosnippet>238</a>                    bytes = <span class="macro-nonterminal">$crate::Slice::range_from</span>(<span class="kw-2">&amp;</span>bytes, <span class="macro-nonterminal">$Self::BLOCK_LEN</span>);
+<a href=#239 id=239 data-nosnippet>239</a>                }
+<a href=#240 id=240 data-nosnippet>240</a>                <span class="kw">if </span>!bytes.is_empty() {
+<a href=#241 id=241 data-nosnippet>241</a>                    <span class="macro-nonterminal">$crate::Slice::range_to_mut</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>.block, bytes.len())
+<a href=#242 id=242 data-nosnippet>242</a>                        .copy_from_slice(bytes);
+<a href=#243 id=243 data-nosnippet>243</a>                    <span class="self">self</span>.block_len = bytes.len() <span class="kw">as </span>u8;
+<a href=#244 id=244 data-nosnippet>244</a>                }
+<a href=#245 id=245 data-nosnippet>245</a>            }
+<a href=#246 id=246 data-nosnippet>246</a>            <span class="kw">const fn </span>push_padding_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>, byte: <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>) {
+<a href=#247 id=247 data-nosnippet>247</a>                <span class="self">self</span>.block[<span class="self">self</span>.block_len <span class="kw">as </span>usize] = byte;
+<a href=#248 id=248 data-nosnippet>248</a>                <span class="self">self</span>.block_len += <span class="number">1</span>;
+<a href=#249 id=249 data-nosnippet>249</a>                <span class="kw">if </span><span class="self">self</span>.block_len <span class="kw">as </span>usize == <span class="macro-nonterminal">$Self::BLOCK_LEN </span>{
+<a href=#250 id=250 data-nosnippet>250</a>                    <span class="kw">let </span>block = <span class="self">self</span>.block;
+<a href=#251 id=251 data-nosnippet>251</a>                    <span class="self">self</span>.process_block(<span class="kw-2">&amp;</span>block);
+<a href=#252 id=252 data-nosnippet>252</a>                    <span class="self">self</span>.block = [<span class="number">0</span>; <span class="macro-nonterminal">$Self::BLOCK_LEN</span>];
+<a href=#253 id=253 data-nosnippet>253</a>                    <span class="self">self</span>.block_len = <span class="number">0</span>;
+<a href=#254 id=254 data-nosnippet>254</a>                }
+<a href=#255 id=255 data-nosnippet>255</a>            }
+<a href=#256 id=256 data-nosnippet>256</a>            <span class="kw">const fn </span>process_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>; <span class="macro-nonterminal">$Self::BLOCK_LEN</span>]) {
+<a href=#257 id=257 data-nosnippet>257</a>                <span class="kw">let </span><span class="kw-2">mut </span>w = [<span class="number">0</span>; <span class="macro-nonterminal">$schedule_len</span>];
+<a href=#258 id=258 data-nosnippet>258</a>                <span class="macro-nonterminal">$crate::whilst</span>! { t <span class="kw">in </span><span class="number">0</span>..<span class="number">16</span>; {
+<a href=#259 id=259 data-nosnippet>259</a>                    <span class="kw">let </span>i = t * <span class="macro-nonterminal">$word_bytes</span>;
+<a href=#260 id=260 data-nosnippet>260</a>                    w[t] = <span class="macro-nonterminal">$crate::__crypto_impl_sha2</span>![%read_word word: <span class="macro-nonterminal">$word</span>, block: block, at: i];
+<a href=#261 id=261 data-nosnippet>261</a>                }}
+<a href=#262 id=262 data-nosnippet>262</a>                <span class="macro-nonterminal">$crate::whilst</span>! { t <span class="kw">in </span><span class="number">16</span>..<span class="macro-nonterminal">$schedule_len</span>; {
+<a href=#263 id=263 data-nosnippet>263</a>                    w[t] = <span class="self">Self</span>::small_sigma1(w[t - <span class="number">2</span>])
+<a href=#264 id=264 data-nosnippet>264</a>                        .wrapping_add(w[t - <span class="number">7</span>])
+<a href=#265 id=265 data-nosnippet>265</a>                        .wrapping_add(<span class="self">Self</span>::small_sigma0(w[t - <span class="number">15</span>]))
+<a href=#266 id=266 data-nosnippet>266</a>                        .wrapping_add(w[t - <span class="number">16</span>]);
+<a href=#267 id=267 data-nosnippet>267</a>                }}
+<a href=#268 id=268 data-nosnippet>268</a>                <span class="kw">let </span>[<span class="kw-2">mut </span>a, <span class="kw-2">mut </span>b, <span class="kw-2">mut </span>c, <span class="kw-2">mut </span>d, <span class="kw-2">mut </span>e, <span class="kw-2">mut </span>f, <span class="kw-2">mut </span>g, <span class="kw-2">mut </span>h] = <span class="self">self</span>.state;
+<a href=#269 id=269 data-nosnippet>269</a>                <span class="macro-nonterminal">$crate::whilst</span>! { t <span class="kw">in </span><span class="number">0</span>..<span class="macro-nonterminal">$schedule_len</span>; {
+<a href=#270 id=270 data-nosnippet>270</a>                    <span class="kw">let </span>t1 = h
+<a href=#271 id=271 data-nosnippet>271</a>                        .wrapping_add(<span class="self">Self</span>::big_sigma1(e))
+<a href=#272 id=272 data-nosnippet>272</a>                        .wrapping_add(<span class="self">Self</span>::ch(e, f, g))
+<a href=#273 id=273 data-nosnippet>273</a>                        .wrapping_add(<span class="self">Self</span>::K[t])
+<a href=#274 id=274 data-nosnippet>274</a>                        .wrapping_add(w[t]);
+<a href=#275 id=275 data-nosnippet>275</a>                    <span class="kw">let </span>t2 = <span class="self">Self</span>::big_sigma0(a).wrapping_add(<span class="self">Self</span>::maj(a, b, c));
+<a href=#276 id=276 data-nosnippet>276</a>                    h = g; g = f; f = e; e = d.wrapping_add(t1);
+<a href=#277 id=277 data-nosnippet>277</a>                    d = c; c = b; b = a; a = t1.wrapping_add(t2);
+<a href=#278 id=278 data-nosnippet>278</a>                }}
+<a href=#279 id=279 data-nosnippet>279</a>                <span class="self">self</span>.state[<span class="number">0</span>] = <span class="self">self</span>.state[<span class="number">0</span>].wrapping_add(a);
+<a href=#280 id=280 data-nosnippet>280</a>                <span class="self">self</span>.state[<span class="number">1</span>] = <span class="self">self</span>.state[<span class="number">1</span>].wrapping_add(b);
+<a href=#281 id=281 data-nosnippet>281</a>                <span class="self">self</span>.state[<span class="number">2</span>] = <span class="self">self</span>.state[<span class="number">2</span>].wrapping_add(c);
+<a href=#282 id=282 data-nosnippet>282</a>                <span class="self">self</span>.state[<span class="number">3</span>] = <span class="self">self</span>.state[<span class="number">3</span>].wrapping_add(d);
+<a href=#283 id=283 data-nosnippet>283</a>                <span class="self">self</span>.state[<span class="number">4</span>] = <span class="self">self</span>.state[<span class="number">4</span>].wrapping_add(e);
+<a href=#284 id=284 data-nosnippet>284</a>                <span class="self">self</span>.state[<span class="number">5</span>] = <span class="self">self</span>.state[<span class="number">5</span>].wrapping_add(f);
+<a href=#285 id=285 data-nosnippet>285</a>                <span class="self">self</span>.state[<span class="number">6</span>] = <span class="self">self</span>.state[<span class="number">6</span>].wrapping_add(g);
+<a href=#286 id=286 data-nosnippet>286</a>                <span class="self">self</span>.state[<span class="number">7</span>] = <span class="self">self</span>.state[<span class="number">7</span>].wrapping_add(h);
+<a href=#287 id=287 data-nosnippet>287</a>            }
+<a href=#288 id=288 data-nosnippet>288</a>        }
+<a href=#289 id=289 data-nosnippet>289</a>        <span class="macro-nonterminal">$crate::__crypto_impl_otp</span>! { hash: <span class="macro-nonterminal">$Self</span>, otp: <span class="macro-nonterminal">$crate::Otp</span>, doc: <span class="macro-nonterminal">$DOC </span>}
+<a href=#290 id=290 data-nosnippet>290</a>    };
+<a href=#291 id=291 data-nosnippet>291</a>    (%write_digest
+<a href=#292 id=292 data-nosnippet>292</a>        out: <span class="macro-nonterminal">$out</span>:ident,
+<a href=#293 id=293 data-nosnippet>293</a>        state: <span class="macro-nonterminal">$state</span>:expr,
+<a href=#294 id=294 data-nosnippet>294</a>        word_bytes: <span class="macro-nonterminal">$word_bytes</span>:tt,
+<a href=#295 id=295 data-nosnippet>295</a>        output_words: <span class="macro-nonterminal">$output_words</span>:literal,
+<a href=#296 id=296 data-nosnippet>296</a>        output_tail_bytes: <span class="macro-nonterminal">$output_tail_bytes</span>:tt
+<a href=#297 id=297 data-nosnippet>297</a>    ) =&gt; {
+<a href=#298 id=298 data-nosnippet>298</a>        <span class="macro-nonterminal">$crate::whilst</span>! { wi <span class="kw">in </span><span class="number">0</span>..<span class="macro-nonterminal">$output_words</span>; {
+<a href=#299 id=299 data-nosnippet>299</a>            <span class="kw">let </span>bytes = (<span class="macro-nonterminal">$state</span>)[wi].to_be_bytes();
+<a href=#300 id=300 data-nosnippet>300</a>            <span class="kw">let </span>j = wi * <span class="macro-nonterminal">$word_bytes</span>;
+<a href=#301 id=301 data-nosnippet>301</a>            <span class="macro-nonterminal">$crate::punroll</span>! { <span class="macro-nonterminal">$word_bytes </span>|bi|
+<a href=#302 id=302 data-nosnippet>302</a>                <span class="macro-nonterminal">$out</span>[j + bi] = bytes[bi]
+<a href=#303 id=303 data-nosnippet>303</a>            }
+<a href=#304 id=304 data-nosnippet>304</a>        }}
+<a href=#305 id=305 data-nosnippet>305</a>        <span class="macro-nonterminal">$crate::__crypto_impl_sha2</span>! { %write_digest_tail
+<a href=#306 id=306 data-nosnippet>306</a>            out: <span class="macro-nonterminal">$out</span>,
+<a href=#307 id=307 data-nosnippet>307</a>            state: <span class="macro-nonterminal">$state</span>,
+<a href=#308 id=308 data-nosnippet>308</a>            word_bytes: <span class="macro-nonterminal">$word_bytes</span>,
+<a href=#309 id=309 data-nosnippet>309</a>            output_words: <span class="macro-nonterminal">$output_words</span>,
+<a href=#310 id=310 data-nosnippet>310</a>            output_tail_bytes: <span class="macro-nonterminal">$output_tail_bytes
+<a href=#311 id=311 data-nosnippet>311</a>        </span>}
+<a href=#312 id=312 data-nosnippet>312</a>    };
+<a href=#313 id=313 data-nosnippet>313</a>    (%write_digest_tail
+<a href=#314 id=314 data-nosnippet>314</a>        out: <span class="macro-nonterminal">$out</span>:ident,
+<a href=#315 id=315 data-nosnippet>315</a>        state: <span class="macro-nonterminal">$state</span>:expr,
+<a href=#316 id=316 data-nosnippet>316</a>        word_bytes: <span class="macro-nonterminal">$word_bytes</span>:tt,
+<a href=#317 id=317 data-nosnippet>317</a>        output_words: <span class="macro-nonterminal">$output_words</span>:literal,
+<a href=#318 id=318 data-nosnippet>318</a>        output_tail_bytes: <span class="number">0
+<a href=#319 id=319 data-nosnippet>319</a>    </span>) =&gt; {};
+<a href=#320 id=320 data-nosnippet>320</a>    (%write_digest_tail
+<a href=#321 id=321 data-nosnippet>321</a>        out: <span class="macro-nonterminal">$out</span>:ident,
+<a href=#322 id=322 data-nosnippet>322</a>        state: <span class="macro-nonterminal">$state</span>:expr,
+<a href=#323 id=323 data-nosnippet>323</a>        word_bytes: <span class="macro-nonterminal">$word_bytes</span>:tt,
+<a href=#324 id=324 data-nosnippet>324</a>        output_words: <span class="macro-nonterminal">$output_words</span>:literal,
+<a href=#325 id=325 data-nosnippet>325</a>        output_tail_bytes: <span class="macro-nonterminal">$tail</span>:tt
+<a href=#326 id=326 data-nosnippet>326</a>    ) =&gt; {
+<a href=#327 id=327 data-nosnippet>327</a>        <span class="kw">let </span>bytes = (<span class="macro-nonterminal">$state</span>)[<span class="macro-nonterminal">$output_words</span>].to_be_bytes();
+<a href=#328 id=328 data-nosnippet>328</a>        <span class="kw">let </span>j = <span class="macro-nonterminal">$output_words </span>* <span class="macro-nonterminal">$word_bytes</span>;
+<a href=#329 id=329 data-nosnippet>329</a>        <span class="macro-nonterminal">$crate::punroll</span>! { <span class="macro-nonterminal">$tail </span>|bi| <span class="macro-nonterminal">$out</span>[j + bi] = bytes[bi] }
+<a href=#330 id=330 data-nosnippet>330</a>    };
+<a href=#331 id=331 data-nosnippet>331</a>    (%read_word word: u32, block: <span class="macro-nonterminal">$block</span>:expr, at: <span class="macro-nonterminal">$i</span>:expr) =&gt; {
+<a href=#332 id=332 data-nosnippet>332</a>        u32::from_be_bytes([
+<a href=#333 id=333 data-nosnippet>333</a>            <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">0</span>], <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">1</span>], <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">2</span>], <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">3</span>],
+<a href=#334 id=334 data-nosnippet>334</a>        ])
+<a href=#335 id=335 data-nosnippet>335</a>    };
+<a href=#336 id=336 data-nosnippet>336</a>    (%read_word word: u64, block: <span class="macro-nonterminal">$block</span>:expr, at: <span class="macro-nonterminal">$i</span>:expr) =&gt; {
+<a href=#337 id=337 data-nosnippet>337</a>        u64::from_be_bytes([
+<a href=#338 id=338 data-nosnippet>338</a>            <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">0</span>], <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">1</span>], <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">2</span>], <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">3</span>],
+<a href=#339 id=339 data-nosnippet>339</a>            <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">4</span>], <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">5</span>], <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">6</span>], <span class="macro-nonterminal">$block</span>[<span class="macro-nonterminal">$i </span>+ <span class="number">7</span>],
+<a href=#340 id=340 data-nosnippet>340</a>        ])
+<a href=#341 id=341 data-nosnippet>341</a>    };
+<a href=#342 id=342 data-nosnippet>342</a>}
+<a href=#343 id=343 data-nosnippet>343</a><span class="attr">#[doc(hidden)]
+<a href=#344 id=344 data-nosnippet>344</a></span><span class="kw">pub use </span><a href="#25-342">__crypto_impl_sha2</a>;
+<a href=#345 id=345 data-nosnippet>345</a>
+<a href=#346 id=346 data-nosnippet>346</a><span class="doccomment">/// SHA-2 32-bit-word round constants.
+<a href=#347 id=347 data-nosnippet>347</a>///
+<a href=#348 id=348 data-nosnippet>348</a>/// These are the first 32 bits of the fractional parts of the cube roots
+<a href=#349 id=349 data-nosnippet>349</a>/// of the first 64 prime numbers. One fixed constant is mixed into each
+<a href=#350 id=350 data-nosnippet>350</a>/// compression round and shared by SHA-224 and SHA-256.
+<a href=#351 id=351 data-nosnippet>351</a></span><span class="attr">#[doc(hidden)]
+<a href=#352 id=352 data-nosnippet>352</a>#[rustfmt::skip]
+<a href=#353 id=353 data-nosnippet>353</a></span><span class="kw">pub const </span>__SHA2_32_K: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>; <span class="number">64</span>] = [
+<a href=#354 id=354 data-nosnippet>354</a>    <span class="number">0x428A_2F98</span>, <span class="number">0x7137_4491</span>, <span class="number">0xB5C0_FBCF</span>, <span class="number">0xE9B5_DBA5</span>,
+<a href=#355 id=355 data-nosnippet>355</a>    <span class="number">0x3956_C25B</span>, <span class="number">0x59F1_11F1</span>, <span class="number">0x923F_82A4</span>, <span class="number">0xAB1C_5ED5</span>,
+<a href=#356 id=356 data-nosnippet>356</a>    <span class="number">0xD807_AA98</span>, <span class="number">0x1283_5B01</span>, <span class="number">0x2431_85BE</span>, <span class="number">0x550C_7DC3</span>,
+<a href=#357 id=357 data-nosnippet>357</a>    <span class="number">0x72BE_5D74</span>, <span class="number">0x80DE_B1FE</span>, <span class="number">0x9BDC_06A7</span>, <span class="number">0xC19B_F174</span>,
+<a href=#358 id=358 data-nosnippet>358</a>    <span class="number">0xE49B_69C1</span>, <span class="number">0xEFBE_4786</span>, <span class="number">0x0FC1_9DC6</span>, <span class="number">0x240C_A1CC</span>,
+<a href=#359 id=359 data-nosnippet>359</a>    <span class="number">0x2DE9_2C6F</span>, <span class="number">0x4A74_84AA</span>, <span class="number">0x5CB0_A9DC</span>, <span class="number">0x76F9_88DA</span>,
+<a href=#360 id=360 data-nosnippet>360</a>    <span class="number">0x983E_5152</span>, <span class="number">0xA831_C66D</span>, <span class="number">0xB003_27C8</span>, <span class="number">0xBF59_7FC7</span>,
+<a href=#361 id=361 data-nosnippet>361</a>    <span class="number">0xC6E0_0BF3</span>, <span class="number">0xD5A7_9147</span>, <span class="number">0x06CA_6351</span>, <span class="number">0x1429_2967</span>,
+<a href=#362 id=362 data-nosnippet>362</a>    <span class="number">0x27B7_0A85</span>, <span class="number">0x2E1B_2138</span>, <span class="number">0x4D2C_6DFC</span>, <span class="number">0x5338_0D13</span>,
+<a href=#363 id=363 data-nosnippet>363</a>    <span class="number">0x650A_7354</span>, <span class="number">0x766A_0ABB</span>, <span class="number">0x81C2_C92E</span>, <span class="number">0x9272_2C85</span>,
+<a href=#364 id=364 data-nosnippet>364</a>    <span class="number">0xA2BF_E8A1</span>, <span class="number">0xA81A_664B</span>, <span class="number">0xC24B_8B70</span>, <span class="number">0xC76C_51A3</span>,
+<a href=#365 id=365 data-nosnippet>365</a>    <span class="number">0xD192_E819</span>, <span class="number">0xD699_0624</span>, <span class="number">0xF40E_3585</span>, <span class="number">0x106A_A070</span>,
+<a href=#366 id=366 data-nosnippet>366</a>    <span class="number">0x19A4_C116</span>, <span class="number">0x1E37_6C08</span>, <span class="number">0x2748_774C</span>, <span class="number">0x34B0_BCB5</span>,
+<a href=#367 id=367 data-nosnippet>367</a>    <span class="number">0x391C_0CB3</span>, <span class="number">0x4ED8_AA4A</span>, <span class="number">0x5B9C_CA4F</span>, <span class="number">0x682E_6FF3</span>,
+<a href=#368 id=368 data-nosnippet>368</a>    <span class="number">0x748F_82EE</span>, <span class="number">0x78A5_636F</span>, <span class="number">0x84C8_7814</span>, <span class="number">0x8CC7_0208</span>,
+<a href=#369 id=369 data-nosnippet>369</a>    <span class="number">0x90BE_FFFA</span>, <span class="number">0xA450_6CEB</span>, <span class="number">0xBEF9_A3F7</span>, <span class="number">0xC671_78F2</span>,
+<a href=#370 id=370 data-nosnippet>370</a>];
+<a href=#371 id=371 data-nosnippet>371</a>
+<a href=#372 id=372 data-nosnippet>372</a><span class="doccomment">/// SHA-2 64-bit-word round constants.
+<a href=#373 id=373 data-nosnippet>373</a>///
+<a href=#374 id=374 data-nosnippet>374</a>/// These are the first 64 bits of the fractional parts of the cube roots
+<a href=#375 id=375 data-nosnippet>375</a>/// of the first 80 prime numbers. One fixed constant is mixed into each
+<a href=#376 id=376 data-nosnippet>376</a>/// compression round and shared by SHA-384, SHA-512, and SHA-512/t variants.
+<a href=#377 id=377 data-nosnippet>377</a></span><span class="attr">#[doc(hidden)]
+<a href=#378 id=378 data-nosnippet>378</a>#[rustfmt::skip]
+<a href=#379 id=379 data-nosnippet>379</a></span><span class="kw">pub const </span>__SHA2_64_K: [<a href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>; <span class="number">80</span>] = [
+<a href=#380 id=380 data-nosnippet>380</a>    <span class="number">0x428A_2F98_D728_AE22</span>, <span class="number">0x7137_4491_23EF_65CD</span>, <span class="number">0xB5C0_FBCF_EC4D_3B2F</span>, <span class="number">0xE9B5_DBA5_8189_DBBC</span>,
+<a href=#381 id=381 data-nosnippet>381</a>    <span class="number">0x3956_C25B_F348_B538</span>, <span class="number">0x59F1_11F1_B605_D019</span>, <span class="number">0x923F_82A4_AF19_4F9B</span>, <span class="number">0xAB1C_5ED5_DA6D_8118</span>,
+<a href=#382 id=382 data-nosnippet>382</a>    <span class="number">0xD807_AA98_A303_0242</span>, <span class="number">0x1283_5B01_4570_6FBE</span>, <span class="number">0x2431_85BE_4EE4_B28C</span>, <span class="number">0x550C_7DC3_D5FF_B4E2</span>,
+<a href=#383 id=383 data-nosnippet>383</a>    <span class="number">0x72BE_5D74_F27B_896F</span>, <span class="number">0x80DE_B1FE_3B16_96B1</span>, <span class="number">0x9BDC_06A7_25C7_1235</span>, <span class="number">0xC19B_F174_CF69_2694</span>,
+<a href=#384 id=384 data-nosnippet>384</a>    <span class="number">0xE49B_69C1_9EF1_4AD2</span>, <span class="number">0xEFBE_4786_384F_25E3</span>, <span class="number">0x0FC1_9DC6_8B8C_D5B5</span>, <span class="number">0x240C_A1CC_77AC_9C65</span>,
+<a href=#385 id=385 data-nosnippet>385</a>    <span class="number">0x2DE9_2C6F_592B_0275</span>, <span class="number">0x4A74_84AA_6EA6_E483</span>, <span class="number">0x5CB0_A9DC_BD41_FBD4</span>, <span class="number">0x76F9_88DA_8311_53B5</span>,
+<a href=#386 id=386 data-nosnippet>386</a>    <span class="number">0x983E_5152_EE66_DFAB</span>, <span class="number">0xA831_C66D_2DB4_3210</span>, <span class="number">0xB003_27C8_98FB_213F</span>, <span class="number">0xBF59_7FC7_BEEF_0EE4</span>,
+<a href=#387 id=387 data-nosnippet>387</a>    <span class="number">0xC6E0_0BF3_3DA8_8FC2</span>, <span class="number">0xD5A7_9147_930A_A725</span>, <span class="number">0x06CA_6351_E003_826F</span>, <span class="number">0x1429_2967_0A0E_6E70</span>,
+<a href=#388 id=388 data-nosnippet>388</a>    <span class="number">0x27B7_0A85_46D2_2FFC</span>, <span class="number">0x2E1B_2138_5C26_C926</span>, <span class="number">0x4D2C_6DFC_5AC4_2AED</span>, <span class="number">0x5338_0D13_9D95_B3DF</span>,
+<a href=#389 id=389 data-nosnippet>389</a>    <span class="number">0x650A_7354_8BAF_63DE</span>, <span class="number">0x766A_0ABB_3C77_B2A8</span>, <span class="number">0x81C2_C92E_47ED_AEE6</span>, <span class="number">0x9272_2C85_1482_353B</span>,
+<a href=#390 id=390 data-nosnippet>390</a>    <span class="number">0xA2BF_E8A1_4CF1_0364</span>, <span class="number">0xA81A_664B_BC42_3001</span>, <span class="number">0xC24B_8B70_D0F8_9791</span>, <span class="number">0xC76C_51A3_0654_BE30</span>,
+<a href=#391 id=391 data-nosnippet>391</a>    <span class="number">0xD192_E819_D6EF_5218</span>, <span class="number">0xD699_0624_5565_A910</span>, <span class="number">0xF40E_3585_5771_202A</span>, <span class="number">0x106A_A070_32BB_D1B8</span>,
+<a href=#392 id=392 data-nosnippet>392</a>    <span class="number">0x19A4_C116_B8D2_D0C8</span>, <span class="number">0x1E37_6C08_5141_AB53</span>, <span class="number">0x2748_774C_DF8E_EB99</span>, <span class="number">0x34B0_BCB5_E19B_48A8</span>,
+<a href=#393 id=393 data-nosnippet>393</a>    <span class="number">0x391C_0CB3_C5C9_5A63</span>, <span class="number">0x4ED8_AA4A_E341_8ACB</span>, <span class="number">0x5B9C_CA4F_7763_E373</span>, <span class="number">0x682E_6FF3_D6B2_B8A3</span>,
+<a href=#394 id=394 data-nosnippet>394</a>    <span class="number">0x748F_82EE_5DEF_B2FC</span>, <span class="number">0x78A5_636F_4317_2F60</span>, <span class="number">0x84C8_7814_A1F0_AB72</span>, <span class="number">0x8CC7_0208_1A64_39EC</span>,
+<a href=#395 id=395 data-nosnippet>395</a>    <span class="number">0x90BE_FFFA_2363_1E28</span>, <span class="number">0xA450_6CEB_DE82_BDE9</span>, <span class="number">0xBEF9_A3F7_B2C6_7915</span>, <span class="number">0xC671_78F2_E372_532B</span>,
+<a href=#396 id=396 data-nosnippet>396</a>    <span class="number">0xCA27_3ECE_EA26_619C</span>, <span class="number">0xD186_B8C7_21C0_C207</span>, <span class="number">0xEADA_7DD6_CDE0_EB1E</span>, <span class="number">0xF57D_4F7F_EE6E_D178</span>,
+<a href=#397 id=397 data-nosnippet>397</a>    <span class="number">0x06F0_67AA_7217_6FBA</span>, <span class="number">0x0A63_7DC5_A2C8_98A6</span>, <span class="number">0x113F_9804_BEF9_0DAE</span>, <span class="number">0x1B71_0B35_131C_471B</span>,
+<a href=#398 id=398 data-nosnippet>398</a>    <span class="number">0x28DB_77F5_2304_7D84</span>, <span class="number">0x32CA_AB7B_40C7_2493</span>, <span class="number">0x3C9E_BE0A_15C9_BEBC</span>, <span class="number">0x431D_67C4_9C10_0D4C</span>,
+<a href=#399 id=399 data-nosnippet>399</a>    <span class="number">0x4CC5_D4BE_CB3E_42B6</span>, <span class="number">0x597F_299C_FC65_7E2A</span>, <span class="number">0x5FCB_6FAB_3AD6_FAEC</span>, <span class="number">0x6C44_198C_4A47_5817</span>,
+<a href=#400 id=400 data-nosnippet>400</a>];
+</code></pre></div></section></main></body></html>

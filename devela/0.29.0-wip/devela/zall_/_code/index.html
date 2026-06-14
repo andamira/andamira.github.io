@@ -1,0 +1,459 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Reflective code synthesis.code::{error, marker, ops, panic, result, util} ▽"><title>devela::zall_::_code - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module _code</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.29.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module _code</a></h2><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li><li><a href="#attributes" title="Attribute Macros">Attribute Macros</a></li><li><a href="#derives" title="Derive Macros">Derive Macros</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>zall_</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">zall_</a></div><h1>Module <span>_code</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/index.rs.html#204">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Reflective code synthesis.<br/><i style='margin-left:0em;'></i><span style='font-size:90%;word-spacing:0px'><a href="../../code/index.html" title="mod devela::code">code</a>::{<a href="../../code/error/index.html" title="mod devela::code::error">error</a>, <a href="../../code/marker/index.html" title="mod devela::code::marker">marker</a>, <a href="../../code/ops/index.html" title="mod devela::code::ops">ops</a>, <a href="../../code/panic/index.html" title="mod devela::code::panic">panic</a>, <a href="../../code/result/index.html" title="mod devela::code::result">result</a>, <a href="../../code/util/index.html" title="mod devela::code::util">util</a>}</span> <a title='See the hierarchical view of the `code` module' href='https://docs.rs/devela/latest/devela/code'>▽</a></p>
+<p>All <code>code</code> module’s items flat re-exported.</p>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.CONST.html" title="macro devela::zall_::_code::CONST">CONST</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Construction'>🏗️</span>
+A helper for constructing macro constants.</dd><dt><a class="macro" href="macro.assert.html" title="macro devela::zall_::_code::assert">assert</a></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Asserts that a boolean expression is true at runtime.</dd><dt><a class="macro" href="macro.assert_approx_eq_all.html" title="macro devela::zall_::_code::assert_approx_eq_all">assert_<wbr>approx_<wbr>eq_<wbr>all</a></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+Asserts the approximate equality of a series of expressions within <code>tolerance</code>.</dd><dt><a class="macro" href="macro.assert_eq.html" title="macro devela::zall_::_code::assert_eq">assert_<wbr>eq</a></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Asserts that two expressions are equal to each other.</dd><dt><a class="macro" href="macro.assert_eq_all.html" title="macro devela::zall_::_code::assert_eq_all">assert_<wbr>eq_<wbr>all</a></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+Asserts the equality of a series of expressions.</dd><dt><a class="macro" href="macro.assert_matches.html" title="macro devela::zall_::_code::assert_matches">assert_<wbr>matches</a></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Asserts that an expression matches the provided pattern.</dd><dt><a class="macro" href="macro.assert_ne.html" title="macro devela::zall_::_code::assert_ne">assert_<wbr>ne</a></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Asserts that two expressions are not equal to each other.</dd><dt><a class="macro" href="macro.capture_first.html" title="macro devela::zall_::_code::capture_first">capture_<wbr>first</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Captures the first token from a list of inputs.</dd><dt><a class="macro" href="macro.capture_last.html" title="macro devela::zall_::_code::capture_last">capture_<wbr>last</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Captures the last token from a list of inputs.</dd><dt><a class="macro" href="macro.capture_tail_tuple.html" title="macro devela::zall_::_code::capture_tail_tuple">capture_<wbr>tail_<wbr>tuple</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Captures all the tokens except the first one, as a tuple.</dd><dt><a class="macro" href="macro.cdbg.html" title="macro devela::zall_::_code::cdbg">cdbg</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Debugging'>🐛</span>
+<em><code>c</code>ustomizable <a href="https://doc.rust-lang.org/nightly/std/macro.dbg.html" title="macro std::dbg"><code>dbg!</code></a></em> macro.</dd><dt><a class="macro" href="macro.cfg.html" title="macro devela::zall_::_code::cfg">cfg</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Evaluates boolean combinations of configuration flags at compile-time.</dd><dt><a class="macro" href="macro.cfg_select.html" title="macro devela::zall_::_code::cfg_select">cfg_<wbr>select</a></dt><dd><span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Selects code at compile-time based on cfg predicates.</dd><dt><a class="macro" href="macro.cif.html" title="macro devela::zall_::_code::cif">cif</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Evaluates to either a <code>true</code> of <code>false</code> literal based on the <a href="https://docs.rs/devela/latest/devela/_doc/macros#compilation-predicates">predicate</a>.</dd><dt><a class="macro" href="macro.coalesce.html" title="macro devela::zall_::_code::coalesce">coalesce</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Returns the first non-empty argument.</dd><dt><a class="macro" href="macro.code_column.html" title="macro devela::zall_::_code::code_column">code_<wbr>column</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Expands to the column number at which it was invoked.</dd><dt><a class="macro" href="macro.code_file.html" title="macro devela::zall_::_code::code_file">code_<wbr>file</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Expands to the file name at which it was invoked.</dd><dt><a class="macro" href="macro.code_line.html" title="macro devela::zall_::_code::code_line">code_<wbr>line</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Expands to the line number at which it was invoked.</dd><dt><a class="macro" href="macro.code_module.html" title="macro devela::zall_::_code::code_module">code_<wbr>module</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='String storage and views'>🧶</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Expands to a string representing the current module path.</dd><dt><a class="macro" href="macro.compile_error.html" title="macro devela::zall_::_code::compile_error">compile_<wbr>error</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Causes compilation to fail with the given message when encountered.</dd><dt><a class="macro" href="macro.concat.html" title="macro devela::zall_::_code::concat">concat</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Text'>𝐓</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Concatenates literals into a static string slice.</dd><dt><a class="macro" href="macro.const_assert.html" title="macro devela::zall_::_code::const_assert">const_<wbr>assert</a></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+Asserts various comparisons on constants.</dd><dt><a class="macro" href="macro.const_warn.html" title="macro devela::zall_::_code::const_warn">const_<wbr>warn</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Debugging'>🐛</span>
+Emits a compile-time warning with a provided message.</dd><dt><a class="macro" href="macro.debug_assert.html" title="macro devela::zall_::_code::debug_assert">debug_<wbr>assert</a></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Asserts that a boolean expression is true at runtime.</dd><dt><a class="macro" href="macro.debug_assert_eq.html" title="macro devela::zall_::_code::debug_assert_eq">debug_<wbr>assert_<wbr>eq</a></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Asserts that two expressions are equal to each other.</dd><dt><a class="macro" href="macro.debug_assert_matches.html" title="macro devela::zall_::_code::debug_assert_matches">debug_<wbr>assert_<wbr>matches</a></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Asserts that an expression matches the provided pattern.</dd><dt><a class="macro" href="macro.debug_assert_ne.html" title="macro devela::zall_::_code::debug_assert_ne">debug_<wbr>assert_<wbr>ne</a></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Asserts that two expressions are not equal to each other.</dd><dt><a class="macro" href="macro.define_error.html" title="macro devela::zall_::_code::define_error">define_<wbr>error</a></dt><dd><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Error'>🚩</span>
+Defines individual and composite error types.</dd><dt><a class="macro" href="macro.deprecate_feature.html" title="macro devela::zall_::_code::deprecate_feature">deprecate_<wbr>feature</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Configures a feature as deprecated, warning if it is enabled.</dd><dt><a class="macro" href="macro.doclink.html" title="macro devela::zall_::_code::doclink">doclink</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Helps doc-linking items in downstream crates.</dd><dt><a class="macro" href="macro.enumint.html" title="macro devela::zall_::_code::enumint">enumint</a></dt><dd><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Defines a compact enum over a contiguous integer interval.</dd><dt><a class="macro" href="macro.enumset.html" title="macro devela::zall_::_code::enumset">enumset</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Member of a set or family'>∈</span> <span class='stab portability' title='Set semantics'>⊆</span> <span class='stab portability' title='Bit-focused'>▫️</span>
+Defines an enum and an associated type set of its variants.</dd><dt><a class="macro" href="macro.field_of.html" title="macro devela::zall_::_code::field_of">field_<wbr>of</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Generates an expression for accessing a field of a tuple or struct.</dd><dt><a class="macro" href="macro.fn_name.html" title="macro devela::zall_::_code::fn_name">fn_name</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Debugging'>🐛</span>
+Returns a best-effort name of the enclosing function.</dd><dt><a class="macro" href="macro.hook.html" title="macro devela::zall_::_code::hook">hook</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Value semantics'>💱</span>
+Hooks one or more mutation steps into a value and returns it.</dd><dt><a class="macro" href="macro.ident_const_index.html" title="macro devela::zall_::_code::ident_const_index">ident_<wbr>const_<wbr>index</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Defines a constant for every given identifier with a value of its index in the list.</dd><dt><a class="macro" href="macro.ident_total.html" title="macro devela::zall_::_code::ident_total">ident_<wbr>total</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Returns the total number of <a href="https://doc.rust-lang.org/reference/identifiers.html">identifiers</a> in its input.</dd><dt><a class="macro" href="macro.ident_total_unique.html" title="macro devela::zall_::_code::ident_total_unique">ident_<wbr>total_<wbr>unique</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Returns the numbers of both <em>total</em> and <em>unique</em> <a href="https://doc.rust-lang.org/reference/identifiers.html">identifiers</a> in its input.</dd><dt><a class="macro" href="macro.ident_unique.html" title="macro devela::zall_::_code::ident_unique">ident_<wbr>unique</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Returns the number of <em>unique</em> <a href="https://doc.rust-lang.org/reference/identifiers.html">identifiers</a> in its input.</dd><dt><a class="macro" href="macro.impl_trait.html" title="macro devela::zall_::_code::impl_trait">impl_<wbr>trait</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Construction'>🏗️</span>
+A helper macro to concisely implement a few common utility traits.</dd><dt><a class="macro" href="macro.include.html" title="macro devela::zall_::_code::include">include</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Parses a file as an expression or an item according to the context.</dd><dt><a class="macro" href="macro.include_bytes.html" title="macro devela::zall_::_code::include_bytes">include_<wbr>bytes</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Includes a file as a reference to a byte array.</dd><dt><a class="macro" href="macro.include_from.html" title="macro devela::zall_::_code::include_from">include_<wbr>from</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Includes a Rust source file relative to the project’s directory.</dd><dt><a class="macro" href="macro.include_str.html" title="macro devela::zall_::_code::include_str">include_<wbr>str</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='String storage and views'>🧶</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Includes a UTF-8 encoded file as a string.</dd><dt><a class="macro" href="macro.is.html" title="macro devela::zall_::_code::is">is</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Conditional evaluation.</dd><dt><a class="macro" href="macro.items.html" title="macro devela::zall_::_code::items">items</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Formatting'>🖹</span>
+Groups <em><code>items</code></em> together and expands them as if they were written directly.</dd><dt><a class="macro" href="macro.lets.html" title="macro devela::zall_::_code::lets">lets</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+A concise macro for declaring multiple variables at once.</dd><dt><a class="macro" href="macro.macro_apply_alias.html" title="macro devela::zall_::_code::macro_apply_alias">macro_<wbr>apply_<wbr>alias</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Defines attribute aliases usable from <a href="../../zall/attr.macro_apply.html" title="attr devela::zall::macro_apply"><code>macro_apply</code></a>.</dd><dt><a class="macro" href="macro.macro_derive_alias.html" title="macro devela::zall_::_code::macro_derive_alias">macro_<wbr>derive_<wbr>alias</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Defines derive aliases usable from <a href="../../zall/attr.macro_derive.html" title="attr devela::zall::macro_derive"><code>macro_derive</code></a>.</dd><dt><a class="macro" href="macro.macro_dollar.html" title="macro devela::zall_::_code::macro_dollar">macro_<wbr>dollar</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Provides a literal <code>$</code> token to a macro body.</dd><dt><a class="macro" href="macro.maybe.html" title="macro devela::zall_::_code::maybe">maybe</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Conditional representation'>🤷</span>
+Macro helper for using optionally implemented traits, like <code>Default</code> or <code>Clone</code>.</dd><dt><a class="macro" href="macro.maybe_slot.html" title="macro devela::zall_::_code::maybe_slot">maybe_<wbr>slot</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Conditional representation'>🤷</span> <span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span>
+Expands to a primitive slot from either a direct carrier or a wrapped outer type.</dd><dt><a class="macro" href="macro.methods_as_fns.html" title="macro devela::zall_::_code::methods_as_fns">methods_<wbr>as_<wbr>fns</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Defines standalone functions that call associated methods.</dd><dt><a class="macro" href="macro.mod_from.html" title="macro devela::zall_::_code::mod_from">mod_<wbr>from</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Declares a module by including a Rust source file relative to the project’s directory.</dd><dt><a class="macro" href="macro.mod_path.html" title="macro devela::zall_::_code::mod_path">mod_<wbr>path</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+A macro helper to define a module name and path.</dd><dt><a class="macro" href="macro.morph.html" title="macro devela::zall_::_code::morph">morph</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Value semantics'>💱</span>
+Morphs a value through one or more transformation steps and returns the result.</dd><dt><a class="macro" href="macro.panic_.html" title="macro devela::zall_::_code::panic_">panic_</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Panics the current thread.</dd><dt><a class="macro" href="macro.paste.html" title="macro devela::zall_::_code::paste">paste</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Allows to paste identifiers together.</dd><dt><a class="macro" href="macro.punroll.html" title="macro devela::zall_::_code::punroll">punroll</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Compile-time pattern unroll over a width of <code>0..=8 || pow(2) &lt;= 64</code>.</dd><dt><a class="macro" href="macro.read_at.html" title="macro devela::zall_::_code::read_at">read_at</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Memory representation'>🫗</span>
+Read values from a buffer at an explicit offset.</dd><dt><a class="macro" href="macro.repeat.html" title="macro devela::zall_::_code::repeat">repeat</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Repeats an expression the given number of times, as duplicated code with no loops.</dd><dt><a class="macro" href="macro.set_panic_handler.html" title="macro devela::zall_::_code::set_panic_handler">set_<wbr>panic_<wbr>handler</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Platform-dependent'>🖥️</span>
+Sets a panic handler based on the chosen strategy.</dd><dt><a class="macro" href="macro.sf.html" title="macro devela::zall_::_code::sf">sf</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Formatting'>🖹</span>
+<em><code>s</code>kip <code>f</code>ormatting</em> macro.</dd><dt><a class="macro" href="macro.stringify.html" title="macro devela::zall_::_code::stringify">stringify</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Text'>𝐓</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Stringifies its arguments.</dd><dt><a class="macro" href="macro.structural_mods.html" title="macro devela::zall_::_code::structural_mods">structural_<wbr>mods</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Defines a standardized module structure for organizing visibility and re-exports.</dd><dt><a class="macro" href="macro.test_size_of.html" title="macro devela::zall_::_code::test_size_of">test_<wbr>size_<wbr>of</a></dt><dd><span class='stab portability' title='Assertion'>💯</span> <span class='stab portability' title='Memory representation'>🫗</span>
+Tests the stack size of a type.</dd><dt><a class="macro" href="macro.todo.html" title="macro devela::zall_::_code::todo">todo</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Indicates unfinished code.</dd><dt><a class="macro" href="macro.type_count.html" title="macro devela::zall_::_code::type_count">type_<wbr>count</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Returns the total number of types received.</dd><dt><a class="macro" href="macro.type_marker.html" title="macro devela::zall_::_code::type_marker">type_<wbr>marker</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Identification'>🫆</span> <span class='stab portability' title='Construction'>🏗️</span>
+Defines zero-cost, zero-sized, generic <em>marker</em> IDs.</dd><dt><a class="macro" href="macro.type_resource.html" title="macro devela::zall_::_code::type_resource">type_<wbr>resource</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Identification'>🫆</span> <span class='stab portability' title='Construction'>🏗️</span>
+Defines zero-cost, zero-sized, type-safe <em>resource</em> IDs.</dd><dt><a class="macro" href="macro.unimplemented.html" title="macro devela::zall_::_code::unimplemented">unimplemented</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Indicates unimplemented code.</dd><dt><a class="macro" href="macro.unreachable.html" title="macro devela::zall_::_code::unreachable">unreachable</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Indicates unreachable code.</dd><dt><a class="macro" href="macro.unroll.html" title="macro devela::zall_::_code::unroll">unroll</a><wbr><span class="stab portability" title="Available on crate feature `_unroll` only"><code>_unroll</code></span></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='code generated in the build script'><small>cgen</small></span>
+Unrolls the given for loop.</dd><dt><a class="macro" href="macro.unwrap.html" title="macro devela::zall_::_code::unwrap">unwrap</a></dt><dd><span class='stab portability' title='Outcome'>⚖️</span>
+An unwrapper macro that works in compile-time.</dd><dt><a class="macro" href="macro.use_as.html" title="macro devela::zall_::_code::use_as">use_as</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Imports families of prefixed items under shorter local names.</dd><dt><a class="macro" href="macro.whilst.html" title="macro devela::zall_::_code::whilst">whilst</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+A flexible loop constructor supporting both <code>while</code>- and <code>for</code>-style syntaxes.</dd><dt><a class="macro" href="macro.write_at.html" title="macro devela::zall_::_code::write_at">write_<wbr>at</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Memory representation'>🫗</span>
+Write elements into a buffer at an explicit offset.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Backtrace.html" title="struct devela::zall_::_code::Backtrace">Backtrace</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Debugging'>🐛</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+A captured OS thread stack backtrace.</dd><dt><a class="struct" href="struct.CallSemantics.html" title="struct devela::zall_::_code::CallSemantics">Call<wbr>Semantics</a></dt><dd><span class='stab portability' title='Execution semantics'>↦</span>
+Structural semantics of a call edge.</dd><dt><a class="struct" href="struct.CodeLocation.html" title="struct devela::zall_::_code::CodeLocation">Code<wbr>Location</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+A precise location in the source code.</dd><dt><a class="struct" href="struct.CodeSpan.html" title="struct devela::zall_::_code::CodeSpan">Code<wbr>Span</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+A contiguous span between two code locations.</dd><dt><a class="struct" href="struct.FailedErrorConversion.html" title="struct devela::zall_::_code::FailedErrorConversion">Failed<wbr>Error<wbr>Conversion</a></dt><dd><span class='stab portability' title='Value semantics'>💱</span>
+<span class='stab portability' title='Error'>🚩</span>
+A failed conversion between two error types.</dd><dt><a class="struct" href="struct.InvalidValue.html" title="struct devela::zall_::_code::InvalidValue">Invalid<wbr>Value</a></dt><dd><span class='stab portability' title='Value semantics'>💱</span>
+<span class='stab portability' title='Error'>🚩</span>
+An invalid value was received for the given type or operation.</dd><dt><a class="struct" href="struct.IoError.html" title="struct devela::zall_::_code::IoError">IoError</a></dt><dd><span class='stab portability' title='Input and output'>🔌</span>
+<span class='stab portability' title='Composite error'>🚩+</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`
+or recreated if `not(std)`'><code>?std</code></span>
+Error type for <a href="../../zall/trait.IoRead.html" title="trait devela::zall::IoRead"><code>IoRead</code></a>, <a href="../../zall/trait.IoWrite.html" title="trait devela::zall::IoWrite"><code>IoWrite</code></a>, <a href="../../zall/trait.IoSeek.html" title="trait devela::zall::IoSeek"><code>IoSeek</code></a> operations.</dd><dt><a class="struct" href="struct.Mismatch.html" title="struct devela::zall_::_code::Mismatch">Mismatch</a></dt><dd><span class='stab portability' title='Outcome'>⚖️</span>
+Represents a mismatch between an expected <code>need</code> and an encountered <code>have</code>.</dd><dt><a class="struct" href="struct.NotImplemented.html" title="struct devela::zall_::_code::NotImplemented">NotImplemented</a></dt><dd><span class='stab portability' title='Absence, emptiness or a no-op effect'>∅</span>
+<span class='stab portability' title='Error'>🚩</span>
+The requested functionality is not implemented.</dd><dt><a class="struct" href="struct.NotSupported.html" title="struct devela::zall_::_code::NotSupported">NotSupported</a></dt><dd><span class='stab portability' title='Absence, emptiness or a no-op effect'>∅</span>
+<span class='stab portability' title='Error'>🚩</span>
+The requested functionality is not supported by this type.</dd><dt><a class="struct" href="struct.OptionFmt.html" title="struct devela::zall_::_code::OptionFmt">Option<wbr>Fmt</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+The type returned from <a href="../../zall/trait.OptionExt.html#tymethod.fmt_or_empty" title="method devela::zall::OptionExt::fmt_or_empty"><code>OptionExt::fmt_or_empty</code></a>.</dd><dt><a class="struct" href="struct.OptionFmtOr.html" title="struct devela::zall_::_code::OptionFmtOr">Option<wbr>FmtOr</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+The type returned from <a href="../../zall/trait.OptionExt.html#tymethod.fmt_or" title="method devela::zall::OptionExt::fmt_or"><code>OptionExt::fmt_or</code></a>.</dd><dt><a class="struct" href="struct.OptionFmtOrElse.html" title="struct devela::zall_::_code::OptionFmtOrElse">Option<wbr>FmtOr<wbr>Else</a></dt><dd><span class='stab portability' title='Formatting'>🖹</span>
+The type returned from <a href="../../zall/trait.OptionExt.html#tymethod.fmt_or_else" title="method devela::zall::OptionExt::fmt_or_else"><code>OptionExt::fmt_or_else</code></a>.</dd><dt><a class="struct" href="struct.Own.html" title="struct devela::zall_::_code::Own">Own</a></dt><dd><span class='stab portability' title='Outcome'>⚖️</span>
+A return type encapsulating an owned <strong>state</strong> <code>S</code> and a <strong>value</strong> <code>V</code>.</dd><dt><a class="struct" href="struct.Panic.html" title="struct devela::zall_::_code::Panic">Panic</a><wbr><span class="stab portability" title="Available on crate feature `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Utility namespace'>🛠️</span>
+Panic-related operations.</dd><dt><a class="struct" href="struct.PanicAssertUnwindSafe.html" title="struct devela::zall_::_code::PanicAssertUnwindSafe">Panic<wbr>Assert<wbr>Unwind<wbr>Safe</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Assertion'>💯</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A simple wrapper around a type to assert that it is unwind safe.</dd><dt><a class="struct" href="struct.PanicHookInfo.html" title="struct devela::zall_::_code::PanicHookInfo">Panic<wbr>Hook<wbr>Info</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+Passed to <code>std::panic::set_hook</code> where panics can have arbitrary payloads.</dd><dt><a class="struct" href="struct.PanicInfo.html" title="struct devela::zall_::_code::PanicInfo">Panic<wbr>Info</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Passed to <code>#[panic_handler]</code> in <code>no_std</code>, carries a formatted message.</dd><dt><a class="struct" href="struct.PanicLocation.html" title="struct devela::zall_::_code::PanicLocation">Panic<wbr>Location</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A struct containing information about the location of a panic.</dd><dt><a class="struct" href="struct.PhantomData.html" title="struct devela::zall_::_code::PhantomData">Phantom<wbr>Data</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Zero-sized type used to mark things that “act like” they own a <code>T</code>.</dd><dt><a class="struct" href="struct.PhantomPinned.html" title="struct devela::zall_::_code::PhantomPinned">Phantom<wbr>Pinned</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A marker type which does not implement <code>Unpin</code>.</dd><dt><a class="struct" href="struct.Range.html" title="struct devela::zall_::_code::Range">Range</a></dt><dd><span class='stab portability' title='Quantitative relations'>📏</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A range value bounded inclusively below and exclusively above (<code>start..end</code>).</dd><dt><a class="struct" href="struct.RangeFrom.html" title="struct devela::zall_::_code::RangeFrom">Range<wbr>From</a></dt><dd><span class='stab portability' title='Quantitative relations'>📏</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A range value bounded inclusively below (<code>start..</code>).</dd><dt><a class="struct" href="struct.RangeFull.html" title="struct devela::zall_::_code::RangeFull">Range<wbr>Full</a></dt><dd><span class='stab portability' title='Quantitative relations'>📏</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An unbounded range (<code>..</code>).</dd><dt><a class="struct" href="struct.RangeInclusive.html" title="struct devela::zall_::_code::RangeInclusive">Range<wbr>Inclusive</a></dt><dd><span class='stab portability' title='Quantitative relations'>📏</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A range value bounded inclusively below and above (<code>start..=end</code>).</dd><dt><a class="struct" href="struct.RangeTo.html" title="struct devela::zall_::_code::RangeTo">RangeTo</a></dt><dd><span class='stab portability' title='Quantitative relations'>📏</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A range bounded exclusively above (<code>..end</code>).</dd><dt><a class="struct" href="struct.RangeToInclusive.html" title="struct devela::zall_::_code::RangeToInclusive">Range<wbr>ToInclusive</a></dt><dd><span class='stab portability' title='Quantitative relations'>📏</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A range value bounded inclusively above (<code>..=end</code>).</dd><dt><a class="struct" href="struct.ScopeGuard.html" title="struct devela::zall_::_code::ScopeGuard">Scope<wbr>Guard</a></dt><dd><span class='stab portability' title='Scoped guard'>🔒</span>
+A general-purpose RAII guard that executes a callback on drop.</dd><dt><a class="struct" href="struct.TypeId.html" title="struct devela::zall_::_code::TypeId">TypeId</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Identification'>🫆</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Represents a globally unique identifier for a type.</dd><dt><a class="struct" href="struct.TypeResource.html" title="struct devela::zall_::_code::TypeResource">Type<wbr>Resource</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Identification'>🫆</span>
+A newtype-based ID that associates a resource with its inner ID.</dd><dt><a class="struct" href="struct.Version.html" title="struct devela::zall_::_code::Version">Version</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+A compact three-part semantic version core.</dd><dt><a class="struct" href="struct.VersionFull.html" title="struct devela::zall_::_code::VersionFull">Version<wbr>Full</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+A semantic version with optional borrowed metadata.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.BacktraceStatus.html" title="enum devela::zall_::_code::BacktraceStatus">Backtrace<wbr>Status</a><wbr><span class="stab portability" title="Available on crate features `std` only"><code>std</code></span></dt><dd><span class='stab portability' title='Debugging'>🐛</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`'><code>std</code></span>
+The current status of a backtrace.</dd><dt><a class="enum" href="enum.Bound.html" title="enum devela::zall_::_code::Bound">Bound</a></dt><dd><span class='stab portability' title='Quantitative relations'>📏</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An endpoint of a range of keys.</dd><dt><a class="enum" href="enum.CallBindTime.html" title="enum devela::zall_::_code::CallBindTime">Call<wbr>Bind<wbr>Time</a></dt><dd><span class='stab portability' title='Execution semantics'>↦</span>
+When the callee identity becomes fixed.</dd><dt><a class="enum" href="enum.CallContext.html" title="enum devela::zall_::_code::CallContext">Call<wbr>Context</a></dt><dd><span class='stab portability' title='Execution semantics'>↦</span>
+Where the callable’s execution environment resides.</dd><dt><a class="enum" href="enum.CallDispatch.html" title="enum devela::zall_::_code::CallDispatch">Call<wbr>Dispatch</a></dt><dd><span class='stab portability' title='Execution semantics'>↦</span>
+Mechanism by which control transfers to the callee.</dd><dt><a class="enum" href="enum.CallOpenness.html" title="enum devela::zall_::_code::CallOpenness">Call<wbr>Openness</a></dt><dd><span class='stab portability' title='Execution semantics'>↦</span>
+Whether the behavior set is fixed or extensible.</dd><dt><a class="enum" href="enum.CallStorage.html" title="enum devela::zall_::_code::CallStorage">Call<wbr>Storage</a></dt><dd><span class='stab portability' title='Execution semantics'>↦</span>
+Where the callable representation resides.</dd><dt><a class="enum" href="enum.ControlFlow.html" title="enum devela::zall_::_code::ControlFlow">Control<wbr>Flow</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used to tell an operation whether it should exit early or go on as usual.</dd><dt><a class="enum" href="enum.ImageError.html" title="enum devela::zall_::_code::ImageError">Image<wbr>Error</a><wbr><span class="stab portability" title="Available on crate feature `image` only"><code>image</code></span></dt><dd><span class='stab portability' title='Image'>🖼️</span> <span class='stab portability' title='Composite error'>🚩+</span>
+An image-related error.</dd><dt><a class="enum" href="enum.Infallible.html" title="enum devela::zall_::_code::Infallible">Infallible</a></dt><dd><span class='stab portability' title='Absence, emptiness or a no-op effect'>∅</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The error type for errors that can never occur.</dd><dt><a class="enum" href="enum.IoErrorKind.html" title="enum devela::zall_::_code::IoErrorKind">IoError<wbr>Kind</a></dt><dd><span class='stab portability' title='Input and output'>🔌</span>
+<span class='stab portability' title='Composite error'>🚩+</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`
+or recreated if `not(std)`'><code>?std</code></span>
+A list specifying general categories of I/O error.</dd><dt><a class="enum" href="enum.NotAvailable.html" title="enum devela::zall_::_code::NotAvailable">NotAvailable</a></dt><dd><span class='stab portability' title='Absence, emptiness or a no-op effect'>∅</span>
+<span class='stab portability' title='Composite error'>🚩+</span>
+An error composite of <a href="../../zall/struct.NotImplemented.html" title="struct devela::zall::NotImplemented"><code>NotImplemented</code></a> + <a href="../../zall/struct.NotSupported.html" title="struct devela::zall::NotSupported"><code>NotSupported</code></a>.</dd><dt><a class="enum" href="enum.NumError.html" title="enum devela::zall_::_code::NumError">NumError</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Composite error'>🚩+</span>
+A numeric-related error.</dd><dt><a class="enum" href="enum.Option.html" title="enum devela::zall_::_code::Option">Option</a></dt><dd><span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A type that represents an optional value.</dd><dt><a class="enum" href="enum.ReprMode.html" title="enum devela::zall_::_code::ReprMode">Repr<wbr>Mode</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Data'>🪪</span>
+Selects how a value exposes one of its representations.</dd><dt><a class="enum" href="enum.Result.html" title="enum devela::zall_::_code::Result">Result</a></dt><dd><span class='stab portability' title='Outcome'>⚖️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A type that represents either success (<a href="../../zall/enum.Result.html#variant.Ok" title="variant devela::zall::Result::Ok"><code>Ok</code></a>) or failure (<a href="../../zall/enum.Result.html#variant.Err" title="variant devela::zall::Result::Err"><code>Err</code></a>).</dd><dt><a class="enum" href="enum.TextError.html" title="enum devela::zall_::_code::TextError">Text<wbr>Error</a><wbr><span class="stab portability" title="Available on `text··` only"><code>text··</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span>
+<span class='stab portability' title='Composite error'>🚩+</span>
+A text-related composite error.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Add.html" title="trait devela::zall_::_code::Add">Add</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The addition operator <code>+</code>.</dd><dt><a class="trait" href="trait.AddAssign.html" title="trait devela::zall_::_code::AddAssign">AddAssign</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The addition assignment operator <code>+=</code>.</dd><dt><a class="trait" href="trait.Any.html" title="trait devela::zall_::_code::Any">Any</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A trait to emulate dynamic typing.</dd><dt><a class="trait" href="trait.AnyExt.html" title="trait devela::zall_::_code::AnyExt">AnyExt</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Extension trait providing convenience methods for <code>T:</code><a href="../../code/trait.Any.html" title="trait devela::code::Any"><code>Any</code></a>.</dd><dt><a class="trait" href="trait.AsMut.html" title="trait devela::zall_::_code::AsMut">AsMut</a></dt><dd><span class='stab portability' title='Lifetime'>🍃</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used to do a cheap mutable-to-mutable reference conversion.</dd><dt><a class="trait" href="trait.AsRef.html" title="trait devela::zall_::_code::AsRef">AsRef</a></dt><dd><span class='stab portability' title='Lifetime'>🍃</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used to do a cheap reference-to-reference conversion.</dd><dt><a class="trait" href="trait.BitAnd.html" title="trait devela::zall_::_code::BitAnd">BitAnd</a></dt><dd><span class='stab portability' title='Logic'>∧</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The bitwise AND operator <code>&amp;</code>.</dd><dt><a class="trait" href="trait.BitAndAssign.html" title="trait devela::zall_::_code::BitAndAssign">BitAnd<wbr>Assign</a></dt><dd><span class='stab portability' title='Logic'>∧</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The bitwise AND assignment operator <code>&amp;=</code>.</dd><dt><a class="trait" href="trait.BitOr.html" title="trait devela::zall_::_code::BitOr">BitOr</a></dt><dd><span class='stab portability' title='Logic'>∧</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The bitwise OR operator <code>|</code>.</dd><dt><a class="trait" href="trait.BitOrAssign.html" title="trait devela::zall_::_code::BitOrAssign">BitOr<wbr>Assign</a></dt><dd><span class='stab portability' title='Logic'>∧</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The bitwise OR assignment operator <code>|=</code>.</dd><dt><a class="trait" href="trait.BitXor.html" title="trait devela::zall_::_code::BitXor">BitXor</a></dt><dd><span class='stab portability' title='Logic'>∧</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The bitwise XOR operator <code>^</code>.</dd><dt><a class="trait" href="trait.BitXorAssign.html" title="trait devela::zall_::_code::BitXorAssign">BitXor<wbr>Assign</a></dt><dd><span class='stab portability' title='Logic'>∧</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The bitwise XOR assignment operator <code>^=</code>.</dd><dt><a class="trait" href="trait.Clone.html" title="trait devela::zall_::_code::Clone">Clone</a></dt><dd><span class='stab portability' title='Value semantics'>💱</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A common trait that allows explicit creation of a duplicate value. (Derivable)</dd><dt><a class="trait" href="trait.ConstInit.html" title="trait devela::zall_::_code::ConstInit">Const<wbr>Init</a></dt><dd><span class='stab portability' title='Initialization'>🌱</span>
+A trait for giving a type a useful const-friendly initial value.</dd><dt><a class="trait" href="trait.Copy.html" title="trait devela::zall_::_code::Copy">Copy</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Types whose values can be duplicated simply by copying bits. (Derivable)</dd><dt><a class="trait" href="trait.Default.html" title="trait devela::zall_::_code::Default">Default</a></dt><dd><span class='stab portability' title='Initialization'>🌱</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A trait for giving a type a useful default value. (Derivable)</dd><dt><a class="trait" href="trait.Deref.html" title="trait devela::zall_::_code::Deref">Deref</a></dt><dd><span class='stab portability' title='Lifetime'>🍃</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used for immutable dereferencing operations, like <code>*v</code>.</dd><dt><a class="trait" href="trait.DerefMut.html" title="trait devela::zall_::_code::DerefMut">Deref<wbr>Mut</a></dt><dd><span class='stab portability' title='Lifetime'>🍃</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used for mutable dereferencing operations, like in <code>*v = 1;</code>.</dd><dt><a class="trait" href="trait.Div.html" title="trait devela::zall_::_code::Div">Div</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The division operator <code>/</code>.</dd><dt><a class="trait" href="trait.DivAssign.html" title="trait devela::zall_::_code::DivAssign">DivAssign</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The division assignment operator <code>/=</code>.</dd><dt><a class="trait" href="trait.Drop.html" title="trait devela::zall_::_code::Drop">Drop</a></dt><dd><span class='stab portability' title='Scoped guard'>🔒</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Custom code within the destructor.</dd><dt><a class="trait" href="trait.Error.html" title="trait devela::zall_::_code::Error">Error</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Error'>🚩</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A trait representing the basic expectations for error values.</dd><dt><a class="trait" href="trait.Fn.html" title="trait devela::zall_::_code::Fn">Fn</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The version of the call operator that takes an immutable receiver.</dd><dt><a class="trait" href="trait.FnMut.html" title="trait devela::zall_::_code::FnMut">FnMut</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The version of the call operator that takes a mutable receiver.</dd><dt><a class="trait" href="trait.FnOnce.html" title="trait devela::zall_::_code::FnOnce">FnOnce</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The version of the call operator that takes a by-value receiver.</dd><dt><a class="trait" href="trait.From.html" title="trait devela::zall_::_code::From">From</a></dt><dd><span class='stab portability' title='Value semantics'>💱</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used to do value-to-value conversions while consuming the input value.</dd><dt><a class="trait" href="trait.Hook.html" title="trait devela::zall_::_code::Hook">Hook</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Value semantics'>💱</span>
+Hooks operations into a value without breaking its flow.</dd><dt><a class="trait" href="trait.Index.html" title="trait devela::zall_::_code::Index">Index</a></dt><dd><span class='stab portability' title='Value semantics'>💱</span> <span class='stab portability' title='Lifetime'>🍃</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used for indexing operations (<code>container[index]</code>) in immutable contexts.</dd><dt><a class="trait" href="trait.IndexMut.html" title="trait devela::zall_::_code::IndexMut">Index<wbr>Mut</a></dt><dd><span class='stab portability' title='Value semantics'>💱</span> <span class='stab portability' title='Lifetime'>🍃</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Used for indexing operations (<code>container[index]</code>) in mutable contexts.</dd><dt><a class="trait" href="trait.IndexRepr.html" title="trait devela::zall_::_code::IndexRepr">Index<wbr>Repr</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Memory representation'>🫗</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span> <span class='stab portability' title='Niche memory optimizations'>⚗️</span>
+A representation accepted for compact contiguous indexing.</dd><dt><a class="trait" href="trait.Into.html" title="trait devela::zall_::_code::Into">Into</a></dt><dd><span class='stab portability' title='Value semantics'>💱</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A value-to-value conversion that consumes the input value.</dd><dt><a class="trait" href="trait.Introspect.html" title="trait devela::zall_::_code::Introspect">Introspect</a></dt><dd><span class='stab portability' title='Structural introspection'>🔎</span>
+Introspection core trait.</dd><dt><a class="trait" href="trait.Morph.html" title="trait devela::zall_::_code::Morph">Morph</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Value semantics'>💱</span>
+Morphs a value by threading it through a function.</dd><dt><a class="trait" href="trait.Mul.html" title="trait devela::zall_::_code::Mul">Mul</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The multiplication operator <code>*</code>.</dd><dt><a class="trait" href="trait.MulAssign.html" title="trait devela::zall_::_code::MulAssign">MulAssign</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The multiplication assignment operator <code>*=</code>.</dd><dt><a class="trait" href="trait.Neg.html" title="trait devela::zall_::_code::Neg">Neg</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The unary negation operator <code>-</code>.</dd><dt><a class="trait" href="trait.Not.html" title="trait devela::zall_::_code::Not">Not</a></dt><dd><span class='stab portability' title='Logic'>∧</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The unary logical negation operator <code>!</code>.</dd><dt><a class="trait" href="trait.OptResExt.html" title="trait devela::zall_::_code::OptResExt">OptRes<wbr>Ext</a></dt><dd><span class='stab portability' title='Outcome'>⚖️</span>
+Extension trait providing additional methods for <a href="../../zall/type.OptRes.html" title="type devela::zall::OptRes"><code>OptRes</code></a>.</dd><dt><a class="trait" href="trait.OptionExt.html" title="trait devela::zall_::_code::OptionExt">Option<wbr>Ext</a></dt><dd><span class='stab portability' title='Outcome'>⚖️</span>
+Extension trait providing additional methods for <a href="../../zall/enum.Option.html" title="enum devela::zall::Option"><code>Option</code></a>.</dd><dt><a class="trait" href="trait.PanicRefUnwindSafe.html" title="trait devela::zall_::_code::PanicRefUnwindSafe">Panic<wbr>RefUnwind<wbr>Safe</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Lifetime'>🍃</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A marker trait which represents a shared reference considered unwind safe.</dd><dt><a class="trait" href="trait.PanicUnwindSafe.html" title="trait devela::zall_::_code::PanicUnwindSafe">Panic<wbr>Unwind<wbr>Safe</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A marker trait which represents “panic safe” types in Rust.</dd><dt><a class="trait" href="trait.Prim.html" title="trait devela::zall_::_code::Prim">Prim</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span>
+Language primitive value types.</dd><dt><a class="trait" href="trait.PrimFitPtr.html" title="trait devela::zall_::_code::PrimFitPtr">Prim<wbr>FitPtr</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Memory representation'>🫗</span> <span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span>
+Primitive value types that fit in pointer-width on supported Rust targets.</dd><dt><a class="trait" href="trait.PrimIndex.html" title="trait devela::zall_::_code::PrimIndex">Prim<wbr>Index</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Memory representation'>🫗</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Related to Rust primitives and their carriers'>⚙️</span>
+Primitive types that can be used for indexing.</dd><dt><a class="trait" href="trait.RangeBounds.html" title="trait devela::zall_::_code::RangeBounds">Range<wbr>Bounds</a></dt><dd><span class='stab portability' title='Quantitative relations'>📏</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Implemented by Rust’s built-in range types</dd><dt><a class="trait" href="trait.Rem.html" title="trait devela::zall_::_code::Rem">Rem</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The remainder operator <code>%</code>.</dd><dt><a class="trait" href="trait.RemAssign.html" title="trait devela::zall_::_code::RemAssign">RemAssign</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The remainder assignment operator <code>%=</code>.</dd><dt><a class="trait" href="trait.ResultExt.html" title="trait devela::zall_::_code::ResultExt">Result<wbr>Ext</a></dt><dd><span class='stab portability' title='Outcome'>⚖️</span>
+Extension trait providing additional methods for <a href="../../zall/enum.Result.html" title="enum devela::zall::Result"><code>Result</code></a>.</dd><dt><a class="trait" href="trait.Send.html" title="trait devela::zall_::_code::Send">Send</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Types that can be transferred across thread boundaries.</dd><dt><a class="trait" href="trait.Sized.html" title="trait devela::zall_::_code::Sized">Sized</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Types with a constant size known at compile time.</dd><dt><a class="trait" href="trait.Sub.html" title="trait devela::zall_::_code::Sub">Sub</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The subtraction operator <code>-</code>.</dd><dt><a class="trait" href="trait.SubAssign.html" title="trait devela::zall_::_code::SubAssign">SubAssign</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The subtraction assignment operator <code>-=</code>.</dd><dt><a class="trait" href="trait.Sync.html" title="trait devela::zall_::_code::Sync">Sync</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Concurrency'>🧵</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Types for which it is safe to share references between threads.</dd><dt><a class="trait" href="trait.TryFrom.html" title="trait devela::zall_::_code::TryFrom">TryFrom</a></dt><dd><span class='stab portability' title='Value semantics'>💱</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Simple and safe type conversions that may fail in a controlled way.</dd><dt><a class="trait" href="trait.TryInto.html" title="trait devela::zall_::_code::TryInto">TryInto</a></dt><dd><span class='stab portability' title='Value semantics'>💱</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+An attempted conversion that consumes self, which may be expensive.</dd><dt><a class="trait" href="trait.TypeResourced.html" title="trait devela::zall_::_code::TypeResourced">Type<wbr>Resourced</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='Identification'>🫆</span>
+Represents an association between a resource and its inner data type.</dd><dt><a class="trait" href="trait.Unpin.html" title="trait devela::zall_::_code::Unpin">Unpin</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Types that do not require any pinning guarantees.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.any_type_name.html" title="fn devela::zall_::_code::any_type_name">any_<wbr>type_<wbr>name</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Returns the name of a type as a string slice.</dd><dt><a class="fn" href="fn.assert_unchecked.html" title="fn devela::zall_::_code::assert_unchecked">assert_<wbr>unchecked</a><sup title="unsafe function">⚠</sup></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Makes a <em>soundness</em> promise to the compiler that the <code>cond</code>ition holds.</dd><dt><a class="fn" href="fn.black_box.html" title="fn devela::zall_::_code::black_box">black_<wbr>box</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Hints the compiler to be maximally pessimistic about what black_box could do.</dd><dt><a class="fn" href="fn.cold_path.html" title="fn devela::zall_::_code::cold_path">cold_<wbr>path</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Hints to the compiler that given path is cold, i.e., unlikely to be taken.</dd><dt><a class="fn" href="fn.identity.html" title="fn devela::zall_::_code::identity">identity</a></dt><dd><span class='stab portability' title='Absence, emptiness or a no-op effect'>∅</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+The identity function. Just returns back its input.</dd><dt><a class="fn" href="fn.likely.html" title="fn devela::zall_::_code::likely">likely</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Indicate that a given <code>condition</code> is likely to be true.</dd><dt><a class="fn" href="fn.select_unpredictable.html" title="fn devela::zall_::_code::select_unpredictable">select_<wbr>unpredictable</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Hints the compiler that the <code>condition</code> is branch-unpredictable.</dd><dt><a class="fn" href="fn.serr.html" title="fn devela::zall_::_code::serr">serr</a></dt><dd><span class='stab portability' title='Outcome'>⚖️</span>
+Wraps the given <a href="../../zall/type.OptRes.html" title="type devela::zall::OptRes"><code>OptRes</code></a> <code>value</code> in a <a href="../../zall/enum.Option.html#variant.Some" title="variant devela::zall::Option::Some"><code>Some</code></a><code>(</code><a href="../../zall/enum.Result.html#variant.Err" title="variant devela::zall::Result::Err"><code>Err</code></a><code>(error))</code>.</dd><dt><a class="fn" href="fn.sok.html" title="fn devela::zall_::_code::sok">sok</a></dt><dd><span class='stab portability' title='Outcome'>⚖️</span>
+Wraps the given <a href="../../zall/type.OptRes.html" title="type devela::zall::OptRes"><code>OptRes</code></a> <code>value</code> in a <a href="../../zall/enum.Option.html#variant.Some" title="variant devela::zall::Option::Some"><code>Some</code></a><code>(</code><a href="../../zall/enum.Result.html#variant.Ok" title="variant devela::zall::Result::Ok"><code>Ok</code></a><code>(value))</code>.</dd><dt><a class="fn" href="fn.spin_loop.html" title="fn devela::zall_::_code::spin_loop">spin_<wbr>loop</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Signals the processor that it is running in a busy-wait spin-loop.</dd><dt><a class="fn" href="fn.unlikely.html" title="fn devela::zall_::_code::unlikely">unlikely</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+Indicate that a given <code>condition</code> is likely to be false.</dd><dt><a class="fn" href="fn.unreachable_unchecked.html" title="fn devela::zall_::_code::unreachable_unchecked">unreachable_<wbr>unchecked</a><sup title="unsafe function">⚠</sup></dt><dd><span class='stab portability' title='Assertion'>💯</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Informs the compiler that the current calling site is not reachable.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.ImageResult.html" title="type devela::zall_::_code::ImageResult">Image<wbr>Result</a><wbr><span class="stab portability" title="Available on crate feature `image` only"><code>image</code></span></dt><dd><span class='stab portability' title='Image'>🖼️</span> <span class='stab portability' title='Outcome'>⚖️</span>
+An image-related result.</dd><dt><a class="type" href="type.InfallibleResult.html" title="type devela::zall_::_code::InfallibleResult">Infallible<wbr>Result</a></dt><dd><span class='stab portability' title='Outcome'>⚖️</span> <span class='stab portability' title='Absence, emptiness or a no-op effect'>∅</span> <span class='stab portability' title='Error'>🚩</span>
+A result type whose error case can never occur.</dd><dt><a class="type" href="type.IoResult.html" title="type devela::zall_::_code::IoResult">IoResult</a></dt><dd><span class='stab portability' title='Input and output'>🔌</span>
+<span class='stab portability' title='Outcome'>⚖️</span>
+<span class='stab portability' title='re-exported from rust&#39;s `std`
+or recreated if `not(std)`'><code>?std</code></span>
+A specialized <a href="../../zall/enum.Result.html" title="enum devela::zall::Result"><code>Result</code></a> type for I/O operations.</dd><dt><a class="type" href="type.NumResult.html" title="type devela::zall_::_code::NumResult">NumResult</a></dt><dd><span class='stab portability' title='Numeric structures and computation'>⅀</span> <span class='stab portability' title='Outcome'>⚖️</span>
+A numeric-related result.</dd><dt><a class="type" href="type.OptRes.html" title="type devela::zall_::_code::OptRes">OptRes</a></dt><dd><span class='stab portability' title='Outcome'>⚖️</span>
+An optional result type that combines success, failure, and absence.</dd><dt><a class="type" href="type.TextResult.html" title="type devela::zall_::_code::TextResult">Text<wbr>Result</a><wbr><span class="stab portability" title="Available on `text··` only"><code>text··</code></span></dt><dd><span class='stab portability' title='Text'>𝐓</span> <span class='stab portability' title='Outcome'>⚖️</span>
+A text-related result.</dd></dl><h2 id="attributes" class="section-header">Attribute Macros<a href="#attributes" class="anchor">§</a></h2><dl class="item-table"><dt><a class="attr" href="attr.compile.html" title="attr devela::zall_::_code::compile">compile</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Conditionally compiles the thing it is attached to based on the <a href="https://docs.rs/devela/latest/devela/_doc/macros#compilation-predicates">predicate</a>.</dd><dt><a class="attr" href="attr.compile_attr.html" title="attr devela::zall_::_code::compile_attr">compile_<wbr>attr</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Conditionally compiles the given attributes based on the <a href="https://docs.rs/devela/latest/devela/_doc/macros#compilation-predicates">predicate</a>.</dd><dt><a class="attr" href="attr.macro_apply.html" title="attr devela::zall_::_code::macro_apply">macro_<wbr>apply</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Applies a declarative macro to the decorated item.</dd><dt><a class="attr" href="attr.macro_derive.html" title="attr devela::zall_::_code::macro_derive">macro_<wbr>derive</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Runs classic derives and declarative derives from one list.</dd><dt><a class="attr" href="attr.macro_derive_with.html" title="attr devela::zall_::_code::macro_derive_with">macro_<wbr>derive_<wbr>with</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span> <span class='stab portability' title='procedural macro'><small>proc</small></span>
+Runs declarative derive-like macros over the decorated item.</dd></dl><h2 id="derives" class="section-header">Derive Macros<a href="#derives" class="anchor">§</a></h2><dl class="item-table"><dt><a class="derive" href="derive.Clone.html" title="derive devela::zall_::_code::Clone">Clone</a></dt><dd><span class='stab portability' title='Value semantics'>💱</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A common trait that allows explicit creation of a duplicate value. (Derivable)</dd><dt><a class="derive" href="derive.Copy.html" title="derive devela::zall_::_code::Copy">Copy</a></dt><dd><span class='stab portability' title='Code structure and compilation'>⌗</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+Types whose values can be duplicated simply by copying bits. (Derivable)</dd><dt><a class="derive" href="derive.Default.html" title="derive devela::zall_::_code::Default">Default</a></dt><dd><span class='stab portability' title='Initialization'>🌱</span>
+<span class='stab portability' title='re-exported from rust&#39;s `core`'><code>core</code></span>
+A trait for giving a type a useful default value. (Derivable)</dd></dl></section></div></main></body></html>

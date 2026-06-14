@@ -1,0 +1,297 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/net/http/response.rs`."><title>response.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (1f087276b 2026-06-13)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- devela::src::_doc::header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/zall", "/zall_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/zall/","/zall_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.js",
+        integrity: "sha384-Tt7wBxLKwSzFVRET4O4U9H6v8MNaQ/CjN2FMP4xFm0ErrFu6aNqoonRVW5W40iGI" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">devela/sys/net/http/</div>response.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela/src/sys/net/http/response.rs
+<a href=#2 id=2 data-nosnippet>2</a>//
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="doccomment">//! Defines [`HttpResponseHead`].
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="comment">//
+<a href=#5 id=5 data-nosnippet>5</a>
+<a href=#6 id=6 data-nosnippet>6</a></span><span class="kw">use crate</span>::{<a href="../../../text/ascii/digits/mod.rs.html#91">Digits</a>, <a href="../../../text/str/namespace/definition.rs.html#84">Str</a>, <a href="../../../code/util/is.rs.html#78-136">is</a>, <a href="../../../code/result/opt_res/unwrap.rs.html#41-555">unwrap</a>, <a href="../../../code/util/whilst.rs.html#82-219">whilst</a>, <a href="../../../code/util/write.rs.html#101-195">write_at</a>};
+<a href=#7 id=7 data-nosnippet>7</a><span class="kw">use crate</span>::{<a href="error.rs.html#10-45">HttpError</a>, <a href="namespace.rs.html#29-50">HttpMethod</a>, <a href="status.rs.html#31">HttpStatus</a>, <a href="version.rs.html#12-21">HttpVersion</a>, <a href="../../../text/parse/scanner/define.rs.html#99-102">TextScanner</a>};
+<a href=#8 id=8 data-nosnippet>8</a>
+<a href=#9 id=9 data-nosnippet>9</a><span class="attr">#[doc = <span class="macro">crate::_tags!</span>(network protocol)]
+<a href=#10 id=10 data-nosnippet>10</a></span><span class="doccomment">/// HTTP response head.
+<a href=#11 id=11 data-nosnippet>11</a></span><span class="attr">#[doc = <span class="macro">crate::_doc_meta!</span>{location(<span class="string">"sys/net/http"</span>)}]
+<a href=#12 id=12 data-nosnippet>12</a></span><span class="doccomment">///
+<a href=#13 id=13 data-nosnippet>13</a>/// Represents an HTTP status line and basic representation headers.
+<a href=#14 id=14 data-nosnippet>14</a>///
+<a href=#15 id=15 data-nosnippet>15</a>/// The current encoder writes the textual HTTP/1 wire format.
+<a href=#16 id=16 data-nosnippet>16</a></span><span class="attr">#[derive(<a href="../../../../../devela/code/derive.Clone.html">Clone</a>, <a href="../../../../../devela/zall/derive.Copy.html">Copy</a>, <a href="../../../../../devela/zall/derive.Debug.html">Debug</a>, <a href="../../../../../devela/zall/derive.PartialEq.html">PartialEq</a>, <a href="../../../../../devela/zall/derive.Eq.html">Eq</a>, <a href="../../../../../devela/zall/derive.Hash.html">Hash</a>)]
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">pub struct </span><a href="#17-22">HttpResponseHead</a>&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#18 id=18 data-nosnippet>18</a>    version: <a href="version.rs.html#12-21">HttpVersion</a>,
+<a href=#19 id=19 data-nosnippet>19</a>    status: <a href="status.rs.html#31">HttpStatus</a>,
+<a href=#20 id=20 data-nosnippet>20</a>    content_type: <a class="prelude-ty" href="../../../../../devela/zall/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;,
+<a href=#21 id=21 data-nosnippet>21</a>    content_length: <a class="prelude-ty" href="../../../../../devela/zall/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;,
+<a href=#22 id=22 data-nosnippet>22</a>}
+<a href=#23 id=23 data-nosnippet>23</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <a href="#17-22">HttpResponseHead</a>&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#24 id=24 data-nosnippet>24</a>    <span class="doccomment">/// Creates an HTTP/1.1 response head with the given status.
+<a href=#25 id=25 data-nosnippet>25</a>    </span><span class="attr">#[must_use]
+<a href=#26 id=26 data-nosnippet>26</a>    </span><span class="kw">pub const fn </span>new(status: <a href="status.rs.html#31">HttpStatus</a>) -&gt; <span class="self">Self </span>{
+<a href=#27 id=27 data-nosnippet>27</a>        <span class="self">Self </span>{
+<a href=#28 id=28 data-nosnippet>28</a>            version: HttpVersion::<a href="version.rs.html#16">Http11</a>,
+<a href=#29 id=29 data-nosnippet>29</a>            <a href="#26">status</a>,
+<a href=#30 id=30 data-nosnippet>30</a>            content_type: <a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">None</a>,
+<a href=#31 id=31 data-nosnippet>31</a>            content_length: <a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">None</a>,
+<a href=#32 id=32 data-nosnippet>32</a>        }
+<a href=#33 id=33 data-nosnippet>33</a>    }
+<a href=#34 id=34 data-nosnippet>34</a>    <span class="doccomment">/// Creates a `200 OK` HTTP/1.1 response head.
+<a href=#35 id=35 data-nosnippet>35</a>    </span><span class="attr">#[must_use]
+<a href=#36 id=36 data-nosnippet>36</a>    </span><span class="kw">pub const fn </span>ok() -&gt; <span class="self">Self </span>{
+<a href=#37 id=37 data-nosnippet>37</a>        <span class="self">Self</span>::<a href="#26-33">new</a>(<a href="status.rs.html#31">HttpStatus</a>::<a href="status.rs.html#49">OK</a>)
+<a href=#38 id=38 data-nosnippet>38</a>    }
+<a href=#39 id=39 data-nosnippet>39</a>    <span class="doccomment">/// Creates a `404 Not Found` HTTP/1.1 response head.
+<a href=#40 id=40 data-nosnippet>40</a>    </span><span class="attr">#[must_use]
+<a href=#41 id=41 data-nosnippet>41</a>    </span><span class="kw">pub const fn </span>not_found() -&gt; <span class="self">Self </span>{
+<a href=#42 id=42 data-nosnippet>42</a>        <span class="self">Self</span>::<a href="#26-33">new</a>(<a href="status.rs.html#31">HttpStatus</a>::<a href="status.rs.html#99">NOT_FOUND</a>)
+<a href=#43 id=43 data-nosnippet>43</a>    }
+<a href=#44 id=44 data-nosnippet>44</a>    <span class="doccomment">/// Sets the HTTP version.
+<a href=#45 id=45 data-nosnippet>45</a>    </span><span class="attr">#[must_use]
+<a href=#46 id=46 data-nosnippet>46</a>    </span><span class="kw">pub const fn </span>with_version(<span class="kw-2">mut </span><span class="self">self</span>, version: <a href="version.rs.html#12-21">HttpVersion</a>) -&gt; <span class="self">Self </span>{
+<a href=#47 id=47 data-nosnippet>47</a>        <a class="self" href="#46">self</a>.version = <a href="#46">version</a>;
+<a href=#48 id=48 data-nosnippet>48</a>        <a class="self" href="#46">self</a>
+<a href=#49 id=49 data-nosnippet>49</a>    }
+<a href=#50 id=50 data-nosnippet>50</a>    <span class="doccomment">/// Sets the `Content-Type` header.
+<a href=#51 id=51 data-nosnippet>51</a>    ///
+<a href=#52 id=52 data-nosnippet>52</a>    /// The value is validated when the response head is encoded.
+<a href=#53 id=53 data-nosnippet>53</a>    </span><span class="attr">#[must_use]
+<a href=#54 id=54 data-nosnippet>54</a>    </span><span class="kw">pub const fn </span>with_content_type(<span class="kw-2">mut </span><span class="self">self</span>, content_type: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <span class="self">Self </span>{
+<a href=#55 id=55 data-nosnippet>55</a>        <a class="self" href="#54">self</a>.content_type = <a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">Some</a>(<a href="#54">content_type</a>);
+<a href=#56 id=56 data-nosnippet>56</a>        <a class="self" href="#54">self</a>
+<a href=#57 id=57 data-nosnippet>57</a>    }
+<a href=#58 id=58 data-nosnippet>58</a>    <span class="doccomment">/// Sets the `Content-Length` header.
+<a href=#59 id=59 data-nosnippet>59</a>    </span><span class="attr">#[must_use]
+<a href=#60 id=60 data-nosnippet>60</a>    </span><span class="kw">pub const fn </span>with_content_length(<span class="kw-2">mut </span><span class="self">self</span>, len: <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <span class="self">Self </span>{
+<a href=#61 id=61 data-nosnippet>61</a>        <a class="self" href="#60">self</a>.content_length = <a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">Some</a>(<a href="#60">len</a>);
+<a href=#62 id=62 data-nosnippet>62</a>        <a class="self" href="#60">self</a>
+<a href=#63 id=63 data-nosnippet>63</a>    }
+<a href=#64 id=64 data-nosnippet>64</a>    <span class="doccomment">/// Returns the HTTP version.
+<a href=#65 id=65 data-nosnippet>65</a>    </span><span class="attr">#[must_use]
+<a href=#66 id=66 data-nosnippet>66</a>    </span><span class="kw">pub const fn </span>version(<span class="self">self</span>) -&gt; <a href="version.rs.html#12-21">HttpVersion</a> {
+<a href=#67 id=67 data-nosnippet>67</a>        <a class="self" href="#66">self</a>.version
+<a href=#68 id=68 data-nosnippet>68</a>    }
+<a href=#69 id=69 data-nosnippet>69</a>    <span class="doccomment">/// Returns the response status.
+<a href=#70 id=70 data-nosnippet>70</a>    </span><span class="attr">#[must_use]
+<a href=#71 id=71 data-nosnippet>71</a>    </span><span class="kw">pub const fn </span>status(<span class="self">self</span>) -&gt; <a href="status.rs.html#31">HttpStatus</a> {
+<a href=#72 id=72 data-nosnippet>72</a>        <a class="self" href="#71">self</a>.status
+<a href=#73 id=73 data-nosnippet>73</a>    }
+<a href=#74 id=74 data-nosnippet>74</a>    <span class="doccomment">/// Returns the `Content-Type` value, when set.
+<a href=#75 id=75 data-nosnippet>75</a>    </span><span class="attr">#[must_use]
+<a href=#76 id=76 data-nosnippet>76</a>    </span><span class="kw">pub const fn </span>content_type(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/zall/enum.Option.html">Option</a>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><a href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; {
+<a href=#77 id=77 data-nosnippet>77</a>        <a class="self" href="#76">self</a>.content_type
+<a href=#78 id=78 data-nosnippet>78</a>    }
+<a href=#79 id=79 data-nosnippet>79</a>    <span class="doccomment">/// Returns the `Content-Length` value, when set.
+<a href=#80 id=80 data-nosnippet>80</a>    </span><span class="attr">#[must_use]
+<a href=#81 id=81 data-nosnippet>81</a>    </span><span class="kw">pub const fn </span>content_length(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/zall/enum.Option.html">Option</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; {
+<a href=#82 id=82 data-nosnippet>82</a>        <a class="self" href="#81">self</a>.content_length
+<a href=#83 id=83 data-nosnippet>83</a>    }
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="doccomment">/// Returns the encoded HTTP/1 response-head length.
+<a href=#85 id=85 data-nosnippet>85</a>    ///
+<a href=#86 id=86 data-nosnippet>86</a>    /// Returns an error when the configured version has no HTTP/1 textual
+<a href=#87 id=87 data-nosnippet>87</a>    /// representation or a configured header value is invalid.
+<a href=#88 id=88 data-nosnippet>88</a>    </span><span class="kw">pub const fn </span>http1_encoded_len(<span class="self">self</span>) -&gt; <a class="prelude-ty" href="../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="error.rs.html#10-45">HttpError</a>&gt; {
+<a href=#89 id=89 data-nosnippet>89</a>        <span class="kw">let </span><a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">Some</a>(version) = <a class="self" href="#88">self</a>.version.<a href="version.rs.html#62-68">http1_token</a>() <span class="kw">else </span>{
+<a href=#90 id=90 data-nosnippet>90</a>            <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/zall/enum.Result.html">Err</a>(HttpError::<a href="error.rs.html#36">InvalidVersion</a>);
+<a href=#91 id=91 data-nosnippet>91</a>        };
+<a href=#92 id=92 data-nosnippet>92</a>        <span class="kw">let </span>reason = <span class="kw">match </span><a class="self" href="#88">self</a>.status.<a href="status.rs.html#239-308">reason</a>() {
+<a href=#93 id=93 data-nosnippet>93</a>            <a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">Some</a>(reason) =&gt; <a href="#93">reason</a>,
+<a href=#94 id=94 data-nosnippet>94</a>            <a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">None</a> =&gt; <span class="string">""</span>,
+<a href=#95 id=95 data-nosnippet>95</a>        };
+<a href=#96 id=96 data-nosnippet>96</a>        <span class="kw">let </span><span class="kw-2">mut </span>len = <a href="#89">version</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.str.html#method.len">len</a>()
+<a href=#97 id=97 data-nosnippet>97</a>            + <span class="number">1 </span><span class="comment">// SP
+<a href=#98 id=98 data-nosnippet>98</a>            </span>+ <span class="number">3 </span><span class="comment">// status code
+<a href=#99 id=99 data-nosnippet>99</a>            </span>+ <span class="number">1 </span><span class="comment">// SP
+<a href=#100 id=100 data-nosnippet>100</a>            </span>+ <a href="#92">reason</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.str.html#method.len">len</a>()
+<a href=#101 id=101 data-nosnippet>101</a>            + <span class="number">2</span>; <span class="comment">// CRLF
+<a href=#102 id=102 data-nosnippet>102</a>        </span><span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">Some</a>(content_type) = <a class="self" href="#88">self</a>.content_type {
+<a href=#103 id=103 data-nosnippet>103</a>            <span class="kw">if </span>!<span class="self">Self</span>::<a href="#152-160">is_valid_header_value</a>(<a href="#102">content_type</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.str.html#method.as_bytes">as_bytes</a>()) {
+<a href=#104 id=104 data-nosnippet>104</a>                <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/zall/enum.Result.html">Err</a>(HttpError::<a href="error.rs.html#27">InvalidHeaderValue</a>);
+<a href=#105 id=105 data-nosnippet>105</a>            }
+<a href=#106 id=106 data-nosnippet>106</a>            <a href="#96">len</a> += <span class="string">b"Content-Type: "</span>.<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.len">len</a>() + <a href="#102">content_type</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.str.html#method.len">len</a>() + <span class="number">2</span>; <span class="comment">// CRLF
+<a href=#107 id=107 data-nosnippet>107</a>        </span>}
+<a href=#108 id=108 data-nosnippet>108</a>        <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">Some</a>(content_length) = <a class="self" href="#88">self</a>.content_length {
+<a href=#109 id=109 data-nosnippet>109</a>            <a href="#96">len</a> += <span class="string">b"Content-Length: "</span>.<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.len">len</a>() + <a href="../../../text/ascii/digits/mod.rs.html#91">Digits</a>(<a href="#108">content_length</a>).<a href="../../../text/ascii/digits/usize.rs.html#21-23">count_digits10</a>() <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> + <span class="number">2</span>; <span class="comment">// CRLF
+<a href=#110 id=110 data-nosnippet>110</a>        </span>}
+<a href=#111 id=111 data-nosnippet>111</a>        <a class="prelude-val" href="../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#96">len</a> + <span class="number">2</span>) <span class="comment">// final CRLF
+<a href=#112 id=112 data-nosnippet>112</a>    </span>}
+<a href=#113 id=113 data-nosnippet>113</a>    <span class="doccomment">/// Writes the textual HTTP/1 response head into `dst`.
+<a href=#114 id=114 data-nosnippet>114</a>    ///
+<a href=#115 id=115 data-nosnippet>115</a>    /// Returns the number of bytes written.
+<a href=#116 id=116 data-nosnippet>116</a>    ///
+<a href=#117 id=117 data-nosnippet>117</a>    /// The operation is atomic: if an error is returned, `dst` is unchanged.
+<a href=#118 id=118 data-nosnippet>118</a>    </span><span class="kw">pub const fn </span>write_http1_into(<span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a class="prelude-ty" href="../../../../../devela/zall/enum.Result.html">Result</a>&lt;<a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <a href="error.rs.html#10-45">HttpError</a>&gt; {
+<a href=#119 id=119 data-nosnippet>119</a>        <span class="kw">let </span>needed = <span class="kw">match </span><a class="self" href="#118">self</a>.<a href="#88-112">http1_encoded_len</a>() {
+<a href=#120 id=120 data-nosnippet>120</a>            <a class="prelude-val" href="../../../../../devela/zall/enum.Result.html">Ok</a>(needed) =&gt; <a href="#120">needed</a>,
+<a href=#121 id=121 data-nosnippet>121</a>            <a class="prelude-val" href="../../../../../devela/zall/enum.Result.html">Err</a>(error) =&gt; <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/zall/enum.Result.html">Err</a>(<a href="#121">error</a>),
+<a href=#122 id=122 data-nosnippet>122</a>        };
+<a href=#123 id=123 data-nosnippet>123</a>        <span class="kw">if </span><a href="#118">dst</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.slice.html#method.len">len</a>() &lt; <a href="#119">needed</a> {
+<a href=#124 id=124 data-nosnippet>124</a>            <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/zall/enum.Result.html">Err</a>(HttpError::<a href="error.rs.html#44">NotEnoughSpace</a>(<a href="#119">needed</a>));
+<a href=#125 id=125 data-nosnippet>125</a>        }
+<a href=#126 id=126 data-nosnippet>126</a>        <span class="kw">let </span><a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">Some</a>(version) = <a class="self" href="#118">self</a>.version.<a href="version.rs.html#62-68">http1_token</a>() <span class="kw">else </span>{
+<a href=#127 id=127 data-nosnippet>127</a>            <span class="kw">return </span><a class="prelude-val" href="../../../../../devela/zall/enum.Result.html">Err</a>(HttpError::<a href="error.rs.html#36">InvalidVersion</a>);
+<a href=#128 id=128 data-nosnippet>128</a>        };
+<a href=#129 id=129 data-nosnippet>129</a>        <span class="kw">let </span>reason = <span class="kw">match </span><a class="self" href="#118">self</a>.status.<a href="status.rs.html#239-308">reason</a>() {
+<a href=#130 id=130 data-nosnippet>130</a>            <a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">Some</a>(reason) =&gt; <a href="#130">reason</a>,
+<a href=#131 id=131 data-nosnippet>131</a>            <a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">None</a> =&gt; <span class="string">""</span>,
+<a href=#132 id=132 data-nosnippet>132</a>        };
+<a href=#133 id=133 data-nosnippet>133</a>        <span class="kw">let </span><span class="kw-2">mut </span>pos = <span class="number">0</span>;
+<a href=#134 id=134 data-nosnippet>134</a>        <span class="comment">/* status line */
+<a href=#135 id=135 data-nosnippet>135</a>        </span><a href="../../../code/util/write.rs.html#101-195">write_at!</a>(dst, +=pos, @version.as_bytes(), <span class="string">b' '</span>);
+<a href=#136 id=136 data-nosnippet>136</a>        <a href="#133">pos</a> += <a href="../../../text/ascii/digits/mod.rs.html#91">Digits</a>(<a class="self" href="#118">self</a>.status.<a href="status.rs.html#181-183">code</a>()).<a href="../../../text/ascii/digits/u16.rs.html#201-205">write_digits10</a>(<a href="#118">dst</a>, <a href="#133">pos</a>);
+<a href=#137 id=137 data-nosnippet>137</a>        <a href="../../../code/util/write.rs.html#101-195">write_at!</a>(dst, +=pos, <span class="string">b' '</span>, @reason.as_bytes(), @<span class="string">b"\r\n"</span>);
+<a href=#138 id=138 data-nosnippet>138</a>        <span class="comment">/* headers */
+<a href=#139 id=139 data-nosnippet>139</a>        </span><span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">Some</a>(content_type) = <a class="self" href="#118">self</a>.content_type {
+<a href=#140 id=140 data-nosnippet>140</a>            <a href="../../../code/util/write.rs.html#101-195">write_at!</a>(dst, +=pos, @<span class="string">b"Content-Type: "</span>, @content_type.as_bytes(), @<span class="string">b"\r\n"</span>);
+<a href=#141 id=141 data-nosnippet>141</a>        }
+<a href=#142 id=142 data-nosnippet>142</a>        <span class="kw">if let </span><a class="prelude-val" href="../../../../../devela/zall/enum.Option.html">Some</a>(content_length) = <a class="self" href="#118">self</a>.content_length {
+<a href=#143 id=143 data-nosnippet>143</a>            <a href="../../../code/util/write.rs.html#101-195">write_at!</a>(dst, +=pos, @<span class="string">b"Content-Length: "</span>);
+<a href=#144 id=144 data-nosnippet>144</a>            <a href="#133">pos</a> += <a href="../../../text/ascii/digits/mod.rs.html#91">Digits</a>(<a href="#142">content_length</a>).<a href="../../../text/ascii/digits/usize.rs.html#236-238">write_digits10</a>(<a href="#118">dst</a>, <a href="#133">pos</a>);
+<a href=#145 id=145 data-nosnippet>145</a>            <a href="../../../code/util/write.rs.html#101-195">write_at!</a>(dst, +=pos, @<span class="string">b"\r\n"</span>);
+<a href=#146 id=146 data-nosnippet>146</a>        }
+<a href=#147 id=147 data-nosnippet>147</a>        <span class="comment">/* end of head */
+<a href=#148 id=148 data-nosnippet>148</a>        </span><a href="../../../code/util/write.rs.html#101-195">write_at!</a>(dst, +=pos, @<span class="string">b"\r\n"</span>);
+<a href=#149 id=149 data-nosnippet>149</a>        <a class="prelude-val" href="../../../../../devela/zall/enum.Result.html">Ok</a>(<a href="#133">pos</a>)
+<a href=#150 id=150 data-nosnippet>150</a>    }
+<a href=#151 id=151 data-nosnippet>151</a>    <span class="doccomment">/// Returns whether `bytes` form a safe HTTP field value.
+<a href=#152 id=152 data-nosnippet>152</a>    </span><span class="kw">const fn </span>is_valid_header_value(bytes: <span class="kw-2">&amp;</span>[<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>]) -&gt; <a href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> {
+<a href=#153 id=153 data-nosnippet>153</a>        <a href="../../../code/util/whilst.rs.html#82-219">whilst!</a> { i <span class="kw">in </span><span class="number">0</span>..bytes.len(); {
+<a href=#154 id=154 data-nosnippet>154</a>            <span class="kw">let </span>byte = bytes[i];
+<a href=#155 id=155 data-nosnippet>155</a>            <span class="comment">// Permit HTAB, visible ASCII and non-ASCII opaque bytes.
+<a href=#156 id=156 data-nosnippet>156</a>            // Reject CR, LF, DEL and the remaining control bytes.
+<a href=#157 id=157 data-nosnippet>157</a>            </span><span class="kw">if </span>(byte &lt; <span class="string">b' ' </span>&amp;&amp; byte != <span class="string">b'\t'</span>) || byte == <span class="number">0x7f </span>{ <span class="kw">return </span><span class="bool-val">false</span>; }
+<a href=#158 id=158 data-nosnippet>158</a>        }}
+<a href=#159 id=159 data-nosnippet>159</a>        <span class="bool-val">true
+<a href=#160 id=160 data-nosnippet>160</a>    </span>}
+<a href=#161 id=161 data-nosnippet>161</a>}
+</code></pre></div></section></main></body></html>

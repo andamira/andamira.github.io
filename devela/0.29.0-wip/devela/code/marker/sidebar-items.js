@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"derive":["Copy"],"enum":["ReprMode"],"macro":[["type_marker",1],["type_resource",1]],"struct":["PhantomData","PhantomPinned","TypeResource"],"trait":["Copy","IndexRepr","Prim","PrimFitPtr","PrimIndex","Send","Sized","Sync","TypeResourced","Unpin"]};
