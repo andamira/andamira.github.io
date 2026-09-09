@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Option","Result"],"fn":["serr","sok"],"macro":[["unwrap",1]],"struct":["Mismatch","OptionFmt","OptionFmtOr","OptionFmtOrElse"],"trait":["OptResExt","OptionExt","ResultExt"],"type":["Infallible","InfallibleResult","OptRes"]};

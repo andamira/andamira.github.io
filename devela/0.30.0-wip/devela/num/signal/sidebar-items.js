@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["CurveRamp","Phase","PhaseAccum","PhaseStep","SignalClamp","SignalConst","SignalFn","SignalMap","SignalScale","SignalZip"],"trait":["SignalAt","SignalNext"]};

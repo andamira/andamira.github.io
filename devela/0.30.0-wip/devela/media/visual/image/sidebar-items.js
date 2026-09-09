@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ImageError"],"mod":["format","raster","sixel"],"struct":["ImageFrameInfo","ImageFrameSpan","ImageInfo"],"type":["ImageResult"]};

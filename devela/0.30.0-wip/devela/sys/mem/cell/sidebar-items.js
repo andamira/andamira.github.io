@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["MemHedgeError","MemHedgeState"],"struct":["Cell","LazyCell","MemHedgeCtrl","MemHedgeRead","OnceCell","Ref","RefCell","RefCellBorrowError","RefCellBorrowMutError","RefMut","UnsafeCell"],"trait":["CellOptionExt"]};

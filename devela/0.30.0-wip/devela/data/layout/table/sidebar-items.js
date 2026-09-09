@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Table","TableCoord","TableCoordIter","TableLayout","TableShape"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["UuidVariant","UuidVersion"],"struct":["Uuid","UuidNonNil","UuidV7Generator"]};

@@ -1,0 +1,300 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Design principles, constraints, and enduring project posture."><title>devela::_doc::design::principles - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module principles</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module principles</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#design-principles" title="Design principles">Design principles</a><ul><li><a href="#build-from-useful-parts" title="Build from useful parts">Build from useful parts</a></li><li><a href="#keep-choices-independent" title="Keep choices independent">Keep choices independent</a></li><li><a href="#make-representations-accessible" title="Make representations accessible">Make representations accessible</a></li><li><a href="#keep-requirements-explicit" title="Keep requirements explicit">Keep requirements explicit</a></li><li><a href="#state-contracts-and-costs" title="State contracts and costs">State contracts and costs</a></li><li><a href="#generate-what-is-needed" title="Generate what is needed">Generate what is needed</a></li><li><a href="#give-things-a-clear-place" title="Give things a clear place">Give things a clear place</a></li><li><a href="#write-for-the-reader" title="Write for the reader">Write for the reader</a></li><li><a href="#learn-from-experience" title="Learn from experience">Learn from experience</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>doc::<wbr>design</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">_doc</a>::<wbr><a href="../index.html">design</a></div><h1>Module <span>principles</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/_doc/design/_.rs.html#21">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Design principles, constraints, and enduring project posture.</p>
+<!-- devela/src/_doc/design/principles.md -->
+<h2 id="design-principles"><a class="doc-anchor" href="#design-principles">§</a>Design principles</h2>
+<p>devela is a foundation for systems and creative tools in Rust. These principles
+guide the design of its parts and explain the choices that recur across the
+library and its supporting crates.</p>
+<p>They are the current basis for design decisions. When they pull in different
+directions, the aim is the smallest coherent design that preserves their intent.
+Important exceptions need a reason that can be recorded and revisited.
+These principles do not settle every case; specific problems still need
+judgment and evidence.</p>
+<h3 id="build-from-useful-parts"><a class="doc-anchor" href="#build-from-useful-parts">§</a>Build from useful parts</h3>
+<p>An abstraction should represent a useful concept, with only the state and
+requirements that concept needs. More involved facilities can build on those
+parts while leaving them useful on their own.</p>
+<p>This is how the library is meant to grow. Common mechanisms can serve several
+domains, and new layers add capabilities without replacing their foundations.
+Composing a few reusable parts leaves room for uses that were not anticipated
+when those parts were written.</p>
+<h3 id="keep-choices-independent"><a class="doc-anchor" href="#keep-choices-independent">§</a>Keep choices independent</h3>
+<p>Meaning, representation, storage ownership, memory layout, access capabilities,
+execution strategy, and environment are separate questions wherever they can
+vary independently. Choosing one should not unnecessarily settle the others.</p>
+<p>For example, <code>pool!</code> lets the caller choose index and generation representations
+independently of fixed or allocating storage. Both forms access values through
+handles containing a slot index and a generation.</p>
+<p>Start with the least capability sufficient for the task. A form with fewer
+requirements should be complete and useful on its own. Greater capability can
+add precision, scale, or expressive range while keeping the simpler form
+available. Independent capabilities and explicit adaptations are more useful
+than treating backends as a single ladder from lesser to greater.</p>
+<p>Compile-time specialization and runtime choice should also connect. Prefer a
+path from concrete forms with <code>const</code> operations where possible, through generic
+interfaces, to finite runtime alternatives, and finally to broader type erasure
+as needed. When a runtime family is finite, keep a path back to its concrete
+forms where practical. These transitions should be explicit and, where possible,
+reversible.</p>
+<h3 id="make-representations-accessible"><a class="doc-anchor" href="#make-representations-accessible">§</a>Make representations accessible</h3>
+<p>A foundational type should offer stable ways to inspect its shape, state,
+storage, or components when these are meaningful parts of the abstraction.
+It may support several useful views of the same value.</p>
+<p>Access can include borrowed inspection, exclusive access, recovering owned
+storage, or taking a value apart and rebuilding it. Each operation should expose
+the representation the type promises, while preserving its invariants and
+safety boundaries. This does not require public fields or unrestricted access
+to implementation details.</p>
+<p>Rebuilding a value from its canonical representation must preserve that
+representation exactly. Invalid representations are rejected. An unchecked
+path requires an explicit safety boundary.</p>
+<p>Convenient construction serves a different purpose. A constructor may clamp,
+wrap, quantize, recognize reserved values, or otherwise normalize its input when
+that behavior is useful and explicit. The accepted inputs, semantic values, and
+canonical representations need not have the same domains. A successful canonical
+reconstruction, however, must not silently substitute a different representation.</p>
+<p>Compact storage is valuable when it improves capacity, layout, or the guarantees
+of a type. Natural types are preferable for ordinary access when narrowing them
+brings no material benefit. Index widths, niches, packing, and specialization
+may belong in the abstraction or its generated variants when they are meaningful
+choices. Compact transport and serialized forms can otherwise remain separate,
+with clear conversions to and from the semantic form.</p>
+<p>When type or compile-time information already determines a value, prefer leaving
+out the redundant stored state over encoding it in fewer bits.</p>
+<h3 id="keep-requirements-explicit"><a class="doc-anchor" href="#keep-requirements-explicit">§</a>Keep requirements explicit</h3>
+<p>Core abstractions begin with <code>core</code>, so their baseline is usable without <code>std</code>
+or an allocator. When an operation can use fixed buffers or storage supplied by
+the caller, that path should remain available. Allocating conveniences are added
+through features. This lets applications choose where memory comes from and how
+much they are prepared to use.</p>
+<p>The baseline must work on stable Rust. Nightly capabilities can be offered as
+optional additions. Allocation, the standard library, and platform facilities
+are introduced where they provide something the selected capability needs.</p>
+<p>A feature may imply another only when it has no substantial useful existence
+without it. Features remain separate when their combinations represent
+meaningful supported forms. Sharing a module is not enough to require sharing
+all of its dependencies.</p>
+<p>Core concepts are defined by their role in the library. Platform bindings,
+foreign interfaces, and backend adapters translate between those concepts and
+external systems where possible. Keeping that translation at the boundary
+allows the same core to remain useful in other environments.</p>
+<h3 id="state-contracts-and-costs"><a class="doc-anchor" href="#state-contracts-and-costs">§</a>State contracts and costs</h3>
+<p>State changes should be visible in the API. Advancing a cursor, taking an
+iteration step, changing phase, or progressing through time should make clear
+how the state moves from one point to the next.</p>
+<p>An API should make it clear what the caller must provide and what the operation
+guarantees. Panics belong to programming errors such as broken invariants or
+violated preconditions. Failures expected during normal use need a fallible
+path.</p>
+<p>When performance, validation, or safety requirements materially change an
+operation’s contract, distinct APIs should make the choice explicit.</p>
+<p>Borrowing or reinterpreting existing data has different costs and effects from
+copying, allocating, materializing, reordering storage, or accessing data with
+side effects. Names, signatures, or documentation should make those differences
+visible. Convenience should not hide a cost that matters to the caller.</p>
+<h3 id="generate-what-is-needed"><a class="doc-anchor" href="#generate-what-is-needed">§</a>Generate what is needed</h3>
+<p>Some abstractions admit many useful combinations of index types, handle forms,
+storage backends, and optional fields. Publishing every combination separately
+makes both the library and its compilation harder to manage.</p>
+<p>Generator macros let the caller select a form and generate the corresponding
+types and implementations. A small set of common parts supports the variations
+that are actually needed. This is intended to retain concrete, monomorphized
+code while limiting how much must be generated and compiled in advance.</p>
+<p>Macro parameters should be few and correspond to real choices, such as an index
+type, handle encoding, optional field, or validation contract. Generated APIs
+need a stable, readable structure that can be documented and debugged. Their
+meaning should remain clear without requiring the caller to trace the expansion.</p>
+<p>Macros can build on other macros when each layer stays small and understandable,
+and the expansion leads to direct underlying operations.</p>
+<p>Build scripts, feature reflection, code generation, and documentation tools are
+part of the library’s design. They help keep it consistent and reduce repetition.
+They should remain inspectable and deterministic, serving the public API.</p>
+<h3 id="give-things-a-clear-place"><a class="doc-anchor" href="#give-things-a-clear-place">§</a>Give things a clear place</h3>
+<p>An item’s name, module, and opening description should express what it is.
+Its domain and meaning determine its home. Convenience and implementation
+history should give way when they obscure that meaning.</p>
+<p>A namespace can be established before it contains much code when its role is
+already clear. Such a place is useful when it makes the map easier to understand
+and gives later work a natural home.</p>
+<p>An item’s home and the places from which it is accessible serve different
+purposes. A parent module may re-export a few significant or broadly useful
+items, favoring mature ones that help readers enter that part of the library.
+Each parent makes its own selection; a re-export need not continue through every
+ancestor. The selection should express the branch’s character. Familiar upstream
+items should not crowd out the items that best represent that branch.</p>
+<p>Public naming families should stay consistent. Enum names are singular, and
+prefixes or suffixes distinguish meaningful differences such as a storage
+backend or index width. A departure from an established pattern needs a real
+conceptual distinction. Aliases can help people find an item while leaving its
+domain and canonical name clear.</p>
+<h3 id="write-for-the-reader"><a class="doc-anchor" href="#write-for-the-reader">§</a>Write for the reader</h3>
+<p>API documentation explains what an abstraction represents, what it guarantees,
+and how to use it correctly. Relationships to nearby concepts belong there when
+they help the reader make a choice. Design debates, rejected alternatives, and
+maintenance instructions have their own homes in comments, notes, or decision
+records.</p>
+<p>The layers of documentation should complement one another. An opening doc-line
+identifies the role of an item or module. A parent module explains how its
+children relate. Each child develops its own guarantees, boundaries, and use.
+Readers should gain something at each step without meeting the same introduction
+again.</p>
+<p>Emphasis also needs a purpose. Badges, notable markers, and featured examples
+should identify differences that help someone understand or use an item.
+Something being important or widespread does not by itself make it useful to
+highlight everywhere.</p>
+<h3 id="learn-from-experience"><a class="doc-anchor" href="#learn-from-experience">§</a>Learn from experience</h3>
+<p>Decisions that materially affect compilation, code size, runtime behavior, or
+the extent of a generated API need evidence that can be tested or measured. The
+intended benefit of a design should be checked against what it costs in practice.</p>
+<p>Before 1.0, the project gives priority to a clearer and more consistent library
+over preserving every existing API. Renames, moves, removals, and other breaking
+changes are acceptable when they improve that structure. Deprecation shims are
+optional during this stage.</p>
+<p>The project aims to keep its minimum supported Rust version close to stable
+Rust. That minimum may advance quickly when newer capabilities allow a cleaner
+implementation.</p>
+<p>Important decisions deserve a record of their reasons, consequences, and the
+conditions that might lead to reconsidering them. The record can be brief;
+what matters is being able to understand the choice later.</p>
+<p>These principles should change when repeated experience reveals a clearer idea,
+an assumption that no longer holds, or a tension they do not yet address. Local
+decisions need not all become general rules. The underlying purpose and broad
+design principles should change slowly, while conventions and techniques can
+respond more readily to what the work teaches. Revisions should preserve the
+reasons for important changes and improve the document’s usefulness for future
+decisions.</p>
+</div></details></section></div></main></body></html>

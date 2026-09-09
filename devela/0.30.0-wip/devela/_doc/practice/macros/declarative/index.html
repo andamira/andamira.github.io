@@ -1,0 +1,334 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Declarative macros."><title>devela::_doc::practice::macros::declarative - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module declarative</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module declarative</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#declarative-macros" title="Declarative macros.">Declarative macros.</a><ul><li><a href="#basic-anatomy" title="Basic anatomy">Basic anatomy</a></li><li><a href="#designing-the-grammar" title="Designing the grammar">Designing the grammar</a></li><li><a href="#recursive-dispatch" title="Recursive dispatch">Recursive dispatch</a></li><li><a href="#public-and-internal-forms" title="Public and internal forms">Public and internal forms</a></li><li><a href="#exporting-and-re-exporting" title="Exporting and re-exporting">Exporting and re-exporting</a></li><li><a href="#source-layout" title="Source layout">Source layout</a></li><li><a href="#notes-and-useful-tricks" title="Notes and useful tricks">Notes and useful tricks</a></li><li><a href="#language-evolution" title="Language evolution">Language evolution</a></li><li><a href="#further-reading" title="Further reading">Further reading</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>doc::<wbr>practice::<wbr>macros</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../index.html">devela</a>::<wbr><a href="../../../index.html">_doc</a>::<wbr><a href="../../index.html">practice</a>::<wbr><a href="../index.html">macros</a></div><h1>Module <span>declarative</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../../src/devela/_doc/practice/macros/_.rs.html#9">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="declarative-macros"><a class="doc-anchor" href="#declarative-macros">§</a>Declarative macros.</h2><!-- devela/src/_doc/practice/macros/declarative.md -->
+<p>Declarative macros are Rust’s pattern-based macro system, defined with <code>macro_rules!</code>.</p>
+<p>They work especially well for structural transformations: recognizing a small
+grammar, forwarding parts of it, repeating syntax, or generating families of
+related items. devela uses them both for small conveniences and for larger
+generators such as <code>arena!</code>, <code>pool!</code>, and <code>mods_out!</code>.</p>
+<h3 id="basic-anatomy"><a class="doc-anchor" href="#basic-anatomy">§</a>Basic anatomy</h3>
+<p>A <code>macro_rules!</code> definition contains one or more <strong>arms</strong>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">macro_rules!</span> example {
+    (<span class="macro-nonterminal">$name</span>:ident : <span class="macro-nonterminal">$ty</span>:ty) =&gt; {
+        <span class="kw">struct </span><span class="macro-nonterminal">$name</span>(<span class="macro-nonterminal">$ty</span>);
+    };
+}</code></pre></div>
+<p>The left side is the <strong>matcher</strong> and the right side is the <strong>transcriber</strong> or expansion.</p>
+<p>Captured values such as <code>$name</code> are <strong>metavariables</strong>.
+Their fragment specifier tells the matcher what kind of Rust syntax to accept:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro-nonterminal">$name</span>:ident
+<span class="macro-nonterminal">$ty</span>:ty
+<span class="macro-nonterminal">$value</span>:expr
+<span class="macro-nonterminal">$path</span>:path
+<span class="macro-nonterminal">$meta</span>:meta
+<span class="macro-nonterminal">$tokens</span>:tt</code></pre></div>
+<p>Repetitions use <code>*</code>, <code>+</code>, or <code>?</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>$( <span class="macro-nonterminal">$item</span>:ident ),<span class="kw-2">*</span></code></pre></div>
+<p>The fragment kind matters. Prefer the narrowest one that describes the intended grammar;
+use <code>tt</code> when syntax should deliberately remain opaque and be passed elsewhere.</p>
+<h3 id="designing-the-grammar"><a class="doc-anchor" href="#designing-the-grammar">§</a>Designing the grammar</h3>
+<p>A public macro invocation is an API.</p>
+<p>Prefer a small syntax whose parameters correspond to real choices in the
+generated abstraction. Implementation details can be normalized after the
+public form has been recognized.</p>
+<p>A useful pattern is to parse a stable prefix and keep the remaining input
+as token trees:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>(
+    $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
+    <span class="macro-nonterminal">$vis</span>:vis <span class="kw">struct </span><span class="macro-nonterminal">$name</span>:ident;
+    $(<span class="macro-nonterminal">$rest</span>:tt)*
+) =&gt; {
+    <span class="comment">/* ... */
+</span>};</code></pre></div>
+<p>The known part is checked immediately, while <code>$rest</code> can be forwarded to
+another stage.</p>
+<p>Avoid using <code>tt</code> everywhere just because it accepts more input. A more precise
+fragment usually gives the caller a better error and makes the macro’s grammar
+easier to understand.</p>
+<h3 id="recursive-dispatch"><a class="doc-anchor" href="#recursive-dispatch">§</a>Recursive dispatch</h3>
+<p>A macro can consume part of its input and recursively process the rest. This is
+useful for optional sections or groups whose order is flexible.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">macro_rules!</span> example {
+    (@groups <span class="macro-nonterminal">$name</span>:ident;) =&gt; {};
+
+    (@groups <span class="macro-nonterminal">$name</span>:ident; first($(<span class="macro-nonterminal">$args</span>:tt)<span class="kw-2">*</span>); $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">example!</span>(@first <span class="macro-nonterminal">$name </span>($(<span class="macro-nonterminal">$args</span>)<span class="kw-2">*</span>));
+        <span class="macro">example!</span>(@groups <span class="macro-nonterminal">$name</span>; $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
+    };
+
+    (@groups <span class="macro-nonterminal">$name</span>:ident; second($(<span class="macro-nonterminal">$args</span>:tt)<span class="kw-2">*</span>); $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">example!</span>(@second <span class="macro-nonterminal">$name </span>($(<span class="macro-nonterminal">$args</span>)<span class="kw-2">*</span>));
+        <span class="macro">example!</span>(@groups <span class="macro-nonterminal">$name</span>; $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
+    };
+}</code></pre></div>
+<p>This separates two jobs:</p>
+<ul>
+<li>dispatch arms recognize and consume the grammar;</li>
+<li>handler arms perform the corresponding expansion.</li>
+</ul>
+<p>For larger macros, this can be easier to follow than trying to describe
+every combination in a single matcher.</p>
+<h3 id="public-and-internal-forms"><a class="doc-anchor" href="#public-and-internal-forms">§</a>Public and internal forms</h3>
+<p>Internal routing syntax such as <code>@impl</code>, <code>%generate</code>, or <code>%normalize</code> is useful,
+but it is not necessarily part of the intended public macro language.</p>
+<p>devela uses underscore prefixes to distinguish helper macros by reachability.
+<code>_name!</code> denotes an internal helper that is not exported for downstream use,
+while <code>__name!</code> denotes a public but hidden helper that
+downstream macro expansions may need to resolve.</p>
+<p>Small macros can keep public and internal arms together. Larger public macros
+should move substantial implementation protocols into a helper
+with the appropriate reachability.</p>
+<div class="example-wrap"><pre class="language-text"><code>arena! → __arena!</code></pre></div>
+<p><code>arena!</code> owns the user-facing grammar, while <code>__arena!</code> handles normalization,
+dispatch, backend selection, and related machinery. Because an expansion of
+<code>arena!</code> may invoke it through <code>$crate</code>, <code>__arena!</code> must remain publicly
+reachable even though it is not part of the documented API.</p>
+<p>Helpers needed only while expanding devela itself use the single-underscore form instead.</p>
+<h3 id="exporting-and-re-exporting"><a class="doc-anchor" href="#exporting-and-re-exporting">§</a>Exporting and re-exporting</h3>
+<p><code>#[macro_export]</code> exports a declarative macro from the crate root, regardless of
+the source module containing its definition.</p>
+<p>devela commonly uses a middle-dot suffix for this definition artifact:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[macro_export]
+#[cfg_attr(cargo_primary_package, doc(hidden))]
+</span><span class="macro">macro_rules!</span> example· {
+    <span class="comment">/* ... */
+</span>}
+
+<span class="attr">#[doc(inline)]
+</span><span class="kw">pub use </span>example· <span class="kw">as </span>example;</code></pre></div>
+<p><code>example!</code> is the intended name. <code>example·!</code> exists because of the mechanics of
+exporting and routing the macro.</p>
+<p>This also keeps documentation placement separate from visibility.
+<code>#[doc(inline)]</code> is added when a re-export should become the visible documented
+surface; an intermediate public re-export does not need to make that decision yet.</p>
+<p>When an exported macro refers back to the crate that defined it,
+<code>$crate</code> provides the appropriate path:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro-nonterminal">$crate::__example</span>!(...)</code></pre></div>
+<p>This avoids depending on names imported by the caller.</p>
+<h3 id="source-layout"><a class="doc-anchor" href="#source-layout">§</a>Source layout</h3>
+<p>Large macro definitions benefit from a few simple visual conventions.</p>
+<p>Use normal rustdoc above the macro for its public documentation.
+Within the definition, block comments can separate families of arms:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">macro_rules!</span> example {
+    <span class="comment">/* public forms */
+
+    </span>(...) =&gt; { ... };
+
+    <span class="comment">/* internal expansion */
+
+    </span>(%normalize ...) =&gt; { ... };
+}</code></pre></div>
+<p>Short line comments are useful for explaining the particular purpose of an arm.
+They are most useful when they explain <em>why the arm exists</em>,
+rather than simply restating its matcher.</p>
+<p>Sentinel tokens such as <code>@</code>, <code>%</code>, or <code>#</code> can make internal protocols easy to
+recognize at a glance.</p>
+<h3 id="notes-and-useful-tricks"><a class="doc-anchor" href="#notes-and-useful-tricks">§</a>Notes and useful tricks</h3><h4 id="prefix-symbols"><a class="doc-anchor" href="#prefix-symbols">§</a>Prefix symbols</h4>
+<p>Many non-alphanumeric tokens can be matched directly before a metavariable:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>(@<span class="macro-nonterminal">$name</span>:ident ...)
+(%<span class="macro-nonterminal">$name</span>:ident ...)
+(#<span class="macro-nonterminal">$name</span>:ident ...)</code></pre></div>
+<p>Such symbols are handy for internal dispatch forms because they are visually
+distinct from normal public syntax. But they are conventions, not namespaces:
+their meaning belongs to the macro that uses them.</p>
+<p>Useful prefixes include:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>@ # <span class="question-mark">? </span>! : ; , . ~ | ^ &amp; &gt; &lt; = / + - * %</code></pre></div>
+<p>as well as empty delimiter groups and literals.</p>
+<h4 id="remembering-that-a-fixed-token-was-present"><a class="doc-anchor" href="#remembering-that-a-fixed-token-was-present">§</a>Remembering that a fixed token was present</h4>
+<p>Sometimes an optional part of a matcher contains only fixed syntax:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>$(+<span class="kw">const</span>)<span class="question-mark">?</span></code></pre></div>
+<p>Later expansion cannot refer to <code>+const</code> as a metavariable, so there is nothing
+inside the repetition whose presence can be replayed.</p>
+<p>One workaround used in devela is to capture an otherwise unexpected optional fragment:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>$(+<span class="kw">const </span>$(<span class="macro-nonterminal">$_marker</span>:lifetime)<span class="question-mark">?</span>)<span class="question-mark">?</span></code></pre></div>
+<p>The lifetime is not intended to appear in valid input. Its capture gives the
+repetition a metavariable whose nesting records whether the surrounding fixed
+syntax matched.</p>
+<p>The same technique is used for optional structural markers in macros such as <code>mods_out!</code>.</p>
+<h4 id="generating-another-macro_rules"><a class="doc-anchor" href="#generating-another-macro_rules">§</a>Generating another <code>macro_rules!</code></h4>
+<p>A macro that generates another declarative macro has to distinguish its own <code>$</code>
+tokens from those intended for the generated definition.</p>
+<p><a href="../../../../all/macro.macro_dollar.html" title="macro devela::all::macro_dollar"><code>macro_dollar!</code></a> supplies a literal dollar token:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">macro_dollar!</span> { (<span class="macro-nonterminal">$d</span>:tt) =&gt; {
+    <span class="macro">macro_rules!</span> generated {
+        (<span class="macro-nonterminal">$d</span>(<span class="macro-nonterminal">$item</span>:tt)<span class="kw-2">*</span>) =&gt; {
+            <span class="macro">stringify!</span>(<span class="macro-nonterminal">$d</span>(<span class="macro-nonterminal">$item</span>)<span class="kw-2">*</span>)
+        };
+    }
+}}</code></pre></div>
+<p>This works for nested repetitions and for constructs
+such as the generated macro’s own <code>$crate</code>.</p>
+<h4 id="constructing-identifiers"><a class="doc-anchor" href="#constructing-identifiers">§</a>Constructing identifiers</h4>
+<p>Stable <code>macro_rules!</code> cannot generally create a new identifier by joining pieces
+of other identifiers.</p>
+<p>devela uses <a href="../../../../all/macro.paste.html" title="macro devela::all::paste"><code>paste!</code></a> when identifier construction is actually needed.
+Keep its scope small where possible: wrapping only the portion that needs generated
+names is easier to read than putting a whole large expansion inside <code>paste!</code>.</p>
+<h4 id="expanding-complete-syntax"><a class="doc-anchor" href="#expanding-complete-syntax">§</a>Expanding complete syntax</h4>
+<p>A macro invocation expands as a syntactic construct; it cannot generally
+be used to contribute an arbitrary partial sequence of tokens
+to a surrounding array, tuple, or similar construct.</p>
+<p>For example, <a href="../../../../all/macro.punroll.html" title="macro devela::all::punroll"><code>punroll!</code></a> builds its complete array or tuple
+in the arm performing the repetition rather than trying to have another
+invocation emit only the interior elements.</p>
+<p>This is an easy limitation to run into when first decomposing a large macro.</p>
+<h3 id="language-evolution"><a class="doc-anchor" href="#language-evolution">§</a>Language evolution</h3>
+<p>Some of these techniques work around limitations of today’s declarative macro
+system rather than expressing an ideal API.</p>
+<p>Rust continues to develop macro hygiene, metavariable expressions, identifier
+construction, and related facilities. Workarounds should therefore stay
+localized where possible, making them easier to remove when a direct language
+feature becomes available.</p>
+<h3 id="further-reading"><a class="doc-anchor" href="#further-reading">§</a>Further reading</h3>
+<ul>
+<li><a href="https://doc.rust-lang.org/reference/macros-by-example.html">Macros By Example</a></li>
+<li><a href="https://doc.rust-lang.org/reference/macro-ambiguity.html">Macro follow-set ambiguity</a></li>
+<li><a href="https://veykril.github.io/tlborm/decl-macros.html">The Little Book of Rust Macros</a></li>
+</ul>
+</div></details></section></div></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["graph_adj",1],["graph_csr",1]],"struct":["GraphAdjAllocEdgeExample","GraphAdjAllocExample","GraphAdjAllocVertexExample","GraphAdjEdgeExample","GraphAdjExample","GraphAdjVertexExample","GraphCsrAllocEdgeExample","GraphCsrAllocExample","GraphCsrAllocVertexExample","GraphCsrEdgeExample","GraphCsrExample","GraphCsrVertexExample"]};

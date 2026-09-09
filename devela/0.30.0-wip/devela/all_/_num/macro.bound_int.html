@@ -1,0 +1,280 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🏗️ ⅀ Defines a bounded integer wrapper with embedded boundary metadata."><title>bound_int in devela::all_::_num - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">bound_int</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">bound_<wbr>int</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#invariants" title="Invariants">Invariants</a></li><li><a href="#operation-groups" title="Operation groups">Operation groups</a></li><li><a href="#syntax" title="Syntax">Syntax</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all_<wbr>::<wbr>_<wbr>num</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">all_</a>::<wbr><a href="index.html">_num</a></div><h1>Macro <span class="macro">bound_<wbr>int</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/num/grain/lim/bound/define.rs.html#65-630">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! bound_int {
+    (
+        $(#[$attr:meta])*
+        $vis:vis struct $Name:ident : repr($Repr:ty =&gt; $Carrier:tt);
+
+        value_bits($VALUE_BITS:expr);
+        ops($($op:ident),* $(,)?);
+
+        $($user_impls:tt)*
+    ) =&gt; { ... };
+    (
+        $(#[$attr:meta])*
+        $vis:vis struct $Name:ident : repr($Repr:ty =&gt; $Carrier:tt);
+
+        value_bits($VALUE_BITS:expr);
+        range($Range:ident);
+        ops($($op:ident),* $(,)?);
+
+        $($user_impls:tt)*
+    ) =&gt; { ... };
+    (%dispatch_carrier
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty] carrier[i8]
+        value_bits[$VALUE_BITS:expr] range[$Range:ident] ops[$($op:ident),*]
+        user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%dispatch_carrier
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty] carrier[i16]
+        value_bits[$VALUE_BITS:expr] range[$Range:ident] ops[$($op:ident),*]
+        user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%dispatch_carrier
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty] carrier[i32]
+        value_bits[$VALUE_BITS:expr] range[$Range:ident] ops[$($op:ident),*]
+        user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%dispatch_carrier
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty] carrier[i64]
+        value_bits[$VALUE_BITS:expr] range[$Range:ident] ops[$($op:ident),*]
+        user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%dispatch_carrier
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty] carrier[$bad:tt]
+        value_bits[$VALUE_BITS:expr] range[$Range:ident] ops[$($op:ident),*]
+        user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%validate_range
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty]
+        signed[$signed:tt] carrier[$Carrier:ty] unsigned[$Unsigned:ty] up[$Up:ty]
+        value_bits[$VALUE_BITS:expr] range[full] ops[$($op:ident),*]
+        user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%validate_range
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty]
+        signed[$signed:tt] carrier[$Carrier:ty] unsigned[$Unsigned:ty] up[$Up:ty]
+        value_bits[$VALUE_BITS:expr] range[symmetric] ops[$($op:ident),*]
+        user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%validate_range
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty]
+        signed[$signed:tt] carrier[$Carrier:ty] unsigned[$Unsigned:ty] up[$Up:ty]
+        value_bits[$VALUE_BITS:expr] range[$bad:ident] ops[$($op:ident),*]
+        user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%validate_range_backend
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty]
+        signed[false] carrier[$Carrier:ty] unsigned[$Unsigned:ty] up[$Up:ty]
+        value_bits[$VALUE_BITS:expr] range[$Range:ident] range_requires_signed[true]
+        ops[$($op:ident),*] user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%validate_range_backend
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty]
+        signed[$signed:tt] carrier[$Carrier:ty] unsigned[$Unsigned:ty] up[$Up:ty]
+        value_bits[$VALUE_BITS:expr] range[$Range:ident] range_requires_signed[$requires_signed:tt]
+        ops[$($op:ident),*] user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%dispatch
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty]
+        signed[true] carrier[$Carrier:ty] unsigned[$Unsigned:ty] up[$Up:ty]
+        value_bits[$VALUE_BITS:expr] range[$Range:ident] ops[$($op:ident),*]
+        user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%impl_common
+        attrs[$($attr:tt)*] vis[$vis:vis] name[$Name:ident] repr[$Repr:ty]
+        signed[$signed:tt] carrier[$Carrier:ty] unsigned[$Unsigned:ty] up[$Up:ty]
+        value_bits[$VALUE_BITS:expr] range[$Range:ident] ops[$($op:ident),*]
+        user_impls[$($user_impls:tt)*]
+    ) =&gt; { ... };
+    (%emit_user_impls $Name:ident;) =&gt; { ... };
+    (%emit_user_impls
+        $Name:ident;
+        $(#[$impl_attr:meta])*
+        impl { $($user_impl:item)* }
+        $($rest:tt)*
+    ) =&gt; { ... };
+    (%emit_user_impls $Name:ident; $($bad:tt)+) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Numeric structures and computation'>⅀</span>
+Defines a bounded integer wrapper with embedded boundary metadata.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/num/grain/lim"><code>num/grain/lim</code></a>::<a href="https://docs.rs/devela/latest/devela/num/grain/lim/macro.bound_int.html"><code>bound_int</code></a></sup></p>
+<hr />
+<p>The generated type stores a primitive carrier through <a href="../../all/struct.MaybeNiche.html" title="struct devela::all::MaybeNiche"><code>MaybeNiche</code></a>.</p>
+<p>The <code>value_bits(...)</code> argument chooses how many low bits encode the payload.
+The remaining high bits encode boundary metadata:</p>
+<ul>
+<li>one direction bit, reporting the last lower/upper boundary event,</li>
+<li>the remaining metadata bits as a saturating event counter.</li>
+</ul>
+<p>For signed carriers, the raw carrier minimum value is reserved as invalid.
+Non-canonical raw values with <code>count == 0</code> and a set direction bit are
+accepted by <code>from_raw</code> but canonicalized by clearing the direction bit.</p>
+<p><code>range(...)</code> chooses the decoded payload interval:</p>
+<ul>
+<li><code>full</code>: uses every payload value representable by <code>value_bits</code>.</li>
+<li><code>symmetric</code>: for signed carriers, excludes the negative extra endpoint
+so the range is symmetric around zero.</li>
+</ul>
+<p>The default is <code>full</code>.</p>
+<p><code>symmetric</code> is only valid for signed carriers.</p>
+<h2 id="invariants"><a class="doc-anchor" href="#invariants">§</a>Invariants</h2>
+<ul>
+<li><code>value_bits</code> must be at least <code>1</code> and must leave at least two metadata bits:
+one count bit and one direction bit.</li>
+<li>Methods ending in <code>_meta</code> preserve or merge existing boundary metadata.
+Unsuffixed methods are value-first and only record boundary events caused
+by the operation itself.</li>
+</ul>
+<h2 id="operation-groups"><a class="doc-anchor" href="#operation-groups">§</a>Operation groups</h2>
+<ul>
+<li><code>sat</code>: saturating arithmetic.</li>
+<li><code>che</code>: checked arithmetic.</li>
+<li><code>mod</code>: explicit-modulus arithmetic.</li>
+<li><code>up</code>: exact arithmetic returning the upcasted primitive.</li>
+<li><code>all</code>: all supported operation groups.</li>
+<li><code>default</code>: <code>sat</code> and <code>che</code>.</li>
+</ul>
+<h2 id="syntax"><a class="doc-anchor" href="#syntax">§</a>Syntax</h2>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="macro">bound_int!</span> {
+    <span class="kw">pub struct </span>Name: repr(Representation =&gt; carrier);
+
+    value_bits(N);
+    range(full); <span class="comment">// optional: full | symmetric
+    </span>ops(sat, che, <span class="kw">mod</span>, up);
+}</code></pre></div><h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>See <a href="../../all/struct.BoundI8Example.html" title="struct devela::all::BoundI8Example"><code>BoundI8Example</code></a>.</p>
+</div></details></section></div></main></body></html>

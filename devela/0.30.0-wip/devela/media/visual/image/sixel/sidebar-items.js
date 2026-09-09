@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"static":["__LOGGER_sixel_encoder_64_64"],"struct":["SixelChar","SixelColor","SixelEncoder","SixelPalette","SixelPaletteIter"]};

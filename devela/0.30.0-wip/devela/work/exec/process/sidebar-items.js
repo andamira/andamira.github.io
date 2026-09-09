@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["cmd",1]],"struct":["Command","CommandArgs","CommandEnvs","CommandFlow","ExitCode","ExitStatus","ExitStatusError","Output","Process","ProcessStderr","ProcessStdin","ProcessStdout","Stdio"],"trait":["OutputExt","ProcessExt","ProcessTermination"]};

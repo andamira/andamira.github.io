@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["arena",1],["const_assert",1],["handle",1],["pool",1],["unwrap",1]],"mod":["_doc","all","all_","code","data","error","geom","lang","media","num","phys","run","sys","text","ui","work"],"struct":["ByteCursor"],"trait":["ConstInit","WordTry"]};

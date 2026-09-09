@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Point","Simplex","SimplexFacetIter","SimplexFacetView"],"type":["Point2","Point3"]};

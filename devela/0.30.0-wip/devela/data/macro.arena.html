@@ -1,0 +1,261 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🏗️ 🗃️ Defines an owning typed arena with static or allocating storage."><title>arena in devela::data - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">arena</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">arena</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#storage-regimes" title="Storage regimes">Storage regimes</a></li><li><a href="#optional-marks" title="Optional marks">Optional marks</a></li><li><a href="#handle-validity" title="Handle validity">Handle validity</a></li><li><a href="#capacity" title="Capacity">Capacity</a></li><li><a href="#representation-requirements" title="Representation requirements">Representation requirements</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>data</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">data</a></div><h1>Macro <span class="macro">arena</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/data/store/arena/typed/define.rs.html#152-175">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! arena {
+    (
+        [ index: $iprim:ident $(+ $Index:ty)?; ]
+
+        $(#[$arena_attr:meta])*
+        $vis:vis $Arena:ident $( : $kind:ident)?;
+
+        $(#[$handle_attr:meta])*
+        $hvis:vis $Handle:ident;
+
+        $(
+            $(#[$mark_attr:meta])*
+            $mvis:vis $Mark:ident $(;)?
+        )?
+    ) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+Defines an owning typed arena with static or allocating storage.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/data/store/arena"><code>data/store/arena</code></a>::<a href="https://docs.rs/devela/latest/devela/data/store/arena/macro.arena.html"><code>arena</code></a></sup></p>
+<hr />
+<p>The generated arena appends values densely and returns compact index handles.
+Values are reclaimed collectively by clearing the arena. Supplying a third
+generated type additionally enables marks for reclaiming a suffix by rollback.
+Arbitrary interior removal is intentionally unsupported.</p>
+<h2 id="storage-regimes"><a class="doc-anchor" href="#storage-regimes">§</a>Storage regimes</h2>
+<p>The arena declaration supports two ownership regimes:</p>
+<ul>
+<li>
+<p><strong>Static</strong> — the default.</p>
+<p>The arena owns fixed-capacity <code>[Option&lt;T&gt;; CAP]</code> storage and has the type
+<code>Arena&lt;T, const CAP: usize&gt;</code>. It does not allocate.
+Copyable values also receive const-capable insertion and clearing methods,
+and const-capable rollback when marks are enabled.</p>
+<p>The optional <code>: static</code> selector may be written explicitly or omitted.</p>
+</li>
+<li>
+<p><strong>Allocating</strong> — selected with <code>: alloc</code>.</p>
+<p>The arena owns growable <code>Vec&lt;T&gt;</code> storage and has the type <code>Arena&lt;T&gt;</code>.
+It requires the <code>alloc</code> feature and grows until the configured index
+representation can no longer represent another value.</p>
+</li>
+</ul>
+<h2 id="optional-marks"><a class="doc-anchor" href="#optional-marks">§</a>Optional marks</h2>
+<p>Supplying a third generated type enables checkpoint-based reclamation:</p>
+<div class="example-wrap"><pre class="language-text"><code>arena! {
+    [index: u8;]
+    pub Arena;
+    pub Handle;
+    pub Mark;
+}</code></pre></div>
+<p><a href="../all/struct.ArenaExample.html#method.mark" title="method devela::all::ArenaExample::mark"><code>mark</code></a> records the current insertion frontier.
+<a href="../all/struct.ArenaExample.html#method.rollback" title="method devela::all::ArenaExample::rollback"><code>rollback</code></a> retracts the arena to that frontier,
+reclaiming every value inserted after it.</p>
+<p>A mark is a frontier checkpoint, not a snapshot of arena state:
+mutations to values retained before the mark are not reverted.</p>
+<p>The mark stores the frontier as <code>usize</code>, independently of the handle index
+representation, so the frontier after a completely full arena remains representable.</p>
+<p>Marks, like handles, are relative to the arena instance that produced them.
+Rolling back to a mark ahead of the current frontier is rejected.</p>
+<p>Static marks use the same compact representation as the arena frontier.
+Allocating marks retain the Vec frontier as usize.</p>
+<h2 id="handle-validity"><a class="doc-anchor" href="#handle-validity">§</a>Handle validity</h2>
+<p>Handles contain only an index and no arena-instance identity or generation.
+After rollback or clearing, handles into the reclaimed region no longer resolve.</p>
+<p>This invalidation is not remembered. If later insertion reuses the same index,
+an old handle can resolve again to the new value. Arena handles therefore act
+as storage coordinates, not as generational identities.</p>
+<p>Use <a href="../macro.pool.html" title="macro devela::pool"><code>pool!</code></a> when individual reclamation and bounded stale-handle
+rejection are required.</p>
+<h2 id="capacity"><a class="doc-anchor" href="#capacity">§</a>Capacity</h2>
+<p><a href="../all/struct.ArenaExample.html#method.capacity" title="method devela::all::ArenaExample::capacity"><code>capacity</code></a> reports usable storage without further growth:</p>
+<p>For a static arena, the configured representation stores both handle indices
+and the current insertion frontier. It must therefore represent every frontier
+in 0..=CAP; CAP may not exceed the representation’s maximum value.
+The maximum frontier value is not issued as a handle index.</p>
+<p>An allocating arena stores its frontier in Vec and may therefore use
+the full representable index range.</p>
+<p><a href="../all/struct.ArenaExample.html#method.remaining" title="method devela::all::ArenaExample::remaining"><code>remaining</code></a> returns <code>capacity() - len()</code>.
+For an allocating arena, <code>remaining() == 0</code> does not necessarily mean that
+insertion must fail: the vector may grow. <a href="../all/struct.ArenaExample.html#method.is_full" title="method devela::all::ArenaExample::is_full"><code>is_full</code></a>
+indicates that no further index can be represented.</p>
+<h2 id="representation-requirements"><a class="doc-anchor" href="#representation-requirements">§</a>Representation requirements</h2>
+<p>The index primitive must implement <a href="../all/trait.PrimIndex.html" title="trait devela::all::PrimIndex"><code>PrimIndex</code></a>.
+Its representation must:</p>
+<ul>
+<li>be unsigned;</li>
+<li>contain zero;</li>
+<li>form a contiguous range from zero.</li>
+</ul>
+<p>For a static arena it must represent every index in <code>0..CAP</code>. An allocating
+arena can append values until the next index is no longer representable.</p>
+<p>Omitting the representation after <code>+</code> uses the primitive itself.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::arena;
+
+<span class="comment">// Static storage, with rollback marks.
+</span><span class="macro">arena!</span> {
+    [index: u8;]
+    <span class="kw">pub </span>Entities;
+    <span class="kw">pub </span>EntityId;
+    <span class="kw">pub </span>EntityMark;
+}
+<span class="kw">let </span><span class="kw-2">mut </span>entities = Entities::&lt;<span class="kw-2">&amp;</span>str, <span class="number">8</span>&gt;::new();
+<span class="kw">let </span>origin = entities.mark();
+<span class="kw">let </span>tree = entities.insert(<span class="string">"tree"</span>).unwrap();
+<span class="kw">let </span>river = entities.insert(<span class="string">"river"</span>).unwrap();
+<span class="macro">assert_eq!</span>(entities.get(tree), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"tree"</span>));
+<span class="macro">assert_eq!</span>(entities.get(river), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"river"</span>));
+<span class="macro">assert!</span>(entities.rollback(origin));
+<span class="macro">assert!</span>(!entities.contains(tree));
+
+<span class="comment">// Allocating storage, without marks.
+</span><span class="macro">arena!</span> {
+    [index: u32;]
+    <span class="kw">pub </span>DynamicEntities: alloc;
+    <span class="kw">pub </span>DynamicEntityId;
+}
+<span class="kw">let </span><span class="kw-2">mut </span>entities = DynamicEntities::&lt;<span class="kw-2">&amp;</span>str&gt;::with_capacity(<span class="number">8</span>);
+<span class="kw">let </span>cloud = entities.insert(<span class="string">"cloud"</span>).unwrap();
+<span class="macro">assert_eq!</span>(entities.get(cloud), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"cloud"</span>));</code></pre></div>
+<p>See:</p>
+<ul>
+<li><a href="../all/struct.ArenaExample.html" title="struct devela::all::ArenaExample"><code>ArenaExample</code></a>, <a href="../all/struct.ArenaHandleExample.html" title="struct devela::all::ArenaHandleExample"><code>ArenaHandleExample</code></a>, <a href="../all/struct.ArenaMarkExample.html" title="struct devela::all::ArenaMarkExample"><code>ArenaMarkExample</code></a>.</li>
+<li><a href="../all/struct.ArenaAllocExample.html" title="struct devela::all::ArenaAllocExample"><code>ArenaAllocExample</code></a>, <a href="../all/struct.ArenaAllocHandleExample.html" title="struct devela::all::ArenaAllocHandleExample"><code>ArenaAllocHandleExample</code></a>, <a href="../all/struct.ArenaAllocMarkExample.html" title="struct devela::all::ArenaAllocMarkExample"><code>ArenaAllocMarkExample</code></a>.</li>
+</ul>
+</div></details></section></div></main></body></html>

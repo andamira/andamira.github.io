@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["read_at",1],["write_at",1]],"mod":["iter","route"],"struct":["ByteCursor","Route","StridedBlocks"],"trait":["IteratorLending"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FloatCategory"],"struct":["Float","f32bits","f32bits_niche","f64bits","f64bits_niche"],"trait":["FloatConst","FloatExt"],"type":["fsize"]};

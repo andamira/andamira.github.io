@@ -1,0 +1,282 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Concepts, patterns, and practical notes on Rust macros."><title>devela::_doc::practice::macros - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module macros</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module macros</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#concepts-patterns-and-practical-notes-on-rust-macros" title="Concepts, patterns, and practical notes on Rust macros.">Concepts, patterns, and practical notes on Rust macros.</a><ul><li><a href="#choosing-the-mechanism" title="Choosing the mechanism">Choosing the mechanism</a></li><li><a href="#expansion" title="Expansion">Expansion</a></li><li><a href="#outer-and-inner-expansion" title="Outer and inner expansion">Outer and inner expansion</a></li><li><a href="#phase-boundaries" title="Phase boundaries">Phase boundaries</a></li><li><a href="#resolution-and-bootstrap-macros" title="Resolution and bootstrap macros">Resolution and bootstrap macros</a></li><li><a href="#hygiene" title="Hygiene">Hygiene</a></li><li><a href="#language-evolution" title="Language evolution">Language evolution</a></li></ul></li></ul><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>doc::<wbr>practice</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">_doc</a>::<wbr><a href="../index.html">practice</a></div><h1>Module <span>macros</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/_doc/practice/macros/_.rs.html#3-18">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="concepts-patterns-and-practical-notes-on-rust-macros"><a class="doc-anchor" href="#concepts-patterns-and-practical-notes-on-rust-macros">§</a>Concepts, patterns, and practical notes on Rust macros.</h2><!-- devela/src/_doc/practice/macros/common.md -->
+<p>Macros sit at one of Rust’s more interesting boundaries:
+code can help shape the code that the compiler will later understand.</p>
+<p>They operate during compilation, transforming Rust syntax into more Rust syntax.
+This makes them useful for much more than textual shorthand: a macro can describe
+families of items, encode small domain-specific grammars, adapt one syntactic form
+into another, or generate a structure specialized to the needs of its caller.</p>
+<p>For macros that a library can define, Rust provides two main families:
+<a href="declarative/index.html" title="mod devela::_doc::practice::macros::declarative">declarative macros</a> and
+<a href="procedural/index.html" title="mod devela::_doc::practice::macros::procedural">procedural macros</a>.</p>
+<p>Declarative macros, defined with <code>macro_rules!</code>, describe transformations by
+matching token patterns and transcribing their captures. They are especially well
+suited to finite, structural grammars where the possible forms are known in advance.</p>
+<p>Procedural macros are Rust functions that receive and produce token streams.
+They can inspect and construct syntax more freely, and may appear as
+function-like macros, attributes, or derives.</p>
+<p>Compiler-provided built-in macros form another practical category at the call site.
+They participate in expansion too, but are not defined by crates
+through either of the mechanisms above.</p>
+<h3 id="choosing-the-mechanism"><a class="doc-anchor" href="#choosing-the-mechanism">§</a>Choosing the mechanism</h3>
+<p>devela generally prefers the smallest mechanism
+that can express the transformation clearly.</p>
+<p>A declarative macro is usually preferred when the transformation can be stated
+as a grammar over known Rust syntax. Generator macros such as <code>arena!</code>, <code>pool!</code>,
+or <code>mods_out!</code> can therefore expose a small semantic language
+and materialize a much larger user-shaped implementation.</p>
+<p>A procedural macro becomes useful when the transformation needs capabilities
+that <code>macro_rules!</code> cannot directly express. <a href="../../../all/macro.paste.html" title="macro devela::all::paste"><code>paste!</code></a>, for
+example, can construct new identifiers. <a href="../../../all/macro.mods_in.html" title="macro devela::all::mods_in"><code>mods_in!</code></a> is
+procedural because <code>mod_ name;</code> must become a path attribute containing a newly
+constructed string literal such as <code>#[path = "name/_.rs"]</code>.</p>
+<p>The two forms can also complement each other. <a href="../../../all/attr.macro_apply.html" title="attr devela::all::macro_apply"><code>macro_apply</code></a>
+is a thin procedural adapter that lets an ordinary declarative macro operate in
+attribute position. In such cases the procedural layer opens a syntactic door,
+while the declarative macro can continue to own the transformation itself.</p>
+<p>The choice is therefore less about which kind of macro is “more powerful” and
+more about where the required transformation naturally lives.</p>
+<h3 id="expansion"><a class="doc-anchor" href="#expansion">§</a>Expansion</h3>
+<p>It is tempting to imagine compilation as:</p>
+<div class="example-wrap"><pre class="language-text"><code>source → expand every macro → compile the result</code></pre></div>
+<p>but Rust’s expansion process is more intertwined than that.</p>
+<p>A more useful approximation is:</p>
+<div class="example-wrap"><pre class="language-text"><code>                           ┌─────────────────────────────┐
+                           │                             │
+source                     ▼                             │
+  │                     resolve                          │
+  ▼                 macros &amp; imports                     │
+parse                      │                             │
+  │                        ▼                             │
+  │                 choose an invocation                 │
+  │                        │                             │
+  │            ┌───────────┴────────────┐                │
+  │            ▼                        ▼                │
+  │      declarative macro       procedural macro        │
+  │       match + expand         run TokenStream fn      │
+  │            │                        │                │
+  │            └───────────┬────────────┘                │
+  │                        ▼                             │
+  │                integrate new syntax ─────────────────┘
+  │
+  ▼
+fully expanded crate
+  │
+  ▼
+later resolution, type checking, MIR, code generation, …</code></pre></div>
+<p>The central part is a loop. Expansion can reveal new macro invocations,
+imports, modules and other syntax, so the compiler repeatedly resolves what it can,
+expands it, incorporates the result, and continues until the crate is fully expanded.</p>
+<p>Name resolution therefore happens partly <em>during</em> expansion. The compiler does
+not first discover the final meaning of every name and only then expand every macro;
+each process supplies information needed by the other.</p>
+<p>This is one reason macro problems can sometimes feel temporal: a definition may
+exist in the crate that will eventually be produced, while still not being
+available at the point where another expansion needs to resolve it.</p>
+<h3 id="outer-and-inner-expansion"><a class="doc-anchor" href="#outer-and-inner-expansion">§</a>Outer and inner expansion</h3>
+<p>Nested syntax brings another useful distinction.</p>
+<p>Given something shaped like:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">outer!</span>(<span class="macro">inner!</span>())</code></pre></div>
+<p>it should not generally be read as an ordinary function call
+where <code>inner!</code> must finish before <code>outer!</code> begins.</p>
+<p>Macro arguments are token trees. An outer macro can receive the tokens
+representing <code>inner!()</code> and decide whether to reproduce, discard, rearrange or
+otherwise transform them. The nested invocation may only become an invocation
+for the compiler to expand after the outer expansion has emitted it again.</p>
+<p>Some compiler built-ins perform eager expansion,
+but this is the exception rather than the basic model.</p>
+<p>Attributes and derives add their own ordering rules as well. An attribute
+macro may transform an item before macros contained within that item’s syntax
+have expanded, and macros appearing inside attribute values have a defined
+relationship to the other attributes on the item.</p>
+<p>The useful rule is therefore not “macros expand from the inside out” or
+“macros expand from the outside in”. Expansion is contextual, iterative,
+and interleaved with the name resolution needed to keep it moving.</p>
+<h3 id="phase-boundaries"><a class="doc-anchor" href="#phase-boundaries">§</a>Phase boundaries</h3>
+<p>Several different activities are casually called “compile-time”,
+but keeping them separate makes macro behavior easier to reason about.</p>
+<p>Cargo build scripts run before compilation of the crate they configure.
+They can emit configuration flags and environment values, generate files,
+inspect the build environment, and influence the compilation that follows.
+They are code generation around the compilation process,
+not macro expansion within the crate.</p>
+<p>A procedural-macro crate is itself compiled before a crate that uses it.
+The compiler can then invoke those compiled procedural macros
+while expanding the dependent crate.</p>
+<p>Declarative macros, procedural-macro invocations, built-in macros and the
+syntax they generate all participate in the expansion of that crate.</p>
+<p>So there are at least three related but distinct moments:</p>
+<div class="example-wrap"><pre class="language-text"><code>Cargo/build preparation
+        ↓
+proc-macro dependencies available
+        ↓
+crate parsing ↔ resolution ↔ macro expansion
+        ↓
+later compilation</code></pre></div>
+<p>Confusing these boundaries can lead to assumptions
+about what information or syntax should already exist at a particular point.</p>
+<h3 id="resolution-and-bootstrap-macros"><a class="doc-anchor" href="#resolution-and-bootstrap-macros">§</a>Resolution and bootstrap macros</h3>
+<p>Because macro expansion and macro resolution depend on one another, an
+indirectly introduced macro is not always interchangeable with a definition
+that is directly available from the beginning.</p>
+<p>This matters particularly for infrastructure used by other macro machinery
+or by attributes involved early in compilation. devela therefore keeps a few
+bootstrap facilities directly available rather than relying on the module
+machinery that those facilities themselves help construct.</p>
+<p>This can otherwise lead to errors such as “resolution is stuck”:
+the compiler knows that further expansion might eventually reveal a candidate,
+but cannot make enough progress to establish what the current invocation means.</p>
+<p>When a macro participates in bootstrapping another part of the macro or module system,
+its <em>time of availability</em> can be as important as its final path in the expanded crate.</p>
+<h3 id="hygiene"><a class="doc-anchor" href="#hygiene">§</a>Hygiene</h3>
+<p>Expansion also carries information about where tokens came from.</p>
+<p>This is broadly known as <em>macro hygiene</em>. It determines, among other things,
+which identifiers refer to names at the macro definition site and which refer
+to names at the invocation site.</p>
+<p>Declarative and procedural macros have different hygiene behavior and
+different escape hatches. Declarative macros have special facilities such as
+<code>$crate</code> for referring back to the crate that defined them. Procedural macros
+operate on tokens and spans and currently require more deliberate care around
+generated names and paths.</p>
+<p>Hygiene explains several macro limitations that otherwise look unrelated.</p>
+<h3 id="language-evolution"><a class="doc-anchor" href="#language-evolution">§</a>Language evolution</h3>
+<p>Some macro techniques work around limitations of Rust’s current macro system.</p>
+<p>Rust continues to evolve macro hygiene, the positions in which procedural attributes
+may operate, declarative metavariable capabilities, identifier construction,
+and related parts of expansion and name resolution.</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="declarative/index.html" title="mod devela::_doc::practice::macros::declarative">declarative</a></dt><dd>Declarative macros.</dd><dt><a class="mod" href="procedural/index.html" title="mod devela::_doc::practice::macros::procedural">procedural</a></dt><dd>Procedural macros.</dd></dl></section></div></main></body></html>

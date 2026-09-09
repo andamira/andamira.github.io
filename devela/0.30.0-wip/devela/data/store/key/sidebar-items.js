@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["map",1]],"mod":["map","set"],"struct":["SparseSetArray"]};

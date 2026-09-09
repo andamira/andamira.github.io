@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["handle",1],["handle_gen",1],["id_seq",1]],"mod":["handle","local","uuid"],"struct":["Uuid","UuidV7Generator"]};

@@ -1,0 +1,349 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sys/os/linux/namespace/signal.rs`."><title>signal.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../../../static.files/storage-41dd4d93.js"></script><script defer src="../../../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">devela/sys/os/linux/namespace/</div>signal.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// devela/src/sys/os/linux/namespace/signal.rs
+<a href=#2 id=2 data-nosnippet>2</a>
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use crate</span>::{<a href="../../../../run/app/control.rs.html#6-43">AppControl</a>, <a href="../../../../run/app/control.rs.html#6-43">AppControlSet</a>};
+<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use crate</span>::{<a href="../../../../../../devela/all/enum.AtomicOrdering.html">AtomicOrdering::SeqCst</a>, <a href="../../../../../../devela/all/struct.AtomicPtr.html">AtomicPtr</a>, <a href="../../../mem/bound/ptr/namespace.rs.html#29">Ptr</a>, <a href="../../../../../../devela/all/type.c_int.html">c_int</a>, <a href="../../../../../../devela/all/enum.c_void.html">c_void</a>, <a href="../../../../code/util/is.rs.html#85-185">is</a>, <a href="https://doc.rust-lang.org/nightly/core/intrinsics/fn.transmute.html">transmute</a>};
+<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use crate</span>::{
+<a href=#6 id=6 data-nosnippet>6</a>    <a href="../process/signal/handler.rs.html#31-32">LINUX_SIG_HANDLERS</a>, <a href="../process/signal/handler.rs.html#44-45">LINUX_SIGINFO_HANDLERS</a>, <a href="define.rs.html#33">Linux</a>, <a href="../process/signal/action.rs.html#31-45">LinuxSigaction</a>, <a href="../process/signal/flags.rs.html#10-74">LinuxSigactionFlags</a>,
+<a href=#7 id=7 data-nosnippet>7</a>};
+<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use crate</span>::{<a href="../process/signal/info.rs.html#23-42">LinuxSiginfo</a>, <a href="../process/signal/set.rs.html#8-236">LinuxSignal</a>, <a href="../process/signal/set.rs.html#8-236">LinuxSignalSet</a>, <a href="../process/signal/set.rs.html#269-272">LinuxSigset</a>};
+<a href=#9 id=9 data-nosnippet>9</a>
+<a href=#10 id=10 data-nosnippet>10</a><span class="comment">// RT signal-restorer routine defined in architecture-specific assembly.
+<a href=#11 id=11 data-nosnippet>11</a>//
+<a href=#12 id=12 data-nosnippet>12</a>// This routine is passed to `rt_sigaction` with `SA_RESTORER`,
+<a href=#13 id=13 data-nosnippet>13</a>// and performs the `rt_sigreturn` syscall needed to leave a Linux signal frame.
+<a href=#14 id=14 data-nosnippet>14</a></span><span class="kw">unsafe extern </span><span class="string">"C" </span>{
+<a href=#15 id=15 data-nosnippet>15</a>    <span class="kw">safe fn </span>__devela_linux_restore_rt();
+<a href=#16 id=16 data-nosnippet>16</a>}
+<a href=#17 id=17 data-nosnippet>17</a>
+<a href=#18 id=18 data-nosnippet>18</a><span class="doccomment">/// # Signal handling
+<a href=#19 id=19 data-nosnippet>19</a>///
+<a href=#20 id=20 data-nosnippet>20</a>/// These methods install process-wide Linux signal actions. Signal disposition is
+<a href=#21 id=21 data-nosnippet>21</a>/// global to the process, so registering a handler for the same signal may
+<a href=#22 id=22 data-nosnippet>22</a>/// replace an earlier registration.
+<a href=#23 id=23 data-nosnippet>23</a></span><span class="kw">impl </span><a href="define.rs.html#33">Linux</a> {
+<a href=#24 id=24 data-nosnippet>24</a>    <span class="doccomment">/// Registers Linux handlers for application control notices.
+<a href=#25 id=25 data-nosnippet>25</a>    ///
+<a href=#26 id=26 data-nosnippet>26</a>    /// This is a semantic wrapper over [`sig_handler`][Self::sig_handler]. It translates
+<a href=#27 id=27 data-nosnippet>27</a>    /// matching Linux signals into [`AppControl`] values before calling `handler`.
+<a href=#28 id=28 data-nosnippet>28</a>    ///
+<a href=#29 id=29 data-nosnippet>29</a>    /// This installs process-wide signal handlers for the signals represented by `controls`.
+<a href=#30 id=30 data-nosnippet>30</a>    /// Registering another handler for the same signals may replace this path, and calling
+<a href=#31 id=31 data-nosnippet>31</a>    /// this method again replaces the single app-control callback used by this adapter.
+<a href=#32 id=32 data-nosnippet>32</a>    ///
+<a href=#33 id=33 data-nosnippet>33</a>    /// # Notes
+<a href=#34 id=34 data-nosnippet>34</a>    /// - Only controls with a Linux signal mapping are registered.
+<a href=#35 id=35 data-nosnippet>35</a>    /// - `SIGKILL` and `SIGSTOP` cannot be caught.
+<a href=#36 id=36 data-nosnippet>36</a>    /// - The callback runs from a signal handler; keep it small and prefer atomics.
+<a href=#37 id=37 data-nosnippet>37</a>    </span><span class="kw">pub fn </span>app_control_handler(
+<a href=#38 id=38 data-nosnippet>38</a>        handler: <span class="kw">fn</span>(<a href="../../../../run/app/control.rs.html#6-43">AppControl</a>),
+<a href=#39 id=39 data-nosnippet>39</a>        controls: <a href="../../../../run/app/control.rs.html#6-43">AppControlSet</a>,
+<a href=#40 id=40 data-nosnippet>40</a>        flags: <span class="kw">impl </span><a href="../../../../../../devela/all/trait.Into.html">Into</a>&lt;<a href="../process/signal/flags.rs.html#10-74">LinuxSigactionFlags</a>&gt;,
+<a href=#41 id=41 data-nosnippet>41</a>    ) {
+<a href=#42 id=42 data-nosnippet>42</a>        <span class="kw">static </span>HANDLER: <a href="../../../../../../devela/all/struct.AtomicPtr.html">AtomicPtr</a>&lt;()&gt; = <a href="../../../../../../devela/all/struct.AtomicPtr.html">AtomicPtr</a>::new(<a href="../../../mem/bound/ptr/namespace.rs.html#29">Ptr</a>::<a href="../../../mem/bound/ptr/namespace.rs.html#161-163">null_mut</a>());
+<a href=#43 id=43 data-nosnippet>43</a>        <span class="kw">fn </span>adapter(sig: <a href="../../../../../../devela/all/type.c_int.html">c_int</a>) {
+<a href=#44 id=44 data-nosnippet>44</a>            <span class="kw">let </span><a class="prelude-val" href="../../../../../../devela/all/enum.Option.html">Some</a>(control) = <a href="../process/signal/set.rs.html#8-236">LinuxSignal</a>::<a href="../process/signal/set.rs.html#134-169">from_c_int</a>(<a href="#43">sig</a>).<a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html#method.and_then">and_then</a>(<a href="../process/signal/set.rs.html#8-236">LinuxSignal</a>::<a href="../../../../run/app/control.rs.html#87-99">to_app_control</a>)
+<a href=#45 id=45 data-nosnippet>45</a>            <span class="kw">else </span>{
+<a href=#46 id=46 data-nosnippet>46</a>                <span class="kw">return</span>;
+<a href=#47 id=47 data-nosnippet>47</a>            };
+<a href=#48 id=48 data-nosnippet>48</a>            <span class="kw">let </span>handler = <a href="#42">HANDLER</a>.load(<a href="../../../../../../devela/all/enum.AtomicOrdering.html">SeqCst</a>);
+<a href=#49 id=49 data-nosnippet>49</a>            <span class="kw">if </span>!<a href="#48">handler</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.pointer.html#method.is_null">is_null</a>() {
+<a href=#50 id=50 data-nosnippet>50</a>                <span class="comment">// SAFETY: stored from a `fn(AppControl)` and checked for null.
+<a href=#51 id=51 data-nosnippet>51</a>                </span><span class="kw">let </span>handler: <span class="kw">fn</span>(<a href="../../../../run/app/control.rs.html#6-43">AppControl</a>) = <span class="kw">unsafe </span>{ <a href="https://doc.rust-lang.org/nightly/core/intrinsics/fn.transmute.html">transmute</a>(<a href="#48">handler</a>) };
+<a href=#52 id=52 data-nosnippet>52</a>                <a href="#51">handler</a>(<a href="#44">control</a>);
+<a href=#53 id=53 data-nosnippet>53</a>            }
+<a href=#54 id=54 data-nosnippet>54</a>        }
+<a href=#55 id=55 data-nosnippet>55</a>        <a href="#42">HANDLER</a>.store(<a href="#38">handler</a> <span class="kw">as </span><span class="kw-2">*mut </span>(), <a href="../../../../../../devela/all/enum.AtomicOrdering.html">SeqCst</a>);
+<a href=#56 id=56 data-nosnippet>56</a>        <span class="self">Self</span>::<a href="#107-125">sig_handler</a>(<a href="#43-54">adapter</a>, <a href="#39">controls</a>.<a href="../../../../run/app/control.rs.html#71-82">to_linux_signals</a>(), <a href="#40">flags</a>.<a href="../../../../../../devela/all/trait.Into.html">into</a>());
+<a href=#57 id=57 data-nosnippet>57</a>    }
+<a href=#58 id=58 data-nosnippet>58</a>
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="doccomment">/// Registers multiple signals using a simple handler function.
+<a href=#60 id=60 data-nosnippet>60</a>    ///
+<a href=#61 id=61 data-nosnippet>61</a>    /// This is a convenience wrapper over [`sig_handler_info`][Self::sig_handler_info].
+<a href=#62 id=62 data-nosnippet>62</a>    /// Internally it installs an `SA_SIGINFO` handler and discards the extra signal
+<a href=#63 id=63 data-nosnippet>63</a>    /// information before calling `handler`.
+<a href=#64 id=64 data-nosnippet>64</a>    ///
+<a href=#65 id=65 data-nosnippet>65</a>    /// # Arguments
+<a href=#66 id=66 data-nosnippet>66</a>    /// - `handler`: Function called with the received signal number.
+<a href=#67 id=67 data-nosnippet>67</a>    /// - `signals`: Signals to handle.
+<a href=#68 id=68 data-nosnippet>68</a>    /// - `flags`: Additional signal action flags.
+<a href=#69 id=69 data-nosnippet>69</a>    ///
+<a href=#70 id=70 data-nosnippet>70</a>    /// # Notes
+<a href=#71 id=71 data-nosnippet>71</a>    /// - `SA_RESTORER` and `SA_SIGINFO` are always included internally.
+<a href=#72 id=72 data-nosnippet>72</a>    /// - `SIGKILL` and `SIGSTOP` are ignored because they cannot be caught.
+<a href=#73 id=73 data-nosnippet>73</a>    /// - Signal handlers run asynchronously; keep them small and prefer atomics.
+<a href=#74 id=74 data-nosnippet>74</a>    ///
+<a href=#75 id=75 data-nosnippet>75</a>    /// # Examples
+<a href=#76 id=76 data-nosnippet>76</a>    /// ```no_run
+<a href=#77 id=77 data-nosnippet>77</a>    /// # #[cfg(feature = "std")] {
+<a href=#78 id=78 data-nosnippet>78</a>    /// use devela::{AtomicBool, AtomicI32, AtomicOrdering::SeqCst, Thread, ThreadExt};
+<a href=#79 id=79 data-nosnippet>79</a>    /// use devela::{Linux, LinuxSignal, LinuxSignalSet};
+<a href=#80 id=80 data-nosnippet>80</a>    ///
+<a href=#81 id=81 data-nosnippet>81</a>    /// static GOT_SIGNAL: AtomicBool = AtomicBool::new(false);
+<a href=#82 id=82 data-nosnippet>82</a>    /// static LAST_SIGNAL: AtomicI32 = AtomicI32::new(0);
+<a href=#83 id=83 data-nosnippet>83</a>    ///
+<a href=#84 id=84 data-nosnippet>84</a>    /// fn handler(sig: i32) {
+<a href=#85 id=85 data-nosnippet>85</a>    ///     LAST_SIGNAL.store(sig, SeqCst);
+<a href=#86 id=86 data-nosnippet>86</a>    ///     GOT_SIGNAL.store(true, SeqCst);
+<a href=#87 id=87 data-nosnippet>87</a>    /// }
+<a href=#88 id=88 data-nosnippet>88</a>    ///
+<a href=#89 id=89 data-nosnippet>89</a>    /// fn main() {
+<a href=#90 id=90 data-nosnippet>90</a>    ///     Linux::sig_handler(handler, LinuxSignalSet::SIGINT | LinuxSignalSet::SIGWINCH, None);
+<a href=#91 id=91 data-nosnippet>91</a>    ///
+<a href=#92 id=92 data-nosnippet>92</a>    ///     println!("press Ctrl+C or resize the terminal");
+<a href=#93 id=93 data-nosnippet>93</a>    ///     loop {
+<a href=#94 id=94 data-nosnippet>94</a>    ///         if GOT_SIGNAL.swap(false, SeqCst) {
+<a href=#95 id=95 data-nosnippet>95</a>    ///             let sig = LAST_SIGNAL.load(SeqCst);
+<a href=#96 id=96 data-nosnippet>96</a>    ///             println!("received signal {sig}");
+<a href=#97 id=97 data-nosnippet>97</a>    ///             if sig == LinuxSignal::SIGINT.as_c_int() {
+<a href=#98 id=98 data-nosnippet>98</a>    ///                 break;
+<a href=#99 id=99 data-nosnippet>99</a>    ///             }
+<a href=#100 id=100 data-nosnippet>100</a>    ///         }
+<a href=#101 id=101 data-nosnippet>101</a>    ///         Thread::sleep_ms(50);
+<a href=#102 id=102 data-nosnippet>102</a>    ///     }
+<a href=#103 id=103 data-nosnippet>103</a>    ///     println!("bye");
+<a href=#104 id=104 data-nosnippet>104</a>    /// }
+<a href=#105 id=105 data-nosnippet>105</a>    /// # }
+<a href=#106 id=106 data-nosnippet>106</a>    /// ```
+<a href=#107 id=107 data-nosnippet>107</a>    </span><span class="kw">pub fn </span>sig_handler(
+<a href=#108 id=108 data-nosnippet>108</a>        handler: <span class="kw">fn</span>(<a href="../../../../../../devela/all/type.c_int.html">c_int</a>),
+<a href=#109 id=109 data-nosnippet>109</a>        signals: <a href="../process/signal/set.rs.html#8-236">LinuxSignalSet</a>,
+<a href=#110 id=110 data-nosnippet>110</a>        flags: <span class="kw">impl </span><a href="../../../../../../devela/all/trait.Into.html">Into</a>&lt;<a href="../process/signal/flags.rs.html#10-74">LinuxSigactionFlags</a>&gt;,
+<a href=#111 id=111 data-nosnippet>111</a>    ) {
+<a href=#112 id=112 data-nosnippet>112</a>        <span class="kw">fn </span>simple_adapter(sig: <a href="../../../../../../devela/all/type.c_int.html">c_int</a>, _info: <span class="kw-2">&amp;</span><a href="../process/signal/info.rs.html#23-42">LinuxSiginfo</a>, _context: <span class="kw-2">*mut </span><a href="../../../../../../devela/all/enum.c_void.html">c_void</a>) {
+<a href=#113 id=113 data-nosnippet>113</a>            <a href="../../../../code/util/is.rs.html#85-185">is!</a> { LinuxSignal::from_c_int(sig).is_none(), <span class="kw">return </span>}
+<a href=#114 id=114 data-nosnippet>114</a>            <span class="kw">let </span>handler = <a href="../process/signal/handler.rs.html#31-32">LINUX_SIG_HANDLERS</a>[<a href="#112">sig</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>].load(<a href="../../../../../../devela/all/enum.AtomicOrdering.html">SeqCst</a>);
+<a href=#115 id=115 data-nosnippet>115</a>            <span class="kw">if </span>!<a href="#114">handler</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.pointer.html#method.is_null">is_null</a>() {
+<a href=#116 id=116 data-nosnippet>116</a>                <span class="comment">// SAFETY: we control both storage and retrieval and check for null.
+<a href=#117 id=117 data-nosnippet>117</a>                </span><span class="kw">let </span>handler: <span class="kw">fn</span>(<a href="../../../../../../devela/all/type.c_int.html">c_int</a>) = <span class="kw">unsafe </span>{ <a href="https://doc.rust-lang.org/nightly/core/intrinsics/fn.transmute.html">transmute</a>(<a href="#114">handler</a>) };
+<a href=#118 id=118 data-nosnippet>118</a>                <a href="#117">handler</a>(<a href="#112">sig</a>);
+<a href=#119 id=119 data-nosnippet>119</a>            }
+<a href=#120 id=120 data-nosnippet>120</a>        }
+<a href=#121 id=121 data-nosnippet>121</a>        <a href="#109">signals</a>.<a href="../process/signal/set.rs.html#221-223">for_each_catchable</a>(|signal| {
+<a href=#122 id=122 data-nosnippet>122</a>            <a href="../process/signal/handler.rs.html#31-32">LINUX_SIG_HANDLERS</a>[<a href="#121">signal</a>.<a href="../process/signal/set.rs.html#128">as_c_int</a>() <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>].store(<a href="#108">handler</a> <span class="kw">as </span><span class="kw-2">*mut </span>(), <a href="../../../../../../devela/all/enum.AtomicOrdering.html">SeqCst</a>);
+<a href=#123 id=123 data-nosnippet>123</a>        });
+<a href=#124 id=124 data-nosnippet>124</a>        <span class="self">Self</span>::<a href="#180-212">sig_handler_info</a>(<a href="#112-120">simple_adapter</a>, <a href="#109">signals</a>, <a href="#110">flags</a>);
+<a href=#125 id=125 data-nosnippet>125</a>    }
+<a href=#126 id=126 data-nosnippet>126</a>
+<a href=#127 id=127 data-nosnippet>127</a>    <span class="doccomment">/// Registers multiple signals using a handler that receives signal information.
+<a href=#128 id=128 data-nosnippet>128</a>    ///
+<a href=#129 id=129 data-nosnippet>129</a>    /// The handler receives the signal number, a borrowed [`LinuxSiginfo`], and the
+<a href=#130 id=130 data-nosnippet>130</a>    /// raw signal context pointer supplied by the kernel.
+<a href=#131 id=131 data-nosnippet>131</a>    ///
+<a href=#132 id=132 data-nosnippet>132</a>    /// # Arguments
+<a href=#133 id=133 data-nosnippet>133</a>    /// - `handler`: Function called with the signal number, signal info, and context.
+<a href=#134 id=134 data-nosnippet>134</a>    /// - `signals`: Signals to handle.
+<a href=#135 id=135 data-nosnippet>135</a>    /// - `flags`: Additional signal action flags.
+<a href=#136 id=136 data-nosnippet>136</a>    ///
+<a href=#137 id=137 data-nosnippet>137</a>    /// # Notes
+<a href=#138 id=138 data-nosnippet>138</a>    /// - `SA_RESTORER` and `SA_SIGINFO` are always included internally.
+<a href=#139 id=139 data-nosnippet>139</a>    /// - `SIGKILL` and `SIGSTOP` are ignored because they cannot be caught.
+<a href=#140 id=140 data-nosnippet>140</a>    /// - Signal handlers run asynchronously; keep them small and prefer atomics.
+<a href=#141 id=141 data-nosnippet>141</a>    /// - The `LinuxSiginfo` borrow is valid only during the handler call.
+<a href=#142 id=142 data-nosnippet>142</a>    ///
+<a href=#143 id=143 data-nosnippet>143</a>    /// # Examples
+<a href=#144 id=144 data-nosnippet>144</a>    /// ```no_run
+<a href=#145 id=145 data-nosnippet>145</a>    /// # #[cfg(feature = "std")] {
+<a href=#146 id=146 data-nosnippet>146</a>    /// use devela::{AtomicBool, AtomicI32, AtomicOrdering::SeqCst, Thread, ThreadExt, c_void};
+<a href=#147 id=147 data-nosnippet>147</a>    /// use devela::{Linux, LinuxSigactionFlags, LinuxSiginfo, LinuxSignalSet};
+<a href=#148 id=148 data-nosnippet>148</a>    ///
+<a href=#149 id=149 data-nosnippet>149</a>    /// static GOT_SIGNAL: AtomicBool = AtomicBool::new(false);
+<a href=#150 id=150 data-nosnippet>150</a>    /// static LAST_SIGNAL: AtomicI32 = AtomicI32::new(0);
+<a href=#151 id=151 data-nosnippet>151</a>    /// static LAST_PID: AtomicI32 = AtomicI32::new(0);
+<a href=#152 id=152 data-nosnippet>152</a>    ///
+<a href=#153 id=153 data-nosnippet>153</a>    /// fn handler(sig: i32, info: &amp;LinuxSiginfo, _context: *mut c_void) {
+<a href=#154 id=154 data-nosnippet>154</a>    ///     LAST_SIGNAL.store(sig, SeqCst);
+<a href=#155 id=155 data-nosnippet>155</a>    ///     LAST_PID.store(info.pid(), SeqCst);
+<a href=#156 id=156 data-nosnippet>156</a>    ///     GOT_SIGNAL.store(true, SeqCst);
+<a href=#157 id=157 data-nosnippet>157</a>    /// }
+<a href=#158 id=158 data-nosnippet>158</a>    ///
+<a href=#159 id=159 data-nosnippet>159</a>    /// fn main() {
+<a href=#160 id=160 data-nosnippet>160</a>    ///     Linux::sig_handler_info(
+<a href=#161 id=161 data-nosnippet>161</a>    ///         handler,
+<a href=#162 id=162 data-nosnippet>162</a>    ///         LinuxSignalSet::SIGINT,
+<a href=#163 id=163 data-nosnippet>163</a>    ///         LinuxSigactionFlags::SA_RESTART,
+<a href=#164 id=164 data-nosnippet>164</a>    ///     );
+<a href=#165 id=165 data-nosnippet>165</a>    ///
+<a href=#166 id=166 data-nosnippet>166</a>    ///     println!("press Ctrl+C");
+<a href=#167 id=167 data-nosnippet>167</a>    ///     loop {
+<a href=#168 id=168 data-nosnippet>168</a>    ///         if GOT_SIGNAL.swap(false, SeqCst) {
+<a href=#169 id=169 data-nosnippet>169</a>    ///             let sig = LAST_SIGNAL.load(SeqCst);
+<a href=#170 id=170 data-nosnippet>170</a>    ///             let pid = LAST_PID.load(SeqCst);
+<a href=#171 id=171 data-nosnippet>171</a>    ///             println!("received signal {sig} from pid {pid}");
+<a href=#172 id=172 data-nosnippet>172</a>    ///             break;
+<a href=#173 id=173 data-nosnippet>173</a>    ///         }
+<a href=#174 id=174 data-nosnippet>174</a>    ///         Thread::sleep_ms(50);
+<a href=#175 id=175 data-nosnippet>175</a>    ///     }
+<a href=#176 id=176 data-nosnippet>176</a>    ///     println!("bye");
+<a href=#177 id=177 data-nosnippet>177</a>    /// }
+<a href=#178 id=178 data-nosnippet>178</a>    /// # }
+<a href=#179 id=179 data-nosnippet>179</a>    /// ```
+<a href=#180 id=180 data-nosnippet>180</a>    </span><span class="kw">pub fn </span>sig_handler_info(
+<a href=#181 id=181 data-nosnippet>181</a>        handler: <span class="kw">fn</span>(<a href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <span class="kw-2">&amp;</span><a href="../process/signal/info.rs.html#23-42">LinuxSiginfo</a>, <span class="kw-2">*mut </span><a href="../../../../../../devela/all/enum.c_void.html">c_void</a>),
+<a href=#182 id=182 data-nosnippet>182</a>        signals: <a href="../process/signal/set.rs.html#8-236">LinuxSignalSet</a>,
+<a href=#183 id=183 data-nosnippet>183</a>        flags: <span class="kw">impl </span><a href="../../../../../../devela/all/trait.Into.html">Into</a>&lt;<a href="../process/signal/flags.rs.html#10-74">LinuxSigactionFlags</a>&gt;,
+<a href=#184 id=184 data-nosnippet>184</a>    ) {
+<a href=#185 id=185 data-nosnippet>185</a>        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>c_handler_siginfo(sig: <a href="../../../../../../devela/all/type.c_int.html">c_int</a>, info: <span class="kw-2">*mut </span><a href="../process/signal/info.rs.html#23-42">LinuxSiginfo</a>, context: <span class="kw-2">*mut </span><a href="../../../../../../devela/all/enum.c_void.html">c_void</a>) {
+<a href=#186 id=186 data-nosnippet>186</a>            <a href="../../../../code/util/is.rs.html#85-185">is!</a> { LinuxSignal::from_c_int(sig).is_none() || info.is_null(), <span class="kw">return </span>}
+<a href=#187 id=187 data-nosnippet>187</a>            <span class="kw">let </span>handler = <a href="../process/signal/handler.rs.html#44-45">LINUX_SIGINFO_HANDLERS</a>[<a href="#185">sig</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>].load(<a href="../../../../../../devela/all/enum.AtomicOrdering.html">SeqCst</a>);
+<a href=#188 id=188 data-nosnippet>188</a>            <span class="kw">if </span>!<a href="#187">handler</a>.<a href="https://doc.rust-lang.org/nightly/core/primitive.pointer.html#method.is_null">is_null</a>() {
+<a href=#189 id=189 data-nosnippet>189</a>                <span class="comment">// SAFETY: we control both storage and retrieval and check for null.
+<a href=#190 id=190 data-nosnippet>190</a>                </span><span class="kw">let </span>handler: <span class="kw">fn</span>(<a href="../../../../../../devela/all/type.c_int.html">c_int</a>, <span class="kw-2">&amp;</span><a href="../process/signal/info.rs.html#23-42">LinuxSiginfo</a>, <span class="kw-2">*mut </span><a href="../../../../../../devela/all/enum.c_void.html">c_void</a>) = <span class="kw">unsafe </span>{ <a href="https://doc.rust-lang.org/nightly/core/intrinsics/fn.transmute.html">transmute</a>(<a href="#187">handler</a>) };
+<a href=#191 id=191 data-nosnippet>191</a>
+<a href=#192 id=192 data-nosnippet>192</a>                <span class="comment">// SAFETY: kernel-provided for this SA_SIGINFO handler call.
+<a href=#193 id=193 data-nosnippet>193</a>                </span><span class="kw">let </span>info = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><a href="#185">info</a> };
+<a href=#194 id=194 data-nosnippet>194</a>                <a href="#190">handler</a>(<a href="#185">sig</a>, <a href="#193">info</a>, <a href="#185">context</a>);
+<a href=#195 id=195 data-nosnippet>195</a>            }
+<a href=#196 id=196 data-nosnippet>196</a>        }
+<a href=#197 id=197 data-nosnippet>197</a>        <span class="comment">// let signals = signals.catchable_only();
+<a href=#198 id=198 data-nosnippet>198</a>        </span><span class="kw">let </span>flags = <a href="#183">flags</a>.<a href="../../../../../../devela/all/trait.Into.html">into</a>().<a href="../process/signal/flags.rs.html#10-74">with_sa_restorer</a>().<a href="../process/signal/flags.rs.html#10-74">with_sa_siginfo</a>();
+<a href=#199 id=199 data-nosnippet>199</a>        <span class="kw">let </span>sigaction = <a href="../process/signal/action.rs.html#31-45">LinuxSigaction</a>::<a href="../process/signal/action.rs.html#82-94">new_siginfo</a>(
+<a href=#200 id=200 data-nosnippet>200</a>            <a href="#185-196">c_handler_siginfo</a>,
+<a href=#201 id=201 data-nosnippet>201</a>            <a href="#198">flags</a>,
+<a href=#202 id=202 data-nosnippet>202</a>            <a href="../process/signal/set.rs.html#269-272">LinuxSigset</a>::<a href="../process/signal/set.rs.html#283">empty</a>(),
+<a href=#203 id=203 data-nosnippet>203</a>            <a class="prelude-val" href="../../../../../../devela/all/enum.Option.html">Some</a>(<a href="#15">__devela_linux_restore_rt</a>),
+<a href=#204 id=204 data-nosnippet>204</a>        );
+<a href=#205 id=205 data-nosnippet>205</a>        <a href="#182">signals</a>.<a href="../process/signal/set.rs.html#221-223">for_each_catchable</a>(|signal| {
+<a href=#206 id=206 data-nosnippet>206</a>            <span class="kw">let </span>raw = <a href="#205">signal</a>.<a href="../process/signal/set.rs.html#128">as_c_int</a>();
+<a href=#207 id=207 data-nosnippet>207</a>            <a href="../process/signal/handler.rs.html#44-45">LINUX_SIGINFO_HANDLERS</a>[<a href="#206">raw</a> <span class="kw">as </span><a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>].store(<a href="#181">handler</a> <span class="kw">as </span><span class="kw-2">*mut </span>(), <a href="../../../../../../devela/all/enum.AtomicOrdering.html">SeqCst</a>);
+<a href=#208 id=208 data-nosnippet>208</a>            <span class="kw">let </span>_res = <span class="kw">unsafe </span>{
+<a href=#209 id=209 data-nosnippet>209</a>                <a href="define.rs.html#33">Linux</a>::<a href="../syscalls/x86_64.rs.html#429-452">sys_rt_sigaction</a>(<a href="#206">raw</a>, <span class="kw-2">&amp;</span><a href="#199">sigaction</a>, <a href="../../../mem/bound/ptr/namespace.rs.html#29">Ptr</a>::<a href="../../../mem/bound/ptr/namespace.rs.html#161-163">null_mut</a>(), <a href="../process/signal/set.rs.html#269-272">LinuxSigset</a>::<a href="../process/signal/set.rs.html#286">size</a>())
+<a href=#210 id=210 data-nosnippet>210</a>            };
+<a href=#211 id=211 data-nosnippet>211</a>        });
+<a href=#212 id=212 data-nosnippet>212</a>    }
+<a href=#213 id=213 data-nosnippet>213</a>}
+</code></pre></div></section></main></body></html>

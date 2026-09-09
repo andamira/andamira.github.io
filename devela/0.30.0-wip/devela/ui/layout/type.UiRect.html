@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="▦ 🧱 A 2-dimensional layout region."><title>UiRect in devela::ui::layout - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc type"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">UiRect</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">UiRect</a></h2><h3><a href="#aliased-type">Aliased Type</a></h3><h3><a href="#fields">Fields</a></h3><ul class="block field"><li><a href="#structfield.ext" title="ext">ext</a></li><li><a href="#structfield.pos" title="pos">pos</a></li></ul><h3><a href="#implementations">Methods</a></h3><ul class="block method"><li><a href="#method.bottom" title="bottom">bottom</a></li><li><a href="#method.cut_bottom" title="cut_bottom">cut_bottom</a></li><li><a href="#method.cut_left" title="cut_left">cut_left</a></li><li><a href="#method.cut_right" title="cut_right">cut_right</a></li><li><a href="#method.cut_top" title="cut_top">cut_top</a></li><li><a href="#method.inset" title="inset">inset</a></li><li><a href="#method.inset_ltrb" title="inset_ltrb">inset_ltrb</a></li><li><a href="#method.inset_xy" title="inset_xy">inset_xy</a></li><li><a href="#method.is_empty" title="is_empty">is_empty</a></li><li><a href="#method.left" title="left">left</a></li><li><a href="#method.right" title="right">right</a></li><li><a href="#method.top" title="top">top</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>ui::<wbr>layout</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">ui</a>::<wbr><a href="index.html">layout</a></div><h1>Type Alias <span class="type">UiRect</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/ui/layout/metric.rs.html#41">Source</a> </span></div><pre class="rust item-decl"><code>pub type UiRect = <a class="type" href="../../all/type.RegionS2.html" title="type devela::all::RegionS2">RegionS2</a>&lt;<a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>&gt;;</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>ui</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='User interface'>▦</span> <span class='stab portability' title='Spatial layout'>🧱</span>
+A 2-dimensional layout region.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/ui/layout"><code>ui/layout</code></a>::<a href="https://docs.rs/devela/latest/devela/ui/layout/type.UiRect.html"><code>UiRect</code></a></sup></p>
+<p><sup class='_doc_test_size_of' title='stack size, checked by hidden doctest'>📦 <code>size_of::&lt;UiRect&gt;() == 16</code> bytes / 128 bits</sup>
+<sup class='_doc_niche' title='checked by hidden doctest: Option<T> does not have the same stack size as T'>⚗️<code>Option&lt;T&gt;</code> ❗🟰 <code>T</code></sup></p>
+<div hidden class='devela-hide-next'></div>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code></code></pre></div>
+<hr />
+</div></details><h2 id="aliased-type" class="section-header">Aliased Type<a href="#aliased-type" class="anchor">§</a></h2><pre class="rust item-decl"><code>pub struct UiRect {
+    pub pos: <a class="struct" href="../../all/struct.Position.html" title="struct devela::all::Position">Position</a>&lt;<a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>, 2&gt;,
+    pub ext: <a class="struct" href="../../all/struct.Extent.html" title="struct devela::all::Extent">Extent</a>&lt;<a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>, 2&gt;,
+}</code></pre><h2 id="fields" class="fields section-header">Fields<a href="#fields" class="anchor">§</a></h2><span id="structfield.pos" class="structfield section-header"><a href="#structfield.pos" class="anchor field">§</a><code>pos: <a class="struct" href="../../all/struct.Position.html" title="struct devela::all::Position">Position</a>&lt;<a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>, 2&gt;</code></span><div class="docblock"><p>The position of the region.</p>
+</div><span id="structfield.ext" class="structfield section-header"><a href="#structfield.ext" class="anchor field">§</a><code>ext: <a class="struct" href="../../all/struct.Extent.html" title="struct devela::all::Extent">Extent</a>&lt;<a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>, 2&gt;</code></span><div class="docblock"><p>The extent of the region.</p>
+</div><h2 id="implementations" class="section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-Region%3CLunit,+Lunit,+2%3E" class="impl"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#44-149">Source</a><a href="#impl-Region%3CLunit,+Lunit,+2%3E" class="anchor">§</a><h3 class="code-header">impl <a class="type" href="../../all/type.UiRect.html" title="type devela::all::UiRect">UiRect</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.left" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#46">Source</a><h4 class="code-header">pub const fn <a href="#method.left" class="fn">left</a>(self) -&gt; <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a></h4></section></summary><div class="docblock"><p>Returns the left edge position.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.top" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#48">Source</a><h4 class="code-header">pub const fn <a href="#method.top" class="fn">top</a>(self) -&gt; <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a></h4></section></summary><div class="docblock"><p>Returns the top edge position.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.right" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#51">Source</a><h4 class="code-header">pub const fn <a href="#method.right" class="fn">right</a>(self) -&gt; <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a></h4></section></summary><div class="docblock"><p>Returns the right edge position, saturating on overflow.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.bottom" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#53">Source</a><h4 class="code-header">pub const fn <a href="#method.bottom" class="fn">bottom</a>(self) -&gt; <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a></h4></section></summary><div class="docblock"><p>Returns the bottom edge position, saturating on overflow.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.is_empty" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#56-59">Source</a><h4 class="code-header">pub const fn <a href="#method.is_empty" class="fn">is_empty</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns whether the rectangle has no positive area.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.inset" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#65-67">Source</a><h4 class="code-header">pub const fn <a href="#method.inset" class="fn">inset</a>(self, all: <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns this rectangle inset equally on all sides.</p>
+<p>Negative insets are ignored. If the inset exceeds the rectangle extent,
+the resulting extent is clamped to zero.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.inset_xy" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#72-74">Source</a><h4 class="code-header">pub const fn <a href="#method.inset_xy" class="fn">inset_xy</a>(self, x: <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>, y: <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns this rectangle inset horizontally and vertically.</p>
+<p>Negative insets are ignored. If an inset exceeds the rectangle extent,
+the resulting extent is clamped to zero.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.inset_ltrb" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#80-95">Source</a><h4 class="code-header">pub const fn <a href="#method.inset_ltrb" class="fn">inset_ltrb</a>(
+    self,
+    left: <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>,
+    top: <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>,
+    right: <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>,
+    bottom: <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>,
+) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns this rectangle inset by left, top, right, and bottom margins.</p>
+<p>Negative insets are ignored. The resulting rectangle is kept inside the
+original rectangle and its extent is clamped to zero.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.cut_left" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#101-109">Source</a><h4 class="code-header">pub const fn <a href="#method.cut_left" class="fn">cut_left</a>(self, width: <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>) -&gt; (Self, Self) <a href="#" class="tooltip" data-notable-ty="(Self, Self)">ⓘ</a></h4></section></summary><div class="docblock"><p>Cuts a rectangle from the left side, returning <code>(taken, rest)</code>.</p>
+<p>Negative widths take nothing. Widths larger than the rectangle are
+clamped to the rectangle width.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.cut_right" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#114-122">Source</a><h4 class="code-header">pub const fn <a href="#method.cut_right" class="fn">cut_right</a>(self, width: <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>) -&gt; (Self, Self) <a href="#" class="tooltip" data-notable-ty="(Self, Self)">ⓘ</a></h4></section></summary><div class="docblock"><p>Cuts a rectangle from the right side, returning <code>(taken, rest)</code>.</p>
+<p>Negative widths take nothing. Widths larger than the rectangle are
+clamped to the rectangle width.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.cut_top" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#127-135">Source</a><h4 class="code-header">pub const fn <a href="#method.cut_top" class="fn">cut_top</a>(self, height: <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>) -&gt; (Self, Self) <a href="#" class="tooltip" data-notable-ty="(Self, Self)">ⓘ</a></h4></section></summary><div class="docblock"><p>Cuts a rectangle from the top side, returning <code>(taken, rest)</code>.</p>
+<p>Negative heights take nothing. Heights larger than the rectangle are
+clamped to the rectangle height.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.cut_bottom" class="method"><a class="src rightside" href="../../../src/devela/ui/layout/metric.rs.html#140-148">Source</a><h4 class="code-header">pub const fn <a href="#method.cut_bottom" class="fn">cut_bottom</a>(self, height: <a class="struct" href="../../all/struct.Lunit.html" title="struct devela::all::Lunit">Lunit</a>) -&gt; (Self, Self) <a href="#" class="tooltip" data-notable-ty="(Self, Self)">ⓘ</a></h4></section></summary><div class="docblock"><p>Cuts a rectangle from the bottom side, returning <code>(taken, rest)</code>.</p>
+<p>Negative heights take nothing. Heights larger than the rectangle are
+clamped to the rectangle height.</p>
+</div></details></div></details></div><script type="text/json" id="notable-traits-data">{"(Self, Self)":"<h3>Notable traits for <code><a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0, _1)</a></code></h3><pre><code><div class=\"where\">impl&lt;_0, _1&gt; <a class=\"trait\" href=\"../../all/trait.Tuple.html\" title=\"trait devela::all::Tuple\">Tuple</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0, _1)</a></div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.Head\" class=\"associatedtype\">Head</a> = _0;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.Tail\" class=\"associatedtype\">Tail</a> = _1;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.NoHead\" class=\"associatedtype\">NoHead</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_1,)</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.NoTail\" class=\"associatedtype\">NoTail</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0,)</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.Append\" class=\"associatedtype\">Append</a>&lt;T&gt; = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(_0, _1, T)</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype.Prepend\" class=\"associatedtype\">Prepend</a>&lt;T&gt; = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(T, _0, _1)</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._0\" class=\"associatedtype\">_0</a> = _0;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._1\" class=\"associatedtype\">_1</a> = _1;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._2\" class=\"associatedtype\">_2</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._3\" class=\"associatedtype\">_3</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._4\" class=\"associatedtype\">_4</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._5\" class=\"associatedtype\">_5</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._6\" class=\"associatedtype\">_6</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._7\" class=\"associatedtype\">_7</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._8\" class=\"associatedtype\">_8</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._9\" class=\"associatedtype\">_9</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._10\" class=\"associatedtype\">_10</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">    type <a href=\"../../all/trait.Tuple.html#associatedtype._11\" class=\"associatedtype\">_11</a> = <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.unit.html\">()</a>;</div><div class=\"where\">impl&lt;Candidate, Requirement&gt; <a class=\"trait\" href=\"../../all/trait.MemAligned.html\" title=\"trait devela::all::MemAligned\">MemAligned</a> for <a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.tuple.html\">(Candidate, Requirement)</a></div>"}</script></section></div></main></body></html>

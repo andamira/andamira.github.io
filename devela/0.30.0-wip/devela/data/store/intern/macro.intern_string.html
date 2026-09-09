@@ -1,0 +1,241 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🏗️ 🗃️ Defines a UTF-8 string interner with compact canonical symbols."><title>intern_string in devela::data::store::intern - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">intern_string</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">intern_<wbr>string</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#storage-regimes" title="Storage regimes">Storage regimes</a></li><li><a href="#representations" title="Representations">Representations</a></li><li><a href="#canonicalization" title="Canonicalization">Canonicalization</a></li><li><a href="#symbols-and-clearing" title="Symbols and clearing">Symbols and clearing</a></li><li><a href="#packed-bytes" title="Packed bytes">Packed bytes</a></li><li><a href="#example" title="Example">Example</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>data::<wbr>store::<wbr>intern</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">data</a>::<wbr><a href="../index.html">store</a>::<wbr><a href="index.html">intern</a></div><h1>Macro <span class="macro">intern_<wbr>string</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/data/store/intern/string/define.rs.html#126-147">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! intern_string {
+    (
+        [
+            index: $iprim:ident $(+ $Index:ty)?;
+            cursor: $cprim:ident $(+ $Cursor:ty)?;
+        ]
+
+        $(#[$interner_attr:meta])*
+        $vis:vis $Interner:ident $( : $kind:ident)?;
+
+        $(#[$symbol_attr:meta])*
+        $svis:vis $Symbol:ident $(;)?
+    ) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+Defines a UTF-8 string interner with compact canonical symbols.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/data/store/intern"><code>data/store/intern</code></a>::<a href="https://docs.rs/devela/latest/devela/data/store/intern/macro.intern_string.html"><code>intern_string</code></a></sup></p>
+<hr />
+<p>The generated interner stores each distinct string once and returns a compact
+symbol identifying its canonical copy. Interning an equal string returns the
+existing symbol without storing another copy.</p>
+<p>Unlike <a href="../../../all/macro.arena_string.html" title="macro devela::all::arena_string"><code>arena_string!</code></a>, where every insertion receives
+a distinct identity, <code>intern_string!</code> gives equal strings one shared identity.</p>
+<h2 id="storage-regimes"><a class="doc-anchor" href="#storage-regimes">§</a>Storage regimes</h2>
+<p>Two storage regimes are available:</p>
+<ul>
+<li>
+<p><strong>Static</strong> — the default.</p>
+<p>The generated type is
+<code>Interner&lt;const STRINGS: usize, const BYTES: usize, const SLOTS: usize&gt;</code>.
+It owns fixed-capacity packed string storage and a fixed open-addressed
+lookup table, and does not allocate.</p>
+<p><code>STRINGS</code> limits canonical strings, <code>BYTES</code> limits packed UTF-8 bytes,
+and <code>SLOTS</code> sets the lookup-table size. <code>SLOTS</code> must be at least <code>STRINGS</code>.</p>
+<p>The optional <code>: static</code> selector may be written explicitly or omitted.</p>
+</li>
+<li>
+<p><strong>Allocating</strong> — selected with <code>: alloc</code>.</p>
+<p>The generated type is <code>Interner</code>. It requires the <code>alloc</code> feature.
+Canonical strings and packed bytes grow as needed, while lookup slots grow
+and rehash when the active table is full. Rehashing never changes symbols.</p>
+<p><a href="../../../all/struct.InternStringAllocExample.html#method.with_capacity" title="associated function devela::all::InternStringAllocExample::with_capacity"><code>with_capacity</code></a>
+reserves initial string, byte, and lookup-slot capacities independently.</p>
+</li>
+</ul>
+<h2 id="representations"><a class="doc-anchor" href="#representations">§</a>Representations</h2>
+<p>The declaration configures two compact representations:</p>
+<ul>
+<li><code>index</code> determines the canonical-string symbol representation.</li>
+<li><code>cursor</code> represents cumulative UTF-8 byte ends in packed storage.</li>
+</ul>
+<p>Each may be written as <code>primitive + representation</code>;
+omitting the representation uses the primitive itself.
+Both representations must be unsigned, contiguous, and contain zero.</p>
+<p>The maximum <code>index</code> value is reserved as the empty lookup-slot sentinel and
+is never issued as a symbol. Static and allocating interners therefore share
+the same symbol domain. <a href="../../../all/struct.InternStringExample.html#associatedconstant.MAX_CAPACITY" title="associated constant devela::all::InternStringExample::MAX_CAPACITY"><code>MAX_CAPACITY</code></a>
+reports its maximum canonical-string count.</p>
+<p><a href="../../../all/struct.InternStringExample.html#associatedconstant.MAX_BYTE_CAPACITY" title="associated constant devela::all::InternStringExample::MAX_BYTE_CAPACITY"><code>MAX_BYTE_CAPACITY</code></a>
+reports the maximum packed-byte frontier representable by <code>cursor</code>.</p>
+<h2 id="canonicalization"><a class="doc-anchor" href="#canonicalization">§</a>Canonicalization</h2>
+<p>Hashing selects the initial lookup slot; it does not define equality.
+Probe collisions are resolved by comparing the actual UTF-8 bytes.</p>
+<p><a href="../../../all/struct.InternStringExample.html#method.find" title="method devela::all::InternStringExample::find"><code>find</code></a> performs lookup without mutation.
+<a href="../../../all/struct.InternStringExample.html#method.intern" title="method devela::all::InternStringExample::intern"><code>intern</code></a> inserts only when no equal canonical
+string exists. An already canonical string can therefore still be interned
+when no new canonical string would fit.</p>
+<h2 id="symbols-and-clearing"><a class="doc-anchor" href="#symbols-and-clearing">§</a>Symbols and clearing</h2>
+<p>Symbols contain only the canonical string index.
+They carry no interner identity or generation.</p>
+<p><a href="../../../all/struct.InternStringExample.html#method.clear" title="method devela::all::InternStringExample::clear"><code>clear</code></a> removes all canonical strings.
+Previously issued symbols stop resolving, but later interning may reuse
+the same index, so an old symbol may resolve again to a different string.</p>
+<h2 id="packed-bytes"><a class="doc-anchor" href="#packed-bytes">§</a>Packed bytes</h2>
+<p><a href="../../../all/struct.InternStringExample.html#method.as_bytes" title="method devela::all::InternStringExample::as_bytes"><code>as_bytes</code></a> exposes canonical UTF-8 bytes
+concatenated in insertion order. String boundaries are not encoded in that
+byte slice; <a href="../../../all/struct.InternStringExample.html#method.get" title="method devela::all::InternStringExample::get"><code>get</code></a> resolves a symbol to its string.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::{NonMaxU8, NonMaxU16, intern_string};
+
+<span class="macro">intern_string!</span> {
+    [
+        index: u8 + NonMaxU8;
+        cursor: u16 + NonMaxU16;
+    ]
+
+    <span class="kw">pub </span>Symbols;
+    <span class="kw">pub </span>Symbol;
+}
+
+<span class="kw">let </span><span class="kw-2">mut </span>symbols = Symbols::&lt;<span class="number">8</span>, <span class="number">64</span>, <span class="number">16</span>&gt;::new();
+
+<span class="kw">let </span>alpha = symbols.intern(<span class="string">"alpha"</span>).unwrap();
+<span class="kw">let </span>beta = symbols.intern(<span class="string">"beta"</span>).unwrap();
+
+<span class="macro">assert_eq!</span>(symbols.intern(<span class="string">"alpha"</span>), <span class="prelude-val">Some</span>(alpha));
+<span class="macro">assert_ne!</span>(alpha, beta);
+<span class="macro">assert_eq!</span>(symbols.get(alpha), <span class="prelude-val">Some</span>(<span class="string">"alpha"</span>));
+<span class="macro">assert_eq!</span>(symbols.find(<span class="string">"beta"</span>), <span class="prelude-val">Some</span>(beta));
+<span class="macro">assert_eq!</span>(symbols.len(), <span class="number">2</span>);</code></pre></div>
+<p>See:</p>
+<ul>
+<li><a href="../../../all/struct.InternStringExample.html" title="struct devela::all::InternStringExample"><code>InternStringExample</code></a>, <a href="../../../all/struct.InternStringSymbolExample.html" title="struct devela::all::InternStringSymbolExample"><code>InternStringSymbolExample</code></a>.</li>
+<li><a href="../../../all/struct.InternStringAllocExample.html" title="struct devela::all::InternStringAllocExample"><code>InternStringAllocExample</code></a>, <a href="../../../all/struct.InternStringAllocSymbolExample.html" title="struct devela::all::InternStringAllocSymbolExample"><code>InternStringAllocSymbolExample</code></a>.</li>
+</ul>
+</div></details></section></div></main></body></html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🏗️ 🗃️ Defines an owning generational pool with static or allocating storage."><title>pool in devela - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">pool</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">pool</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#storage-regimes" title="Storage regimes">Storage regimes</a></li><li><a href="#capacity" title="Capacity">Capacity</a></li><li><a href="#handle-validity" title="Handle validity">Handle validity</a></li><li><a href="#representation-requirements" title="Representation requirements">Representation requirements</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate devela</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">devela</a></div><h1>Macro <span class="macro">pool</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/devela/data/store/pool/item/define.rs.html#121-143">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! pool {
+    (
+        [
+            index: $iprim:ident $(+ $Index:ty)?;
+            generation: $gprim:ident $(+ $Generation:ty)?;
+        ]
+
+        $(#[$pool_attr:meta])*
+        $vis:vis $Pool:ident $( : $kind:ident)?;
+
+        $(#[$handle_attr:meta])*
+        $hvis:vis $Handle:ident $(;)?
+
+    ) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+Defines an owning generational pool with static or allocating storage.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/data/store/pool"><code>data/store/pool</code></a>::<a href="https://docs.rs/devela/latest/devela/data/store/pool/macro.pool.html"><code>pool</code></a></sup></p>
+<hr />
+<p>The generated pool stores values in indexed slots and accesses them
+through generated handles containing a slot index and generation.</p>
+<p>Removing a value advances that slot’s generation before the slot can be
+reused, so handles previously issued for that slot no longer resolve.</p>
+<h2 id="storage-regimes"><a class="doc-anchor" href="#storage-regimes">§</a>Storage regimes</h2>
+<p>The pool declaration supports two ownership regimes:</p>
+<ul>
+<li>
+<p><strong>Static</strong> — the default.</p>
+<p>The pool owns fixed-capacity array storage and has the type
+<code>Pool&lt;T, const CAP: usize&gt;</code>. It does not allocate, and many operations
+are const-capable.</p>
+<p>The optional <code>: static</code> selector may be written explicitly or omitted.</p>
+</li>
+<li>
+<p><strong>Allocating</strong> — selected with <code>: alloc</code>.</p>
+<p>The pool owns growable vector storage and has the type <code>Pool&lt;T&gt;</code>.
+It requires the <code>alloc</code> feature and grows until the configured index
+representation can no longer represent another slot.</p>
+</li>
+</ul>
+<h2 id="capacity"><a class="doc-anchor" href="#capacity">§</a>Capacity</h2>
+<p><a href="all/struct.PoolExample.html#method.capacity" title="method devela::all::PoolExample::capacity"><code>capacity</code></a> reports the usable number of slots supported
+by the current storage:</p>
+<ul>
+<li>for a static pool, this is the fixed <code>CAP</code>;</li>
+<li>for an allocating pool, this is the currently reserved usable capacity,
+bounded by the index representation.</li>
+</ul>
+<p><a href="all/struct.PoolExample.html#method.remaining" title="method devela::all::PoolExample::remaining"><code>remaining</code></a> returns <code>capacity() - len()</code>.</p>
+<p>For an allocating pool, <code>remaining() == 0</code> does not necessarily mean the
+pool is full: a later insertion may grow the allocation.
+<a href="all/struct.PoolExample.html#method.is_full" title="method devela::all::PoolExample::is_full"><code>is_full</code></a> indicates that insertion must fail
+because neither a vacant slot nor a new representable index exists.</p>
+<h2 id="handle-validity"><a class="doc-anchor" href="#handle-validity">§</a>Handle validity</h2>
+<p>Handles are relative to the pool instance that produced them. They do not
+contain a pool identity, so resolving a handle against another instance of
+the same generated pool type—including a cloned state—may also succeed.</p>
+<p>Generations wrap through the valid values of their configured
+representation. A sufficiently old stale handle can therefore become valid
+again after a complete generation cycle for the same slot.</p>
+<h2 id="representation-requirements"><a class="doc-anchor" href="#representation-requirements">§</a>Representation requirements</h2>
+<p>The index representation must:</p>
+<ul>
+<li>be unsigned;</li>
+<li>contain zero;</li>
+<li>form a contiguous range from zero.</li>
+</ul>
+<p>For a static pool it must represent every index in <code>0..CAP</code>. An allocating
+pool can introduce slots until the next index is no longer representable.</p>
+<p>The generation representation must contain at least two distinct values.</p>
+<p>Omitting the representation after <code>+</code> uses the primitive itself.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::{NonMaxU16, pool};
+
+<span class="comment">// Static storage is the default.
+</span><span class="macro">pool!</span> {
+    [
+        index: u8;
+        generation: u16 + NonMaxU16;
+    ]
+    <span class="kw">pub </span>Entities;
+    <span class="kw">pub </span>EntityId;
+}
+<span class="kw">let </span><span class="kw-2">mut </span>entities = Entities::&lt;<span class="kw-2">&amp;</span>str, <span class="number">8</span>&gt;::new();
+<span class="kw">let </span>tree = entities.insert(<span class="string">"tree"</span>).unwrap();
+<span class="macro">assert_eq!</span>(entities.get(tree), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"tree"</span>));
+
+<span class="comment">// Allocating storage.
+</span><span class="macro">pool!</span> {
+    [
+        index: u32;
+        generation: u16 + NonMaxU16;
+    ]
+    <span class="kw">pub </span>DynamicEntities: alloc;
+    <span class="kw">pub </span>DynamicEntityId;
+}
+<span class="kw">let </span><span class="kw-2">mut </span>entities = DynamicEntities::&lt;<span class="kw-2">&amp;</span>str&gt;::new();
+<span class="kw">let </span>river = entities.insert(<span class="string">"river"</span>).unwrap();
+<span class="macro">assert_eq!</span>(entities.get(river), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"river"</span>));</code></pre></div>
+<p>See:</p>
+<ul>
+<li><a href="all/struct.PoolExample.html" title="struct devela::all::PoolExample"><code>PoolExample</code></a>, <a href="all/struct.PoolHandleExample.html" title="struct devela::all::PoolHandleExample"><code>PoolHandleExample</code></a>.</li>
+<li><a href="all/struct.PoolAllocExample.html" title="struct devela::all::PoolAllocExample"><code>PoolAllocExample</code></a>, <a href="all/struct.PoolAllocHandleExample.html" title="struct devela::all::PoolAllocHandleExample"><code>PoolAllocHandleExample</code></a>.</li>
+</ul>
+</div></details></section></div></main></body></html>

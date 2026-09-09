@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["id_seq",1],["type_resource",1]],"struct":["IdPin","IdPinBox","IdRegistry","IdSeqU64Example","TypeResource"],"trait":["TypeResourced"]};

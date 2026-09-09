@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["lane",1]],"struct":["Lane4_i32Example","Simd"],"trait":["SimdConstPtr","SimdFloat","SimdInt","SimdMutPtr","SimdOrd","SimdPartialEq","SimdPartialOrd","SimdUint"]};

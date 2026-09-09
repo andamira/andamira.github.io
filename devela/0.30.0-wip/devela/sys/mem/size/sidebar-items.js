@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["size_of_expr",1]],"trait":["BitSized","ByteSized","Sized"]};

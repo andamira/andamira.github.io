@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["identity"],"trait":["AsMut","AsRef","From","Into","TryFrom","TryInto"]};

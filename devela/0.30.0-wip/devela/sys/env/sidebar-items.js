@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["VarError"],"macro":[["env_",1],["option_env",1]],"struct":["AppApple","AppConfig","AppUnix","AppWindows","AppXdg","Env","IterArgsOsRef","JoinPathsError"],"trait":["AppEnv"]};

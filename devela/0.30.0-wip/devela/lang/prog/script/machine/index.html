@@ -1,0 +1,193 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Resumable scripting execution machinery."><title>devela::lang::prog::script::machine - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module machine</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module machine</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#execution" title="Execution">Execution</a></li><li><a href="#reference-payloads" title="Reference payloads">Reference payloads</a></li><li><a href="#errors" title="Errors">Errors</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>lang::<wbr>prog::<wbr>script</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../../index.html">devela</a>::<wbr><a href="../../../index.html">lang</a>::<wbr><a href="../../index.html">prog</a>::<wbr><a href="../index.html">script</a></div><h1>Module <span>machine</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../../src/devela/lang/prog/script/machine/_.rs.html#3-95">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Resumable scripting execution machinery.</p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::lang::prog::script::machine">machine</a></span>
+<a title='See the flat view of the `lang` module' href='https://docs.rs/devela/latest/devela/all_/_lang'>◉</a></p>
+<hr/>
+<p>The scripting machine is a small resumable execution kernel.</p>
+<p><a href="../../../../all/struct.ScriptMachine.html" title="struct devela::all::ScriptMachine"><code>ScriptMachine</code></a> owns suspended execution state but neither the program
+being executed nor the world affected by it. This keeps program storage,
+execution state, and external authority independent.</p>
+<h3 id="execution"><a class="doc-anchor" href="#execution">§</a>Execution</h3>
+<p>Direct and hosted execution share the same machine state and transition
+protocol. They differ only in who resolves external calls.</p>
+<p><a href="../../../../all/struct.ScriptMachine.html#method.step" title="method devela::all::ScriptMachine::step"><code>ScriptMachine::step</code></a> and <a href="../../../../all/struct.ScriptMachine.html#method.run" title="method devela::all::ScriptMachine::run"><code>ScriptMachine::run</code></a> return external
+interaction as <a href="../../../../all/enum.ScriptOutcome.html#variant.HostCall" title="variant devela::all::ScriptOutcome::HostCall"><code>ScriptOutcome::HostCall</code></a>. The caller may inspect the
+contained <a href="../../../../all/struct.ScriptCall.html" title="struct devela::all::ScriptCall"><code>ScriptCall</code></a>, perform the requested effect, and resume the
+machine with <a href="../../../../all/struct.ScriptMachine.html#method.complete_call" title="method devela::all::ScriptMachine::complete_call"><code>ScriptMachine::complete_call</code></a>.</p>
+<p><a href="../../../../all/struct.ScriptMachine.html#method.step_with" title="method devela::all::ScriptMachine::step_with"><code>ScriptMachine::step_with</code></a> and <a href="../../../../all/struct.ScriptMachine.html#method.run_with" title="method devela::all::ScriptMachine::run_with"><code>ScriptMachine::run_with</code></a> resolve the
+same interaction through a <a href="../../../../all/trait.ScriptHost.html" title="trait devela::all::ScriptHost"><code>ScriptHost</code></a> instead.</p>
+<div class="example-wrap"><pre class="language-txt"><code>program: &amp;[ScriptOp&lt;R&gt;]
+         │
+         ▼
+   ScriptMachine
+         │
+      step / run
+         │
+         ▼
+   ScriptOutcome
+     ├─ Yielded
+     ├─ Returned
+     ├─ BudgetExhausted
+     └─ HostCall(call)
+             │
+      resolve externally
+             │
+             ▼
+     complete_call(value)
+             │
+             └──────► resume
+
+step_with / run_with:
+HostCall ──► ScriptHost::call ──► value ──► resume</code></pre></div><h3 id="reference-payloads"><a class="doc-anchor" href="#reference-payloads">§</a>Reference payloads</h3>
+<p><code>R</code> is the machine’s opaque reference payload type. It is carried by
+<a href="../../../../all/enum.ScriptValue.html#variant.Ref" title="variant devela::all::ScriptValue::Ref"><code>ScriptValue::Ref</code></a> but is never interpreted or validated by the machine.
+Typical payloads are compact IDs or generational handles into caller-owned state.</p>
+<p><code>R</code> can remain stored after its external target becomes invalid.</p>
+<p>Direct execution can resolve these references explicitly. Hosted execution
+passes the same values through <a href="../../../../all/trait.ScriptHost.html" title="trait devela::all::ScriptHost"><code>ScriptHost</code></a>.</p>
+<h2 id="errors"><a class="doc-anchor" href="#errors">§</a>Errors</h2>
+<p>A failing operation leaves machine state unchanged.
+External effects are not rolled back.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.ScriptCall.html" title="struct devela::lang::prog::script::machine::ScriptCall">Script<wbr>Call</a></dt><dd><span class='stab portability' title='Language structure'>𝕃</span> <span class='stab portability' title='Runtime'>⬡</span>
+A host operation awaiting resolution by the caller.</dd><dt><a class="struct" href="struct.ScriptCallId.html" title="struct devela::lang::prog::script::machine::ScriptCallId">Script<wbr>Call<wbr>Id</a></dt><dd><span class='stab portability' title='Language structure'>𝕃</span> <span class='stab portability' title='Identification'>🫆</span>
+A compact contextual identifier for a host operation.</dd><dt><a class="struct" href="struct.ScriptMachine.html" title="struct devela::lang::prog::script::machine::ScriptMachine">Script<wbr>Machine</a></dt><dd><span class='stab portability' title='Language structure'>𝕃</span> <span class='stab portability' title='Runtime'>⬡</span> <span class='stab portability' title='State'>◎</span>
+A fixed-stack resumable scripting machine.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.ScriptError.html" title="enum devela::lang::prog::script::machine::ScriptError">Script<wbr>Error</a></dt><dd><span class='stab portability' title='Language structure'>𝕃</span> <span class='stab portability' title='Error'>🚩</span>
+An error encountered while executing a <a href="../../../../all/struct.ScriptMachine.html" title="struct devela::all::ScriptMachine"><code>ScriptMachine</code></a>.</dd><dt><a class="enum" href="enum.ScriptOp.html" title="enum devela::lang::prog::script::machine::ScriptOp">Script<wbr>Op</a></dt><dd><span class='stab portability' title='Language structure'>𝕃</span>
+An operation executed by a <a href="../../../../all/struct.ScriptMachine.html" title="struct devela::all::ScriptMachine"><code>ScriptMachine</code></a>.</dd><dt><a class="enum" href="enum.ScriptOutcome.html" title="enum devela::lang::prog::script::machine::ScriptOutcome">Script<wbr>Outcome</a></dt><dd><span class='stab portability' title='Language structure'>𝕃</span> <span class='stab portability' title='Outcome'>⚖️</span>
+The non-error outcome of running a <a href="../../../../all/struct.ScriptMachine.html" title="struct devela::all::ScriptMachine"><code>ScriptMachine</code></a>.</dd><dt><a class="enum" href="enum.ScriptValue.html" title="enum devela::lang::prog::script::machine::ScriptValue">Script<wbr>Value</a></dt><dd><span class='stab portability' title='Language structure'>𝕃</span> <span class='stab portability' title='Value semantics'>💱</span>
+A value manipulated by a <a href="../../../../all/struct.ScriptMachine.html" title="struct devela::all::ScriptMachine"><code>ScriptMachine</code></a>.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.ScriptHost.html" title="trait devela::lang::prog::script::machine::ScriptHost">Script<wbr>Host</a></dt><dd><span class='stab portability' title='Language structure'>𝕃</span>
+A host capability boundary for resolving scripted operations.</dd></dl></section></div></main></body></html>

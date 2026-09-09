@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["scalar_offset",1]],"struct":["Char","CharIter","char16","char7","char8","charu","charu_niche"],"trait":["UnicodeScalar"],"type":["char"]};

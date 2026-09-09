@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["dis",1],["ext",1],["pos",1],["region",1]],"struct":["Distance","Extent","Position","Region","RegionStrided","Stride"],"type":["Distance1","Distance2","Distance3","Extent1","Extent2","Extent3","Position1","Position2","Position3","Region1","Region2","Region3","RegionS","RegionS1","RegionS2","RegionS3","Stride1","Stride2","Stride3"]};

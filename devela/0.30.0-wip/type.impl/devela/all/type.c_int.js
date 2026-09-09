@@ -1,0 +1,9 @@
+(function() {
+    var type_impls = Object.fromEntries([["devela",[["<details class=\"toggle implementors-toggle\" open><summary><section id=\"impl-From%3CLinuxClock%3E-for-i32\" class=\"impl\"><a class=\"src rightside\" href=\"src/devela/sys/os/linux/thread/time/clock.rs.html#76-80\">Source</a><a href=\"#impl-From%3CLinuxClock%3E-for-i32\" class=\"anchor\">§</a><h3 class=\"code-header\">impl <a class=\"trait\" href=\"devela/all/trait.From.html\" title=\"trait devela::all::From\">From</a>&lt;<a class=\"enum\" href=\"devela/all/enum.LinuxClock.html\" title=\"enum devela::all::LinuxClock\">LinuxClock</a>&gt; for <a class=\"type\" href=\"devela/all/type.c_int.html\" title=\"type devela::all::c_int\">c_int</a></h3><span class=\"item-info\"><div class=\"stab portability\">Available on <strong>crate features <code>linux</code> and <code>time</code></strong> only.</div></span></section></summary><div class=\"impl-items\"><details class=\"toggle method-toggle\" open><summary><section id=\"method.from\" class=\"method trait-impl\"><a class=\"src rightside\" href=\"src/devela/sys/os/linux/thread/time/clock.rs.html#77-79\">Source</a><a href=\"#method.from\" class=\"anchor\">§</a><h4 class=\"code-header\">fn <a href=\"devela/all/trait.From.html#tymethod.from\" class=\"fn\">from</a>(clock: <a class=\"enum\" href=\"devela/all/enum.LinuxClock.html\" title=\"enum devela::all::LinuxClock\">LinuxClock</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details>","From<LinuxClock>","devela::sys::os::fd::raw::FdRaw"]]]]);
+    if (window.register_type_impls) {
+        window.register_type_impls(type_impls);
+    } else {
+        window.pending_type_impls = type_impls;
+    }
+})()
+//{"start":55,"fragment_lengths":[1546]}

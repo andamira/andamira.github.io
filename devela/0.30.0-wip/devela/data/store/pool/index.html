@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Reusable stores with generational handles and individual reclamation."><title>devela::data::store::pool - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module pool</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module pool</a></h2><h3><a href="#macros">Module Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>data::<wbr>store</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">data</a>::<wbr><a href="../index.html">store</a></div><h1>Module <span>pool</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/data/store/pool/_.rs.html#3-46">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Reusable stores with generational handles and individual reclamation.</p>
+<p><i style='margin-left:0em;margin-top:-2em;'></i><span style='font-size:90%;word-spacing:0px'><a href="index.html" title="mod devela::data::store::pool">pool</a></span>
+<a title='See the flat view of the `data` module' href='https://docs.rs/devela/latest/devela/all_/_data'>◉</a></p>
+<hr/>
+<p>Pools retain independently reclaimable values through generational handles.</p>
+<p>Removing a retained value advances the generation associated
+with its identity and releases its storage for reuse,
+so previously issued handles no longer resolve.</p>
+<p>Unlike an <a href="../arena/index.html" title="mod devela::data::store::arena"><code>arena</code></a>, a pool can reclaim one retained value
+without reclaiming values introduced after it.</p>
+<p>Two pool forms are provided:</p>
+<ul>
+<li><a href="../../../macro.pool.html" title="macro devela::pool"><code>pool!</code></a> stores each value in an independently reusable slot
+whose index remains fixed while the item is retained.</li>
+<li><a href="../../../all/macro.pool_seq.html" title="macro devela::all::pool_seq"><code>pool_seq!</code></a> stores variable-length contiguous sequences whose identities remain
+stable while their physical cell spans may be reclaimed or relocated.</li>
+</ul>
+<p>Handles are relative to the pool instance that issued them and generations
+eventually wrap. Stale-handle protection is therefore bounded by the store
+context and configured generation domain.</p>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.pool.html" title="macro devela::data::store::pool::pool">pool</a></dt><dd><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+Defines an owning generational pool with static or allocating storage.</dd><dt><a class="macro" href="macro.pool_seq.html" title="macro devela::data::store::pool::pool_seq">pool_<wbr>seq</a></dt><dd><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+Defines a generational pool of variable-length contiguous sequences.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.PoolAllocExample.html" title="struct devela::data::store::pool::PoolAllocExample">Pool<wbr>Alloc<wbr>Example</a></dt><dd><span class='stab portability' title='Example'>✨</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+An example allocated generational pool.</dd><dt><a class="struct" href="struct.PoolAllocHandleExample.html" title="struct devela::data::store::pool::PoolAllocHandleExample">Pool<wbr>Alloc<wbr>Handle<wbr>Example</a></dt><dd><span class='stab portability' title='Example'>✨</span> <span class='stab portability' title='Identification'>🫆</span>
+A handle into <a href="../../../all/struct.PoolAllocExample.html" title="struct devela::all::PoolAllocExample"><code>PoolAllocExample</code></a>.</dd><dt><a class="struct" href="struct.PoolExample.html" title="struct devela::data::store::pool::PoolExample">Pool<wbr>Example</a></dt><dd><span class='stab portability' title='Example'>✨</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+An example fixed-capacity generational pool.</dd><dt><a class="struct" href="struct.PoolHandleExample.html" title="struct devela::data::store::pool::PoolHandleExample">Pool<wbr>Handle<wbr>Example</a></dt><dd><span class='stab portability' title='Example'>✨</span> <span class='stab portability' title='Identification'>🫆</span>
+A handle into <a href="../../../all/struct.PoolExample.html" title="struct devela::all::PoolExample"><code>PoolExample</code></a>.</dd><dt><a class="struct" href="struct.PoolIter.html" title="struct devela::data::store::pool::PoolIter">Pool<wbr>Iter</a></dt><dd><span class='stab portability' title='Iterator or iterator adapter'>🔄</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+An iterator over values in occupied item-pool slots.</dd><dt><a class="struct" href="struct.PoolSeqExample.html" title="struct devela::data::store::pool::PoolSeqExample">Pool<wbr>SeqExample</a></dt><dd><span class='stab portability' title='Example'>✨</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+An example fixed-capacity sequence pool.</dd><dt><a class="struct" href="struct.PoolSeqHandleExample.html" title="struct devela::data::store::pool::PoolSeqHandleExample">Pool<wbr>SeqHandle<wbr>Example</a></dt><dd><span class='stab portability' title='Example'>✨</span> <span class='stab portability' title='Identification'>🫆</span>
+A generational handle into <a href="../../../all/struct.PoolSeqExample.html" title="struct devela::all::PoolSeqExample"><code>PoolSeqExample</code></a>.</dd></dl></section></div></main></body></html>

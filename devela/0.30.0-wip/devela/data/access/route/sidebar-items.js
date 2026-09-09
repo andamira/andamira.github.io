@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["RouteAnchor","RouteName","RouteSeg"],"struct":["Route"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["prime_number_theorem"],"macro":[["divisor",1]],"struct":["DivisorExample","GcdReturn","Int"],"trait":["NumInt","NumRefInt"],"type":["isize_down","isize_up","usize_down","usize_up"]};

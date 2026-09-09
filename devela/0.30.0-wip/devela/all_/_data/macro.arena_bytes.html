@@ -1,0 +1,233 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🏗️ 🗃️ Defines a byte arena with static or allocating storage and compact span handles."><title>arena_bytes in devela::all_::_data - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">arena_bytes</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">arena_<wbr>bytes</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#storage-regimes" title="Storage regimes">Storage regimes</a></li><li><a href="#cursor-and-handle-representation" title="Cursor and handle representation">Cursor and handle representation</a></li><li><a href="#optional-marks" title="Optional marks">Optional marks</a></li><li><a href="#features" title="Features">Features</a></li><li><a href="#example" title="Example">Example</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all_<wbr>::<wbr>_<wbr>data</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">all_</a>::<wbr><a href="index.html">_data</a></div><h1>Macro <span class="macro">arena_<wbr>bytes</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/data/store/arena/bytes/define.rs.html#113-136">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! arena_bytes {
+    (
+        [cursor: $cprim:ident $(+ $Cursor:ty)?;]
+
+        $(#[$arena_attr:meta])*
+        $vis:vis $Arena:ident $( : $kind:ident )?;
+
+        $(#[$handle_attr:meta])*
+        $hvis:vis $Handle:ident;
+
+        $(
+            $(#[$mark_attr:meta])*
+            $mvis:vis $Mark:ident $(;)?
+        )?
+    ) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Construction'>🏗️</span> <span class='stab portability' title='Data structure (collection)'>🗃️</span>
+Defines a byte arena with static or allocating storage and compact span handles.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/data/store/arena"><code>data/store/arena</code></a>::<a href="https://docs.rs/devela/latest/devela/data/store/arena/macro.arena_bytes.html"><code>arena_bytes</code></a></sup></p>
+<hr />
+<p>The generated arena stores bytes in an append-only initialized prefix.
+Handles identify byte spans within that prefix.</p>
+<p>Like handles, marks contain coordinates only; they do not identify
+a particular arena. A receiving arena accepts a mark only when its
+frontier is not ahead of the current written prefix.</p>
+<p>Reclamation does not permanently invalidate their coordinates:
+later writes may reuse the same byte positions.</p>
+<h2 id="storage-regimes"><a class="doc-anchor" href="#storage-regimes">§</a>Storage regimes</h2>
+<p>The arena declaration supports two storage regimes:</p>
+<ul>
+<li>
+<p><strong>Static</strong> — the default.</p>
+<p>The arena owns fixed-capacity inline storage and has the type
+<code>Arena&lt;const CAP: usize&gt;</code>. It does not allocate.</p>
+<p>The complete capacity must be representable by both the cursor primitive
+and the handle representation.</p>
+<p>The optional <code>: static</code> selector may be written explicitly or omitted.</p>
+</li>
+<li>
+<p><strong>Allocating</strong> — selected with <code>: alloc</code>.</p>
+<p>The arena owns growable <code>Vec&lt;u8&gt;</code> storage and has the type <code>Arena</code>.
+It requires the <code>alloc</code> feature and may grow until the configured
+byte-coordinate range is exhausted.</p>
+<p>Its <code>capacity</code> and <code>remaining</code> methods describe storage available without
+reallocating. Therefore <code>remaining() == 0</code> does not necessarily mean that
+another write will fail. <code>is_full()</code> indicates that no additional byte
+coordinate can be represented.</p>
+</li>
+</ul>
+<h2 id="cursor-and-handle-representation"><a class="doc-anchor" href="#cursor-and-handle-representation">§</a>Cursor and handle representation</h2>
+<p><code>cursor</code> selects the primitive byte-coordinate type and, optionally,
+the representation used by generated handle fields.</p>
+<ul>
+<li><code>cursor: u16;</code> uses <code>u16</code> for both.</li>
+<li><code>cursor: u16 + NonMaxU16;</code> keeps arena cursor state as <code>u16</code>
+while storing handle coordinates as <code>NonMaxU16</code>.</li>
+</ul>
+<p>The current byte frontier and rollback marks use the cursor primitive
+directly. Handles may use a different representation for their byte
+offsets and lengths.</p>
+<p>Both storage regimes keep the written frontier within the coordinate range
+representable by the cursor primitive and handle representation. This keeps
+byte-span semantics independent of the storage backend.</p>
+<h2 id="optional-marks"><a class="doc-anchor" href="#optional-marks">§</a>Optional marks</h2>
+<p>Supplying a mark type adds <code>mark</code> and <code>rollback</code>.</p>
+<p>A mark records a storage frontier, not a snapshot of the retained bytes:
+mutations before that frontier are not reverted by rollback.</p>
+<p>Like handles, marks are relative to the arena instance that produced them.
+Reclamation does not permanently invalidate their coordinates: later writes
+may reuse the same byte positions.</p>
+<h2 id="features"><a class="doc-anchor" href="#features">§</a>Features</h2>
+<p>The static backend does not require allocation. With <code>unsafe_array</code>,
+unwritten static capacity can remain uninitialized; <code>unsafe_slice</code> enables
+additional slice-access optimizations where applicable.</p>
+<p>The <code>: alloc</code> backend requires the <code>alloc</code> feature and uses <code>Vec&lt;u8&gt;</code> storage.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::{NonMaxU16, arena_bytes};
+
+<span class="macro">arena_bytes!</span> {
+    [cursor: u16 + NonMaxU16;]
+
+    <span class="doccomment">/// A byte arena.
+    </span><span class="kw">pub </span>Bytes;
+    <span class="doccomment">/// A byte span within `Bytes`.
+    </span><span class="kw">pub </span>BytesHandle;
+    <span class="doccomment">/// A rollback position within `Bytes`.
+    </span><span class="kw">pub </span>BytesMark;
+}
+
+<span class="kw">let </span><span class="kw-2">mut </span>arena = Bytes::&lt;<span class="number">64</span>&gt;::new();
+<span class="kw">let </span>handle = arena.push_bytes(<span class="string">b"devela"</span>).unwrap();
+<span class="macro">assert_eq!</span>(arena.read_bytes(handle), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b"devela"</span>[..]));</code></pre></div>
+<p>See:</p>
+<ul>
+<li><a href="../../all/struct.ArenaBytesExample.html" title="struct devela::all::ArenaBytesExample"><code>ArenaBytesExample</code></a>, <a href="../../all/struct.ArenaBytesHandleExample.html" title="struct devela::all::ArenaBytesHandleExample"><code>ArenaBytesHandleExample</code></a>, <a href="../../all/struct.ArenaBytesMarkExample.html" title="struct devela::all::ArenaBytesMarkExample"><code>ArenaBytesMarkExample</code></a>.</li>
+<li><a href="../../all/struct.ArenaBytesAllocExample.html" title="struct devela::all::ArenaBytesAllocExample"><code>ArenaBytesAllocExample</code></a>, <a href="../../all/struct.ArenaBytesAllocHandleExample.html" title="struct devela::all::ArenaBytesAllocHandleExample"><code>ArenaBytesAllocHandleExample</code></a>, <a href="../../all/struct.ArenaBytesAllocMarkExample.html" title="struct devela::all::ArenaBytesAllocMarkExample"><code>ArenaBytesAllocMarkExample</code></a>.</li>
+</ul>
+</div></details></section></div></main></body></html>

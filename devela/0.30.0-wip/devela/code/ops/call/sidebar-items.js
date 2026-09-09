@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CallBindTime","CallContext","CallDispatch","CallOpenness","CallStorage"],"struct":["CallSemantics"],"trait":["Fn","FnMut","FnOnce"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["array_from_fn","array_from_mut","array_from_ref"],"macro":[["init_array",1],["vec_",1]],"struct":["Array","ArrayCoordIter","ArrayFmt","ArrayFrom","ArrayLayout","ArrayShape","Vec"],"trait":["ArrayExt","DataArray","VecExt"]};

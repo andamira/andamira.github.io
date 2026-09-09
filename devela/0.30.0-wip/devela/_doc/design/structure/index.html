@@ -1,0 +1,222 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Library structure and source organization."><title>devela::_doc::design::structure - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (4aa1fbcf4 2026-09-08)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><!-- devela/src/_doc/header.html -->
+<script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module structure</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module structure</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#library-structure-and-source-organization" title="Library structure and source organization.">Library structure and source organization.</a></li><li><a href="#library-structure" title="Library structure">Library structure</a><ul><li><a href="#re-exports-and-visibility" title="Re-exports and visibility">Re-exports and visibility</a></li><li><a href="#root-access" title="Root access">Root access</a></li><li><a href="#flat-views" title="Flat views">Flat views</a></li><li><a href="#item-locations" title="Item locations">Item locations</a></li><li><a href="#in-the-source" title="In the source">In the source</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>doc::<wbr>design</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">_doc</a>::<wbr><a href="../index.html">design</a></div><h1>Module <span>structure</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/_doc/design/_.rs.html#26">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="library-structure-and-source-organization"><a class="doc-anchor" href="#library-structure-and-source-organization">§</a>Library structure and source organization.</h2><!-- devela/src/_doc/design/structure.md -->
+<h2 id="library-structure"><a class="doc-anchor" href="#library-structure">§</a>Library structure</h2>
+<p>devela is organized as a hierarchy of domains. The module tree gives concepts
+a place and keeps related facilities together, while re-exports provide other
+ways to find and use them.</p>
+<p>For example, <a href="../../../all/struct.DistBernoulli.html" title="struct devela::all::DistBernoulli"><code>DistBernoulli</code></a> belongs to probability distributions:</p>
+<div class="example-wrap"><pre class="language-text"><code>devela
+└── num
+    └── prob
+        └── dist
+            └── DistBernoulli</code></pre></div>
+<p>Its canonical location is therefore:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>devela::num::prob::dist::DistBernoulli</code></pre></div>
+<p>That location identifies where the type belongs in the library. It does not
+limit where the type can be accessed.</p>
+<h3 id="re-exports-and-visibility"><a class="doc-anchor" href="#re-exports-and-visibility">§</a>Re-exports and visibility</h3>
+<p>Public items are structurally forwarded through their containing modules and
+ultimately to the crate root. These intermediate re-exports are normally hidden
+from the generated documentation, so the hierarchy stays readable while shorter
+paths remain available:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>devela::num::prob::DistBernoulli
+devela::num::DistBernoulli
+devela::DistBernoulli</code></pre></div>
+<p>Separately, selected items can be re-exported <strong>visibly</strong> from other modules.
+These visible public locations are deliberate points of discovery: a module can
+show facilities that are especially useful or representative there, even when
+their canonical location lies elsewhere.</p>
+<p>An item may therefore have several visible public locations, while retaining one
+canonical home. For example, <a href="../../../all/struct.CStr.html" title="struct devela::all::CStr"><code>CStr</code></a> is canonically located with the C FFI
+facilities, but is also shown from the string module because it is useful in
+that context.</p>
+<p>As the hierarchy approaches the crate root, visible re-exports become more
+selective. A detailed module can present many relevant facilities, its ancestors
+can highlight a smaller selection, and the crate root can show only a compact
+set of broadly useful entry points. Hidden forwarding remains independent of
+that presentation.</p>
+<h3 id="root-access"><a class="doc-anchor" href="#root-access">§</a>Root access</h3>
+<p>Because the public surface is forwarded upward, ordinary code can usually import
+items directly from <code>devela</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::{DistBernoulli, Probability};</code></pre></div>
+<p>The root namespace is therefore much broader than the root documentation makes
+visible. The documentation shows only selected re-exports, while the remaining
+forwarded items stay directly accessible without filling the crate page with the
+complete library inventory.</p>
+<h3 id="flat-views"><a class="doc-anchor" href="#flat-views">§</a>Flat views</h3>
+<p>The documentation also provides two alternative views of the public surface.</p>
+<p><a href="../../../all/index.html" title="mod devela::all"><code>all</code></a> gathers the forwarded items into one flat namespace:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>devela::all::<span class="kw-2">*</span>;</code></pre></div>
+<p>Unlike the crate root, it leaves out the root module names and public hidden
+support items, giving a cleaner flat inventory of the library’s usable surface.</p>
+<p><a href="../../../all_/index.html" title="mod devela::all_"><code>all_</code></a> preserves the root domains but flattens everything beneath each one.
+For example:</p>
+<div class="example-wrap"><pre class="language-text"><code>devela::all_::_num
+devela::all_::_data
+devela::all_::_media</code></pre></div>
+<p><code>devela::all_::_num::DistBernoulli</code> therefore shows <code>DistBernoulli</code> alongside
+the rest of the numeric surface, without the intermediate <code>prob::dist</code>
+hierarchy.</p>
+<p>Taken together, the main views are:</p>
+<div class="example-wrap"><pre class="language-text"><code>devela::num::prob::dist::DistBernoulli   canonical hierarchy
+devela::all_::_num::DistBernoulli        domain-flat
+devela::all::DistBernoulli               crate-flat
+devela::DistBernoulli                    root access</code></pre></div>
+<p>They are different views or access paths to the same item. The hierarchy records
+where it belongs, the flat views expose broader inventories, and the root offers
+the shortest general access path.</p>
+<p>In the generated documentation, <code>◉</code> links from a root domain to its flat
+<code>all_</code> view, while <code>▽</code> returns to the hierarchical view.</p>
+<h3 id="item-locations"><a class="doc-anchor" href="#item-locations">§</a>Item locations</h3>
+<p>Individual item pages show a <code>📍</code> location annotation near their opening
+documentation. The marker is followed by the canonical module path and, when
+available, the item name; the module and item are linked independently.</p>
+<p>This makes the canonical hierarchy easy to recover after reaching an item
+through a visible re-export, the crate root, or a flat view such as <code>all</code>.</p>
+<p>The <code>all</code> and <code>all_</code> modules are namespace views. They are separate from the
+Cargo <code>all</code> and <code>*_all</code> features, which control which library capabilities are
+compiled.</p>
+<h3 id="in-the-source"><a class="doc-anchor" href="#in-the-source">§</a>In the source</h3>
+<p>The module layout and export flow are kept consistent by <a href="../../../all/macro.mods_in.html" title="macro devela::all::mods_in"><code>mods_in!</code></a> and
+<a href="../../../all/macro.mods_out.html" title="macro devela::all::mods_out"><code>mods_out!</code></a>. <code>mods_in!</code> declares modules following devela’s source-file layout,
+while <code>mods_out!</code> gathers their outward-facing exports and distinguishes
+structural forwarding from visible re-exports.</p>
+</div></details></section></div></main></body></html>
