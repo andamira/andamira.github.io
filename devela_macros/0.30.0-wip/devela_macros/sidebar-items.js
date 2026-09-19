@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["compile","compile_attr","macro_apply","macro_derive","macro_derive_with"],"macro":["cif","coalesce","enumint","field_of","ident_total","ident_total_unique","ident_unique","mods_in","paste","repeat"]};

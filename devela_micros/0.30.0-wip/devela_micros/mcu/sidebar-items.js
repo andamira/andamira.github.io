@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["avr","esp32"],"struct":["McuAtmega328p","McuEsp32C3"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["arch","device","env","fs","io","log","mem","net","os","service"]};
+window.SIDEBAR_ITEMS = {"mod":["arch","device","env","fs","hw","io","log","mem","net","os","service"]};

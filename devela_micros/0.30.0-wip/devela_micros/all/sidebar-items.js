@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["esp32_c3_direct_boot",1]],"struct":["AvrPin","AvrPort","AvrReg8","AvrTimer0","AvrTimer1","AvrTimer2","AvrUsart","BoardArduinoNano","BoardSuperMiniOled042","Esp32C3Pin","Esp32C3Uart","EspI2c","EspReg32","EspUsbSerialJtag","McuAtmega328p","McuEsp32C3"]};

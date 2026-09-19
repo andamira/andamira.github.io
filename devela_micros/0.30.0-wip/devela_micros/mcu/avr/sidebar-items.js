@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["timer"],"struct":["AvrPin","AvrPort","AvrReg8","AvrTimer0","AvrTimer1","AvrTimer2","AvrUsart","McuAtmega328p"]};

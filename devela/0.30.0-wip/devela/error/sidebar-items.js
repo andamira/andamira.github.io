@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["BacktraceStatus","NotAvailable"],"macro":[["compile_error",1],["define_error",1]],"mod":["data","num","text"],"struct":["Backtrace","FailedErrorConversion","InvalidValue","NotImplemented","NotSupported"],"trait":["Error"]};
+window.SIDEBAR_ITEMS = {"macro":[["define_error",1]],"mod":["data","kind","num","text"],"trait":["Error"]};

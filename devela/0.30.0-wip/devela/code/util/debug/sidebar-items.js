@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":[["cdbg",1],["const_warn",1],["fn_name",1]]};
+window.SIDEBAR_ITEMS = {"enum":["BacktraceStatus"],"macro":[["cdbg",1],["const_warn",1],["fn_name",1]],"struct":["Backtrace"]};

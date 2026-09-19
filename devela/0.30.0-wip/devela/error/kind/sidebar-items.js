@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["NotAvailable"],"struct":["FailedErrorConversion","InvalidValue","NotImplemented","NotSupported"]};

@@ -1,0 +1,1 @@
+rd_("f[1,\"\"]0f[0,\"\"]11Cc[8,\"core::ffi::primitives\",\"core::ffi::primitives\"]2f[3,\"\"]Bc[8,\"devela_bridge\",\"devela_bridge\"]")

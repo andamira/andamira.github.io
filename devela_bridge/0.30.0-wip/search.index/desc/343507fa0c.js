@@ -1,0 +1,1 @@
+rd_("CeForeign-language bindings and ABI bridges for devela.AbABI status values.BcTiny call-with-argument smoke test.AoTiny pointer/string smoke test.CfABI version: major.minor.patch packed as 0x00MM_mm_pp.")
