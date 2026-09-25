@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["I2cError"],"struct":["I2cAddr7"]};
+window.SIDEBAR_ITEMS = {"enum":["I2cError"],"struct":["I2cAddr7","I2cCmdData","I2cController","I2cTarget"],"trait":["I2cBusWrite","I2cControl"]};

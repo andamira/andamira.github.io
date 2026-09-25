@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["Canvas","CanvasRead","CanvasTextel"]};
+window.SIDEBAR_ITEMS = {"trait":["Canvas","CanvasRaster","CanvasRasterExt","CanvasRead","CanvasTextel"]};

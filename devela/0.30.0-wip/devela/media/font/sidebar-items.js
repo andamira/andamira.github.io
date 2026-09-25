@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["BdfError","DvbfError"],"struct":["Bdf","Dvbf","FontArt","FontBitmapView","FontBitmapWord","Fonts","GlyphBitmapView"]};
+window.SIDEBAR_ITEMS = {"enum":["BdfError","DvbfError"],"struct":["Bdf","Dvbf","FontArt","FontBitmapPixel","FontBitmapPixelIter","FontBitmapView","FontBitmapWord","Fonts","GlyphBitmapView"]};

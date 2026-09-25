@@ -1,2 +1,2 @@
-createSrcSidebar('[["devela_bridge",["",[],["lib.rs"]]]]');
-//{"start":19,"fragment_lengths":[36]}
+createSrcSidebar('[["devela_bridge",["",[],["_.rs"]]]]');
+//{"start":19,"fragment_lengths":[34]}

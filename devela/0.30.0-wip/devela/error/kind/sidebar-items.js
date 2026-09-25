@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["NotAvailable"],"struct":["FailedErrorConversion","InvalidValue","NotImplemented","NotSupported"]};
+window.SIDEBAR_ITEMS = {"enum":["NotAvailable"],"struct":["AttemptLimitReached","FailedErrorConversion","InvalidValue","NotImplemented","NotSupported"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["pin"]};
+window.SIDEBAR_ITEMS = {"mod":["pin"],"trait":["CmdDataWrite"]};

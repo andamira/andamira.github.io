@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["BoardArduinoNano"]};
+window.SIDEBAR_ITEMS = {"struct":["BoardArduinoMega2560","BoardArduinoNano"]};

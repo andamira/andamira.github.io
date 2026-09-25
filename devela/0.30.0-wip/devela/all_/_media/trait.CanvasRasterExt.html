@@ -1,0 +1,255 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🖼️ Extension methods for a canonical raster `CanvasRaster`."><title>CanvasRasterExt in devela::all_::_media - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-203241e4.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.100.0-nightly (f7575a9da 2026-09-24)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+/* doc metadata */
+.docblock p:has(> sup._doc_location) { margin-bottom: 0; }
+.docblock p:has(> sup._doc_test_size_of:only-child) { margin-bottom: 0; }
+</style>
+
+<style>
+.devela-wip-banner {
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: .2rem .55rem;
+
+    width: 100%;
+    margin: 0 0 1rem;
+    padding: .3rem .65rem;
+
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+
+    background: var(--main-background-color);
+    color: var(--main-color);
+
+    font-size: .75rem;
+    line-height: 1.4;
+}
+
+.devela-wip-banner > * {
+    white-space: nowrap;
+}
+
+.devela-wip-banner > * + *::before {
+    content: "·";
+    margin-right: .55rem;
+    opacity: .45;
+}
+
+.devela-wip-banner a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.devela-wip-banner a:hover {
+    text-decoration: underline;
+}
+
+.devela-wip-banner .wip {
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.devela-wip-banner code {
+    font-size: inherit;
+}
+
+@media (max-width: 700px) {
+    .devela-wip-banner {
+        justify-content: flex-start;
+        font-size: .72rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const main = document.querySelector("main");
+    if (!main || main.querySelector(".devela-wip-banner")) return;
+
+    const banner = document.createElement("aside");
+    banner.className = "devela-wip-banner";
+    banner.setAttribute("aria-label", "WIP documentation build");
+
+    banner.innerHTML =
+        '<a class="wip" href="https://andamira.github.io/devela/wip/devela/">WIP</a>' +
+        '<span>devela 0.30.0-wip</span>' +
+        '<span>MSRV 1.98.1</span>' +
+        '<span>built 2026-09-25</span>' +
+        '<span>source <a href="https://github.com/andamira/devela/commit/cd7cbc9891bd284872dbe540befbab800ed0356d">' +
+        '<code>cd7cbc98+dirty</code></a></span>';
+
+    main.prepend(banner);
+});
+</script>
+
+</head><body class="rustdoc trait"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">CanvasRasterExt</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Canvas<wbr>Raster<wbr>Ext</a></h2><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.canvas_draw_line" title="canvas_draw_line">canvas_draw_line</a></li><li><a href="#method.canvas_draw_region" title="canvas_draw_region">canvas_draw_region</a></li><li><a href="#method.canvas_raster_grid" title="canvas_raster_grid">canvas_raster_grid</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all_<wbr>::<wbr>_<wbr>media</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">devela</a>::<wbr><a href="../index.html">all_</a>::<wbr><a href="index.html">_media</a></div><h1>Trait <span class="trait">Canvas<wbr>Raster<wbr>Ext</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/devela/media/visual/draw/canvas/raster.rs.html#34-80">Source</a> </span></div><pre class="rust item-decl"><code>pub trait CanvasRasterExt: <a class="trait" href="../../all/trait.CanvasRaster.html" title="trait devela::all::CanvasRaster">CanvasRaster</a> {
+    // Provided methods
+    fn <a href="#method.canvas_raster_grid" class="fn">canvas_raster_grid</a>(&amp;self) -&gt; <a class="struct" href="../../all/struct.RasterGrid.html" title="struct devela::all::RasterGrid">RasterGrid</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.canvas_draw_line" class="fn">canvas_draw_line</a>(
+        &amp;mut self,
+        start: <a class="type" href="../../all/type.Position2.html" title="type devela::all::Position2">Position2</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;,
+        end: <a class="type" href="../../all/type.Position2.html" title="type devela::all::Position2">Position2</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;,
+        color: Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Color" title="type devela::all::Canvas::Color">Color</a>,
+    ) -&gt; <a class="enum" href="../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Error" title="type devela::all::Canvas::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a>
+       <span class="where">where Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Color" title="type devela::all::Canvas::Color">Color</a>: <a class="trait" href="../../all/trait.Copy.html" title="trait devela::all::Copy">Copy</a></span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.canvas_draw_region" class="fn">canvas_draw_region</a>(
+        &amp;mut self,
+        region: <a class="type" href="../../all/type.RegionS2.html" title="type devela::all::RegionS2">RegionS2</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;,
+        color: Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Color" title="type devela::all::Canvas::Color">Color</a>,
+    ) -&gt; <a class="enum" href="../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Error" title="type devela::all::Canvas::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a>
+       <span class="where">where Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Color" title="type devela::all::Canvas::Color">Color</a>: <a class="trait" href="../../all/trait.Copy.html" title="trait devela::all::Copy">Copy</a></span> { ... }
+}</code></pre><span class="item-info"><div class="stab portability">Available on <strong>crate features <code>draw</code> and <code>image</code></strong> only.</div></span><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><span class='stab portability' title='Image'>🖼️</span>
+Extension methods for a canonical raster <a href="../../all/trait.CanvasRaster.html" title="trait devela::all_::_media::CanvasRaster"><code>CanvasRaster</code></a>.</p>
+<hr />
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://docs.rs/devela/latest/devela/media/visual/draw"><code>media/visual/draw</code></a>::<a href="https://docs.rs/devela/latest/devela/media/visual/draw/trait.CanvasRasterExt.html"><code>CanvasRasterExt</code></a></sup></p>
+<hr />
+<p>This trait is implemented for every <a href="../../all/trait.CanvasRaster.html" title="trait devela::all_::_media::CanvasRaster"><code>CanvasRaster</code></a>.</p>
+<p>Its methods derive canonical software-raster operations from the minimal <a href="../../all/trait.Canvas.html" title="trait devela::all_::_media::Canvas"><code>Canvas</code></a> contract,
+without requiring or exposing any particular raster storage representation.</p>
+</div></details><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.canvas_raster_grid" class="method"><a class="src rightside" href="../../../src/devela/media/visual/draw/canvas/raster.rs.html#36-38">Source</a><h4 class="code-header">fn <a href="#method.canvas_raster_grid" class="fn">canvas_raster_grid</a>(&amp;self) -&gt; <a class="struct" href="../../all/struct.RasterGrid.html" title="struct devela::all::RasterGrid">RasterGrid</a></h4></section></summary><div class="docblock"><p>Returns the canonical raster grid covering this canvas.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.canvas_draw_line" class="method"><a class="src rightside" href="../../../src/devela/media/visual/draw/canvas/raster.rs.html#44-58">Source</a><h4 class="code-header">fn <a href="#method.canvas_draw_line" class="fn">canvas_draw_line</a>(
+    &amp;mut self,
+    start: <a class="type" href="../../all/type.Position2.html" title="type devela::all::Position2">Position2</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;,
+    end: <a class="type" href="../../all/type.Position2.html" title="type devela::all::Position2">Position2</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;,
+    color: Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Color" title="type devela::all::Canvas::Color">Color</a>,
+) -&gt; <a class="enum" href="../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Error" title="type devela::all::Canvas::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a><div class="where">where
+    Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Color" title="type devela::all::Canvas::Color">Color</a>: <a class="trait" href="../../all/trait.Copy.html" title="trait devela::all::Copy">Copy</a>,</div></h4></section></summary><div class="docblock"><p>Draws a canonical aliased one-cell-wide raster line.</p>
+<p><code>start</code> and <code>end</code> are signed raster-lattice positions and may lie outside
+the canvas. The line is clipped to the canvas grid using <a href="../../all/struct.RasterLineIter.html" title="struct devela::all_::_media::RasterLineIter"><code>RasterLineIter</code></a>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.canvas_draw_region" class="method"><a class="src rightside" href="../../../src/devela/media/visual/draw/canvas/raster.rs.html#61-79">Source</a><h4 class="code-header">fn <a href="#method.canvas_draw_region" class="fn">canvas_draw_region</a>(
+    &amp;mut self,
+    region: <a class="type" href="../../all/type.RegionS2.html" title="type devela::all::RegionS2">RegionS2</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>&gt;,
+    color: Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Color" title="type devela::all::Canvas::Color">Color</a>,
+) -&gt; <a class="enum" href="../../all/enum.Result.html" title="enum devela::all::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Error" title="type devela::all::Canvas::Error">Error</a>&gt; <a href="#" class="tooltip" data-notable-ty="Result&lt;(), Self::Error&gt;">ⓘ</a><div class="where">where
+    Self::<a class="associatedtype" href="../../all/trait.Canvas.html#associatedtype.Color" title="type devela::all::Canvas::Color">Color</a>: <a class="trait" href="../../all/trait.Copy.html" title="trait devela::all::Copy">Copy</a>,</div></h4></section></summary><div class="docblock"><p>Draws the outline of a raster region.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait <b>is</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety".</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><div class="negative-marker"></div><section id="impl-CanvasRasterExt-for-C" class="impl"><a class="src rightside" href="../../../src/devela/media/visual/draw/canvas/raster.rs.html#82">Source</a><a href="#impl-CanvasRasterExt-for-C" class="anchor">§</a><h3 class="code-header">impl&lt;C: <a class="trait" href="../../all/trait.CanvasRaster.html" title="trait devela::all::CanvasRaster">CanvasRaster</a> + ?<a class="trait" href="../../all/trait.Sized.html" title="trait devela::all::Sized">Sized</a>&gt; <a class="trait" href="../../all/trait.CanvasRasterExt.html" title="trait devela::all::CanvasRasterExt">CanvasRasterExt</a> for C</h3></section></div><script src="../../../trait.impl/devela/media/visual/draw/canvas/raster/trait.CanvasRasterExt.js" async></script><script type="text/json" id="notable-traits-data">{"Result<(), Self::Error>":"<h3>Notable traits for <code><a class=\"enum\" href=\"../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</code></h3><pre><code><div class=\"where\">impl&lt;T, E&gt; <a class=\"trait\" href=\"../../all/trait.ResultExt.html\" title=\"trait devela::all::ResultExt\">ResultExt</a>&lt;T, E&gt; for <a class=\"enum\" href=\"../../all/enum.Result.html\" title=\"enum devela::all::Result\">Result</a>&lt;T, E&gt;</div>"}</script></section></div></main></body></html>

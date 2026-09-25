@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["draw","grid"],"struct":["Coverage8","RasterByteSlice","RasterElement","RasterFormat","RasterLayout","RasterSlice"],"trait":["Raster","RasterBuf","RasterBufBytes","RasterSamplePacked","RasterView","RasterViewBytes","RasterViewPacked"]};
+window.SIDEBAR_ITEMS = {"mod":["draw","grid"],"struct":["BitmapPage8","Coverage8","RasterByteSlice","RasterElement","RasterFormat","RasterLayout","RasterSlice"],"trait":["Raster","RasterBuf","RasterBufBytes","RasterSamplePacked","RasterView","RasterViewBytes","RasterViewPacked"]};
