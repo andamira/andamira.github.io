@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BoardArduinoDiecimila","BoardArduinoDue","BoardArduinoMega2560","BoardArduinoNano","BoardSuperMiniOled042","BoardWaveshareC6TouchLcd147"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["avr","esp32"],"struct":["BoardArduinoNano","BoardSuperMiniOled042"]};
+window.SIDEBAR_ITEMS = {"mod":["avr","esp32","sam"],"struct":["BoardArduinoDue","BoardArduinoMega2560","BoardArduinoNano","BoardSuperMiniOled042","BoardWaveshareC6TouchLcd147"]};

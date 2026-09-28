@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["_board","_computer","_device","_mcu","_processor"]};

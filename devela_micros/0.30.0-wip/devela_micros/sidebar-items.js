@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["all","board","device","mcu"]};
+window.SIDEBAR_ITEMS = {"mod":["_devela","all","all_","board","computer","device","mcu","processor"]};
