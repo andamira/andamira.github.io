@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">doclink</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">doclink</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#features" title="Features">Features</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Macro <span class="macro">doclink</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/code/util/doclink.rs.html#101-337">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! doclink {
+</head><body class="rustdoc macro"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">doclink</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../devela/index.html">devela</a><span class="version">0.30.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">doclink</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#features" title="Features">Features</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In devela::<wbr>all</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">devela</a>::<wbr><a href="index.html">all</a></div><h1>Macro <span class="macro">doclink</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/devela/code/util/doclink.rs.html#121-357">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! doclink {
     (@item_file struct $item:ident) =&gt; { ... };
     (@item_file enum $item:ident) =&gt; { ... };
     (@item_file union $item:ident) =&gt; { ... };
@@ -340,7 +340,7 @@ document.addEventListener("DOMContentLoaded", function () {
 Helps doc-linking items in downstream crates.</p>
 <!-- (*internet* version) -->
 <hr />
-<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://andamira.github.io/develawipdevela/code/util"><code>code/util</code></a>::<a href="https://andamira.github.io/develawipdevela/code/util/macro.doclink.html"><code>doclink!</code></a></sup></p>
+<p><sup class='_doc_location' title='location in `devela`'>📍 <a href="https://andamira.github.io/devela/wip/devela/code/util"><code>code/util</code></a>::<a href="https://andamira.github.io/devela/wip/devela/code/util/macro.doclink.html"><code>doclink!</code></a></sup></p>
 <hr />
 <p>Constructs a URL to Rust documentation.</p>
 <p>Module links use <code>@mod</code>. Exact item links use <code>@item kind Item</code>, allowing
@@ -349,11 +349,30 @@ encode names such as <code>struct.Item.html</code> manually.</p>
 <p>Supported item kinds are:
 <code>struct</code>, <code>enum</code>, <code>union</code>, <code>trait</code>, <code>type</code>, <code>fn</code>, <code>const</code>, <code>static</code>,
 <code>macro</code>, <code>attr</code>, and <code>derive</code>.</p>
-<p>The <code>custom</code> forms use <code>__DOCLINK_CUSTOM_DOMAIN!</code> as their documentation root.
-That macro must expand to a string literal ending in <code>/</code>, for example:</p>
+<p>The <code>custom</code> forms use two crate-root macros to construct published
+documentation URLs:</p>
+<ul>
+<li><code>__DOCLINK_CUSTOM_DOMAIN!</code> defines the documentation root and must expand
+to a string literal ending in <code>/</code>.</li>
+<li><code>__DOCLINK_CUSTOM_CHANNEL!</code> defines the publication channel or version and
+must expand to a string literal without surrounding <code>/</code>.</li>
+</ul>
+<p>For example:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[macro_export] #[doc(hidden)]
-</span><span class="macro">macro_rules!</span> __DOCLINK_CUSTOM_DOMAIN { () =&gt; { <span class="string">"https://docs.rs/" </span>} } <span class="comment">// it must end in `/`</span></code></pre></div><h2 id="features"><a class="doc-anchor" href="#features">§</a>Features</h2>
+</span><span class="macro">macro_rules!</span> __DOCLINK_CUSTOM_DOMAIN {
+    () =&gt; { <span class="string">"https://docs.rs/" </span>};
+}
+
+<span class="attr">#[macro_export] #[doc(hidden)]
+</span><span class="macro">macro_rules!</span> __DOCLINK_CUSTOM_CHANNEL {
+    () =&gt; { <span class="string">"latest" </span>};
+}</code></pre></div>
+<p>Together these produce URLs shaped like:
+<code>{domain}{crate}/{channel}/{crate}/…</code>.</p>
+<p>Because these helpers are resolved from the current crate, crates
+using the custom forms must provide both macros at their crate root.</p>
+<h2 id="features"><a class="doc-anchor" href="#features">§</a>Features</h2>
 <p>With the <code>__publish</code> feature enabled, links target published documentation.
 Otherwise they target the locally generated rustdoc tree.</p>
 <p>The local forms require <code>CARGO_TARGET_DIR</code> to be defined.
