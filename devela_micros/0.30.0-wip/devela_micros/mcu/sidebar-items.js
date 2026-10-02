@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["avr","esp32","sam"],"struct":["McuAtmega328p","McuEsp32C3","McuEsp32C6","McuSam3x8e"]};
+window.SIDEBAR_ITEMS = {"mod":["avr","esp32","sam"],"struct":["McuAtmega328p","McuEsp32C3","McuEsp32C6","McuEsp32S3","McuSam3x8e"]};

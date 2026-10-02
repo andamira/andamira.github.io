@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["SpectrumColor"],"struct":["ComputerSpectrum48"]};
+window.SIDEBAR_ITEMS = {"mod":["spectrum"],"struct":["ComputerSpectrum48"]};

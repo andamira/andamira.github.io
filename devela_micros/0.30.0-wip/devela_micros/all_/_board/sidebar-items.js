@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["BoardArduinoDiecimila","BoardArduinoDue","BoardArduinoMega2560","BoardArduinoNano","BoardSuperMiniOled042","BoardWaveshareC6TouchLcd147"]};
+window.SIDEBAR_ITEMS = {"struct":["BoardArduinoDiecimila","BoardArduinoDue","BoardArduinoMega2560","BoardArduinoNano","BoardLilygoTDeckS3","BoardLilygoTDisplayS3","BoardLilygoTWatchS3","BoardSoliniusSparrow","BoardSuperMiniOled042","BoardWaveshareC6TouchLcd147"]};

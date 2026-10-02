@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":[["esp32_c3_direct_boot",1],["esp32_c6_direct_boot",1]],"struct":["Esp32C3Pin","Esp32C3Rng","Esp32C3SystemTimer","Esp32C3Uart","Esp32C6Pin","Esp32C6SpiCmdData","EspI2c","EspReg32","EspSpi","EspUsbSerialJtag","McuEsp32C3","McuEsp32C6"]};
+window.SIDEBAR_ITEMS = {"mod":["c3","c6","s3"],"struct":["EspI2c","EspReg32","EspSpi","EspUsbSerialJtag","McuEsp32C3","McuEsp32C6","McuEsp32S3"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["esp32_c6_direct_boot",1]],"struct":["Esp32C6Pin","Esp32C6SpiCmdData","McuEsp32C6"]};

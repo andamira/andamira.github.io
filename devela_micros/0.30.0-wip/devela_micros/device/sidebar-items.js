@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["display"]};
+window.SIDEBAR_ITEMS = {"mod":["display"],"struct":["Ssd13xx"]};
