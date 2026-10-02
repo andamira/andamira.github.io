@@ -205,8 +205,8 @@ document.addEventListener("DOMContentLoaded", function () {
         '<span>devela_micros 0.30.0-wip</span>' +
         '<span>MSRV 1.98.1</span>' +
         '<span>built 2026-10-02</span>' +
-        '<span>source <a href="https://github.com/andamira/devela/commit/7b247d42c3bff499b13188a669f846f2ae2eb41f">' +
-        '<code>7b247d42+dirty</code></a></span>';
+        '<span>source <a href="https://github.com/andamira/devela/commit/8e6f1143286984a3b835101fad1320829faf2b66">' +
+        '<code>8e6f1143+dirty</code></a></span>';
 
     main.prepend(banner);
 });
@@ -218,90 +218,86 @@ document.addEventListener("DOMContentLoaded", function () {
 <a href=#4 id=4 data-nosnippet>4</a>#![doc = <span class="macro">crate::_doc!</span>(flat:<span class="string">"processor"</span>)]
 <a href=#5 id=5 data-nosnippet>5</a>#![doc = <span class="macro">crate::_doc!</span>(hr)]
 <a href=#6 id=6 data-nosnippet>6</a></span><span class="doccomment">//!
-<a href=#7 id=7 data-nosnippet>7</a>//! This module describes the processor independently of the machine around it.
-<a href=#8 id=8 data-nosnippet>8</a>//! Memory maps, display hardware, keyboard scanning, contention, and other
-<a href=#9 id=9 data-nosnippet>9</a>//! system effects belong to the corresponding computer.
-<a href=#10 id=10 data-nosnippet>10</a>//!
-<a href=#11 id=11 data-nosnippet>11</a>//! # Architecture
-<a href=#12 id=12 data-nosnippet>12</a>//!
-<a href=#13 id=13 data-nosnippet>13</a>//! The Z80 is an 8-bit processor with a 16-bit address space. Its main
-<a href=#14 id=14 data-nosnippet>14</a>//! register set consists of `AF`, `BC`, `DE`, and `HL`, together with the
-<a href=#15 id=15 data-nosnippet>15</a>//! alternate `AF'`, `BC'`, `DE'`, and `HL'` set. It also provides `IX`, `IY`,
-<a href=#16 id=16 data-nosnippet>16</a>//! `SP`, `PC`, the interrupt-vector register `I`, and refresh register `R`.
+<a href=#7 id=7 data-nosnippet>7</a>//! # Architecture
+<a href=#8 id=8 data-nosnippet>8</a>//!
+<a href=#9 id=9 data-nosnippet>9</a>//! The Z80 is an 8-bit processor with a 16-bit address space. Its main
+<a href=#10 id=10 data-nosnippet>10</a>//! register set consists of `AF`, `BC`, `DE`, and `HL`, together with the
+<a href=#11 id=11 data-nosnippet>11</a>//! alternate `AF'`, `BC'`, `DE'`, and `HL'` set. It also provides `IX`, `IY`,
+<a href=#12 id=12 data-nosnippet>12</a>//! `SP`, `PC`, the interrupt-vector register `I`, and refresh register `R`.
+<a href=#13 id=13 data-nosnippet>13</a>//!
+<a href=#14 id=14 data-nosnippet>14</a>//! The Z80 also has a distinct I/O address space. devela's port operations
+<a href=#15 id=15 data-nosnippet>15</a>//! use complete `u16` port addresses; the meaning and decoding of those
+<a href=#16 id=16 data-nosnippet>16</a>//! addresses is determined by the surrounding machine.
 <a href=#17 id=17 data-nosnippet>17</a>//!
-<a href=#18 id=18 data-nosnippet>18</a>//! The Z80 also has a distinct I/O address space. devela's port operations
-<a href=#19 id=19 data-nosnippet>19</a>//! use complete `u16` port addresses; the meaning and decoding of those
-<a href=#20 id=20 data-nosnippet>20</a>//! addresses is determined by the surrounding machine.
-<a href=#21 id=21 data-nosnippet>21</a>//!
-<a href=#22 id=22 data-nosnippet>22</a>//! # Timing
-<a href=#23 id=23 data-nosnippet>23</a>//!
-<a href=#24 id=24 data-nosnippet>24</a>//! Z80 instruction timing is expressed in **T-states**, individual processor
-<a href=#25 id=25 data-nosnippet>25</a>//! clock periods. An instruction consists of one or more **machine cycles**
-<a href=#26 id=26 data-nosnippet>26</a>//! (M-cycles), such as opcode fetches, memory accesses, I/O transfers, and
-<a href=#27 id=27 data-nosnippet>27</a>//! interrupt acknowledgement.
-<a href=#28 id=28 data-nosnippet>28</a>//!
-<a href=#29 id=29 data-nosnippet>29</a>//! Instruction tables give nominal T-state counts. A fixed instruction path
-<a href=#30 id=30 data-nosnippet>30</a>//! is deterministic at the processor boundary only while interrupts and
-<a href=#31 id=31 data-nosnippet>31</a>//! externally inserted `WAIT` states are controlled. A complete machine can
-<a href=#32 id=32 data-nosnippet>32</a>//! impose further timing constraints through its memory and I/O hardware.
-<a href=#33 id=33 data-nosnippet>33</a>//!
-<a href=#34 id=34 data-nosnippet>34</a>//! ## Quick reference
-<a href=#35 id=35 data-nosnippet>35</a>//!
-<a href=#36 id=36 data-nosnippet>36</a>//! | instruction | nominal T-states | useful property |
-<a href=#37 id=37 data-nosnippet>37</a>//! |---|---:|---|
-<a href=#38 id=38 data-nosnippet>38</a>//! | `NOP`        | 4      | simplest instruction timing quantum |
-<a href=#39 id=39 data-nosnippet>39</a>//! | `LD r,r`     | 4      | register move |
-<a href=#40 id=40 data-nosnippet>40</a>//! | `LD r,n`     | 7      | immediate byte |
-<a href=#41 id=41 data-nosnippet>41</a>//! | `LD rr,nn`   | 10     | immediate pair |
-<a href=#42 id=42 data-nosnippet>42</a>//! | `INC/DEC r`  | 4      | |
-<a href=#43 id=43 data-nosnippet>43</a>//! | `INC/DEC rr` | 6      | |
-<a href=#44 id=44 data-nosnippet>44</a>//! | `JR e`       | 12     | relative unconditional |
-<a href=#45 id=45 data-nosnippet>45</a>//! | `JR cc,e`    | 12 / 7 | taken / not taken |
-<a href=#46 id=46 data-nosnippet>46</a>//! | `DJNZ e`     | 13 / 8 | taken / finished |
-<a href=#47 id=47 data-nosnippet>47</a>//! | `JP cc,nn`   | 10     | same cost either path |
-<a href=#48 id=48 data-nosnippet>48</a>//! | `CALL nn`    | 17     | |
-<a href=#49 id=49 data-nosnippet>49</a>//! | `RET`        | 10     | |
-<a href=#50 id=50 data-nosnippet>50</a>//! | `OUT (n),A`  | 11     | immediate-port output |
-<a href=#51 id=51 data-nosnippet>51</a>//! | `OUT (C),r`  | 12     | register-port output |
-<a href=#52 id=52 data-nosnippet>52</a>//!
-<a href=#53 id=53 data-nosnippet>53</a>//! # Computers
-<a href=#54 id=54 data-nosnippet>54</a>//!
-<a href=#55 id=55 data-nosnippet>55</a>//! Current Z80 computer support includes
-<a href=#56 id=56 data-nosnippet>56</a>//! `computer::zx::spectrum::ComputerSpectrum48`, the Sinclair ZX Spectrum 48K.
-<a href=#57 id=57 data-nosnippet>57</a>//!
-<a href=#58 id=58 data-nosnippet>58</a>//! # Rust target and code generation
+<a href=#18 id=18 data-nosnippet>18</a>//! # Timing
+<a href=#19 id=19 data-nosnippet>19</a>//!
+<a href=#20 id=20 data-nosnippet>20</a>//! Z80 instruction timing is expressed in **T-states**, individual processor
+<a href=#21 id=21 data-nosnippet>21</a>//! clock periods. An instruction consists of one or more **machine cycles**
+<a href=#22 id=22 data-nosnippet>22</a>//! (M-cycles), such as opcode fetches, memory accesses, I/O transfers, and
+<a href=#23 id=23 data-nosnippet>23</a>//! interrupt acknowledgement.
+<a href=#24 id=24 data-nosnippet>24</a>//!
+<a href=#25 id=25 data-nosnippet>25</a>//! Instruction tables give nominal T-state counts. A fixed instruction path
+<a href=#26 id=26 data-nosnippet>26</a>//! is deterministic at the processor boundary only while interrupts and
+<a href=#27 id=27 data-nosnippet>27</a>//! externally inserted `WAIT` states are controlled. A complete machine can
+<a href=#28 id=28 data-nosnippet>28</a>//! impose further timing constraints through its memory and I/O hardware.
+<a href=#29 id=29 data-nosnippet>29</a>//!
+<a href=#30 id=30 data-nosnippet>30</a>//! ## Quick reference
+<a href=#31 id=31 data-nosnippet>31</a>//!
+<a href=#32 id=32 data-nosnippet>32</a>//! | instruction | nominal T-states | useful property |
+<a href=#33 id=33 data-nosnippet>33</a>//! |---|---:|---|
+<a href=#34 id=34 data-nosnippet>34</a>//! | `NOP`        | 4      | simplest instruction timing quantum |
+<a href=#35 id=35 data-nosnippet>35</a>//! | `LD r,r`     | 4      | register move |
+<a href=#36 id=36 data-nosnippet>36</a>//! | `LD r,n`     | 7      | immediate byte |
+<a href=#37 id=37 data-nosnippet>37</a>//! | `LD rr,nn`   | 10     | immediate pair |
+<a href=#38 id=38 data-nosnippet>38</a>//! | `INC/DEC r`  | 4      | |
+<a href=#39 id=39 data-nosnippet>39</a>//! | `INC/DEC rr` | 6      | |
+<a href=#40 id=40 data-nosnippet>40</a>//! | `JR e`       | 12     | relative unconditional |
+<a href=#41 id=41 data-nosnippet>41</a>//! | `JR cc,e`    | 12 / 7 | taken / not taken |
+<a href=#42 id=42 data-nosnippet>42</a>//! | `DJNZ e`     | 13 / 8 | taken / finished |
+<a href=#43 id=43 data-nosnippet>43</a>//! | `JP cc,nn`   | 10     | same cost either path |
+<a href=#44 id=44 data-nosnippet>44</a>//! | `CALL nn`    | 17     | |
+<a href=#45 id=45 data-nosnippet>45</a>//! | `RET`        | 10     | |
+<a href=#46 id=46 data-nosnippet>46</a>//! | `OUT (n),A`  | 11     | immediate-port output |
+<a href=#47 id=47 data-nosnippet>47</a>//! | `OUT (C),r`  | 12     | register-port output |
+<a href=#48 id=48 data-nosnippet>48</a>//!
+<a href=#49 id=49 data-nosnippet>49</a>//! # Computers
+<a href=#50 id=50 data-nosnippet>50</a>//!
+<a href=#51 id=51 data-nosnippet>51</a>//! Current Z80 computer support includes
+<a href=#52 id=52 data-nosnippet>52</a>//! `computer::zx::spectrum::ComputerSpectrum48`, the Sinclair ZX Spectrum 48K.
+<a href=#53 id=53 data-nosnippet>53</a>//!
+<a href=#54 id=54 data-nosnippet>54</a>//! # Rust target and code generation
+<a href=#55 id=55 data-nosnippet>55</a>//!
+<a href=#56 id=56 data-nosnippet>56</a>//! Instruction-emitting operations are available when targeting
+<a href=#57 id=57 data-nosnippet>57</a>//! `target_arch = "z80"` with `unsafe_hint`. The current examples use the
+<a href=#58 id=58 data-nosnippet>58</a>//! experimental `z80-unknown-none-elf` target provided by Rust-Z80/LLVM-Z80.
 <a href=#59 id=59 data-nosnippet>59</a>//!
-<a href=#60 id=60 data-nosnippet>60</a>//! Instruction-emitting operations are available when targeting
-<a href=#61 id=61 data-nosnippet>61</a>//! `target_arch = "z80"` with `unsafe_hint`. The current examples use the
-<a href=#62 id=62 data-nosnippet>62</a>//! experimental `z80-unknown-none-elf` target provided by Rust-Z80/LLVM-Z80.
-<a href=#63 id=63 data-nosnippet>63</a>//!
-<a href=#64 id=64 data-nosnippet>64</a>//! On size-sensitive code, prefer `u8` for naturally 8-bit values and `u16`
-<a href=#65 id=65 data-nosnippet>65</a>//! for addresses. Passing small aggregates by reference can be cheaper than
-<a href=#66 id=66 data-nosnippet>66</a>//! passing them by value, and extracting a function can either improve or
-<a href=#67 id=67 data-nosnippet>67</a>//! worsen size depending on register pressure and argument traffic.
-<a href=#68 id=68 data-nosnippet>68</a>//! Compare `opt-level = "s"` and `"z"` when size matters, and inspect the
-<a href=#69 id=69 data-nosnippet>69</a>//! generated Z80 after surprising changes.
-<a href=#70 id=70 data-nosnippet>70</a>//!
-<a href=#71 id=71 data-nosnippet>71</a>//! These are observations about the current experimental toolchain, not
-<a href=#72 id=72 data-nosnippet>72</a>//! requirements of the Z80 architecture.
-<a href=#73 id=73 data-nosnippet>73</a>//!
-<a href=#74 id=74 data-nosnippet>74</a>//! # References
-<a href=#75 id=75 data-nosnippet>75</a>//!
-<a href=#76 id=76 data-nosnippet>76</a>//! See the [Zilog Z80 CPU User Manual pdf],
-<a href=#77 id=77 data-nosnippet>77</a>//! [Z80 Sinclair Wiki], [LLVM-Z80 backend], and [Rust-Z80 fork].
-<a href=#78 id=78 data-nosnippet>78</a>//!
-<a href=#79 id=79 data-nosnippet>79</a>//! [Zilog Z80 CPU User Manual pdf]: https://www.zilog.com/docs/z80/z80cpu_um.pdf
-<a href=#80 id=80 data-nosnippet>80</a>//! [Z80 Sinclair Wiki]: https://sinclair.wiki.zxnet.co.uk/wiki/Z80
-<a href=#81 id=81 data-nosnippet>81</a>//! [LLVM-Z80 backend]: https://github.com/llvm-z80/llvm-z80
-<a href=#82 id=82 data-nosnippet>82</a>//! [Rust-Z80 fork]: https://github.com/llvm-z80/rust-z80
-<a href=#83 id=83 data-nosnippet>83</a></span><span class="comment">//
-<a href=#84 id=84 data-nosnippet>84</a>
-<a href=#85 id=85 data-nosnippet>85</a></span><span class="macro">crate::mods_in!</span> {
-<a href=#86 id=86 data-nosnippet>86</a>    <span class="kw">mod </span><a href="namespace.rs.html#2-144">namespace</a>;
-<a href=#87 id=87 data-nosnippet>87</a>}
-<a href=#88 id=88 data-nosnippet>88</a><a href="../../../../devela_micros/_devela/macro.mods_out.html">crate::mods_out!</a> { <span class="comment">// _mods
-<a href=#89 id=89 data-nosnippet>89</a>    </span>_mods {
-<a href=#90 id=90 data-nosnippet>90</a>        <span class="kw">pub use </span><a href="namespace.rs.html#30"><span class="kw">super</span>::namespace::ProcessorZ80</a>;
-<a href=#91 id=91 data-nosnippet>91</a>    }
-<a href=#92 id=92 data-nosnippet>92</a>}
+<a href=#60 id=60 data-nosnippet>60</a>//! On size-sensitive code, prefer `u8` for naturally 8-bit values and `u16`
+<a href=#61 id=61 data-nosnippet>61</a>//! for addresses. Passing small aggregates by reference can be cheaper than
+<a href=#62 id=62 data-nosnippet>62</a>//! passing them by value, and extracting a function can either improve or
+<a href=#63 id=63 data-nosnippet>63</a>//! worsen size depending on register pressure and argument traffic.
+<a href=#64 id=64 data-nosnippet>64</a>//! Compare `opt-level = "s"` and `"z"` when size matters, and inspect the
+<a href=#65 id=65 data-nosnippet>65</a>//! generated Z80 after surprising changes.
+<a href=#66 id=66 data-nosnippet>66</a>//!
+<a href=#67 id=67 data-nosnippet>67</a>//! These are observations about the current experimental toolchain, not
+<a href=#68 id=68 data-nosnippet>68</a>//! requirements of the Z80 architecture.
+<a href=#69 id=69 data-nosnippet>69</a>//!
+<a href=#70 id=70 data-nosnippet>70</a>//! # References
+<a href=#71 id=71 data-nosnippet>71</a>//!
+<a href=#72 id=72 data-nosnippet>72</a>//! See the [Zilog Z80 CPU User Manual pdf],
+<a href=#73 id=73 data-nosnippet>73</a>//! [Z80 Sinclair Wiki], [LLVM-Z80 backend], and [Rust-Z80 fork].
+<a href=#74 id=74 data-nosnippet>74</a>//!
+<a href=#75 id=75 data-nosnippet>75</a>//! [Zilog Z80 CPU User Manual pdf]: https://www.zilog.com/docs/z80/z80cpu_um.pdf
+<a href=#76 id=76 data-nosnippet>76</a>//! [Z80 Sinclair Wiki]: https://sinclair.wiki.zxnet.co.uk/wiki/Z80
+<a href=#77 id=77 data-nosnippet>77</a>//! [LLVM-Z80 backend]: https://github.com/llvm-z80/llvm-z80
+<a href=#78 id=78 data-nosnippet>78</a>//! [Rust-Z80 fork]: https://github.com/llvm-z80/rust-z80
+<a href=#79 id=79 data-nosnippet>79</a></span><span class="comment">//
+<a href=#80 id=80 data-nosnippet>80</a>
+<a href=#81 id=81 data-nosnippet>81</a></span><span class="macro">crate::mods_in!</span> {
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">mod </span><a href="namespace.rs.html#2-144">namespace</a>;
+<a href=#83 id=83 data-nosnippet>83</a>}
+<a href=#84 id=84 data-nosnippet>84</a><a href="../../../../devela_micros/_devela/macro.mods_out.html">crate::mods_out!</a> { <span class="comment">// _mods
+<a href=#85 id=85 data-nosnippet>85</a>    </span>_mods {
+<a href=#86 id=86 data-nosnippet>86</a>        <span class="kw">pub use </span><a href="namespace.rs.html#30"><span class="kw">super</span>::namespace::ProcessorZ80</a>;
+<a href=#87 id=87 data-nosnippet>87</a>    }
+<a href=#88 id=88 data-nosnippet>88</a>}
 </code></pre></div></section></main></body></html>
