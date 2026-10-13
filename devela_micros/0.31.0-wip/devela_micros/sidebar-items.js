@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["_devela","all","all_","board","computer","device","mcu","processor"],"struct":["BoardArduinoNano","ComputerSpectrum48","McuAtmega328p","McuEsp32C3","McuNrf52840","ProcessorZ80","Ssd13xx"]};

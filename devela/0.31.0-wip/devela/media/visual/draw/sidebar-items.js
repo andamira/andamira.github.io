@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"trait":["Canvas","CanvasRaster","CanvasRasterExt","CanvasRead","CanvasTextel"]};

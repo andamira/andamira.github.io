@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["intern_string",1]],"struct":["InternStringAllocExample","InternStringAllocSymbolExample","InternStringExample","InternStringSymbolExample"]};

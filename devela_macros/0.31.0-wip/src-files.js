@@ -1,0 +1,2 @@
+createSrcSidebar('[["devela_macros",["",[["bodies",[["paste",[],["_.rs","attr.rs","error.rs","paste.rs","segment.rs"]],["shared",[],["_.rs","common.rs","diag.rs","enumint.rs"]]],["_.rs","compile.rs","derive.rs","enumint.rs","ident.rs","mods_in.rs","repeat.rs"]],["copied",[],["_.rs","_doc_location.rs","_doc_vendor.rs","doclink.rs"]]],["_.rs"]]]]');
+//{"start":19,"fragment_lengths":[326]}

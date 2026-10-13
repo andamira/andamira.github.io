@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["pool",1],["pool_seq",1]],"struct":["PoolAllocExample","PoolAllocHandleExample","PoolExample","PoolHandleExample","PoolIter","PoolSeqExample","PoolSeqHandleExample"]};

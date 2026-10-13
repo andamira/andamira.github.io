@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["ascii","fmt","layout","parse","str","unicode"],"struct":["TextCursor","TextIndex","TextRange","Translit"],"type":["TextUnit"]};

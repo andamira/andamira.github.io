@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DataNotEnough","MismatchedBounds","PartialSpace"],"struct":["ElementNotFound","IndexOutOfBounds","InvalidAxisLength","KeyAlreadyExists","MismatchedCapacity","MismatchedDimensions","MismatchedIndices","NodeEmpty","NodeLinkNotSet","NodeLinkNotUnique","NotEnoughElements","NotEnoughSpace","PartiallyAdded","UnexpectedEof"]};

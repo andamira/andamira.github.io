@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["event","frame","layout","route","semantic","text","view","widget"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["UiAction","UiRole"],"struct":["UiActions","UiEntry","UiFlags","UiText"]};

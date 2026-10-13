@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["bitfield",1],["set",1]],"mod":["bit"],"struct":["BinTag4"]};

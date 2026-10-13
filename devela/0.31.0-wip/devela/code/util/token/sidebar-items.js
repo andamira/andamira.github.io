@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["capture_first",1],["capture_last",1],["capture_tail_tuple",1],"coalesce",["concat",1],["ident_const_index",1],"ident_total","ident_total_unique","ident_unique",["macro_dollar",1],"paste",["sf",1],["stringify",1],["type_count",1]]};

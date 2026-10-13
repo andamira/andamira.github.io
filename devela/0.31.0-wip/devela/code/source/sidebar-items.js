@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["code_column",1],["code_file",1],["code_line",1],["code_module",1],["include",1],["include_bytes",1],["include_from",1],["include_str",1],["mod_from",1],["mod_path",1]],"struct":["CodeLocation","CodeSpan","Version","VersionFull"]};

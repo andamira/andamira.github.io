@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["TermColorKind","TermColorMode","TermGridError","TermelOccupancy"],"struct":["TermColor","TermColors","TermGrid","TermStyle","TermStyleExt","Termel","TermelMeta"]};

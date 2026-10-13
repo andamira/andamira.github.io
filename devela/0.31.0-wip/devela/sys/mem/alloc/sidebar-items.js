@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Alloc","BareBox","Boxed","BumpAlloc","LinuxMmapAlloc","MemLayout","MemLayoutError","SystemAlloc","WasmAlloc"],"trait":["GlobalAlloc","Storage"],"type":["Bare"]};

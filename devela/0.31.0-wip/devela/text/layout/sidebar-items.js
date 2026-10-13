@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["TextBreakKind","TextBreakMode","TextCohesion","TextElideMode","TextFit","TextSegmentKind","TextelWidth","TextelWidthMode"],"struct":["TextLayout","TextLayoutSpan","TextLayoutStep","TextLine","TextLineIter","TextSegment","TextSymbol","TextSymbolConfig","TextWrapIter","Textel"]};

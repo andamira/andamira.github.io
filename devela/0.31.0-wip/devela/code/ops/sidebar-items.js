@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"derive":["Clone"],"enum":["ControlFlow"],"macro":[["hook",1],["morph",1],["punroll",1]],"mod":["call","overload","range"],"struct":["ScopeGuard"],"trait":["Clone","Hook","Morph"]};

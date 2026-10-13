@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["avr","esp32","nrf","sam"],"struct":["BoardArduinoDue","BoardArduinoMega2560","BoardArduinoNano","BoardLilygoTDeckS3","BoardLilygoTDisplayS3","BoardNiceNano","BoardSuperMiniOled042","BoardWaveshareC6TouchLcd147"]};
