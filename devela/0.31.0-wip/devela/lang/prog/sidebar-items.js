@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["ffi","script"]};
+window.SIDEBAR_ITEMS = {"mod":["ffi","script"],"struct":["ScriptMachine"]};

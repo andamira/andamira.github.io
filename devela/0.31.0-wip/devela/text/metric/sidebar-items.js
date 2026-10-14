@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["TextCursor","TextIndex","TextRange"],"type":["TextUnit"]};

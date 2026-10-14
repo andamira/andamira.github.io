@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["process","thread"]};
+window.SIDEBAR_ITEMS = {"macro":[["cmd",1]],"mod":["process","thread"]};

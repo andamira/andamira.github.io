@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["event","frame","layout","route","semantic","text","view","widget"]};
+window.SIDEBAR_ITEMS = {"mod":["event","frame","layout","route","semantic","text","view","widget"],"struct":["Event","Lunit","TextInput","UiDrawList","UiEntry","UiFrame","UiId","UiStack"],"type":["UiRect"]};

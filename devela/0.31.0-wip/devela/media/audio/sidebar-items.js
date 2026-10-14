@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AudioChannel","AudioChannels"],"mod":["format","pcm"]};
+window.SIDEBAR_ITEMS = {"enum":["AudioChannel","AudioChannels"],"mod":["format","pcm"],"struct":["PcmBuf","PcmSpec"]};

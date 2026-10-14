@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["alg","dom","fin","grain","prob","quant","signal"]};
+window.SIDEBAR_ITEMS = {"macro":[["niche",1]],"mod":["alg","dom","fin","grain","niche","prob","quant","signal"],"struct":["Bitwise","Cast","Cmp","Interval","Pcg32","Phase","Ratio"],"trait":["RandTry"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["prog","sem"]};
+window.SIDEBAR_ITEMS = {"mod":["prog","sem"],"struct":["Relation","ScriptMachine"]};

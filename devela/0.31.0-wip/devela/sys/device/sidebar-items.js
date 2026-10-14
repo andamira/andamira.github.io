@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["audio","display"]};
+window.SIDEBAR_ITEMS = {"mod":["audio","display"],"struct":["AudioDevice","XFrontend"]};

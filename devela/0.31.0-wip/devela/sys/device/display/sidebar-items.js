@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["x11"]};
+window.SIDEBAR_ITEMS = {"mod":["x11"],"struct":["XDisplay","XFrontend","XWindow"]};

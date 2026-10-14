@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["exec","future","sync","task"]};
+window.SIDEBAR_ITEMS = {"mod":["exec","future","sync","task"],"struct":["CommandFlow"]};

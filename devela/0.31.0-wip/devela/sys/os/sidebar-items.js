@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["android","browser","fd","linux","term"],"struct":["Libc"]};
+window.SIDEBAR_ITEMS = {"mod":["android","browser","fd","linux","term"],"struct":["Libc","Linux","TermGrid","Web"]};

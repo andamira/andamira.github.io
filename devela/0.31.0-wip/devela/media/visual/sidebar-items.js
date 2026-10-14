@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["color","draw","image"]};
+window.SIDEBAR_ITEMS = {"mod":["color","draw","image"],"struct":["RasterGrid"],"trait":["Canvas","Color"]};

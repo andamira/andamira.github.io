@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["TermCap","TermLineMode","TermPollPolicy"],"mod":["ansi","grid"],"struct":["TermCaps","TermCellUi","TermInputParser","TermLinux","TermLinuxRestore","TermMode","TermPen","TermRenderer","TermSession","TermSize"],"trait":["TermBackend"]};
+window.SIDEBAR_ITEMS = {"enum":["TermCap","TermLineMode","TermPollPolicy"],"mod":["ansi","grid"],"struct":["Ansi","TermCaps","TermCellUi","TermGrid","TermInputParser","TermLinux","TermLinuxRestore","TermMode","TermPen","TermRenderer","TermSession","TermSize"],"trait":["TermBackend"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["PermissionError","PermissionState","RunDriverError","RunDriverFrameError"],"mod":["app","cycle","regime","time"],"struct":["RunDriver"],"trait":["RunApp","RunBackend","RunPresent","RunRender"],"type":["PermissionQuery"]};
+window.SIDEBAR_ITEMS = {"enum":["PermissionError","PermissionState","RunDriverError","RunDriverFrameError"],"mod":["app","cycle","regime","time"],"struct":["RunCycle","RunDriver","RunStep","Runtime"],"trait":["RunApp","RunBackend","RunPresent","RunRender","RunService"],"type":["PermissionQuery"]};
