@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["SpectrumColor","SpectrumKey"],"macro":[["spectrum_main",1]],"struct":["ComputerSpectrum48","SpectrumAttribute","SpectrumKeys","SpectrumUlaOut"]};
+window.SIDEBAR_ITEMS = {"enum":["SpectrumColor","SpectrumKey"],"macro":[["spectrum_main",1]],"struct":["ComputerAtari800XL","ComputerSpectrum48","SpectrumAttribute","SpectrumKeys","SpectrumUlaOut"]};

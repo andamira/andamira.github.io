@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["z80"],"struct":["ProcessorZ80"]};
+window.SIDEBAR_ITEMS = {"mod":["mos6502","z80"],"struct":["ProcessorMos6502","ProcessorZ80"]};
