@@ -5,22 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>devela · ZX Spectrum 48K</title>
   <script src="./jsspeccy/jsspeccy.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+    }
+    iframe {
+      display: block;
+      width: 100%;
+      height: 100vh;
+      border: 0;
+    }
+  </style>
 </head>
 <body>
-  <div id="jsspeccy"></div>
+  <div id="player"></div>
 
   <script>
-    const demo = new URLSearchParams(location.search)
-      .get("demo") || "screen.tap";
+    const params = new URLSearchParams(location.search);
+    const demo = params.get("demo") || "screen.tap";
+    const emu = params.get("emu") || "jsspeccy";
 
-    if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*\.tap$/.test(demo)) {
-      document.body.textContent = "Invalid demo filename.";
+    const binaries =
+      "https://raw.githubusercontent.com/andamira/devela/main/" +
+      "crates/micros/examples/computer/zx/spectrum48/demo/";
+
+    const player = document.getElementById("player");
+
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*\.tap$/.test(demo) ||
+        !["qaop", "jsspeccy"].includes(emu)) {
+      player.textContent = "Invalid demo or emulator.";
+    } else if (emu === "qaop") {
+      const frame = document.createElement("iframe");
+      frame.title = "QAOP ZX Spectrum emulator";
+      frame.allow = "fullscreen";
+      frame.src = "./qaop/qaop.html#48#l=" + binaries + demo;
+      player.append(frame);
     } else {
-      const binaries =
-        "https://raw.githubusercontent.com/andamira/devela/main/" +
-        "crates/micros/examples/computer/zx/spectrum48/demo/";
-
-      JSSpeccy(document.getElementById("jsspeccy"), {
+      JSSpeccy(player, {
         machine: 48,
         zoom: 2,
         autoStart: true,
