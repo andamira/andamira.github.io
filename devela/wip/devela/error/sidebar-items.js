@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["define_error",1]],"mod":["data","kind","num","text"],"trait":["Error"]};

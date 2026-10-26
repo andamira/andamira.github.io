@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["SpectrumColor","SpectrumKey"],"macro":[["spectrum_main",1]],"struct":["ComputerSpectrum48","SpectrumAttribute","SpectrumKeys","SpectrumUlaOut"]};

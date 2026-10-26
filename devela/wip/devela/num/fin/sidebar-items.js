@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["bitwise",1]],"mod":["logic","ord"],"struct":["BitSpan","Bitwise","Cmp"],"trait":["BitOps"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["TextInputAction","TextInputKeymapPreset","TextInputOutcome","TextInputReject"],"struct":["TextInput","TextInputConfig","TextInputKeymap","TextInputView"]};

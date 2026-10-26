@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CoroutineState"],"struct":["CoroManager","CoroWork","CoroWorker"],"trait":["Coroutine"]};

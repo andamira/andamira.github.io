@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["FdBorrowed","FdOwned"],"trait":["AsFd","AsFdRaw","FromFdRaw","IntoFdRaw"],"type":["FdRaw"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Backing","Cow","MaybeOwned","MemReplicaError"],"macro":[["const_join",1],["slice",1]],"struct":["MemReplicaSlice","Slice","SliceIter","SliceIterMut"],"trait":["Borrow","BorrowMut","Ownership","SliceExt","SliceExtMut","ToOwned"],"type":["MaybeByte"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["bound_int",1],["niche",1]],"mod":["niche","prim","wide"],"struct":["BoundI8Example","Cast"]};

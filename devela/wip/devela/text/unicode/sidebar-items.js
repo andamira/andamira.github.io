@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["grapheme","scalar"],"struct":["CharIter","GraphemeMachine"],"trait":["UnicodeScalar"]};

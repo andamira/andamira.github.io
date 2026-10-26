@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["compile","compile_attr"],"macro":[["cfg",1],["cfg_select",1],"cif",["deprecate_feature",1]]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["avr","esp32","nrf","sam"],"struct":["McuAtmega328p","McuEsp32C3","McuEsp32C6","McuEsp32S3","McuSam3x8e"]};

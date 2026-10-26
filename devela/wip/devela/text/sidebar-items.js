@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["format_buf",1]],"mod":["ascii","fmt","layout","metric","parse","str","unicode"],"struct":["CharIter","Digits","FmtWriter","GraphemeMachine","Str","StringU8","TextLayout","TextScanner","Textel","Translit"]};

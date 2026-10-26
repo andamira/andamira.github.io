@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"trait":["Add","AddAssign","BitAnd","BitAndAssign","BitOr","BitOrAssign","BitXor","BitXorAssign","Deref","DerefMut","Div","DivAssign","Drop","Index","IndexMut","Mul","MulAssign","Neg","Not","Rem","RemAssign","Sub","SubAssign"]};

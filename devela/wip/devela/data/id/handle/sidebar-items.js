@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["handle",1],["handle_gen",1],["handle_span",1]],"struct":["HandleExample","HandleGenExample","HandleSpanExample"]};

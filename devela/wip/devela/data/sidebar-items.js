@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ValueKind"],"macro":[["arena",1],["bitfield",1],["handle",1],["pool",1],["set",1]],"mod":["access","codec","history","id","layout","store","topol","value","word"],"struct":["Array","ByteCursor","HasherFx"],"trait":["IteratorLending","WordTry"]};

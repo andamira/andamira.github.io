@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["atari800xl"],"struct":["ComputerAtari800XL"]};

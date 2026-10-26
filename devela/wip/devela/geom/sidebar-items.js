@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Turn"],"mod":["affine","dir","fig","metric","space"],"struct":["Angle","Extent","Orientation","Point","Position","Region"]};

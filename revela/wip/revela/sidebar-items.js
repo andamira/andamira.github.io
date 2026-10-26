@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["_devela","all","all_","engine","model","org","phys","vita"]};

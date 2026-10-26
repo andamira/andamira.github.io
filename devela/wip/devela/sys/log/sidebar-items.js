@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DiagLevel"],"macro":[["slog",1]],"struct":["LoggerStatic"],"trait":["DiagOut"]};

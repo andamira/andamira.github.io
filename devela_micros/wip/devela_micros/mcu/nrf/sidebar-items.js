@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["NrfPort"],"struct":["McuNrf52840","NrfPin","NrfReg32"]};

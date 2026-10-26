@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PathComponent","PathWindowsPrefix"],"struct":["FsPath","Path","PathBuf","PathStripPrefixError","PathWindowsPrefixComponent"],"trait":["PathExt"]};

@@ -1,0 +1,301 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Cargo features and configuration flags."><title>devela::_doc::reference::features - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-009149e2.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="devela" data-themes="" data-resource-suffix="" data-rustdoc-version="1.101.0-nightly (12433c307 2026-10-24)" data-channel="nightly" data-search-js="search-b167f383.js" data-stringdex-js="stringdex-b5109af9.js" data-settings-js="settings-9b351432.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-1814ead3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-9f56287d.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"><script>
+  document.addEventListener("DOMContentLoaded", async function() {
+    // Ensure this script runs only once per page load
+    if (window.scriptLoaderInitialized) return;
+    window.scriptLoaderInitialized = true;
+
+    // console.log("Loaded: src/_doc/header.html:"); // DEBUG
+
+    /* settings */
+
+    const crateConfigs = {
+      "devela": {
+        katex: ["/all", "/all_", "/media/visual/color", "/num", "/phys"],
+        katexChem: ["/all/","/all_", "/phys/"]
+      },
+    };
+
+    // Find which crate this page belongs to
+    let currentCrate = null;
+    let relativePath = null;
+    for (const crateName of Object.keys(crateConfigs)) {
+      // Find the LAST occurrence of the crate name in the path
+      const lastCrateIndex = window.location.pathname.lastIndexOf(`/${crateName}/`);
+      if (lastCrateIndex !== -1) {
+        currentCrate = crateName;
+        // Extract everything after the last occurence of the crate name
+        relativePath = window.location.pathname.slice(lastCrateIndex + crateName.length + 1);
+        break;
+      }
+    }
+    if (!currentCrate) return; // Not a known crate
+    const config = crateConfigs[currentCrate];
+
+    /* load resources */
+
+    try {
+      if (config.katex && config.katex.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatex().catch(handleMathError);
+      // } else {
+      //   console.log("Not loading KaTeX for:", relativePath); // DEBUG
+      }
+      if (config.katexChem && config.katexChem.some(prefix => relativePath.startsWith(prefix))) {
+        await loadKatexChem().catch(handleMathError);
+      }
+    } catch (error) {
+      handleMathError(error);
+    }
+
+    /* resource loading functions */
+
+    // INFO: https://katex.org/docs/browser.html#starter-template
+    // INFO: https://github.com/KaTeX/KaTeX/tree/main/contrib/copy-tex
+    async function loadKatex() {
+      console.log("Loading KaTeX for:", relativePath);
+
+      // Load CSS, and scripts sequentially
+      const katexCSS = document.createElement("link");
+      katexCSS.rel = "stylesheet";
+      katexCSS.href = "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"; // ↓ !=
+      katexCSS.integrity = "sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73";
+      katexCSS.crossOrigin = "anonymous";
+      document.head.appendChild(katexCSS);
+
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js",
+        integrity: "sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" // !=
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js",
+        integrity: "sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" // ==
+      });
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/copy-tex.min.js",
+        integrity: "sha384-Pe2JWbaShhSRT0SESJ9XLPeAsi4yrNi7r/CiH0Coq7giBjK5a6Ae7XcybE8rNlQP" // ==
+      });
+
+      // Initialize KaTeX
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ],
+        trust: (context) => context.command === "\\href"
+      });
+      // Add custom styles: https://katex.org/docs/issues.html#css-customization
+      const katexStyle = document.createElement("style");
+      katexStyle.textContent = `
+        .katex-display { overflow: hidden; }
+        .docblock p { overflow-y: hidden; }
+      `;
+      document.head.appendChild(katexStyle);
+    }
+
+    // INFO: https://github.com/KaTeX/KaTeX/blob/main/contrib/mhchem/README.md
+    async function loadKatexChem() {
+      console.log("Loading KaTeX MhChem plugin for:", relativePath);
+      await loadScript({
+        src: "https://cdn.jsdelivr.net/npm/katex@0.18.0/dist/contrib/mhchem.min.js",
+        integrity: "sha384-fB8BH//9nBzROkMUsu/Dr35jWHIbnKesUo9rW0hfEgw8mZGnkAyBAjKX9F98OVuo" // ==
+      });
+    }
+
+    /* helper functions */
+
+    function loadScript(config) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = config.src;
+        if (config.integrity) {
+          script.integrity = config.integrity;
+          script.crossOrigin = "anonymous";
+        }
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${config.src}`));
+        document.head.appendChild(script);
+      });
+    }
+    function handleMathError(error) {
+      console.error("Math rendering error:", error);
+    }
+  });
+</script>
+
+<style>
+/* hidden doctest helpers */
+.docblock .devela-hide-next,
+.docblock .devela-hide-next + * { display: none !important; }
+.docblock .example-wrap:has(> pre.rust-example-rendered > code:empty) { display: none; }
+
+/* doc metadata */
+.docblock > p:has(> sup._doc_meta) {
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+  padding: 0.4rem 0.3rem 0 0.3rem;
+  background-color: var(--code-block-background-color);
+  background-color: color-mix(in srgb,
+    var(--code-block-background-color) 50%, var(--main-background-color));
+}
+/* A metadata row with another metadata row later is not the last row. */
+.docblock > p:has(> sup._doc_meta):has(~ p > sup._doc_meta) {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+/* A metadata row with another metadata row before it is not the first row. */
+.docblock > p:has(> sup._doc_meta) ~ p:has(> sup._doc_meta) {
+  padding-top: 0;
+}
+</style>
+
+<style>
+.suite-wip-banner { box-sizing:border-box; display:flex; flex-wrap:wrap;
+  justify-content:center; align-items:baseline; gap:.2rem .55rem;
+  width:100%; margin:0 0 1rem; padding:.3rem .65rem;
+  border:1px solid var(--border-color); border-radius:4px;
+  background:var(--main-background-color); color:var(--main-color);
+  font-size:.75rem; line-height:1.4; }
+.suite-wip-banner > * { white-space:nowrap; }
+.suite-wip-banner > * + *::before { content:"·"; margin-right:.55rem; opacity:.45; }
+.suite-wip-banner a { color:inherit; text-decoration:none; }
+.suite-wip-banner a:hover { text-decoration:underline; }
+.suite-wip-banner .wip { font-weight:700; letter-spacing:.08em; }
+.suite-wip-banner code { font-size:inherit; }
+@media(max-width:700px){ .suite-wip-banner { justify-content:flex-start; font-size:.72rem; } }
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const main = document.querySelector("main");
+    if (!main || main.querySelector(".suite-wip-banner")) return;
+    const banner = document.createElement("aside");
+    banner.className = "suite-wip-banner";
+    banner.setAttribute("aria-label", "WIP documentation build");
+    banner.innerHTML =
+        '<a class="wip" href="/">WIP</a>' +
+        '<a href="https://andamira.github.io/devela/wip/devela/">devela 0.31.0-wip</a>' +
+        '<span>MSRV 1.99.0</span>' +
+        '<span>built 2026-10-26</span>' +
+        '<span>source <a href="https://github.com/andamira/devela/commit/67bfa3185ab81c6aa4f93304535d450292fae922">' +
+        '<code>67bfa318+dirty</code></a></span>';
+    main.prepend(banner);
+});
+</script>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module features</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../devela/index.html">devela</a><span class="version">0.31.0-wip</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module features</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#features-and-flags" title="Features and flags">Features and flags</a><ul><li><a href="#environment-features" title="Environment features">Environment features</a></li><li><a href="#module-and-capability-features" title="Module and capability features">Module and capability features</a></li><li><a href="#safety-features" title="Safety features">Safety features</a></li><li><a href="#scope-features" title="Scope features">Scope features</a></li><li><a href="#dependency-features" title="Dependency features">Dependency features</a></li><li><a href="#development-features" title="Development features">Development features</a></li><li><a href="#nightly-flags" title="Nightly flags">Nightly flags</a></li><li><a href="#reflection-flags" title="Reflection flags">Reflection flags</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In devela::<wbr>_<wbr>doc::<wbr>reference</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">devela</a>::<wbr><a href="../../index.html">_doc</a>::<wbr><a href="../index.html">reference</a></div><h1>Module <span>features</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/devela/_doc/reference/_.rs.html#13">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Cargo features and configuration flags.</p>
+<h3 id="features-and-flags"><a class="doc-anchor" href="#features-and-flags">§</a>Features and flags</h3>
+<p>devela has no default Cargo features. Its baseline remains <code>no_std</code> compatible
+and does not require allocation.</p>
+<p>Features are grouped by purpose: environment, public modules and capabilities,
+safety, implementation scope, optional dependencies, and development support.
+Compiler configuration flags form a separate layer, chiefly for nightly Rust
+and internal feature reflection.</p>
+<p>These groups are meant to compose. One feature may imply another when the first
+has little useful meaning without it; independently useful capabilities remain
+separately selectable.</p>
+<h4 id="environment-features"><a class="doc-anchor" href="#environment-features">§</a>Environment features</h4>
+<p>Without <code>std</code>, devela compiles as <code>no_std</code>.</p>
+<p><code>alloc</code> enables functionality requiring Rust’s allocation facilities.
+<code>std</code> implies <code>alloc</code> and enables functionality requiring the standard library.</p>
+<p>The <code>no_std</code> feature has a narrower meaning: it enables functionality
+that is specifically incompatible with, or acts as a substitute for, <code>std</code>.
+It is not necessary merely to compile devela without the standard library.</p>
+<p><code>std</code> and <code>no_std</code> are mutually exclusive.</p>
+<h4 id="module-and-capability-features"><a class="doc-anchor" href="#module-and-capability-features">§</a>Module and capability features</h4>
+<p>The Rust module tree organizes related abstractions; Cargo features control
+which capabilities and implementations are compiled. The two structures need
+not form the same hierarchy.</p>
+<p><strong>Capability features</strong> such as <code>ratio</code>, <code>prob</code>, <code>prng</code>, <code>audio</code>, or <code>event</code>
+are independently selectable, even when their implementations belong to nested
+modules. They imply other features only when those capabilities are genuinely
+required, not simply because of module ancestry.</p>
+<p><strong>Module-family features</strong> such as <code>data</code>, <code>media</code>, <code>num</code>, and <code>ui</code> are curated
+entry points for their domains. Their base selections may be intentionally
+small, initially empty, or expanded as useful low-cost bundles emerge.</p>
+<p><strong>Aggregate features</strong> ending in <code>_all</code> collect the ordinary public
+capabilities of a thematic family, including its base feature where defined.</p>
+<p>An implementation family may also keep a <strong>local generation registry</strong>:
+its canonical variants are generated once under <code>#[cfg]</code> conditions matching
+the needs of consuming modules, while a public feature (such as <code>ratio</code>)
+enables its complete predefined set. The registry and its consumers keep
+those conditions synchronized; no separate Cargo feature is needed
+for every primitive width or generated variant.</p>
+<p>Environment (<code>alloc</code>, <code>std</code>), safety (<code>unsafe_*</code>), scope, dependencies, and
+platform/backend capabilities remain independently selectable, except where a
+particular capability requires them. In particular, <code>sys_all</code> collects ordinary
+portable system facilities without automatically enabling all operating-system,
+device, or backend implementations.</p>
+<h4 id="safety-features"><a class="doc-anchor" href="#safety-features">§</a>Safety features</h4>
+<p>Safety features follow two independent axes.</p>
+<p>Features named <code>safe_*</code> forbid unsafe code within a module or module family.
+For example, <code>safe_media</code> includes its audio, font, and visual safety scopes,
+while <code>safe_sys</code> includes <code>safe_io</code> and <code>safe_mem</code>.</p>
+<p>Features named <code>unsafe_*</code> enable unsafe implementation capabilities by purpose,
+such as <code>unsafe_ffi</code>, <code>unsafe_layout</code>, or <code>unsafe_syscall</code>.</p>
+<p><code>safe</code> enables the library-wide module safety set. <code>unsafe</code> enables all
+supported unsafe-purpose features. Enabling <code>safe</code> together with <code>unsafe</code>
+or any <code>unsafe_*</code> feature is rejected.</p>
+<p>Individual <code>safe_*</code> features may instead be combined with selected unsafe
+purposes to forbid unsafe code only in particular parts of the library.</p>
+<p><code>safest</code> extends <code>safe</code> by forbidding unsafe code transitively in dependencies,
+apart from Rust’s <code>core</code>, <code>alloc</code>, and <code>std</code>.</p>
+<p>When an <code>unsafe_*</code> feature changes the behavior or implementation of an
+otherwise available API, the effect is described in that item’s <code># Features</code>
+section. For example, <a href="../../../all/trait.RasterSamplePacked.html" title="trait devela::all::RasterSamplePacked"><code>RasterSamplePacked</code></a> accepts any <a href="../../../all/trait.MemPod.html" title="trait devela::all::MemPod"><code>MemPod</code></a> sample type
+when <code>unsafe_layout</code> is enabled.</p>
+<h4 id="scope-features"><a class="doc-anchor" href="#scope-features">§</a>Scope features</h4>
+<p>Features beginning with a single underscore, such as <code>_tuple</code>, <code>_unroll</code>, or
+<code>_docs</code>, are semi-hidden scope controls. They expand generated implementations,
+documentation coverage, or other internal scope.</p>
+<p>They are not ordinary public capabilities and may noticeably increase compile time.
+Examples include:</p>
+<p><code>_unroll*</code> selecting greater generated unrolling depth;
+<code>_tuple*</code> selecting greater generated tuple arity;
+<code>_data_all</code> expanding hidden data coverage;
+<code>_max</code> and <code>_maxest</code> selecting broad internal coverage;
+<code>_docs*</code> assembling documentation configurations;
+and <code>_linux_abi</code> exposing additional Linux ABI scope.</p>
+<p>Public features such as <code>data_all</code> or <code>ui_all</code> are not scope features despite
+their similar suffix: they select public capability families.</p>
+<h4 id="dependency-features"><a class="doc-anchor" href="#dependency-features">§</a>Dependency features</h4>
+<p>Optional external dependencies use the <code>dep_*</code> prefix,
+with dashes converted to underscores where necessary.</p>
+<p>For example, <code>dep_hashbrown</code> or <code>dep_rand_core</code> selects that external dependency
+explicitly. <code>dep_all</code> enables the complete optional-dependency set.</p>
+<p>A capability may enable a dependency feature transitively when that dependency
+is intrinsic to the capability. Convenience groups such as <code>work_deps</code>
+may also select a small related set together.</p>
+<h4 id="development-features"><a class="doc-anchor" href="#development-features">§</a>Development features</h4>
+<p>Features beginning with <code>__</code> are reserved for development, maintenance, testing,
+publishing, and documentation machinery rather than normal library capability.</p>
+<p>Current examples include <code>__dbg</code>, <code>__std</code>, <code>__publish</code>, <code>__docs_internal</code>,
+<code>__disable_native_libs</code>, <code>__exclude_test</code>, and <code>__force_miri_dst</code>.</p>
+<p><code>__select_modules</code> enables root-module selection during development. Normally
+all root modules are present, regardless of their corresponding module-family
+features. With <code>__select_modules</code>, only <code>code</code> and <code>yard</code> are always included;
+other roots are compiled when their root feature is explicitly enabled.
+The development feature enables <code>code</code> automatically because its macros
+bootstrap the root module declarations.</p>
+<p><code>-F __select_modules,num</code> selects the <code>code</code>, <code>yard</code>, and <code>num</code> roots. Some root families
+still have dependencies on others; this mode is intended to expose and refine
+those dependencies, not to guarantee that every selection already compiles.
+The WIP <code>error</code> and <code>vita</code> roots can be selected separately but are not members
+of the public <code>all</code> capability aggregate.</p>
+<p>Their exact set may change with project tooling
+and should not be treated as a stable public capability surface.</p>
+<h4 id="nightly-flags"><a class="doc-anchor" href="#nightly-flags">§</a>Nightly flags</h4>
+<p>Nightly configuration uses compiler <code>cfg</code> flags rather than Cargo features.</p>
+<p>For example:</p>
+<div class="example-wrap"><pre class="language-sh"><code>RUSTFLAGS=&quot;--cfg nightly_simd&quot; cargo +nightly build</code></pre></div>
+<p>Specific flags enable selected unstable facilities, while versioned
+<code>nightly_stable_*</code> flags cover functionality expected from upcoming stable Rust
+releases. <code>nightly_stable_later</code> collects candidates farther from the current MSRV.</p>
+<p>The maintained release-by-release inventory lives in <code>docs/nightly.md</code>.</p>
+<h4 id="reflection-flags"><a class="doc-anchor" href="#reflection-flags">§</a>Reflection flags</h4>
+<p>devela’s build machinery derives internal reflection flags
+from enabled features and configuration.</p>
+<p>These use a <code>··</code> suffix, such as <code>num··</code>, <code>dep··</code>, or <code>nightly··</code>, and answer
+questions such as whether any feature in a broader family is active.</p>
+<p>They are internal summary flags. Users normally enable the original Cargo
+feature or <code>nightly_*</code> configuration flag rather than setting them directly.</p>
+</div></details></section></div></main></body></html>

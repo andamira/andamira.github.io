@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["any_type_name"],"struct":["TypeId"],"trait":["Any","AnyExt"]};

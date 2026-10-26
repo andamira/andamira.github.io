@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BTreeMapEntry","HashMapEntry","MapFixedEntry"],"macro":[["map",1]],"struct":["BTreeMap","HashMap","MapFixedConstU8Example","MapFixedTypeIdExample","MapFixedU8Example"],"type":["HashMapFx","HashMapStd"]};
